@@ -1,0 +1,7 @@
+parser protocol;
+
+protocol class Talker {
+
+    talk();
+
+}

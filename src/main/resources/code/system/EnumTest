@@ -1,0 +1,28 @@
+parser system;
+
+imports {
+    Int;
+    Status;
+    Exit;
+}
+
+dependencies {
+    BumpAdministrator;
+}
+
+EnumTest {
+
+    main() {
+        Int x 0;
+        Status s (Error);
+        s match(Success) {
+            x + 2;
+        } (Error) {
+            x + 4;
+        } (Waiting) {
+            x + 6;
+        };
+        Exit;
+    }
+
+}

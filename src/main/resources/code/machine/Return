@@ -1,0 +1,9 @@
+parser machine;
+
+Return {
+
+    constructor() {
+        logician(STOP_ADMIN);
+    }
+
+}

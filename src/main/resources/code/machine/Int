@@ -1,0 +1,108 @@
+parser machine;
+
+Int {
+
+    byte[4] val;
+
+    constructor(b32 imm) {
+        l(ADD, II, LDA, val, IL, 0d0, AL, imm);
+    }
+
+    constructor(Int copy) {
+        l(ADD, AI, LDA, val, ADA, copy.val, IL, 0d0);
+    }
+
+    constructor(Char char) {
+        l(ADD, AI, LDA, val, ADA, char.val, IL, 0d0);
+    }
+
+    constructor port() {
+        logician(GET_TASK, val);
+        l(ADD, AI, LDA, val, LDA, val, LDA, val);
+        admin(PORT, val);
+    }
+
+    constructor task() {
+        logician(GET_TASK, val);
+    }
+
+    constructor altTask() {
+        logician(GET_ALT_TASK, val);
+    }
+
+    constructor altMethod() {
+        logician(GET_ALT_METHOD, val);
+    }
+
+    constructor currentObject() {
+        logician(GET_OBJECT, val);
+    }
+
+    constructor currentTable() {
+        logician(GET_TABLE, val);
+    }
+
+    plus(b32 imm) {
+        l(ADD, AI, LDA, val, LDA, val, AL, imm);
+    }
+
+    minus(b32 imm) {
+        l(SUB, AI, LDA, val, LDA, val, AL, imm);
+    }
+
+    plus(Int in) {
+        l(ADD, AA, LDA, val, LDA, val, ADA, in.val);
+    }
+
+    plusInt(Int in) {
+        l(ADD, AA, LDA, val, LDA, val, ADA, in.val);
+    }
+
+    multiply(b32 imm) {
+        l(MUL, AI, LDA, val, LDA, val, AL, imm);
+    }
+
+    greaterThan(b32 imm, Boolean dest) {
+        l(SGT, AI, ADA, dest.val, LDA, val, AL, imm);
+    }
+
+    lessThan(b32 imm, Int dest) {
+        l(SLT, AI, ADA, dest.val, LDA, val, AL, imm);
+    }
+
+    set(Int x) {
+        l(ADD, AI, LDA, val, ADA, x.val, IL, 0d0);
+    }
+
+    lessThan(b32 imm, Boolean dest) {
+        l(SLT, AI, ADA, dest.val, LDA, val, AL, imm);
+    }
+
+    if(Int in, Block block) {
+        Addr after;
+        cb(NEQ, LDA, val, ADA, in.val, after);
+        block;
+        Addr after;
+    }
+
+    ifNot(Int in, Block block) {
+        Addr after;
+        cb(EQ, LDA, val, ADA, in.val, after);
+        block;
+        Addr after;
+    }
+
+    jumpPlusAddr(b32 imm) {
+        j(REL, I, here);
+        l(ADD, AI, LDA, val, LDA, val, AL, imm);
+        Addr here;
+        l(ADD, AI, LDA, val, LDA, val, AL, imm);
+    }
+
+    plusTwice(b32 imm) {
+        byte[4] tmpVal;
+        l(ADD, AI, LDA, tmpVal, LDA, val, AL, imm);
+        l(ADD, AI, LDA, val, LDA, tmpVal, AL, imm);
+    }
+
+}

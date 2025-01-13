@@ -1,0 +1,29 @@
+parser system;
+
+imports {
+    Byte;
+    Int;
+    Boolean;
+    If;
+    Exit;
+}
+
+dependencies {
+    BumpAdministrator;
+}
+
+IfTest {
+
+    main() {
+        Int x 0;
+        Boolean a false;
+        Boolean b true;
+        If(a) {
+            x + 5 + 5;
+        } elseIf(b) {
+            x + 20;
+        };
+        Exit;
+    }
+
+}

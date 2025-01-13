@@ -1,0 +1,32 @@
+parser machine;
+
+OutputStream {
+
+    byte[4] root;
+    byte[4] current;
+
+    constructor(Int in) {
+        l(ADD, AI, LDA, root, ADA, in.val, IL, 0d0);
+        l(ADD, AI, LDA, current, ADA, in.val, IL, 0d0);
+    }
+
+    constructor port() {
+        logician(GET_TASK, root);
+        l(ADD, AI, LDA, root, LDA, root, LDA, root);
+        admin(PORT, root);
+        l(ADD, AI, LDA, current, LDA, root, IL, 0d0);
+    }
+
+    writeFromInt(Int x) {
+        m(COPY, PA, LDA, current, ADA, x, ADS, x);
+        l(ADD, AI, LDA, current, LDA, current, IL, 0d4);
+    }
+
+    writeFromString(String str) {
+        m(COPY, PP, LDA, current, ADA, str.start, ADA, str.size);
+        l(ADD, AI, LDA, current, LDA, current, ADA, str.size);
+    }
+
+
+
+}

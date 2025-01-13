@@ -1,0 +1,19 @@
+parser machine;
+
+Logician {
+
+    constructor schedule(Int objectAddr, Int tableAddr, Int methodAddr, Int taskAddr, Int adminTaskAddr) {
+        logician(SET_OBJECT, ADA, objectAddr.val);
+        logician(SET_TABLE, ADA, tableAddr.val);
+        logician(SET_ALT_TASK, ADA, adminTaskAddr.val);
+        logician(SET_METHOD_AND_TASK, ADA, methodAddr.val, ADA, taskAddr.val);
+    }
+
+    constructor resume(Int objectAddr, Int tableAddr, Int methodAddr, Int taskAddr, Int adminTaskAddr) {
+        logician(SET_OBJECT, ADA, objectAddr.val);
+        logician(SET_TABLE, ADA, tableAddr.val);
+        logician(SET_ALT_TASK, ADA, adminTaskAddr.val);
+        logician(SET_METHOD_AND_TASK, ADA, methodAddr.val, ADA, taskAddr.val);
+    }
+
+}

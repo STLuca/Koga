@@ -1,0 +1,34 @@
+parser system;
+
+imports {
+    Byte;
+    Int;
+    Reference;
+    InterfaceReference;
+    MachineClass;
+    Exit;
+    AdminRef;
+}
+
+dependencies {
+    List;
+    ArrayList;
+    BumpAdministrator;
+}
+
+ListTest {
+
+    main() {
+        AdminRef admin init();
+        Reference<ArrayList> arrayList new();
+        InterfaceReference<List> list (arrayList);
+        MachineClass<Int> mc ();
+        Int size 5;
+        list init(mc size);
+        Int index 3;
+        Int value 99;
+        list set(index value);
+        Exit;
+    }
+
+}

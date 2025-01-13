@@ -1,0 +1,82 @@
+parser machine;
+
+String {
+
+    byte[4] size;
+    byte[4] start;
+    byte[4] step;
+
+    constructor(Int s) {
+        l(ADD, AI, LDA, size, ADA, s.val, IL, 0d0);
+        l(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+    }
+
+    constructor new(Int s) {
+        l(ADD, AI, LDA, size, ADA, s.val, IL, 0d0);
+        l(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+        logician(GET_TASK, start);
+        l(ADD, AI, LDA, start, LDA, start, LDA, start);
+        admin(ALLOCATE, start, size);
+    }
+
+    constructor(Name const) {
+        symbol(CONST, constSymbol, AL, const);
+        c(ADDR, I, start, constSymbol);
+        c(SIZE, I, size, constSymbol);
+        l(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+    }
+
+    constructor(b8[] const) {
+        c(ADDR, I, start, const);
+        c(SIZE, I, size, const);
+        l(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+    }
+
+    constructor readFrom(InputStream in) {
+        m(COPY, AP, LDA, size, ADA, in.current, LDS, size);
+        l(ADD, AI, ADA, in.current, ADA, in.current, IL, 0d4);
+        l(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+        logician(GET_TASK, start);
+        l(ADD, AI, LDA, start, LDA, start, LDA, start);
+        admin(ALLOCATE, start, size);
+        m(COPY, PP, LDA, start, ADA, in.current, LDA, size);
+        l(ADD, AA, ADA, in.current, ADA, in.current, LDA, size);
+    }
+
+    copyTo(OutputStream out) {
+        m(COPY, PA, ADA, out.current, LDA, size, LDS, size);
+        l(ADD, AI, ADA, out.current, ADA, out.current, IL, 0d4);
+        m(COPY, PP, ADA, out.current, LDA, start, LDA, size);
+        l(ADD, AI, ADA, out.current, ADA, out.current, LDA, size);
+    }
+
+    equalTo(String in, Boolean dest) {
+        Addr setFalse;
+        Addr setTrue;
+        Addr end;
+        cb(NEQ, AA, LDA, size, ADA, in.size, setFalse);
+        byte[4] thisAddr;
+        byte[1] thisVal;
+        byte[4] inAddr;
+        byte[1] inVal;
+        byte[4] endAddr;
+        l(ADD, AI, LDA, thisAddr, LDA, start, IL, 0d0);
+        l(ADD, AI, LDA, inAddr, ADA, in.start, IL, 0d0);
+        l(ADD, AA, LDA, endAddr, LDA, thisAddr, LDA, size);
+        Addr loop;
+        cb(EQ, AA, LDA, thisAddr, LDA, endAddr, setTrue);
+        m(COPY, AP, LDA, thisVal, LDA, thisAddr, LDS, thisVal);
+        m(COPY, AP, LDA, inVal, LDA, inAddr, LDS, inVal);
+        cb(NEQ, AA, LDA, thisVal, LDA, inVal, setFalse);
+        l(ADD, AI, LDA, thisAddr, LDA, thisAddr, IL, 0d1);
+        l(ADD, AI, LDA, inAddr, LDA, inAddr, IL, 0d1);
+        j(REL, I, loop);
+        Addr setTrue;
+        l(ADD, II, ADA, dest.val, IL, 0d1, IL, 0d0);
+        j(REL, I, end);
+        Addr setFalse;
+        l(ADD, II, ADA, dest.val, IL, 0d0, IL, 0d0);
+        Addr end;
+    }
+
+}

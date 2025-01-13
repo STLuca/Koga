@@ -1,0 +1,45 @@
+parser system;
+
+imports {
+    InputStream;
+    OutputStream;
+    Int;
+    Pointer;
+    AdminRef;
+    Boolean;
+    While;
+    String;
+    MemberReference;
+    Exit;
+}
+
+dependencies {
+    Talker;
+    BumpAdministrator;
+}
+
+constants {
+    hello "hello server";
+}
+
+TalkerTwo {
+
+    init() {
+        AdminRef admin init();
+
+        Int instance 1;
+        InputStream talkIn port();
+        OutputStream talkOut port();
+
+        String str (hello);
+        str copyTo talkOut;
+
+        MemberReference<Talker> talker (instance);
+        talker talk(talkOut talkIn);
+        talkIn wait();
+
+        String result readFrom(talkIn);
+        Exit;
+    }
+
+}

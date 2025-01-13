@@ -1,0 +1,9 @@
+parser machine;
+
+Task {
+
+    constructor complete() {
+        admin(COMPLETE);
+    }
+
+}

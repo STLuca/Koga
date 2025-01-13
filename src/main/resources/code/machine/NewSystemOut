@@ -1,0 +1,87 @@
+parser machine;
+
+NewSystemOut {
+
+    byte[4] ptr;
+
+    constructor() {
+        symbol(SYSTEM, sysOutSymbol, IL, SystemOut);
+        c(ADDR, I, root, sysOutSymbol);
+    }
+
+    connect(Int index, Int instance, Int protocol, Int method, Int pageOne, Int pageTwo) {
+        byte[4] addr;
+        l(MUL, AA, LDA, addr, ADA, index.val, IL, 0d64);
+        l(ADD, AI, LDA, addr, LDA, addr, LDA, ptr);
+
+        byte[4] type;
+        l(ADD, II, LDA, type, IL, 0d0, IL, 0d1);
+
+        m(COPY, PA, LDA, addr, LDA, type, LDS, type);
+        l(ADD, AI, LDA, addr, LDA, addr, LDS, type);
+        m(COPY, PA, LDA, addr, ADA, instance.val, ADS, instance.val);
+        l(ADD, AI, LDA, addr, LDA, addr, ADS, instance.val);
+        m(COPY, PA, LDA, addr, ADA, protocol.val, ADS, protocol.val);
+        l(ADD, AI, LDA, addr, LDA, addr, ADS, protocol.val);
+        m(COPY, PA, LDA, addr, ADA, method.val, ADS, method.val);
+        l(ADD, AI, LDA, addr, LDA, addr, ADS, method.val);
+        m(COPY, PA, LDA, addr, ADA, pageOne.val, ADS, pageOne.val);
+        l(ADD, AI, LDA, addr, LDA, addr, ADS, pageOne.val);
+        m(COPY, PA, LDA, addr, ADA, pageTwo.val, ADS, pageTwo.val);
+        l(ADD, AI, LDA, addr, LDA, addr, ADS, pageTwo.val);
+
+        i(PORT_WRITTEN, ADA, index.val);
+    }
+
+    connected(Int index, Int pageCount, Int pageOne, Int pageTwo) {
+        byte[4] addr;
+        l(ADD, AI, LDA, addr, LDA, index, IL, 0d1);
+        l(MUL, AA, LDA, addr, LDA, addr, ADA, index.val);
+        l(ADD, AI, LDA, addr, LDA, addr, LDA, ptr);
+
+        byte[4] type;
+        l(ADD, II, LDA, type, IL, 0d0, IL, 0d2);
+
+        m(COPY, PA, LDA, addr, LDA, type, LDS, type);
+        l(ADD, AI, LDA, addr, LDA, addr, LDS, type);
+        m(COPY, PA, LDA, addr, ADA, pageCount.val, ADS, pageCount.val);
+        l(ADD, AI, LDA, addr, LDA, addr, ADS, pageCount.val);
+        m(COPY, PA, LDA, addr, ADA, pageOne.val, ADS, pageOne.val);
+        l(ADD, AI, LDA, addr, LDA, addr, ADS, pageOne.val);
+        m(COPY, PA, LDA, addr, ADA, pageTwo.val, ADS, pageTwo.val);
+        l(ADD, AI, LDA, addr, LDA, addr, ADS, pageTwo.val);
+
+        i(PORT_WRITTEN, ADA, index.val);
+    }
+
+    allocatePage(Int index, Int localPage) {
+        byte[4] addr;
+        l(MUL, AA, LDA, addr, ADA, index.val, IL, 0d64);
+        l(ADD, AI, LDA, addr, LDA, addr, LDA, ptr);
+
+        byte[4] type;
+        l(ADD, II, LDA, type, IL, 0d0, IL, 0d3);
+
+        m(COPY, PA, LDA, addr, LDA, type, LDS, type);
+        l(ADD, AI, LDA, addr, LDA, addr, LDS, type);
+        m(COPY, PA, LDA, addr, ADA, localPage.val, ADS, localPage.val);
+        l(ADD, AI, LDA, addr, LDA, addr, ADS, localPage.val);
+
+        i(PORT_WRITTEN, ADA, index.val);
+    }
+
+    exit(Int index) {
+        byte[4] addr;
+        l(MUL, AA, LDA, addr, ADA, index.val, IL, 0d64);
+        l(ADD, AI, LDA, addr, LDA, addr, LDA, ptr);
+
+        byte[4] type;
+        l(ADD, II, LDA, type, IL, 0d0, IL, 0d4);
+
+        m(COPY, PA, LDA, addr, LDA, type, LDS, type);
+        l(ADD, AI, LDA, addr, LDA, addr, LDS, type);
+
+        i(PORT_WRITTEN, ADA, index.val);
+    }
+
+}

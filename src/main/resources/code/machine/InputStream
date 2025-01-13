@@ -1,0 +1,50 @@
+parser machine;
+
+InputStream {
+
+    byte[4] root;
+    byte[4] current;
+
+    constructor(Int in) {
+        l(ADD, AI, LDA, root, ADA, in.val, IL, 0d0);
+        l(ADD, AI, LDA, current, ADA, in.val, IL, 0d0);
+    }
+
+    constructor port() {
+        logician(GET_TASK, root);
+        l(ADD, AI, LDA, root, LDA, root, LDA, root);
+        admin(PORT, root);
+        l(ADD, AI, LDA, current, LDA, root, IL, 0d0);
+    }
+
+    peek(Int x) {
+        m(COPY, AP, ADA, x, LDA, current, ADS, x);
+    }
+
+    readToInt(Int x) {
+        m(COPY, AP, ADA, x, LDA, current, ADS, x);
+        l(ADD, AI, LDA, current, LDA, current, IL, 0d4);
+    }
+
+    readToString(String s) {
+        l(ADD, AI, ADA, s.start, LDA, current, IL, 0d0);
+        l(ADD, AA, current, current, s.size);
+    }
+
+    copyToString(String s) {
+        m(COPY, PP, ADA, s.start, LDA, current, ADA, s.size);
+        l(ADD, AA, current, current, s.size);
+    }
+
+    wait() {
+        address(end, EMBEDDED, EMBEDDED);
+        byte[4] in;
+        l(ADD, II, LDA, in, IL, 0d0, IL, 0d0);
+        Addr read;
+        m(COPY, AP, LDA, in, LDA, current, LDS, in);
+        cb(NEQ, AI, LDA, in, IL, 0d0, end);
+        j(REL, I, read);
+        Addr end;
+    }
+
+}

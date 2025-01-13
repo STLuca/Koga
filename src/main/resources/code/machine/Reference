@@ -1,0 +1,81 @@
+parser machineReference;
+
+Reference<R> {
+
+    byte[4] objectAddr;
+    byte[4] objectTable;
+
+    constructor(b16 imm) {
+        l(ADD, II, LDA, objectAddr, IL, 0d0, AL, imm);
+        symbol(CLASS, classSymbol, LG, R);
+        c(ADDR, I, objectTable, classSymbol);
+    }
+
+    constructor this() {
+        logician(GET_OBJECT, objectAddr);
+        logician(GET_TABLE, objectTable);
+    }
+
+    constructor alt() {
+        logician(GET_ALT_OBJECT, objectAddr);
+        logician(GET_ALT_TABLE, objectTable);
+    }
+
+    constructor new() {
+        byte[4] objectSize;
+        symbol(CLASS, classSymbol, LG, R);
+        c(SIZE, I, objectSize, classSymbol);
+        logician(GET_TASK, objectAddr);
+        l(ADD, AI, LDA, objectAddr, LDA, objectAddr, LDA, objectAddr);
+        admin(ALLOCATE, objectAddr, objectSize);
+        c(ADDR, I, objectTable, classSymbol);
+    }
+
+    invoke(Name methodName) {
+        byte[4] frameSize;
+        byte[4] methodAddr;
+        byte[4] newFrame;
+        logician(GET_TASK, newFrame);
+        l(ADD, AI, LDA, newFrame, LDA, newFrame, LDA, newFrame);
+        symbol(METHOD, methodSymbol, LG, R, AL, methodName);
+        c(SIZE, I, frameSize, methodSymbol);
+        c(ADDR, I, methodAddr, methodSymbol);
+
+        byte[4] adminTaskMethod;
+        symbol(METHOD, adminTaskSymbol, IL, Administrator, IL, task);
+        c(ADDR, I, adminTaskMethod, adminTaskSymbol);
+        byte[4] adminTask;
+        logician(GET_ALT_TASK, adminTask);
+        m(COPY, PA, LDA, adminTask, LDA, newFrame, LDS, newFrame);
+        l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, newFrame);
+        m(COPY, PA, LDA, adminTask, LDA, objectAddr, LDS, objectAddr);
+        l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, objectAddr);
+        m(COPY, PA, LDA, adminTask, LDA, objectTable, LDS, objectTable);
+        l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, objectTable);
+        m(COPY, PA, LDA, adminTask, LDA, methodAddr, LDS, methodAddr);
+        l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, methodAddr);
+        m(COPY, PA, LDA, adminTask, LDA, frameSize, LDS, frameSize);
+        logician(START_ADMIN, LDA, adminTaskMethod);
+
+        byte[4] frameDataAddr;
+        l(ADD, AI, LDA, frameDataAddr, LDA, newFrame, IL, 0d0);
+        args();
+
+        byte[4] adminScheduleMethod;
+        symbol(METHOD, adminScheduleSymbol, IL, Administrator, IL, schedule);
+        c(ADDR, I, adminScheduleMethod, adminScheduleSymbol);
+        logician(GET_ALT_TASK, adminTask);
+        m(COPY, PA, LDA, adminTask, LDA, newFrame, LDS, newFrame);
+        logician(START_ADMIN, LDA, adminScheduleMethod);
+    }
+
+    arg(Any a) {
+        m(COPY, PA, LDA, frameDataAddr, ADA, a, ADS, a);
+        l(ADD, AI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
+    }
+
+    reference(b16 fieldSymbol, Pointer dest) {
+        c(ADDR, I, dest.addr, fieldSymbol);
+    }
+
+}

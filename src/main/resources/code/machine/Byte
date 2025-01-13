@@ -1,0 +1,15 @@
+parser machine;
+
+Byte {
+                
+    byte[1] val;
+
+    constructor(b8 imm) {
+        l(ADD, II, LDA, val, IL, 0d0, AL, imm);
+    }
+
+    plus(b8 imm) {
+        l(ADD, AI, val, val, imm);
+    }
+
+}

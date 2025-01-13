@@ -1,0 +1,20 @@
+parser machine;
+
+BumpAdminTask {
+
+    byte[4] taskAddr;
+    byte[4] object;
+    byte[4] table;
+    byte[4] instruction;
+    byte[4] altTask;
+    byte[4] return;
+
+    constructor loadInAdmin() {
+        logician(GET_ALT_TASK, taskAddr);
+        logician(GET_OBJECT, object);
+        logician(GET_TABLE, table);
+        logician(GET_ALT_METHOD, instruction);
+        logician(GET_TASK, altTask);
+    }
+
+}

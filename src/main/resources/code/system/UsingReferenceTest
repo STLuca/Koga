@@ -1,0 +1,32 @@
+parser system;
+
+imports {
+    Byte;
+    Int;
+    Reference;
+    Pointer;
+    Exit;
+    AdminRef;
+}
+
+dependencies {
+    Fields;
+    BumpAdministrator;
+}
+
+UsingReferenceTest {
+
+    Reference<Fields> f;
+
+    main() {
+        AdminRef admin init();
+        Int x 99;
+        Reference<UsingReferenceTest> this this();
+        Reference<Fields> new new();
+        Pointer<Reference> thisF (this f);
+        thisF <- new;
+        new addInput(x);
+        Exit;
+    }
+
+}

@@ -1,0 +1,64 @@
+parser system;
+
+imports {
+    InputStream;
+    OutputStream;
+    AdminRef;
+    Int;
+    Boolean;
+    While;
+    If;
+    Array;
+    ArrayPointer;
+    Pointer;
+    Thread;
+    String;
+    Reference;
+    Task;
+    Exit;
+}
+
+dependencies {
+    BumpAdministrator;
+}
+
+Server {
+
+    init() {
+        AdminRef admin init();
+
+        Array<Int> pages (2);
+        Int junk 69;
+        admin listen(junk junk pages);
+
+        ArrayPointer<Int> pagesPtr (pages);
+        Int port;
+        pagesPtr # 0 -> port;
+        InputStream talkIn (port);
+        pagesPtr # 1 -> port;
+        OutputStream talkOut (port);
+
+        Reference<Server> t this();
+
+        t talk(talkIn talkOut);
+
+        Exit;
+    }
+
+    talk(InputStream in, OutputStream out) {
+
+        String str readFrom(in);
+        String expected "hello server";
+        Boolean isGreeting { str == expected; };
+        If (isGreeting) {
+            String response "hello client";
+            response copyTo out;
+        } else {
+            String response "huh";
+            response copyTo out;
+        };
+
+        Task t complete();
+    }
+
+}

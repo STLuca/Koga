@@ -1,0 +1,11 @@
+parser machine;
+
+MachineClass<T> {
+
+    byte[4] size;
+
+    constructor() {
+        l(ADD, II, LDA, size, IL, 0d0, LG, T);
+    }
+
+}

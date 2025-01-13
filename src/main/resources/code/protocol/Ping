@@ -1,0 +1,5 @@
+namespace com.losm;
+
+structure Ping {
+    word[1] num;
+}

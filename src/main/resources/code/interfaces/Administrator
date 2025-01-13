@@ -1,0 +1,24 @@
+parser interface;
+
+imports {
+    Int;
+    Pointer;
+    Array;
+}
+
+Administrator {
+
+    init();
+    exit();
+
+    allocate(Pointer p, Int size);
+    port(Pointer res);
+
+    task(Pointer idOut, Int objectAddr, Int objectTableAddr, Int methodAddr, Int methodSize);
+    schedule(Int taskAddr);
+    complete(Int taskAddr);
+
+    connect(Int instance, Int protocol, Int method, Int talkIn, Int talkOut);
+    listen(Int protocol, Int method, Array ports);
+
+}

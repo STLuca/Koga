@@ -1,0 +1,24 @@
+parser host;
+
+imports {
+    Byte;
+    Int;
+    Boolean;
+    Exit;
+    AdminRef;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+IntCompareToBoolTest {
+
+    main() {
+        Int x 10;
+        Boolean y false;
+        x < (15 y);
+        Exit;
+    }
+
+}

@@ -1,0 +1,1547 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Syntax and examples</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+</head>
+<body>
+<main>
+
+    <header>
+        <h1><a href="./">Koga</a></h1>
+    </header>
+
+    <p>
+        In Koga, most of your typical language constructs are implemented using the language.
+        The examples here try to show roughly how these constructs are implemented, along with how they are used.
+        This isn't the best way to teach the language concepts though, I will write more concept oriented documentation eventually.
+    </p>
+
+    <ol>
+        <li><a href="#Int">Int</a></li>
+        <li><a href="#If">If</a></li>
+        <li><a href="#While">While</a></li>
+        <li><a href="#Switch">Switch</a></li>
+        <li><a href="#Enums">Enums</a></li>
+        <li><a href="#Pointer">Pointer</a></li>
+        <li><a href="#Array">Array</a></li>
+        <li><a href="#String">String</a></li>
+        <li><a href="#Administrator">Administrator</a></li>
+        <li><a href="#Reference">Reference, Fields, and Methods</a></li>
+        <li><a href="#HelloWorld">Hello world!</a></li>
+        <li><a href="#Concurrency">Concurrency</a></li>
+    </ol>
+
+    <h3>Introduction</h3>
+
+    <p>
+        There are a few things to understand before learning the syntax.
+        This will be a very brief introduction that should make more sense as you read through this page.
+        We'll work up to a "Hello world" example.
+    </p>
+
+    <p>
+        The language is compiling to Documents, which could be considered analogous to JVM class files.
+        They are abstract formats that can be of multiple types: Host, Hosted, Interface.
+        Host documents have their own memory space and Hosted exists in a Host's memory space.
+        These documents can have methods and these methods have instructions for an abstract machine.
+    </p>
+
+    <p>
+        At the core of the language are two interfaces: Usable and Compilable.
+        A Compilable is the simplest, this has a compile(DocumentBuilder) method.
+        A Usable has a few methods, all fairly similar: declare, construct, and invoke, all accept a MethodBuilder.
+        An example of a Compilable would be ArrayList, examples of Usable would be Int, Boolean, If, While.
+    </p>
+
+    <p>
+        Each Koga file starts by naming the parser it wants to use.
+        A parser will read the file and construct a Usable or Compilable.
+    </p>
+
+    <h3 id="Int">Byte and Int</h3>
+    <pre><code>
+    parser machine;
+
+    Byte {
+
+        byte[1] val;
+
+        constructor(b8 imm) {
+            l(ADD, II, LDA, val, IL, 0d0, AL, imm);
+        }
+
+        plus(b8 imm) {
+            l(ADD, AI, val, val, imm);
+        }
+
+    }
+    </code>
+    </pre>
+    <pre>
+    <code>
+    parser machine;
+
+    Int {
+
+        byte[4] val;
+
+        constructor(b32 imm) {
+            l(ADD, II, LDA, val, IL, 0d0, AL, imm);
+        }
+
+        constructor(Int copy) {
+            l(ADD, AI, LDA, val, ADA, copy.val, IL, 0d0);
+        }
+
+        plus(b32 imm) {
+            l(ADD, AI, LDA, val, LDA, val, AL, imm);
+        }
+
+        plus(Int in) {
+            l(ADD, AA, LDA, val, LDA, val, ADA, in.val);
+        }
+
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    parser host;
+
+    imports {
+        Byte;
+        Int;
+    }
+
+    ByteAndIntTest {
+
+        main() {
+            Byte x 0;
+            Int y 0;
+            Byte z 0;
+
+            x + 10;
+            y + 25;
+            z + 111;
+            y + y;
+        }
+
+    }
+    </code>
+    </pre>
+
+    <p>
+        These are basic example definitions of Byte and Int, it should look familiar to programmers.
+        There are a lot of concepts being introduced already: parsers, fields, constructors, machine methods, instruction builders, imports, system methods, system statements.
+    </p>
+    <p>
+        A compiled instruction has a type e.g. logic (l) or jump (j), a subtype e.g. ADD or AND or OR, an input type e.g. AI address-immediate, a destination, and two sources.
+    </p>
+    <ul>
+        <li>a type e.g. logic (l) or jump (j)</li>
+        <li>a subtype e.g. ADD or AND or OR</li>
+        <li>an input type e.g. AI address-immediate. </li>
+        <li>a destination</li>
+        <li>two sources</li>
+    </ul>
+
+    <p>
+        The input type is how the instruction should interpret the source values.
+        Each source needs an input type, so the instruction input type will have two values chained together e.g. A and I is AI.
+        There are currently four input types:
+    </p>
+    <ul>
+        <li>
+            Register (R) - a register from the small selection of processor registers e.g. task, instruction, object, table.
+            I only recently added this one, you won't see it used much.
+        </li>
+        <li>Immediate (I) - the instruction stores the direct value, no need to load a value from memory</li>
+        <li>Address (A) - the task relative location of a value to load</li>
+        <li>Pointer (P) - the task relative location of a value to load, which is itself an address to load again</li>
+    </ul>
+    <p>
+        The machine parser builds MachineUsable objects.
+        These have things like fields, constructions, and methods.
+        The constructors and methods have names, parameters and a sequence of Statements.
+        The most common statement is an instruction builder, in the examples above all statements are instruction builders.
+        An instruction builder builds the compiled instructions and so needs all the information a compiled instruction would need plus more; how to resolve the values you give it during compilation:
+    </p>
+    <ul>
+        <li>Immediate literal (IL) - 0d1, 0b0110</li>
+        <li>
+            Argument literal (AL) - these are literal values passed in when invoking the method or constructor.
+            In ByteAndIntTest, these would be 0, 10, 25, 111.
+        </li>
+        <li>Local data address (LDA) - The address of a local data field e.g. the val data in Int</li>
+        <li>Argument data address (ADA) - the address of an arguments data field, as shown in the Int copy constructor</li>
+    </ul>
+    <p>
+        Let's analyse an example of an instruction builder.
+    </p>
+    <pre>
+    <code>
+    constructor(b32 imm) {
+        l(ADD, II, LDA, val, IL, 0d0, AL, imm);
+    }
+    </code>
+    </pre>
+    <ul>
+        <li>l(...) - this defines the instruction type l, short for logic, you can also write logic(...)</li>
+        <li>ADD - A subtype of the logic instruction</li>
+        <li>II - The input type, II are for the two sources, both being of type immediate (I).
+            This means the instruction contains the values to use in the add operation.</li>
+        <li>
+            We now describe three more values in order: the destination, the first source, and the second source.
+            Each of these is described with two values, the resolve type and the resolve value.
+            LDA, val - Here we say resolve the value val as a local data address (LDA).
+            The result will be the destination of our addition i.e. the address we store the result.
+        </li>
+        <li>
+            IL, 0d0 - Just like above, only this time we say to resolve 0d0 as a literal. This will then resolve to 0.
+        </li>
+        <li>
+            AL, imm - Resolve the value imm as an argument literal.
+            You can see these values in ByteAndIntTest.
+            The system parser resolves these differently, so here the decimal value is implicit (you omit the 0d).
+        </li>
+    </ul>
+    <p>
+        The system parser builds a SystemCompilable.
+        It's methods also have statements, but these statements are different.
+        Each statement type uses the usables in different ways.
+        Our first three statements are constructor statements, these call a constructor on the defined Usable and save a new variable with the names e.g. x, y, z.
+        The last three statements are invoke statements, these lookup a variable with the given name and then invoke the "invoke" method on the usable.
+        Note that you mutate the variable, you don't make a new one, so x + 5 is equivalent to x += 5 in most languages.
+    </p>
+
+
+    <h3 id="If">If</h3>
+    <pre>
+    <code>
+    parser machine;
+
+    Boolean {
+
+        byte[1] val;
+
+        constructor(b1 imm) {
+            l(ADD, II, LDA, val, IL, 0d0, AL, imm);
+        }
+
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    parser machine;
+
+    If {
+
+        Addr end;
+
+        constructor(Int bool, Block block) {
+            Addr after;
+            cb(EQ, AI, ADA, bool.val, IL, 0d0, after);
+            block;
+            j(REL, I, end);
+            Addr after;
+            Addr end;
+        }
+
+        constructor(Boolean bool, Block block) {
+            Addr after;
+            cb(EQ, AI, ADA, bool.val, IL, 0d0, after);
+            block;
+            j(REL, I, end);
+            Addr after;
+            Addr end;
+        }
+
+        elseIf(Int bool, Block block) {
+            Addr after;
+            Position end;
+            cb(EQ, AI, ADA, bool.val, IL, 0d0, after);
+            block;
+            j(REL, I, end);
+            Addr after;
+        }
+
+        else(Block block) {
+            Position end;
+            block;
+        }
+
+        break() {
+            j(REL, I, end);
+        }
+
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    parser host;
+
+    imports {
+        Int;
+        Boolean;
+        If;
+    }
+
+    IfTest {
+
+        main() {
+            Int x 0;
+            Boolean a false;
+            Boolean b true;
+            If(a) {
+                x + 5 + 5;
+            } elseIf(b) {
+                x + 20;
+            } else {
+                x + 50;
+            };
+        }
+
+    }
+    </code>
+    </pre>
+    <p>
+        We introduce some new concepts here, namely address fields, local fields, instruction linking, blocks, anonymous variables, and method chaining.
+        It is nice to note that it should look extremely familiar to a programmer still, yet it's all defined in the language.
+    </p>
+    <p>
+        Addresses give a name to an instruction position, you can declare them and update them with the syntax <code>Addr addrName</code>.
+        I don't really like having to both declare and update them locally, that's hopefully temporary, would be nicer to only declare.
+        The If has an address end that is kept to after all the if instructions. This is where an if/elseIf method that succeeds will jump after executing its block.
+        You can also "link" to an address, and when you append an instruction, the instruction is appended before the linked address.
+    </p>
+    <p>
+        Blocks are a way to pass a sequence of instructions to the usables.
+        In our IfTest example, the block passed to the If constructor <code>x + 5 + 5;</code> will have two logic add instructions.
+        Blocks are defined between braces, and when interleaving with other arguments, you would close those arguments with a closing parenthesis e.g. (a) { ... } instead of (a, { ... }).
+        These can be interleaved e.g. (a) { ... } (b) { ... }.
+        To append a block in a usable method, you just write its name.
+        In the If example, we name it "block" and so we just write <code>block;</code>.
+    </p>
+    <p>
+        Our usables methods don't have return types, this allows you to continually chain methods e.g. constructor into elseIf into else.
+        It might seem unnatural to use a semicolon at the end of an if-elseif-else, but this keeps the syntax consistent.
+    </p>
+    <p>
+        When the SystemCompilable constructs an If, it still makes a new variable, however here it has no name so once you stop chaining methods you won't be able to use it again.
+        In most languages, you can implicitly use a break inside an If.
+        To do that in Koga, you would give the If a name, say i, and then your block code can do <code>i break();</code>.
+        This is more verbose than normal, but it does make it simpler when there are multiple things you can break from e.g. inner loops.
+    </p>
+    <p>
+        Another thing to note is the constructor that has an Int parameter.
+        You can write ifs that take in variables other than booleans.
+        You don't really have to stop there, Int itself can have an if method, so you could write the things shown below.
+        Not to say whether you should or not, but it's possible.
+        Remember, there aren't any "method invocations" happening here, we're just adding instructions to our method, same as writing an if in Java.
+    </p>
+    <pre>
+    <code>
+    Int x 5;
+    x if(5) { x + 10; };
+    x ifOdd { x + 1; };
+    </code>
+    </pre>
+
+
+    <h3 id="While">While</h3>
+    <pre>
+    <code>
+    Boolean {
+
+        ...
+
+        set(Block block) {
+            context(PUSH);
+            block;
+            context(POP);
+        }
+
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    Int {
+
+        ...
+
+        lessThan(b32 imm, Boolean dest) {
+            l(SLT, AI, ADA, dest.val, LDA, val, AL, imm);
+        }
+
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    parser machine;
+
+    While {
+
+        Addr start;
+        Addr endd;
+
+        constructor(Int bool, Block loop) {
+            Addr start;
+            cb(EQ, AI, ADA, bool.val, IL, 0d0, endd);
+            loop;
+            j(REL, I, start);
+            Addr endd;
+        }
+
+        constructor loop(Block loop) {
+            Addr start;
+            loop;
+            j(REL, I, start);
+            Addr endd;
+        }
+
+        continue() {
+            j(REL, I, start);
+        }
+
+        break() {
+            j(REL, I, endd);
+        }
+
+    }
+    </code>
+    </pre>
+    <pre>
+    <code>
+    parser host;
+
+    imports {
+        Int;
+        Boolean;
+        If;
+        While;
+    }
+
+    WhileWithBreakTest {
+
+        main() {
+            Int x 0;
+            Boolean y true;
+
+            While a (y) {
+                If(x) {
+                    a break();
+                };
+                x + 1;
+                y = { x < 10; };
+            };
+        }
+
+    }
+    </code>
+    </pre>
+
+    <p>
+        You can see that loops are rather standard in the language too, except you also have the ability to write all kinds of custom looping approaches.
+        There is a small infinite looping example.
+    </p>
+
+    <p>
+        So far we've only used unnamed constructors, here we have a constructor named loop.
+        To use this is straightforward, you write the name when constructing the variable.
+        Below is an anonymous While that uses the loop constructor.
+        An anonymous infinite loop might not be the best idea though.
+    </p>
+    <pre>
+    <code>
+    While loop {
+        ...
+    }
+    </code>
+    </pre>
+
+    <p>
+        Another thing to note is the <code>y = { x < 10; };</code>.
+        This is definitely where Koga is more verbose than other languages.
+        Another way of writing this is <code>x < (10, y);</code>.
+        The problem lies in that the lessThan operates on the Int, so we have nowhere good to write the result, unless we overwrite the Int value.
+        This means we need a destination parameter, but then you end up with the syntax <code>x < (10, y);</code>.
+        Were it possible to remove the single line semicolon i.e. <code>y = { x < 10 };</code> I think the syntax would be acceptable.
+    </p>
+
+    <p>
+        Look at our new Boolean set method, you'll see <code>context</code> compiler instructions.
+        This is adding the Boolean as an implicit argument, so every invoke in the block will have a boolean appended to its argument list.
+        This allows us to do <code>{ x < 10; }</code> and invoke the <code>lessThan(b32 imm, Boolean dest)</code> method.
+        This feature is still somewhat fresh and could do with some more thought.
+    </p>
+
+    <h3 id="Switch">Switch</h3>
+
+    <pre>
+    <code>
+    parser machine;
+
+    Switch {
+
+        Addr jumps;
+        Addr cases;
+        Addr end;
+
+        constructor(Int x) {
+            j(REL, A, ADA, x.val);
+            Addr jumps;
+            Addr cases;
+        }
+
+        case(b8 label, Block block) {
+            Addr case;
+            Position jumps;
+            j(REL, I, case);
+            Position cases;
+            Addr case;
+            block;
+            j(REL, I, end);
+            Addr end;
+        }
+
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    parser host;
+
+    imports {
+        Byte;
+        Int;
+        Switch;
+    }
+
+    SwitchTest {
+
+        main() {
+            Int x 0;
+            Int y 2;
+            Switch (y)
+                case(0) {
+                    x + 5;
+                } case(1) {
+                    x + 10;
+                } case(2) {
+                    x + 15;
+                };
+        }
+
+    }
+    </code>
+    </pre>
+
+    <p>
+        The Switch usable is used to jump to a case.
+        This is perhaps underdeveloped compared to how other languages handle switch.
+        You don't need anything more than this right?
+    </p>
+    <p>
+        The Switch is the reason why the addresses and instruction linking has to be more complex than you might otherwise think.
+        We're no longer always appending instructions, we have to append to both the jumps and the cases.
+    </p>
+
+
+    <h3 id="Enums">enums</h3>
+
+    <pre>
+    <code>
+    parser machineEnum;
+
+    literals {
+        Success 0;
+        Error   1;
+        Waiting 2;
+    }
+
+    Status {
+        byte[1] val;
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    parser host;
+
+    imports {
+        Int;
+        Status;
+    }
+
+    EnumTest {
+
+        main() {
+            Int x 0;
+            Status s (Error);
+            s match(Success) {
+                x plus(2);
+            } (Error) {
+                x plus(4);
+            } (Waiting) {
+                x plus(6);
+            };
+        }
+
+    }
+    </code>
+    </pre>
+
+    <p>
+        Here's a new parser, machineEnum.
+        The parsed output, a MachineEnumUsable, implements the Usable interface, and the SystemCompilable is coupled to that interface.
+        An enum is therefore used exactly like a MachineUsable, as you can see in the example above.
+        I hope the enum alleviates some problems you might have had with the Switch.
+    </p>
+
+    <p>
+        There is a small new concept introduced here, the name argument type.
+        You probably see that "Error" isn't an immediate, variable, or block.
+        You'll see names popup more later when dealing with objects and references.
+        There's not too much you can do with them, what the enum does it match it against its literal values.
+    </p>
+
+    <p>
+        As you can see, there isn't a "match" method defined anywhere in Status, nor a constructor.
+        This is all implemented in the MachineEnumUsable using the literals and its field.
+    </p>
+
+    <h3 id="Pointer">Pointer</h3>
+
+    <pre>
+    <code>
+    parser machine;
+
+    Pointer&lt;T&gt; {
+
+        byte[4] addr;
+
+        constructor(Any val) {
+            l(ADD, RA, LDA, addr, R, task, ADA, val);
+        }
+
+        copyTo(Any val) {
+            m(COPY, AP, ADA, val, LDA, addr, LG, T);
+        }
+
+        copyFrom(Any val) {
+            m(COPY, PA, LDA, addr, ADA, val, LG, T);
+        }
+
+    }
+    </code>
+    </pre>
+    <pre>
+    <code>
+    parser host;
+
+    imports {
+        Int;
+        Pointer;
+    }
+
+    PointerTest {
+
+        main() {
+            Int x 1;
+            Int y 2;
+            Int z 3;
+            Pointer&lt;Int&gt; p (x);
+            p -> y;
+            p <- z;
+        }
+
+    }
+    </code>
+    </pre>
+
+    <p>
+        Some new concepts: generics and the memory (m) instruction type.
+        You might be able to tell that the generics are underdeveloped with the use of Any.
+        The pointer is also lacking a size field.
+        This is all going to change for sure.
+    </p>
+
+    <p>
+        We have our first usage of the register values.
+        We add the task address to the data's task relative address to get the absolute address of the variable.
+        We can use that address in memory instructions.
+    </p>
+
+    <p>
+        Looking at PointerTest, we construct the pointer at x, copy to y and copy from z.
+        That method then ends with x:3, y:1, z:3.
+    </p>
+
+    <p>
+        You might be wondering why we don't need to calculate the absolute address of y or z.
+        We don't really need to calculate it for x either in this case.
+        Look at the input types for the memory instruction.
+        AP and PA, P being pointer and A being address.
+        When a processor processes a memory instruction with an address input, it knows to add the task address to the source.
+        We could do that for x, but the Pointer needs the absolute address in future examples.
+    </p>
+
+    <p>
+        You might also wonder what <code>LG, T</code> is doing.
+        Here we use the resolve type LG (local generic).
+        If our pointer were Pointer&lt;Int&gt;, that would resolve to 4, i.e. the size of the Int.
+        Source 2 in the memory instruction is the size of the copy, so we're saying copy 4 bytes.
+        Though it does all work, its a little janky right now.
+    </p>
+
+    <h3 id="Array">Array</h3>
+
+    <pre>
+    <code>
+    parser machine;
+
+    Array&lt;T&gt; {
+
+        byte[4] size;
+        byte[4] start;
+        byte[4] step;
+
+        constructor() {}
+
+        constructor(b12 imm) {
+            l(ADD, II, LDA, size, IL, 0d0, AL, imm);
+            l(ADD, II, LDA, step, IL, 0d0, LG, T);
+            allocate(data, AL, imm, LG, T);
+            logician(GET_TASK, start);
+            l(ADD, AI, LDA, start, LDA, start, LDA, data);
+        }
+
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    parser machine;
+
+    ArrayPointer&lt;T&gt; {
+
+        byte[4] start;
+        byte[4] size;
+        byte[4] step;
+        byte[4] addr;
+
+        constructor(Array arr) {
+            l(ADD, AI, LDA, start, ADA, arr.start, IL, 0d0);
+            l(ADD, AI, LDA, size, ADA, arr.size, IL, 0d0);
+            l(ADD, AI, LDA, step, ADA, arr.step, IL, 0d0);
+            l(ADD, AI, LDA, addr, LDA, start, IL, 0d0);
+        }
+
+        index(b12 imm) {
+            byte[4] index;
+            l(ADD, II, LDA, index, IL, 0d0, AL, imm);
+            l(MUL, AA, LDA, index, LDA, index, LDA, step);
+            l(ADD, AA, LDA, addr, LDA, start, LDA, index);
+        }
+
+        copyTo(Any val) {
+            m(COPY, AP, ADA, val, LDA, addr, LG, T);
+        }
+
+        copyFrom(Any val) {
+            m(COPY, PA, LDA, addr, ADA, val, LG, T);
+        }
+
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    parser host;
+
+    imports {
+        Byte;
+        Int;
+        Array;
+        ArrayPointer;
+    }
+
+    ArrayPointerTest {
+
+        main() {
+            Int x 4;
+            Int y 5;
+            Int z 0;
+            Array&lt;Int&gt; arr (3);
+            ArrayPointer&lt;Int&gt; p (arr);
+            p copyFrom(x);
+            p index(2);
+            p copyFrom(y);
+            p copyTo(z);
+        }
+
+    }
+    </code>
+    </pre>
+
+    <p>
+        Arrays are similar to pointers.
+        Here's a new MachineUsable statement called allocate.
+        It takes in a sequence of resolvable values, multiplies them together, and then allocates that space on the method.
+        So here we allocate Int size * input size, 4 * 3, 12 bytes for the array.
+    </p>
+    <p>
+        There is also an ArrayPointer.
+        This mostly keeps an address into the array.
+        It currently copies all the array values too, to do things like bounds checking.
+        I do hope to improve this in the future to not need to copy the values.
+        You could also write an Array that comes with a pointer depending on use cases.
+    </p>
+
+    <h3 id="String">Strings</h3>
+
+    <pre>
+    <code>
+    parser machine;
+
+    String {
+
+        byte[4] size;
+        byte[4] start;
+        byte[4] step;
+
+        constructor(Name const) {
+            symbol(CONST, constSymbol, AL, const);
+            c(ADDR, I, start, constSymbol);
+            c(SIZE, I, size, constSymbol);
+            l(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+        }
+
+        constructor(b8[] const) {
+            c(ADDR, I, start, const);
+            c(SIZE, I, size, const);
+            l(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+        }
+
+        equalTo(String in, Boolean dest) {
+            ...
+        }
+
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    parser host;
+
+    imports {
+        Boolean;
+        String;
+    }
+
+    constants {
+        aConstName "hello";
+    }
+
+    StringEqualsTest {
+
+        main() {
+            String hi "hello";
+            String anotherHi (aConstName);
+            Boolean b { hi equalTo(anotherHi); };
+        }
+
+    }
+    </code>
+    </pre>
+
+    <p>
+        Here we introduce constants and symbols.
+        Host and Hosted documents can have constant values, usually for things like arrays or strings.
+        These will be bytes stored in memory that you can reference.
+    </p>
+
+    <p>
+        Host and Hosted documents also have a symbol table/runtime table, and just like everything else you manipulate this table using the language.
+        This table is for values that you will only know at runtime, roughly speaking.
+        Each symbol has two values at runtime, size and addr, though they don't necessarily have to be the size and addr.
+        Perhaps primary and secondary are better names.
+        Looking at some examples you might use runtime values to load the addr of a const, the size of a class, or the address and size of a method.
+    </p>
+
+    <p>
+        You can append symbols using the compiler statement "symbol", this will also add a literal argument to your method with the given name and index of the symbol.
+        You can then use the class (c) instruction builder and that new argument literal to add a runtime table load instruction.
+        Looking at the String name constructor, we get the symbol table index for a const symbol with the input name, and store in a literal argument named constSymbol.
+        We then add instructions to load both the addr and size at that table index.
+    </p>
+
+    <p>
+        Strings are very similar to arrays, they have an addr and a size along with a step, though this is always one right now (one byte characters).
+        The addr in a String could reference directly to the constant, or you might allocate space in the method and address it there, or you might allocate space in your process memory and address it there.
+    </p>
+
+    <h3 id="Administrator">Administrator</h3>
+
+    <pre>
+    <code>
+    parser interface;
+
+    imports {
+        Int;
+        Pointer;
+    }
+
+    Administrator {
+
+        init();
+        exit();
+
+        allocate(Pointer p, Int size);
+        port(Pointer res);
+
+        task(Pointer idOut, Int objectAddr, Int objectTableAddr, Int methodAddr, Int methodSize);
+        group(Pointer idOut);
+        awaitTask(Int task);
+        awaitGroup(Int task);
+
+        transition(Int newState);
+
+        connect(Int instance, Int protocol, Int method, Int talkIn, Int talkOut);
+        listen(Int protocol, Int method, Array ports);
+
+    }
+    </code>
+    </pre>
+    <pre>
+    <code>
+    parser host;
+
+    imports {
+        Int;
+        Pointer;
+        AdminRef;
+    }
+
+    dependencies {
+        SimpleAdministrator;
+    }
+
+    AllocatorTest {
+
+        main() {
+            AdminRef admin init();
+            Int size 124;
+            Int allocateOne 0;
+            Pointer&lt;Int&gt; allocateOneP (allocateOne);
+            admin allocate(allocateOneP size);
+            Int allocateTwo 0;
+            Pointer&lt;Int&gt; allocateTwoP (allocateTwo);
+            admin allocate(allocateTwoP size);
+            admin exit();
+        }
+
+    }
+    </code>
+    </pre>
+
+    <p>
+        You might notice the new parser here, the interface parser.
+        This will build an InterfaceCompilable that can compile interface documents.
+        You might also notice AdminRef, we'll talk about references in the next section.
+        Just know that this invokes methods on the SimpleAdministrator object, not the AllocatorTest object.
+    </p>
+    <p>
+        Administrator might be similar to how other languages have allocators, being a Java guy I'm not too sure.
+        The administrator idea goes much further.
+        Other than just handling allocations, it handles lifecycle stuff, task creation/scheduling/completion, and IPC.
+        It might be considered similar to a runtime.
+        I should note that the interface is a work in progress, lots will change.
+    </p>
+    <p>
+        Every host class will choose a concrete administrator to use, in our example above this is SimpleAdministrator.
+        This is implemented using the language but for my pride, I won't show you the code.
+        When executing methods in this host class, the processor will have a reference to this admin object and its runtime table.
+        Every method is allocated space for itself and space for running admin methods e.g. your method "doThings" which needs 100 bytes might be given 300, bytes 100-300 are for admin methods.
+        This all means that you can always easily invoke an admin method, unless you are currently invoking an admin method.
+    </p>
+    <p>
+        You might have realised that this idea allows library code e.g. ArrayLists to allocate, create tasks etc. without knowing about the administrator in use.
+        It then allows your host class to customise its administrator strategy to its exact use case.
+        You should note that you don't have to pass around allocators everytime you call a method.
+        It's also nice that it's implemented using the language still.
+        In other languages it can be difficult understanding how memory is allocated or tasks are created and scheduled.
+    </p>
+
+    <p>
+        I'm not sure if this idea will work in practice, or how far it can go.
+        I do like it though.
+    </p>
+
+    <h3 id="Reference">Reference, Fields, and Methods</h3>
+
+    <pre>
+    <code>
+    parser machine;
+
+    Pointer&lt;T&gt; {
+
+        byte[4] addr;
+
+        ...
+
+        constructor(Reference r, Name field) {
+            symbol(FIELD, fieldSymbol, AG, r.R, AL, field);
+            c(ADDR, I, addr, fieldSymbol);
+            l(ADD, AA, addr, addr, r.objectAddr);
+        }
+
+        ...
+
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    parser machineReference;
+
+    Reference&lt;R&gt; {
+
+        byte[4] objectAddr;
+        byte[4] objectTable;
+
+        constructor this() {
+            logician(GET_OBJECT, objectAddr);
+            logician(GET_TABLE, objectTable);
+        }
+
+        constructor new() {
+            byte[4] objectSize;
+            symbol(CLASS, classSymbol, LG, R);
+            c(SIZE, I, objectSize, classSymbol);
+            logician(GET_TASK, objectAddr);
+            l(ADD, AI, LDA, objectAddr, LDA, objectAddr, LDA, objectAddr);
+            admin(ALLOCATE, objectAddr, objectSize);
+            c(ADDR, I, objectTable, classSymbol);
+        }
+
+        invoke(Name methodName) {
+            byte[4] frameSize;
+            byte[4] methodAddr;
+            byte[4] newFrame;
+            logician(GET_TASK, newFrame);
+            l(ADD, AI, LDA, newFrame, LDA, newFrame, LDA, newFrame);
+            symbol(METHOD, methodSymbol, LG, R, AL, methodName);
+            c(SIZE, I, frameSize, methodSymbol);
+            c(ADDR, I, methodAddr, methodSymbol);
+
+            byte[4] adminTaskMethod;
+            symbol(METHOD, adminTaskSymbol, IL, Administrator, IL, task);
+            c(ADDR, I, adminTaskMethod, adminTaskSymbol);
+            byte[4] adminTask;
+            logician(GET_ALT_TASK, adminTask);
+            m(COPY, PA, LDA, adminTask, LDA, newFrame, LDS, newFrame);
+            l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, newFrame);
+            m(COPY, PA, LDA, adminTask, LDA, objectAddr, LDS, objectAddr);
+            l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, objectAddr);
+            m(COPY, PA, LDA, adminTask, LDA, objectTable, LDS, objectTable);
+            l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, objectTable);
+            m(COPY, PA, LDA, adminTask, LDA, methodAddr, LDS, methodAddr);
+            l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, methodAddr);
+            m(COPY, PA, LDA, adminTask, LDA, frameSize, LDS, frameSize);
+            logician(START_ADMIN, LDA, adminTaskMethod);
+
+            byte[4] frameDataAddr;
+            l(ADD, AI, LDA, frameDataAddr, LDA, newFrame, IL, 0d0);
+            args();
+
+            byte[4] adminScheduleMethod;
+            symbol(METHOD, adminScheduleSymbol, IL, Administrator, IL, schedule);
+            c(ADDR, I, adminScheduleMethod, adminScheduleSymbol);
+            logician(GET_ALT_TASK, adminTask);
+            m(COPY, PA, LDA, adminTask, LDA, newFrame, LDS, newFrame);
+            logician(START_ADMIN, LDA, adminScheduleMethod);
+        }
+
+        arg(Any a) {
+            m(COPY, PA, LDA, frameDataAddr, ADA, a, ADS, a);
+            l(ADD, AI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
+        }
+
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    parser host;
+
+    imports {
+        Int;
+        Reference;
+        Pointer;
+        AdminRef;
+        Task;
+    }
+
+    LocalVariableTest {
+
+        Int x;
+
+        main() {
+            Int y 10;
+            Int z 16;
+            Reference&lt;LocalVariableTest&gt; this this();
+            Pointer&lt;Int&gt; thisx (this x);
+            thisx &lt;- z;
+            Pointer&lt;Int&gt; p (y);
+            this second(p);
+        }
+
+        second(Pointer&lt;Int&gt; r) {
+            Reference&lt;LocalVariableTest&gt; this this();
+            Pointer&lt;Int&gt; thisx (this x);
+            Int a 0;
+            thisx -> a;
+            r <- a;
+            Task t complete();
+        }
+
+    }
+    </code>
+    </pre>
+
+    <p>
+        What the methods are doing here isn't really relevant, I'm just testing that a bunch of features work.
+        It's also very verbose, there are less verbose ways of doing this.
+    </p>
+
+    <p>
+        We've added a new Pointer constructor to get the pointer to an objects field.
+        Objects have space allocated according to their size, so here LocalVariableTest has 4 bytes allocated, it's just the one Int x.
+        There are no object header values or anything, though that could definitely change in the future.
+        To get the field we add a field symbol for the field name, here x.
+        This will be 0 at runtime since it's the first field.
+        We then add the address of the object, which is stored in Reference.objectAddr.
+        We now have a pointer to the field x that we can copy to and from.
+    </p>
+
+    <p>
+        We've also used another parser, the machineReference, which builds a MachineReferenceUsable.
+        When invoking a method on a MachineUsables (e.g. Int, Boolean, If), it tries to find a matching method i.e. matching the name and arguments.
+        MachineReference is different, when we invoke a method it will invoke the method "invoke", and give the name as the only argument.
+    </p>
+
+    <pre>
+    <code>
+    Int x 0;
+    x plus 5;
+    </code>
+    </pre>
+    <p>In this example, MachineUsable would try to find a method with the name plus that accepts one parameter, a literal.</p>
+
+    <pre>
+    <code>
+    Reference r this();
+    r second(arg1 arg2);
+    </code>
+    </pre>
+    <p>
+        In this example though, <code>r second(arg1 arg2);</code> is like doing <code>r invoke(second);</code>.
+        MachineReference can also iterate over the arguments from the invocation, arg1 and arg2 in the example above.
+        You'll see an "arg(Any a)" method in Reference and an "args();" compiler instruction used in its invoke method.
+    </p>
+
+    <p>
+        To invoke a method, the Reference makes a symbol using the methodName argument.
+        It uses this symbol index to add a table lookup instruction, getting the method addr at runtime.
+        It then invokes an admin instruction to create a new task.
+        Copies over the arguments to this tasks memory space.
+        It then invokes an admin instruction to schedule the new task.
+    </p>
+
+    <p>
+        Note that field access and method invocations are still implemented using the language.
+    </p>
+
+
+    <h3 id="HelloWorld">Hello world</h3>
+
+    <pre>
+    <code>
+    parser host;
+
+    imports {
+        InputStream;
+        OutputStream;
+        Int;
+        Pointer;
+        AdminRef;
+        Boolean;
+        While;
+        String;
+        MemberReference;
+        Exit;
+    }
+
+    dependencies {
+        Talker;
+        SimpleAdministrator;
+    }
+
+    constants {
+        hello "hello server";
+    }
+
+    Client {
+
+        init() {
+            AdminRef admin init();
+
+            Int instance 1;
+            InputStream talkIn port();
+            OutputStream talkOut port();
+
+            String str (hello);
+            str copyTo talkOut;
+
+            MemberReference&lt;Talker&gt; talker (instance);
+            talker talk(talkOut talkIn);
+            talkIn wait();
+
+            String result readFrom(talkIn);
+            Exit;
+        }
+
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    parser host;
+
+    imports {
+        InputStream;
+        OutputStream;
+        AdminRef;
+        Int;
+        Boolean;
+        While;
+        If;
+        Array;
+        ArrayPointer;
+        Pointer;
+        Thread;
+        String;
+        Reference;
+        Exit;
+    }
+
+    dependencies {
+        SimpleAdministrator;
+    }
+
+    Server {
+
+        init() {
+            AdminRef admin init();
+
+            Array&lt;Int&gt; pages (2);
+            Int junk 42;
+            admin listen(junk junk pages);
+
+            ArrayPointer&lt;Int&gt; pagesPtr (pages);
+            Int port;
+            pagesPtr # 0 -> port;
+            InputStream talkIn (port);
+            pagesPtr # 1 -> port;
+            OutputStream talkOut (port);
+
+            Reference&lt;Server&gt; t this();
+
+            t talk(talkIn talkOut);
+
+            Exit;
+        }
+
+        talk(InputStream in, OutputStream out) {
+
+            String str readFrom(in);
+            String expected "hello server";
+            Boolean isGreeting { str == expected; };
+            If (isGreeting) {
+                String response "hello client";
+                response copyTo out;
+            } else {
+                String response "huh";
+                response copyTo out;
+            };
+
+            Exit;
+        }
+
+    }
+    </code>
+    </pre>
+
+    <p>
+        Who said "hello world!" had to be one line?
+        I'm not going explain this one fully, but it slightly introduces IPC.
+        Only loosely implemented and the design is guaranteed to change.
+    </p>
+
+    <p>
+        There is no stdin or stdout in this system, instead similar behaviour is implemented as a protocol, the Talker protocol.
+        So here the Server listens for a connection request, delegating the connection to the talk method.
+        The client sends a connection request to instance 1 (the server in this case), with the string "hello server" already appended to the output stream, which is the server's input stream.
+        Server.talk will read from this stream and write a response to it's output stream (talkers input stream).
+        The client can then read "hello client".
+    </p>
+
+    <p>
+        Hello world should probably be easy to write for newcomers.
+        This example could easily be improved in the future.
+        First of all the newcomer wouldn't have to write the client.
+        A beginner-friendly parser could also be written to avoid other complex details too, so that all the newcomer might have to write is <code>out copyFrom "hello world"</code>.
+    </p>
+
+    <h3 id="Concurrency">Concurrency</h3>
+
+    <pre>
+    <code>
+    parser machine;
+
+    Seq {
+
+        constructor(Block try, Block catch) {
+            Addr fail;
+            Addr complete;
+            byte[4] status;
+            byte[4] statusAddr;
+            byte[4] statusParamAddr;
+            l(ADD, RI, LDA, statusAddr, R, task, LDA, status);
+            ~ status pointer is 20 bytes into the admin area
+            l(ADD, RI, LDA, statusParamAddr, R, altTask, IL, 0d20);
+
+            byte[4] awaitTaskAddr;
+            l(ADD, RI, LDA, awaitTaskAddr, R, altTask, IL, 0d0);
+
+            context(BLOCK, createTask) {
+                m(COPY, PA, LDA, statusParamAddr, LDA, statusAddr, LDS, status);
+                byte[4] adminTaskMethod;
+                symbol(METHOD, adminTaskSymbol, IL, Administrator, IL, task);
+                c(ADDR, I, adminTaskMethod, adminTaskSymbol);
+                logician(START_ADMIN, LDA, adminTaskMethod);
+            };
+
+            context(BLOCK, taskReady) {
+                byte[4] adminScheduleMethod;
+                symbol(METHOD, adminScheduleSymbol, IL, Administrator, IL, awaitTask);
+                c(ADDR, I, adminScheduleMethod, adminScheduleSymbol);
+                l(ADD, RI, LDA, awaitTaskAddr, R, altTask, IL, 0d0);
+                m(COPY, PA, LDA, awaitTaskAddr, CL, task, IL, 0d4);
+                logician(START_ADMIN, LDA, adminScheduleMethod);
+                cb(NEQ, AI, LDA, status, IL, 0d0, fail);
+            };
+
+            try;
+            j(REL, I, complete);
+            Addr fail;
+            catch;
+            Addr complete;
+        }
+
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    Reference&lt;R&gt; {
+
+    ...
+
+        invoke(Name methodName) {
+            byte[4] adminTask;
+            byte[4] frameSize;
+            byte[4] methodAddr;
+            byte[4] newTask;
+
+            l(ADD, RI, LDA, adminTask, R, altTask, IL, 0d0);
+            l(ADD, RI, LDA, newTask, R, task, LDA, newTask);
+            symbol(METHOD, methodSymbol, LG, R, AL, methodName);
+            c(SIZE, I, frameSize, methodSymbol);
+            c(ADDR, I, methodAddr, methodSymbol);
+
+            ~ copy all the admin arguments
+            m(COPY, PA, LDA, adminTask, LDA, newTask, LDS, newTask);
+            l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, newTask);
+            m(COPY, PA, LDA, adminTask, LDA, objectAddr, LDS, objectAddr);
+            l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, objectAddr);
+            m(COPY, PA, LDA, adminTask, LDA, objectTable, LDS, objectTable);
+            l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, objectTable);
+            m(COPY, PA, LDA, adminTask, LDA, methodAddr, LDS, methodAddr);
+            l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, methodAddr);
+            m(COPY, PA, LDA, adminTask, LDA, frameSize, LDS, frameSize);
+            l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, frameSize);
+
+            ~ use an implicit createTask body
+            ~ otherwise get the status data address, copy to admin arg, and invoke admin.task
+            createTask {
+                byte[4] status;
+                l(ADD, RI, LDA, status, R, task, LDA, status);
+                m(COPY, PA, LDA, adminTask, LDA, status, LDS, status);
+
+                byte[4] adminTaskMethod;
+                symbol(METHOD, adminTaskSymbol, IL, Administrator, IL, task);
+                c(ADDR, I, adminTaskMethod, adminTaskSymbol);
+                logician(START_ADMIN, LDA, adminTaskMethod);
+            };
+
+            byte[4] frameDataAddr;
+            l(ADD, AI, LDA, frameDataAddr, LDA, newTask, IL, 0d0);
+            args();
+
+            context(IMPLICIT, task, LDA, newTask);
+            taskReady {
+                byte[4] adminScheduleMethod;
+                symbol(METHOD, adminScheduleSymbol, IL, Administrator, IL, awaitTask);
+                c(ADDR, I, adminScheduleMethod, adminScheduleSymbol);
+                l(ADD, RI, LDA, adminTask, R, altTask, IL, 0d0);
+                m(COPY, PA, LDA, adminTask, LDA, newTask, LDS, newTask);
+                logician(START_ADMIN, LDA, adminScheduleMethod);
+            };
+            context(REMOVE, task);
+        }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    parser host;
+
+    imports {
+        Int;
+        If;
+        Task;
+        Seq;
+        Boolean;
+        Pointer;
+        Reference;
+        AdminRef;
+        Exit;
+    }
+
+    dependencies {
+        SimpleAdministrator;
+    }
+
+    TryTest {
+
+        main() {
+            AdminRef admin init();
+            Int x 0;
+            Pointer&lt;Int&gt; ptr (x);
+            Reference&lt;TryTest&gt; this this();
+            Seq {
+                this second(ptr);
+                this second(ptr);
+                this second(ptr);
+                this second(ptr);
+                this second(ptr);
+            } {
+                x = 30;
+            };
+            Exit;
+        }
+
+        second(Pointer&lt;Int&gt; ptr) {
+            Int test 15;
+            Int x;
+            ptr -> x;
+            x if(test) {
+                Task f fail();
+            };
+            x + 5;
+            ptr <- x;
+            Task t complete();
+        }
+
+    }
+    </code>
+    </pre>
+
+    <p>
+        I don't like async/await syntax, but what it does is fairly useful.
+        I've tried to replicate all the usefulness without any of the ugliness.
+        A major goal of the language is to neatly implement structured concurrency constructs.
+    </p>
+
+    <p>
+        The initial Reference example I showed earlier was a bit of a lie, the above Reference is the current Reference.invoke method.
+        You can see an example of a comment, just start the line with a ~ which represent the curvature of writing.
+    </p>
+
+    <p>
+        In this invoke method, we are trying to invoke two blocks, createTask and taskReady, however we have some default instructions to use if these blocks don't exist.
+        They might not exist because the blocks here aren't passed in as arguments, they are named implicits.
+        This allows the reference to be configured when scheduling new tasks, by default awaiting the created task.
+        You can pass in a block instead to await a group of tasks, allowing you to have behaviour similar to Javascript's Promise.all shown below.
+    </p>
+
+    <pre>
+    <code>
+
+        main() {
+            ...
+            All {
+                this taskOne();
+                this taskTwo();
+                If (shouldDoTaskThree) {
+                    this taskThree();
+                };
+            };
+            Exit;
+        }
+
+    </code>
+    </pre>
+
+    <p>
+        The idea still needs further development.
+        I do think it can work well though to implement useful concurrency constructs like All or One while keeping the syntax clean.
+        I should note that there is no "function colouring" either, every method is invoked as a single task.
+        This needs more explaining which will be written elsewhere and another time.
+    </p>
+
+    <h3>Conclusion</h3>
+
+    <p>
+        That concludes a short tour of the language in its current state.
+        Hopefully you have a decent idea of how things work.
+        I definitely omitted details, lied a bit, and used wrong inconsistent terms all over, apologies!
+    </p>
+
+</main>
+</body>
+</html>

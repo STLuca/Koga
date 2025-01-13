@@ -1,0 +1,22 @@
+parser host;
+
+imports {
+    Int;
+    Boolean;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+ImplicitArgumentTest {
+
+    main() {
+        Int x 3;
+        Boolean b { x < 3; } & { x > 1; };
+        Boolean c { x > 1; } | { x < 3; };
+        Exit;
+    }
+
+}

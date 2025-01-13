@@ -1,0 +1,12 @@
+parser machine;
+
+Logician {
+
+    constructor schedule(Int objectAddr, Int tableAddr, Int methodAddr, Int taskAddr, Int adminTaskAddr) {
+        logician(SET_OBJECT, T, ADA, objectAddr.val);
+        logician(SET_TABLE, T, ADA, tableAddr.val);
+        logician(SET_ALT_TASK, T, ADA, adminTaskAddr.val);
+        logician(SET_METHOD_AND_TASK, TT, ADA, methodAddr.val, ADA, taskAddr.val);
+    }
+
+}

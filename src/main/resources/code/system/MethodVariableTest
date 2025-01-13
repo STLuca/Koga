@@ -1,0 +1,21 @@
+parser host;
+
+imports {
+    Byte;
+    Int;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+MethodVariableTest {
+
+    main() {
+        Int x 4;
+        x plusTwice(5);
+        Exit;
+    }
+
+}

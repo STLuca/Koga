@@ -1,0 +1,45 @@
+parser machine;
+
+If {
+
+    Addr end;
+
+    constructor(Int bool, Block block) {
+        Addr after;
+        cb(EQ, TI, ADA, bool.val, IL, 0d0, after);
+        Blockk block;
+        j(REL, I, end);
+        Addr after;
+        Addr end;
+    }
+
+    constructor(Boolean bool, Block block) {
+        Addr after;
+        cb(EQ, TI, ADA, bool.val, IL, 0d0, after);
+        Blockk block;
+        j(REL, I, end);
+        Addr after;
+        Addr end;
+    }
+
+    elseIf(Int bool, Block block) {
+        Addr after;
+        Position end prev;
+        cb(EQ, TI, ADA, bool.val, IL, 0d0, after);
+        Blockk block;
+        j(REL, I, end);
+        Addr after;
+        Position prev;
+    }
+
+    else(Block block) {
+        Position end prev;
+        Blockk block;
+        Position prev;
+    }
+
+    break() {
+        j(REL, I, end);
+    }
+
+}

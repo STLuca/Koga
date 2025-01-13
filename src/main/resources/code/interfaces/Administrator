@@ -1,0 +1,28 @@
+parser interface;
+
+imports {
+    Int;
+    Pointer;
+    Array;
+}
+
+Administrator {
+
+    init();
+    exit();
+
+    allocate(Pointer p, Int size);
+    port(Pointer res);
+
+    task(Pointer idOut, Int objectAddr, Int objectTableAddr, Int methodAddr, Int methodSize);
+    group(Pointer idOut);
+    awaitTask(Int task);
+    awaitGroup(Int task);
+
+    transition(Int newState);
+
+    connect(Int instance, Int protocolMethodAddr, Pointer connOut);
+    listen(Pointer connOut);
+    send(Int instance);
+
+}

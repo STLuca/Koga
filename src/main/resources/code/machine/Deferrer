@@ -1,0 +1,31 @@
+parser machine;
+
+Deferrer {
+
+    Addr end;
+
+    constructor() {
+        Direction(after);
+        Addr end;
+        Direction(before);
+    }
+
+    constructor(Block b) {
+        Direction(after);
+        Addr end;
+        Direction(before);
+        Blockk b;
+        Position end;
+    }
+
+    defer(Block b) {
+        Position end prev;
+        Blockk b;
+        Position prev;
+    }
+
+    close() {
+        Position end;
+    }
+
+}

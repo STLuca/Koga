@@ -1,0 +1,28 @@
+parser host;
+
+imports {
+    Int RenamedInt;
+    Status;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+EnumTest {
+
+    main() {
+        RenamedInt x 0;
+        Status s (Error);
+        s match(Success) {
+            x + 2;
+        } (Error) {
+            x + 4;
+        } (Waiting) {
+            x + 6;
+        };
+        Exit;
+    }
+
+}

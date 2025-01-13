@@ -1,0 +1,311 @@
+parser hosted;
+
+imports {
+    Int;
+    Boolean;
+    While;
+    Logician;
+    Reference;
+    Pointer;
+    Debug;
+    SystemOut;
+    SystemIn;
+    Return;
+    Array;
+    ArrayPointer;
+    BumpAdminTask;
+    Connection;
+    SimpleAdminTask;
+}
+
+dependencies {
+    Administrator;
+}
+
+SimpleAdministrator implements Administrator {
+
+    Int bump;
+    Int pageBump;
+
+    init() {
+        SimpleAdminTask sat;
+        BumpAdminTask t loadInAdmin();
+        Int altTask altTask() - 28;
+        Pointer<BumpAdminTask> altTaskPtr atAddr(altTask);
+        altTaskPtr <- t;
+
+        Reference<SimpleAdministrator> this alt();
+
+        Int newBump 16392;
+        Pointer<Int> thisBump admin(this bump);
+        thisBump copyFrom(newBump);
+
+        Int newPageBump 20;
+        Pointer<Int> thisPageBump admin(this pageBump);
+        thisPageBump copyFrom(newPageBump);
+
+        Int sysOutSlotBump 0;
+
+        Return;
+    }
+
+    allocate(Pointer<Int> out, Int size) {
+        Reference<SimpleAdministrator> this alt();
+        Pointer<Int> thisBump admin(this bump);
+        Int bump 0;
+        thisBump copyTo(bump);
+        out copyFrom(bump);
+        Debug d ();
+        d allocated(bump size);
+        bump plusInt(size);
+        thisBump copyFrom(bump);
+        Return;
+    }
+
+    port(Pointer<Int> res) {
+        Reference<SimpleAdministrator> this alt();
+        Pointer<Int> thisPageBump admin(this pageBump);
+        Int pageBump 0;
+        thisPageBump copyTo(pageBump);
+        SystemOut out ();
+        out allocatePage(pageBump);
+        out commit();
+
+        Int retPage (pageBump);
+        retPage multiply(4096);
+        res copyFrom(retPage);
+
+        pageBump plus(1);
+        thisPageBump copyFrom(pageBump);
+
+        Return;
+    }
+
+    exit() {
+        SystemOut out ();
+        Int msgType 4;
+        out <- msgType;
+        out commit();
+
+        Return;
+    }
+
+    task(Pointer<Int> idOut, Int objectAddr, Int objectTableAddr, Int methodAddr, Int methodSize, Pointer<Int> statusOut) {
+        Reference<SimpleAdministrator> this alt();
+        Pointer<Int> thisBump admin(this bump);
+        Int bump 0;
+        thisBump -> bump;
+
+        Int zero 0;
+        Int taskAddr (bump);
+        Int taskSize 28;
+        Int adminSize 200;
+        Int allocatedSize (methodSize) + taskSize + adminSize;
+        Int workingAreaAddr (taskAddr) + taskSize;
+        Int adminAddr (taskAddr) + taskSize + methodSize;
+        Int returnAddr altTask();
+
+        Debug d ();
+        d allocated(bump allocatedSize);
+        bump + allocatedSize;
+        thisBump <- bump;
+
+        Pointer<Int> taskPtr atAddr(taskAddr);
+        taskPtr <- methodSize;
+        taskPtr + 4;
+        taskPtr <- objectAddr;
+        taskPtr + 4;
+        taskPtr <- objectTableAddr;
+        taskPtr + 4;
+        taskPtr <- methodAddr;
+        taskPtr + 4;
+        taskPtr <- adminAddr;
+        taskPtr + 4;
+        taskPtr <- returnAddr;
+        taskPtr + 4;
+        taskPtr <- statusOut;
+
+        idOut <- workingAreaAddr;
+
+        Return;
+    }
+
+    group() {}
+
+    awaitTask(Int taskAddr) {
+        Int taskValues (taskAddr) - 24;
+        Pointer<Int> taskPtr atAddr(taskValues);
+        Int objectAddr;
+        Int tableAddr;
+        Int methodAddr;
+        Int adminTaskAddr;
+        taskPtr -> objectAddr;
+        taskPtr + 4;
+        taskPtr -> tableAddr;
+        taskPtr + 4;
+        taskPtr -> methodAddr;
+        taskPtr + 4;
+        taskPtr -> adminTaskAddr;
+
+        Int taskMethodAddr altTask() - 16;
+        Int altMethod altMethod();
+        Pointer<Int> taskMethodPtr atAddr(taskMethodAddr);
+        taskMethodPtr <- altMethod;
+
+        Logician l schedule(objectAddr, tableAddr, methodAddr, taskAddr, adminTaskAddr);
+    }
+
+    awaitGroup() {}
+
+    transition(Int newState) {
+        Int task altTask();
+
+        task - 4;
+        Pointer<Int> statusOutAddrPtr atAddr(task);
+        Int statusOut;
+        statusOutAddrPtr -> statusOut;
+        Pointer<Int> statusOutPtr atAddr(statusOut);
+        statusOutPtr <- newState;
+
+
+        task - 4;
+        Pointer<Int> taskPtr atAddr(task);
+        taskPtr -> task;
+        Int taskValues (task) - 24;
+        Pointer<Int> returnTaskPtr atAddr(taskValues);
+        Int objectAddr;
+        Int tableAddr;
+        Int methodAddr;
+        Int adminTaskAddr;
+        returnTaskPtr -> objectAddr;
+        returnTaskPtr + 4;
+        returnTaskPtr -> tableAddr;
+        returnTaskPtr + 4;
+        returnTaskPtr -> methodAddr;
+        returnTaskPtr + 4;
+        returnTaskPtr -> adminTaskAddr;
+
+        Logician l schedule(objectAddr, tableAddr, methodAddr, task, adminTaskAddr);
+    }
+
+    connect(Int instance, Int protocolMethodAddr, Pointer<Connection> connOut) {
+        ~ Use protocolMethodAddr to load the port counts
+        ~ assert that the count is 2?
+        ~ Allocate this amount of ports
+        ~ Make a connection request
+        ~ Make a Connection and write to connOut
+        Pointer<Int> portCountPtr atAddr(protocolMethodAddr);
+        Int portCount;
+        portCountPtr + 8 -> portCount;
+        Array<Int> ports (10);
+        ArrayPointer<Int> portsPtr (ports);
+        SystemOut out ();
+        Reference<SimpleAdministrator> this alt();
+        Pointer<Int> thisPageBump admin(this pageBump);
+
+        ~ NEED TO WRITE PAGEBUMP AFTER -> avoid reading in the loop, can keep using for now (not concurrent)
+        Int pageBump;
+        thisPageBump -> pageBump;
+        Int i 0;
+        Boolean allocating true;
+        While (allocating) {
+            out allocatePage(pageBump);
+            out commit();
+            Int pageAddr 0 + pageBump * 4096;
+            portsPtr # i <- pageAddr;
+
+            pageBump + 1;
+            i + 1;
+            allocating = { portCount != i; };
+        };
+
+        Int portOne;
+        Int portTwo;
+        portsPtr # 0 -> portOne;
+        portsPtr # 1 -> portTwo;
+
+        Connection connection fromArray(instance, portsPtr);
+        connOut <- connection;
+
+        Int protocol;
+        Pointer<Int> protocolMethodPtr atAddr(protocolMethodAddr);
+        protocolMethodPtr -> protocol;
+
+        Int msgType 1;
+        Int method 5;
+        out <- msgType;
+        out <- instance;
+        out <- protocol;
+        out <- portOne;
+        out <- portTwo;
+        out commit();
+
+        Return;
+    }
+
+    send(Int instance) {
+        SystemOut out ();
+        Int msgType 5;
+        out <- msgType;
+        out <- instance;
+        out commit();
+
+        Return;
+    }
+
+    listen(Pointer<Connection> connOut) {
+        SystemIn in ();
+        SystemOut out ();
+
+        Int zero 0;
+        Int code 0;
+
+        While w loop {
+            in peek(code);
+            code ifNot(zero) {
+                w break();
+            };
+        };
+
+        Int instance;
+        Int protocolMethod;
+        in -> code;
+        in -> instance;
+        in -> protocolMethod;
+        in reset();
+
+        Reference<SimpleAdministrator> this alt();
+        Pointer<Int> thisPageBump admin(this pageBump);
+        Int pageBump 0;
+        thisPageBump copyTo(pageBump);
+
+        out allocatePage(pageBump);
+        out commit();
+        Int inPage (pageBump);
+        inPage multiply(4096);
+        pageBump + 1;
+
+        out allocatePage(pageBump);
+        out commit();
+        Int outPage (pageBump);
+        outPage * 4096;
+        pageBump + 1;
+
+        thisPageBump <- pageBump;
+
+        Int msgType 2;
+        Int pageCount 2;
+        Int size 8;
+        out <- msgType;
+        out <- pageCount;
+        out <- inPage;
+        out <- outPage;
+        out commit();
+
+        Connection conn (inPage, outPage, instance);
+        connOut <- conn;
+
+        Return;
+    }
+
+}

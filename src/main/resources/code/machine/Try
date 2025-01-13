@@ -1,0 +1,52 @@
+parser machine;
+
+Try {
+
+    Addr handler;
+    Addr end;
+
+    constructor() {
+    }
+
+    constructor(Block block) {
+        Blockk block;
+        j(REL, I, end);
+    }
+
+    handle(Block block) {
+        j(REL, I, end);
+        Addr handler;
+        Blockk block;
+        Addr end;
+    }
+
+    throw() {
+        j(REL, I, handler);
+    }
+
+    succeed() {
+        j(REL, I, end);
+    }
+
+}
+
+old {
+    Addr handler;
+    Addr end;
+
+    constructor Try() {
+        f(SET_CURR_HANDLER, handler);
+    }
+
+    constructor Try(Block block) {
+        f(SET_CURR_HANDLER, handler);
+        Blockk block;
+    }
+
+    handle(Block block) {
+        j(REL, I, end);
+        Addr handler;
+        Blockk block;
+        Addr end;
+    }
+}

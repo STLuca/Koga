@@ -1,0 +1,24 @@
+parser hosted;
+
+imports {
+    Int;
+    Reference;
+    Pointer;
+    Task;
+}
+
+Fields {
+
+    Int x;
+
+    addInput(Int in) {
+        Reference<Fields> this this();
+        Pointer<Int> thisX (this x);
+        Int x 0;
+        thisX copyTo(x);
+        x plusInt(in);
+        thisX copyFrom(x);
+        Task t complete();
+    }
+
+}

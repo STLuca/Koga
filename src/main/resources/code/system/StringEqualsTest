@@ -1,0 +1,27 @@
+parser host;
+
+imports {
+    Boolean;
+    String;
+    Exit;
+    Int;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+constants {
+    aConstName "hello";
+}
+
+StringEqualsTest {
+
+    main() {
+        String hi "hello";
+        String anotherHi (aConstName);
+        Boolean b { hi equalTo(anotherHi); };
+        Exit;
+    }
+
+}

@@ -1,0 +1,30 @@
+parser host;
+
+imports {
+    Byte;
+    Int;
+    Switch;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+SwitchTest {
+
+    main() {
+        Int x 0;
+        Int y 2;
+        Switch (y)
+            case(0) {
+                x + 5;
+            } case(1) {
+                x + 10;
+            } case(2) {
+                x + 15;
+            };
+        Exit;
+    }
+
+}

@@ -1,0 +1,34 @@
+parser host;
+
+imports {
+    Byte;
+    Int;
+    Reference;
+    InterfaceReference;
+    Usable;
+    Exit;
+    AdminRef;
+}
+
+dependencies {
+    List;
+    ArrayList;
+    SimpleAdministrator;
+}
+
+ListTest {
+
+    main() {
+        AdminRef admin init();
+        Reference<ArrayList> arrayList new();
+        InterfaceReference<List> list (arrayList);
+        Usable<Int> mc ();
+        Int size 5;
+        list init(mc size);
+        Int index 3;
+        Int value 99;
+        list set(index value);
+        Exit;
+    }
+
+}

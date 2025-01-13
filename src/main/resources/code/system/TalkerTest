@@ -1,0 +1,42 @@
+parser host;
+
+imports {
+    InputStream;
+    OutputStream;
+    Int;
+    Pointer;
+    AdminRef;
+    Boolean;
+    While;
+    String;
+    Exit;
+    Connection;
+    Reference;
+}
+
+dependencies {
+    SimpleAdministrator;
+    Chat;
+    Chatting;
+}
+
+TalkerTest {
+
+    main() {
+        AdminRef admin init();
+
+        Int instance 1;
+        Connection conn connect(instance, Chatting, chat);
+
+        Reference<Chat> chat new();
+        chat asClient(conn);
+        String str "hello server";
+        chat write(str);
+        String result;
+        Pointer<String> resultPtr (result);
+        chat read(resultPtr);
+
+        Exit;
+    }
+
+}

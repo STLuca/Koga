@@ -1,0 +1,15 @@
+parser machine;
+
+Task {
+
+    constructor complete() {
+        Admin(TRANSITION);
+    }
+
+    constructor fail() {
+        byte[4] status;
+        i(ADD, II, LDA, status, IL, 0d1, IL, 0d0);
+        Admin(TRANSITION, status);
+    }
+
+}

@@ -1,0 +1,30 @@
+parser host;
+
+imports {
+    Byte;
+    Int;
+    Boolean;
+    If;
+    While;
+    LocalDate;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+StructureTest {
+
+    main() {
+        LocalDate date;
+        Int addDays 30;
+        date addDays(addDays);
+        date testing(addDays) {
+            addDays + 5;
+        };
+        LocalDate today today();
+        Exit;
+    }
+
+}

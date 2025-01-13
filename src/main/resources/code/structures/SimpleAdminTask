@@ -1,0 +1,11 @@
+parser structure;
+
+imports {
+    Int;
+}
+
+SimpleAdminTask {
+
+    Int myInt;
+
+}

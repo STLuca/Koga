@@ -1,0 +1,99 @@
+parser hosted;
+
+imports {
+    Int;
+    Connection;
+    Reference;
+    Pointer;
+    Boolean;
+    AdminRef;
+    While;
+    OutputStream;
+    InputStream;
+    String;
+    AdminRef;
+    Task;
+}
+
+Chat {
+
+    InputStream in;
+    OutputStream out;
+    Int instance;
+
+    asClient(Connection connection) {
+        Reference<Chat> this this();
+
+        Int inAddr pageTwo(connection);
+        InputStream inStream (inAddr);
+        Pointer<InputStream> thisIn (this, in);
+        thisIn <- inStream;
+
+        Int outAddr pageOne(connection);
+        OutputStream outStream (outAddr);
+        Pointer<OutputStream> thisOut (this, out);
+        thisOut <- outStream;
+
+        Int instnc instance(connection);
+        Pointer<Int> thisInstance (this, instance);
+        thisInstance <- instnc;
+
+        Task t complete();
+    }
+
+    asServer(Connection connection) {
+        Reference<Chat> this this();
+
+        Int inAddr pageOne(connection);
+        InputStream inStream (inAddr);
+        Pointer<InputStream> thisIn (this, in);
+        thisIn <- inStream;
+
+        Int outAddr pageTwo(connection);
+        OutputStream outStream (outAddr);
+        Pointer<OutputStream> thisOut (this, out);
+        thisOut <- outStream;
+
+        Int instnc instance(connection);
+        Pointer<Int> thisInstance (this, instance);
+        thisInstance <- instnc;
+
+        Task t complete();
+    }
+
+    read(Pointer<String> outString) {
+        Reference<Chat> this this();
+        Pointer<InputStream> thisIn (this, in);
+        InputStream in;
+        thisIn -> in;
+
+        in wait();
+        String out;
+        out readFrom(in);
+
+        outString <- out;
+        thisIn <- in;
+
+        Task t complete();
+    }
+
+    write(String inString) {
+        Reference<Chat> this this();
+        Pointer<OutputStream> thisOut (this, out);
+        OutputStream out;
+        thisOut -> out;
+
+        Pointer<Int> thisInstance (this, instance);
+        Int instance;
+        thisInstance -> instance;
+
+        AdminRef admin ();
+        inString copyTo out;
+        admin send(instance);
+
+        thisOut <- out;
+
+        Task t complete();
+    }
+
+}

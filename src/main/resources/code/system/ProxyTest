@@ -1,0 +1,26 @@
+parser host;
+
+imports {
+    Byte;
+    Int;
+    Optional;
+    Proxy;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+ProxyTest {
+
+    main() {
+        Int x 1;
+        Optional<Int> y (x);
+        Proxy<Int> z;
+        y get(z);
+        z + 2;
+        Exit;
+    }
+
+}

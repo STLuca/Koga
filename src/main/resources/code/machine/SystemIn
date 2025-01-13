@@ -1,0 +1,32 @@
+parser machine;
+
+SystemIn {
+
+    byte[4] root;
+    byte[4] current;
+
+    constructor() {
+        Symbol(SYSTEM, sysInSymbol, IL, SystemIn);
+        c(ADDR, LI, LDA, root, R, altTable, AL, sysInSymbol);
+        i(ADD, TI, LDA, current, LDA, root, IL, 0d4);
+    }
+
+    reset() {
+        m(COPY, TII, LDA, current, LDA, root, LDS, current);
+    }
+
+    peek(Int x) {
+        m(COPY, ITI, ADA, x, LDA, current, ADS, x);
+    }
+
+    copyTo(Int x) {
+        m(COPY, ITI, ADA, x, LDA, current, ADS, x);
+        i(ADD, TI, LDA, current, LDA, current, IL, 0d4);
+    }
+
+    copyToString(String s) {
+        m(COPY, TTT, ADA, s.start, LDA, current, ADA, s.size);
+        i(ADD, TT, current, current, s.size);
+    }
+
+}

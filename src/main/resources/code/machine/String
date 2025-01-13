@@ -1,0 +1,93 @@
+parser machine;
+
+String {
+
+    byte[4] size;
+    byte[4] start;
+    byte[4] step;
+
+    constructor(Int s) {
+        i(ADD, TI, LDA, size, ADA, s.val, IL, 0d0);
+        i(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+    }
+
+    constructor new(Int s) {
+        i(ADD, TI, LDA, size, ADA, s.val, IL, 0d0);
+        i(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+        i(ADD, LI, LDA, start, R, task, IL, 0d0);
+        i(ADD, TI, LDA, start, LDA, start, LDA, start);
+        Admin(ALLOCATE, start, size);
+    }
+
+    constructor(Name const) {
+        Symbol(CONST, constSymbol, AL, const);
+        c(ADDR, LI, start, table, constSymbol);
+        c(SIZE, LI, size, table, constSymbol);
+        i(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+    }
+
+    constructor(b8[] const) {
+        c(ADDR, LI, start, table, const);
+        c(SIZE, LI, size, table, const);
+        i(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+    }
+
+    constructor readFrom(InputStream in) {
+        m(COPY, ITI, LDA, size, ADA, in.current, LDS, size);
+        i(ADD, TI, ADA, in.current, ADA, in.current, IL, 0d4);
+        i(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+        i(ADD, LI, LDA, start, R, task, IL, 0d0);
+        i(ADD, TI, LDA, start, LDA, start, LDA, start);
+        Admin(ALLOCATE, start, size);
+        m(COPY, TTT, LDA, start, ADA, in.current, LDA, size);
+        i(ADD, TT, ADA, in.current, ADA, in.current, LDA, size);
+    }
+
+     readFrom(InputStream in) {
+        m(COPY, ITI, LDA, size, ADA, in.current, LDS, size);
+        i(ADD, TI, ADA, in.current, ADA, in.current, IL, 0d4);
+        i(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+        i(ADD, LI, LDA, start, R, task, IL, 0d0);
+        i(ADD, TI, LDA, start, LDA, start, LDA, start);
+        Admin(ALLOCATE, start, size);
+        m(COPY, TTT, LDA, start, ADA, in.current, LDA, size);
+        i(ADD, TT, ADA, in.current, ADA, in.current, LDA, size);
+    }
+
+    copyTo(OutputStream out) {
+        m(COPY, TII, ADA, out.current, LDA, size, LDS, size);
+        i(ADD, TI, ADA, out.current, ADA, out.current, IL, 0d4);
+        m(COPY, TTT, ADA, out.current, LDA, start, LDA, size);
+        i(ADD, TI, ADA, out.current, ADA, out.current, LDA, size);
+    }
+
+    equalTo(String in, Boolean dest) {
+        Addr setFalse;
+        Addr setTrue;
+        Addr end;
+        cb(NEQ, TT, LDA, size, ADA, in.size, setFalse);
+        byte[4] thisAddr;
+        byte[1] thisVal;
+        byte[4] inAddr;
+        byte[1] inVal;
+        byte[4] endAddr;
+        i(ADD, TI, LDA, thisAddr, LDA, start, IL, 0d0);
+        i(ADD, TI, LDA, inAddr, ADA, in.start, IL, 0d0);
+        i(ADD, TT, LDA, endAddr, LDA, thisAddr, LDA, size);
+        Addr loop;
+        cb(EQ, TT, LDA, thisAddr, LDA, endAddr, setTrue);
+        m(COPY, ITI, LDA, thisVal, LDA, thisAddr, LDS, thisVal);
+        m(COPY, ITI, LDA, inVal, LDA, inAddr, LDS, inVal);
+        cb(NEQ, TT, LDA, thisVal, LDA, inVal, setFalse);
+        i(ADD, TI, LDA, thisAddr, LDA, thisAddr, IL, 0d1);
+        i(ADD, TI, LDA, inAddr, LDA, inAddr, IL, 0d1);
+        j(REL, I, loop);
+        Addr setTrue;
+        i(ADD, II, ADA, dest.val, IL, 0d1, IL, 0d0);
+        j(REL, I, end);
+        Addr setFalse;
+        i(ADD, II, ADA, dest.val, IL, 0d0, IL, 0d0);
+        Addr end;
+    }
+
+}

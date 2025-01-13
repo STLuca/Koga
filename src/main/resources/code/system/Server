@@ -1,0 +1,63 @@
+parser host;
+
+imports {
+    InputStream;
+    OutputStream;
+    AdminRef;
+    Int;
+    Boolean;
+    While;
+    If;
+    Array;
+    ArrayPointer;
+    Pointer;
+    Thread;
+    String;
+    Reference;
+    Task;
+    Connection;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+    Chat;
+    Chatting;
+}
+
+Server supports Chatting {
+
+    main() {
+        AdminRef admin init();
+
+        Connection conn;
+        Pointer<Connection> connPtr (conn);
+        admin listen(connPtr);
+
+        Reference<Server> t this();
+        t chat(conn);
+
+        Exit;
+    }
+
+    chat(Connection conn) {
+        Reference<Chat> chat new();
+        chat asServer(conn);
+        String str;
+        Pointer<String> strPtr (str);
+
+        chat read(strPtr);
+        String expected "hello server";
+        Boolean isGreeting { str == expected; };
+        If (isGreeting) {
+            String response "hello client";
+            chat write(response);
+        } else {
+            String response "huh";
+            chat write(response);
+        };
+
+        Task t complete();
+    }
+
+}

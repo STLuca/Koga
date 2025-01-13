@@ -1,0 +1,33 @@
+parser machine;
+
+SystemOut {
+
+    byte[4] root;
+    byte[4] current;
+
+    constructor() {
+        Symbol(SYSTEM, sysOutSymbol, IL, SystemOut);
+        c(ADDR, LI, LDA, root, R, altTable, AL, sysOutSymbol);
+        m(COPY, ITI, LDA, current, LDA, root, LDS, current);
+    }
+
+    commit() {
+        logician(NOTIFY_SUPERVISOR, T, root);
+        m(COPY, ITI, LDA, current, LDA, root, LDS, current);
+    }
+
+    copyFrom(Int x) {
+        m(COPY, TII, LDA, current, ADA, x, ADS, x);
+        i(ADD, TI, LDA, current, LDA, current, IL, 0d4);
+    }
+
+    allocatePage(Int localPage) {
+        byte[4] msgType;
+        i(ADD, II, LDA, msgType, IL, 0d0, IL, 0d3);
+        m(COPY, TII, LDA, current, LDA, msgType, LDS, msgType);
+        i(ADD, TI, LDA, current, LDA, current, LDS, msgType);
+        m(COPY, TII, LDA, current, ADA, localPage, ADS, localPage);
+        i(ADD, TI, LDA, current, LDA, current, ADS, localPage);
+    }
+
+}

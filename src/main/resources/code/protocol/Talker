@@ -1,0 +1,10 @@
+parser protocol;
+
+Talker {
+
+    talk {
+        Byte[4096] read;
+        Byte[4096] write;
+    }
+
+}

@@ -1,0 +1,26 @@
+parser host;
+
+imports {
+    Byte;
+    Int;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+ByteAndIntTest {
+
+    main() {
+        Byte x 0;
+        Int y 0;
+        Byte z 0;
+
+        x + 10;
+        y + 25;
+        z + 111;
+        Exit;
+    }
+
+}

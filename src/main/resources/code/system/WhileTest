@@ -1,0 +1,27 @@
+parser host;
+
+imports {
+    Int;
+    Boolean;
+    While;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+WhileTest {
+
+    main() {
+        Int x 0;
+        Boolean y true;
+
+        While (y) {
+            x + 1;
+            y = { x < 10; };
+        };
+        Exit;
+    }
+
+}

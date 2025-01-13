@@ -1,0 +1,78 @@
+package language.machine;
+
+import core.Document;
+import language.core.Argument;
+import language.core.Compiler;
+import language.core.Context;
+import language.core.Variable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class AdminStatement implements Statement {
+
+    enum AdminType {
+        ALLOCATE,
+        PORT,
+        EXIT,
+        TASK,
+        AWAIT_TASK,
+        TRANSITION
+    }
+
+    ArrayList<String> arguments = new ArrayList<>();
+
+    
+    public void compile(Compiler.MethodCompiler compiler, Variable variable, Map<String, Argument> arguments, Context context) {
+        String methodAddr = "adminMethodAddr";
+        String frameDataAddr = "frameDataAddr";
+        String methodSymbol = "adminMethodSymbol";
+
+        AdminType type = AdminType.valueOf(this.arguments.get(0));
+        String methodName;
+        switch (type) {
+            case ALLOCATE -> {
+                methodName = "allocate";
+            }
+            case PORT -> {
+                methodName = "port";
+            }
+            case EXIT -> {
+                methodName = "exit";
+            }
+            case TASK -> {
+                methodName = "task";
+            }
+            case AWAIT_TASK -> {
+                methodName = "awaitTask";
+            }
+            case TRANSITION -> {
+                methodName = "transition";
+            }
+            default -> throw new RuntimeException();
+        };
+        int allocateAddr = compiler.symbol(Document.Symbol.Type.METHOD, "Administrator", methodName);
+        Argument arg = Argument.of(allocateAddr);
+        arguments.put(methodSymbol, arg);
+
+        int location = compiler.data(4);
+        variable.methodAllocations.peek().put(methodAddr, new Variable.Allocation(4, location));
+        compiler.debugData(variable.name, methodAddr, location, 4);
+        location = compiler.data(4);
+        variable.methodAllocations.peek().put(frameDataAddr, new Variable.Allocation(4, location));
+        compiler.debugData(variable.name, frameDataAddr, location, 4);
+
+        new InstructionStatement("c", "ADDR", "LI", "LDA", methodAddr, "R", "table", "AL", methodSymbol).compile(compiler, variable, arguments, context);
+        new InstructionStatement("i", "ADD", "LI", "LDA", frameDataAddr, "R", "altTask", "IL", "0d0").compile(compiler, variable, arguments, context);
+
+        for (int i = 1; i < this.arguments.size(); i++) {
+            new InstructionStatement("m", "COPY", "TII", "LDA", frameDataAddr, "LDA", this.arguments.get(i), "IL", "0d4").compile(compiler, variable, arguments, context);
+            if (i == this.arguments.size() - 1) continue;
+            new InstructionStatement("i","ADD", "TI", "LDA", frameDataAddr, "LDA", frameDataAddr, "IL", "0d4").compile(compiler, variable, arguments, context);
+        }
+
+        new InstructionStatement("logician", "START_ADMIN", "T", "LDA", methodAddr).compile(compiler, variable, arguments, context);
+    }
+
+}

@@ -1,0 +1,33 @@
+parser machine;
+
+Throw {
+
+    constructor() {
+        Addr handlerExecute;
+        byte[4] frame;
+        byte[4] handler;
+        f(GET_CURR_FRAME, frame);
+        Addr searchStart;
+        f(GET_HANDLER, handler, frame);
+        cb(NEQ, TI, LDA, handler, IL, 0d0, handlerExecute);
+        f(GET_RETURN, frame, frame);
+        cb(NEQ, TI, LDA, frame, IL, 0d0, searchStart);
+        Admin(EXIT);
+        Addr handlerExecute;
+        f(SET_INSTRUCTION, frame, handler);
+        Admin(SCHEDULE, frame);
+    }
+
+}
+
+
+# set frame to current frame
+#
+# Get handler for frame
+# If not 0, jump to handler call
+# set frame to the parent frame
+# if parent frame exists, jump back up
+# exit thread if root frame
+
+# set the handler frames instruction to handler
+# return to the frame

@@ -1,0 +1,30 @@
+parser host;
+
+imports {
+    Byte;
+    Int;
+    Array;
+    ArrayPointer;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+ArrayPointerTest {
+
+    main() {
+        Int x 4;
+        Int y 5;
+        Int z 0;
+        Array<Int> arr (3);
+        ArrayPointer<Int> p (arr);
+        p copyFrom(x);
+        p index(2);
+        p copyFrom(y);
+        p copyTo(z);
+        Exit;
+    }
+
+}

@@ -1,0 +1,22 @@
+parser host;
+
+imports {
+    Byte;
+    Char;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+CharTest {
+
+    main() {
+        Char x 'a';
+        Char y 'h';
+        Char z 'L';
+        Exit;
+    }
+
+}

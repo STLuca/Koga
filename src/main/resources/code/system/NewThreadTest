@@ -1,0 +1,28 @@
+parser host;
+
+imports {
+    Int;
+    Thread;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+NewThreadTest {
+
+    main() {
+        AdminRef admin init();
+        Thread<NewThreadTest> this this();
+        Int x 13;
+        this anything(x);
+        Exit;
+    }
+
+    anything(Int x) {
+        Exit;
+    }
+
+
+}

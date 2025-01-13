@@ -1,0 +1,37 @@
+parser host;
+
+imports {
+    Byte;
+    Int;
+    Pointer;
+    Reference;
+    Return;
+    Exit;
+    AdminRef;
+    Task;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+MethodInvokeTest {
+
+    main() {
+        AdminRef admin init();
+        Int x 0;
+        Int y 1;
+        Pointer<Int> p (x);
+        Reference<MethodInvokeTest> this this();
+        this second(p);
+        y + 1;
+        Exit;
+    }
+
+    second(Pointer<Int> r) {
+        Int a 5;
+        r <- a;
+        Task t complete();
+    }
+
+}

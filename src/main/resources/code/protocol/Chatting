@@ -1,0 +1,10 @@
+parser protocol;
+
+Chatting {
+
+    chat {
+        Byte[4096] read;
+        Byte[4096] write;
+    }
+
+}

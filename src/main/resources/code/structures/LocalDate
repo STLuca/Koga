@@ -1,0 +1,39 @@
+parser structure;
+
+imports {
+    Boolean;
+    While MyWhile;
+    If;
+    Byte;
+    Int;
+}
+
+LocalDate {
+
+    Int year;
+    Int month;
+    Int day;
+
+    constructor today() {
+        Int year 2025;
+        Int month 3;
+        Int day 6;
+    }
+
+    addDays(Int amount) {
+        amount + 2;
+        day + amount;
+        Boolean isTooHigh { day > 28; };
+        MyWhile (isTooHigh) {
+            month + 1;
+            day - 28;
+            isTooHigh = { day > 28; };
+        };
+    }
+
+    testing(Int amount, Block b) {
+        Boolean x true;
+        If tmp (x, b);
+    }
+
+}

@@ -1,0 +1,23 @@
+parser host;
+
+imports {
+    Int;
+    Boolean;
+    If;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+MethodOverloadTest {
+
+    main() {
+        Int x 2;
+        Int y 7;
+        x + 1 + y;
+        Exit;
+    }
+
+}

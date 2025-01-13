@@ -1,0 +1,32 @@
+parser host;
+
+imports {
+    Byte;
+    Int;
+    If;
+    While;
+    Exit;
+    Boolean;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+WhileWithBreakTest {
+
+    main() {
+        Int x 0;
+        Boolean y true;
+
+        While a (y) {
+            If(x) {
+                a break();
+            };
+            x + 1;
+            y = { x < 10; };
+        };
+        Exit;
+    }
+
+}

@@ -1,0 +1,38 @@
+parser host;
+
+imports {
+    Array;
+    ArrayPointer;
+    Byte;
+    String;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+constants {
+    array [10  32  67  127];
+    hello "Hello World!";
+}
+
+ConstantsTest {
+
+    main() {
+        Array<Byte> b fromBytes(array);
+        ArrayPointer<Byte> p (b);
+        Byte x 0;
+        p index(2);
+        p copyTo(x);
+
+        String s (hello);
+        Byte y 0;
+        ArrayPointer<Byte> sp (s);
+        sp index(4);
+        sp copyTo(y);
+
+        Exit;
+    }
+
+}

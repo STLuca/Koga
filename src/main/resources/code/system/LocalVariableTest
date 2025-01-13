@@ -1,0 +1,43 @@
+parser host;
+
+imports {
+    Byte;
+    Int;
+    Reference;
+    Pointer;
+    Exit;
+    AdminRef;
+    Return;
+    Task;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+LocalVariableTest {
+
+    Int x;
+
+    main() {
+        AdminRef admin init();
+        Int y 10;
+        Int z 16;
+        Reference<LocalVariableTest> this this();
+        Pointer<Int> thisx (this x);
+        thisx <- z;
+        Pointer<Int> p (y);
+        this second(p);
+        Exit;
+    }
+
+    second(Pointer<Int> r) {
+        Reference<LocalVariableTest> this this();
+        Pointer<Int> thisx (this x);
+        Int a 0;
+        thisx -> a;
+        r <- a;
+        Task t complete();
+    }
+
+}

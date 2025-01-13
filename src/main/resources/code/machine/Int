@@ -1,0 +1,151 @@
+parser machine;
+
+Int {
+
+    ~ here is a comment
+    byte[4] val;
+
+    constructor(b32 imm) {
+        ~ Here is another comment
+        ~ in fact what about two in a row
+        i(ADD, II, LDA, val, IL, 0d0, AL, imm);
+    }
+
+    constructor(Int copy) {
+        i(ADD, TI, LDA, val, ADA, copy.val, IL, 0d0);
+    }
+
+    constructor(Char char) {
+        i(ADD, TI, LDA, val, ADA, char.val, IL, 0d0);
+    }
+
+    constructor port() {
+        ~ Get the absolute address of val
+        i(ADD, LI, LDA, val, R, task, LDA, val);
+        Admin(PORT, val);
+    }
+
+    constructor task() {
+        i(ADD, LI, LDA, val, R, task, IL, 0d0);
+    }
+
+    constructor altTask() {
+        i(ADD, LI, LDA, val, R, altTask, IL, 0d0);
+    }
+
+    constructor altMethod() {
+        i(ADD, LI, LDA, val, R, altInstruction, IL, 0d0);
+    }
+
+    constructor currentObject() {
+        i(ADD, LI, LDA, val, R, object, IL, 0d0);
+    }
+
+    constructor currentTable() {
+        i(ADD, LI, LDA, val, R, table, IL, 0d0);
+    }
+
+    constructor pageOne(Connection connection) {
+        i(ADD, TI, LDA, val, ADA, connection.pageOne, IL, 0d0);
+    }
+
+    constructor pageTwo(Connection connection) {
+        i(ADD, TI, LDA, val, ADA, connection.pageTwo, IL, 0d0);
+    }
+
+    constructor instance(Connection connection) {
+        i(ADD, TI, LDA, val, ADA, connection.instance, IL, 0d0);
+    }
+
+    set(b32 imm) {
+        i(ADD, II, LDA, val, AL, imm, IL, 0d0);
+    }
+
+    plus(b32 imm) {
+        i(ADD, TI, LDA, val, LDA, val, AL, imm);
+    }
+
+    minus(b32 imm) {
+        i(SUB, TI, LDA, val, LDA, val, AL, imm);
+    }
+
+    plus(Int in) {
+        i(ADD, TT, LDA, val, LDA, val, ADA, in.val);
+    }
+
+    plusInt(Int in) {
+        i(ADD, TT, LDA, val, LDA, val, ADA, in.val);
+    }
+
+    multiply(b32 imm) {
+        math(MULT, TI, LDA, val, LDA, val, AL, imm);
+    }
+
+    greaterThan(b32 imm, Boolean dest) {
+        i(SGT, TI, ADA, dest.val, LDA, val, AL, imm);
+    }
+
+    lessThan(b32 imm, Int dest) {
+        i(SLT, TI, ADA, dest.val, LDA, val, AL, imm);
+    }
+
+    set(Int x) {
+        i(ADD, TI, LDA, val, ADA, x.val, IL, 0d0);
+    }
+
+    lessThan(b32 imm, Boolean dest) {
+        i(SLT, TI, ADA, dest.val, LDA, val, AL, imm);
+    }
+
+    equalTo(Int in, Boolean dest) {
+        i(SEQ, TT, ADA, dest.val, LDA, val, ADA, in.val);
+    }
+
+    notEqualTo(Int in, Boolean dest) {
+        i(SNEQ, TT, ADA, dest.val, LDA, val, ADA, in.val);
+    }
+
+    if(Int in, Block block) {
+        Addr after;
+        cb(NEQ, LDA, val, ADA, in.val, after);
+        Blockk block;
+        Addr after;
+    }
+
+    ifNot(Int in, Block block) {
+        Addr after;
+        cb(EQ, LDA, val, ADA, in.val, after);
+        Blockk block;
+        Addr after;
+    }
+
+    jumpPlusAddr(b32 imm) {
+        j(REL, I, here);
+        i(ADD, TI, LDA, val, LDA, val, AL, imm);
+        Addr here;
+        i(ADD, TI, LDA, val, LDA, val, AL, imm);
+    }
+
+    plusTwice(b32 imm) {
+        byte[4] tmpVal;
+        i(ADD, TI, LDA, tmpVal, LDA, val, AL, imm);
+        i(ADD, TI, LDA, val, LDA, tmpVal, AL, imm);
+    }
+
+    ~ Delete
+    usingContext() {
+        Context(IMPLICIT, int, LDA, val);
+        Blockk super default {
+            i(ADD, TT, LDA, val, CL, int, CL, int);
+        };
+    }
+
+    ~ Delete
+    makeBlock(Block b) {
+        Blockk super {
+            i(ADD, TI, LDA, val, CL, int, IL, 0d10);
+        };
+        Blockk b;
+    }
+
+}

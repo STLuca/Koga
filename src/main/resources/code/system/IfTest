@@ -1,0 +1,33 @@
+parser host;
+
+imports {
+    Byte;
+    Int;
+    Boolean;
+    If;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+IfTest {
+
+    ~ this demonstrates a typical if elseIf construct
+    ~ all of which is implemented using the language
+
+    main() {
+        ~ Comments are allowed here too
+        Int x 0;
+        Boolean a false;
+        Boolean b true;
+        If(a) {
+            x + 5 + 5;
+        } elseIf(b) {
+            x + 20;
+        };
+        Exit;
+    }
+
+}

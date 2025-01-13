@@ -1,0 +1,9 @@
+parser machine;
+
+Exit {
+
+    constructor() {
+        Admin(EXIT);
+    }
+
+}

@@ -1,0 +1,27 @@
+parser host;
+
+imports {
+    Byte;
+    Int;
+    Try;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+ExceptionTest {
+
+    main() {
+        Int x 0;
+        Try t {
+            t throw();
+            x plus(5);
+        } handle {
+            x plus(10);
+        };
+        Exit;
+    }
+
+}

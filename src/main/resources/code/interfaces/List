@@ -1,0 +1,13 @@
+parser interface;
+
+imports {
+    Int;
+    Usable;
+}
+
+List {
+
+    init(Usable mc, Int size);
+    set(Int index, Int value);
+
+}

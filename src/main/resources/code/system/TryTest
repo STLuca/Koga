@@ -1,0 +1,50 @@
+parser host;
+
+imports {
+    Int;
+    If;
+    Task;
+    Seq;
+    Boolean;
+    Pointer;
+    Reference;
+    AdminRef;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+TryTest {
+
+    main() {
+        AdminRef admin init();
+        Int x 0;
+        Pointer<Int> ptr (x);
+        Reference<TryTest> this this();
+        Seq {
+            this second(ptr);
+            this second(ptr);
+            this second(ptr);
+            this second(ptr);
+            this second(ptr);
+        } {
+            x = 30;
+        };
+        Exit;
+    }
+
+    second(Pointer<Int> ptr) {
+        Int test 15;
+        Int x;
+        ptr -> x;
+        x if(test) {
+            Task f fail();
+        };
+        x + 5;
+        ptr <- x;
+        Task t complete();
+    }
+
+}

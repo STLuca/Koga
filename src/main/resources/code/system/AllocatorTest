@@ -1,0 +1,28 @@
+parser host;
+
+imports {
+    Int;
+    Pointer;
+    AdminRef;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+AllocatorTest {
+
+    main() {
+        AdminRef admin init();
+        Int size 124;
+        Int allocateOne 0;
+        Pointer<Int> allocateOneP (allocateOne);
+        admin allocate(allocateOneP size);
+        Int allocateTwo 0;
+        Pointer<Int> allocateTwoP (allocateTwo);
+        admin allocate(allocateTwoP size);
+        admin exit();
+    }
+
+}

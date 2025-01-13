@@ -1,0 +1,51 @@
+parser machine;
+
+Pointer<Usable T> {
+
+    byte[4] addr;
+
+    constructor(Any val) {
+        i(ADD, LI, LDA, addr, R, task, ADA, val);
+    }
+
+    constructor(Reference r, Name field) {
+        Symbol(FIELD, fieldSymbol, AG, r.R, AL, field);
+        c(ADDR, LI, addr, table, fieldSymbol);
+        i(ADD, TT, addr, addr, r.objectAddr);
+    }
+
+    constructor admin(Reference r, Name field) {
+        Symbol(FIELD, fieldSymbol, AG, r.R, AL, field);
+        c(ADDR, LI, LDA, addr, R, altTable, AL, fieldSymbol);
+        i(ADD, TT, addr, addr, r.objectAddr);
+    }
+
+    constructor atAddr(Int addr) {
+        i(ADD, TI, LDA, addr, ADA, addr.val, IL, 0d0);
+    }
+
+    copyTo(Any val) {
+        m(COPY, ITI, ADA, val, LDA, addr, LG, T);
+    }
+
+    copyFrom(Any val) {
+        m(COPY, TII, LDA, addr, ADA, val, LG, T);
+    }
+
+    copyFromPointer(Pointer val) {
+        m(COPY, III, LDA, addr, ADA, val.addr, ADS, val.addr);
+    }
+
+    plus(b32 imm) {
+        i(ADD, TI, LDA, addr, LDA, addr, AL, imm);
+    }
+
+    plus(Int in) {
+        i(ADD, TT, LDA, addr, LDA, addr, ADA, in.val);
+    }
+
+    set(Int addr) {
+        i(ADD, TI, LDA, addr, ADA, addr.val, IL, 0d0);
+    }
+
+}

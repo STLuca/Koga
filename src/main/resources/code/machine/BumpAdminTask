@@ -1,0 +1,20 @@
+parser machine;
+
+BumpAdminTask {
+
+    byte[4] taskAddr;
+    byte[4] object;
+    byte[4] table;
+    byte[4] instruction;
+    byte[4] altTask;
+    byte[4] return;
+
+    constructor loadInAdmin() {
+        i(ADD, LI, LDA, taskAddr, R, altTask, IL, 0d0);
+        i(ADD, LI, LDA, object, R, object, IL, 0d0);
+        i(ADD, LI, LDA, table, R, table, IL, 0d0);
+        i(ADD, LI, LDA, instruction, R, instruction, IL, 0d0);
+        i(ADD, LI, LDA, altTask, R, task, IL, 0d0);
+    }
+
+}

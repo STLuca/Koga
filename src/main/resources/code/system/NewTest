@@ -1,0 +1,23 @@
+parser host;
+
+imports {
+    Byte;
+    Int;
+    Exit;
+}
+
+dependencies {
+    SimpleAdministrator;
+}
+
+NewTest {
+
+    main() {
+        Int x 4;
+        x makeBlock {
+            x usingContext();
+        };
+        Exit;
+    }
+
+}

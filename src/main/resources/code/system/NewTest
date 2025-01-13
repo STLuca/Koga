@@ -1,0 +1,23 @@
+parser system;
+
+imports {
+    Byte;
+    Int;
+    Exit;
+}
+
+dependencies {
+    BumpAdministrator;
+}
+
+NewTest {
+
+    main() {
+        Int x 4;
+        x makeBlock {
+            x usingContext();
+        };
+        Exit;
+    }
+
+}

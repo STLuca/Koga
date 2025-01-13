@@ -1,0 +1,22 @@
+parser system;
+
+imports {
+    Byte;
+    Char;
+    Exit;
+}
+
+dependencies {
+    BumpAdministrator;
+}
+
+CharTest {
+
+    main() {
+        Char x 'a';
+        Char y 'h';
+        Char z 'L';
+        Exit;
+    }
+
+}

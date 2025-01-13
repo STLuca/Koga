@@ -1,0 +1,26 @@
+parser system;
+
+imports {
+    Byte;
+    Int;
+    Pointer;
+    Exit;
+}
+
+dependencies {
+    BumpAdministrator;
+}
+
+PointerTest {
+
+    main() {
+        Int x 1;
+        Int y 2;
+        Int z 3;
+        Pointer<Int> p (x);
+        p -> y;
+        p <- z;
+        Exit;
+    }
+
+}

@@ -1,0 +1,42 @@
+parser machineReference;
+
+InterfaceReference<R> {
+
+    byte[4] objectAddr;
+    byte[4] objectTable;
+    byte[4] interfaceTable;
+
+    constructor(Reference r) {
+        l(ADD, AI, LDA, objectAddr, ADA, r.objectAddr, IL, 0d0);
+        l(ADD, AI, LDA, objectTable, ADA, r.objectTable, IL, 0d0);
+        byte[2] interfaceClassSymbol;
+        symbol(INTERFACE, interfaceClassSymbol, AG, r.R, LG, R);
+        c(ADDR, I, interfaceTable, interfaceClassSymbol);
+    }
+
+    invoke(Name methodName) {
+        byte[4] iMethodSymbol;
+        byte[4] frameSize;
+        byte[4] methodAddr;
+        byte[4] newFrame;
+        byte[4] newFrameAddr;
+        symbol(METHOD, methodSymbol, LG, R, AL, methodName);
+        c(ADDR, I, iMethodSymbol, methodSymbol);
+        c(SIZE, A, LDA, frameSize, LDA, interfaceTable, LDA, iMethodSymbol);
+        l(ADD, RI, LDA, newFrame, R, task, LDA, newFrame);
+        c(ADDR, A, LDA, methodAddr, LDA, interfaceTable, LDA, iMethodSymbol);
+
+        admin(TASK, newFrame, objectAddr, objectTable, methodAddr, frameSize);
+
+        byte[4] frameDataAddr;
+        l(ADD, AI, LDA, frameDataAddr, LDA, newFrame, IL, 0d0);
+        args();
+        admin(AWAIT_TASK, newFrame);
+    }
+
+    arg(Any a) {
+        m(COPY, PA, LDA, frameDataAddr, ADA, a, ADS, a);
+        l(ADD, AI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
+    }
+
+}

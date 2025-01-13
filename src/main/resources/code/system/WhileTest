@@ -1,0 +1,27 @@
+parser system;
+
+imports {
+    Byte;
+    Int;
+    While;
+    Exit;
+}
+
+dependencies {
+    BumpAdministrator;
+}
+
+WhileTest {
+
+    main() {
+        Int x 0;
+        Int y 1;
+
+        While (y) {
+            x + 1;
+            x < (10 y);
+        };
+        Exit;
+    }
+
+}

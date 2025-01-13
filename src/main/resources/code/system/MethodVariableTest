@@ -1,0 +1,21 @@
+parser system;
+
+imports {
+    Byte;
+    Int;
+    Exit;
+}
+
+dependencies {
+    BumpAdministrator;
+}
+
+MethodVariableTest {
+
+    main() {
+        Int x 4;
+        x plusTwice(5);
+        Exit;
+    }
+
+}

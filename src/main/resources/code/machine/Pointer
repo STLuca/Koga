@@ -1,0 +1,53 @@
+parser machine;
+
+Pointer<T> {
+
+    byte[4] addr;
+
+    constructor(Any val) {
+        l(ADD, RI, LDA, addr, R, task, ADA, val);
+    }
+
+    constructor(Reference r, Name field) {
+        symbol(FIELD, fieldSymbol, AG, r.R, AL, field);
+        c(ADDR, I, addr, fieldSymbol);
+        l(ADD, AA, addr, addr, r.objectAddr);
+    }
+
+    constructor admin(Reference r, Name field) {
+        byte[4] altTable;
+        l(ADD, RI, LDA, altTable, R, altTable, IL, 0d0);
+        symbol(FIELD, fieldSymbol, AG, r.R, AL, field);
+        c(ADDR, I, LDA, addr, LDA, altTable, AL, fieldSymbol);
+        l(ADD, AA, addr, addr, r.objectAddr);
+    }
+
+    constructor atAddr(Int addr) {
+        l(ADD, AI, LDA, addr, ADA, addr.val, IL, 0d0);
+    }
+
+    copyTo(Any val) {
+        m(COPY, AP, ADA, val, LDA, addr, LG, T);
+    }
+
+    copyFrom(Any val) {
+        m(COPY, PA, LDA, addr, ADA, val, LG, T);
+    }
+
+    copyFromPointer(Pointer val) {
+        m(COPY, AA, LDA, addr, ADA, val.addr, ADS, val.addr);
+    }
+
+    plus(b32 imm) {
+        l(ADD, AI, LDA, addr, LDA, addr, AL, imm);
+    }
+
+    plus(Int in) {
+        l(ADD, AA, LDA, addr, LDA, addr, ADA, in.val);
+    }
+
+    set(Int addr) {
+        l(ADD, AI, LDA, addr, ADA, addr.val, IL, 0d0);
+    }
+
+}

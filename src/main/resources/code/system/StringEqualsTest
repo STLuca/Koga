@@ -1,0 +1,27 @@
+parser system;
+
+imports {
+    Boolean;
+    String;
+    Exit;
+    Int;
+}
+
+dependencies {
+    BumpAdministrator;
+}
+
+constants {
+    aConstName "hello";
+}
+
+StringEqualsTest {
+
+    main() {
+        String hi "hello";
+        String anotherHi (aConstName);
+        Boolean b { hi equalTo(anotherHi); };
+        Exit;
+    }
+
+}

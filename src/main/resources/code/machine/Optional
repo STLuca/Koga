@@ -1,0 +1,23 @@
+parser machine;
+
+Optional<T> {
+
+    byte[1] present;
+    byte[0] val;
+
+    constructor() {
+        l(ADD, II, LDA, present, IL, 0d0, IL, 0d0);
+        allocate(val, LG, T);
+    }
+
+    constructor(T pVal) {
+        l(ADD, II, LDA, present, IL, 0d1, IL, 0d0);
+        allocate(val, LG, T);
+        m(COPY, AA, LDA, val, ADA, pVal, LG, T);
+    }
+
+    get(Int p) {
+        proxy(p, val);
+    }
+
+}

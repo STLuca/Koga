@@ -1,0 +1,33 @@
+parser machine;
+
+Array<T> {
+
+    byte[4] size;
+    byte[4] start;
+    byte[4] step;
+
+    constructor() {}
+
+    constructor(b12 imm) {
+        l(ADD, II, LDA, size, IL, 0d0, AL, imm);
+        l(ADD, II, LDA, step, IL, 0d0, LG, T);
+        allocate(data, AL, imm, LG, T);
+        l(ADD, RI, LDA, start, R, task, LDA, data);
+    }
+
+    constructor fromBytes(Name const) {
+        symbol(CONST, constSymbol, AL, const);
+        c(ADDR, I, start, constSymbol);
+        c(SIZE, I, size, constSymbol);
+        l(ADD, II, LDA, step, IL, 0d0, LG, T);
+    }
+
+    constructor dynamic(MachineClass mc, Int x) {
+        l(ADD, AI, LDA, size, ADA, x.val, IL, 0d0);
+        l(MUL, AA, size, size, mc.size);
+        l(ADD, AI, LDA, step, ADA, mc.size, IL, 0d0);
+        l(ADD, RI, LDA, start, R, task, LDA, start);
+        admin(ALLOCATE, start, size);
+    }
+
+}

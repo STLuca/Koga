@@ -1,0 +1,31 @@
+parser machine;
+
+While {
+
+    Addr start;
+    Addr endd;
+
+    constructor(Int bool, Block loop) {
+        Addr start;
+        cb(EQ, AI, ADA, bool.val, IL, 0d0, endd);
+        loop;
+        j(REL, I, start);
+        Addr endd;
+    }
+
+    constructor loop(Block loop) {
+        Addr start;
+        loop;
+        j(REL, I, start);
+        Addr endd;
+    }
+
+    continue() {
+        j(REL, I, start);
+    }
+
+    break() {
+        j(REL, I, endd);
+    }
+
+}

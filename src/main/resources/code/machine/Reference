@@ -1,0 +1,96 @@
+parser machineReference;
+
+Reference<R> {
+
+    ~ comment
+    byte[4] objectAddr;
+    byte[4] objectTable;
+
+    constructor(b16 imm) {
+        l(ADD, II, LDA, objectAddr, IL, 0d0, AL, imm);
+        symbol(CLASS, classSymbol, LG, R);
+        c(ADDR, I, objectTable, classSymbol);
+    }
+
+    constructor this() {
+        l(ADD, RI, LDA, objectAddr, R, object, IL, 0d0);
+        l(ADD, RI, LDA, objectTable, R, table, IL, 0d0);
+    }
+
+    constructor alt() {
+        l(ADD, RI, LDA, objectAddr, R, altObject, IL, 0d0);
+        l(ADD, RI, LDA, objectTable, R, altTable, IL, 0d0);
+    }
+
+    constructor new() {
+        byte[4] objectSize;
+        symbol(CLASS, classSymbol, LG, R);
+        c(SIZE, I, objectSize, classSymbol);
+        l(ADD, RI, LDA, objectAddr, R, task, LDA, objectAddr);
+        admin(ALLOCATE, objectAddr, objectSize);
+        c(ADDR, I, objectTable, classSymbol);
+    }
+
+    invoke(Name methodName) {
+        byte[4] adminTask;
+        byte[4] frameSize;
+        byte[4] methodAddr;
+        byte[4] newTask;
+
+        l(ADD, RI, LDA, adminTask, R, altTask, IL, 0d0);
+        l(ADD, RI, LDA, newTask, R, task, LDA, newTask);
+        symbol(METHOD, methodSymbol, LG, R, AL, methodName);
+        c(SIZE, I, frameSize, methodSymbol);
+        c(ADDR, I, methodAddr, methodSymbol);
+
+        ~ copy all the admin arguments
+        m(COPY, PA, LDA, adminTask, LDA, newTask, LDS, newTask);
+        l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, newTask);
+        m(COPY, PA, LDA, adminTask, LDA, objectAddr, LDS, objectAddr);
+        l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, objectAddr);
+        m(COPY, PA, LDA, adminTask, LDA, objectTable, LDS, objectTable);
+        l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, objectTable);
+        m(COPY, PA, LDA, adminTask, LDA, methodAddr, LDS, methodAddr);
+        l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, methodAddr);
+        m(COPY, PA, LDA, adminTask, LDA, frameSize, LDS, frameSize);
+        l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, frameSize);
+
+        ~ use an implicit createTask body
+        ~ otherwise get the status data address, copy to admin arg, and invoke admin.task
+        createTask {
+            byte[4] status;
+            l(ADD, RI, LDA, status, R, task, LDA, status);
+            m(COPY, PA, LDA, adminTask, LDA, status, LDS, status);
+
+            byte[4] adminTaskMethod;
+            symbol(METHOD, adminTaskSymbol, IL, Administrator, IL, task);
+            c(ADDR, I, adminTaskMethod, adminTaskSymbol);
+            logician(START_ADMIN, LDA, adminTaskMethod);
+        };
+
+        byte[4] frameDataAddr;
+        l(ADD, AI, LDA, frameDataAddr, LDA, newTask, IL, 0d0);
+        args();
+
+        context(IMPLICIT, task, LDA, newTask);
+        taskReady {
+            byte[4] adminScheduleMethod;
+            symbol(METHOD, adminScheduleSymbol, IL, Administrator, IL, awaitTask);
+            c(ADDR, I, adminScheduleMethod, adminScheduleSymbol);
+            l(ADD, RI, LDA, adminTask, R, altTask, IL, 0d0);
+            m(COPY, PA, LDA, adminTask, LDA, newTask, LDS, newTask);
+            logician(START_ADMIN, LDA, adminScheduleMethod);
+        };
+        context(REMOVE, task);
+    }
+
+    arg(Any a) {
+        m(COPY, PA, LDA, frameDataAddr, ADA, a, ADS, a);
+        l(ADD, AI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
+    }
+
+    reference(b16 fieldSymbol, Pointer dest) {
+        c(ADDR, I, dest.addr, fieldSymbol);
+    }
+
+}

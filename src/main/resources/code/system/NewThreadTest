@@ -1,0 +1,28 @@
+parser system;
+
+imports {
+    Int;
+    Thread;
+    Exit;
+}
+
+dependencies {
+    BumpAdministrator;
+}
+
+NewThreadTest {
+
+    init() {
+        AdminRef admin init();
+        Thread<NewThreadTest> this this();
+        Int x 13;
+        this anything(x);
+        Exit;
+    }
+
+    anything(Int x) {
+        Exit;
+    }
+
+
+}

@@ -1,0 +1,42 @@
+parser reference;
+
+imports {
+    Int;
+    Array;
+    ArrayPointer;
+    Reference;
+    MachineClass;
+    Pointer;
+    Return;
+    Task;
+}
+
+dependencies {
+    List;
+}
+
+ArrayList implements List {
+
+    Array items;
+
+    init(MachineClass<T> mc, Int size) {
+        Reference<ArrayList> this this();
+        Pointer<Array> thisItems (this items);
+        Array<Int> items dynamic(mc size);
+        thisItems copyFrom(items);
+        Task t complete();
+    }
+
+    set(Int index, Int value) {
+        Reference<ArrayList> this this();
+        Pointer<Array> thisItems (this items);
+        Array<Int> items (0);
+        thisItems copyTo(items);
+        ArrayPointer<Int> p (items);
+        p indexInt(index);
+        p copyFrom(value);
+        Task t complete();
+    }
+
+
+}

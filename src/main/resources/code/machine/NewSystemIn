@@ -1,0 +1,29 @@
+parser machine;
+
+NewSystemOut {
+
+    byte[4] ptr;
+
+    constructor() {
+        symbol(SYSTEM, sysInSymbol, IL, SystemIn);
+        c(ADDR, I, root, sysInSymbol);
+    }
+
+    readType(Int index, Pointer intPtr) {
+        byte[4] addr;
+        l(MUL, AA, LDA, addr, ADA, index.val, IL, 0d64);
+        l(ADD, AI, LDA, addr, LDA, addr, LDA, ptr);
+
+        m(COPY, PP, ADA, intPTr.addr, LDA, addr, IL, 0d4);
+    }
+
+    readConnectRequest(ArrayPointer ints, Int size) {
+        byte[4] addr;
+        l(MUL, AA, LDA, addr, ADA, index.val, IL, 0d64);
+        l(ADD, AI, LDA, addr, LDA, addr, LDA, ptr);
+        l(ADD, AI, LDA, addr, LDA, addr, IL, 0d4);
+
+        m(COPY, PP, ADA. ints.addr, LDA, addr, ADA, size.val);
+    }
+
+}

@@ -1,0 +1,48 @@
+parser machine;
+
+SystemOut {
+
+    byte[4] root;
+    byte[4] current;
+
+    constructor() {
+        byte[4] altTable;
+        l(ADD, RI, LDA, altTable, R, altTable, IL, 0d0);
+        symbol(SYSTEM, sysOutSymbol, IL, SystemOut);
+        c(ADDR, I, LDA, root, LDA, altTable, AL, sysOutSymbol);
+        m(COPY, AP, LDA, current, LDA, root, LDS, current);
+    }
+
+    update() {
+        m(COPY, AP, LDA, current, LDA, root, LDS, current);
+    }
+
+    commit() {
+        m(COPY, PA, LDA, root, LDA, current, LDS, current);
+        i(PORT_WRITTEN, A, root);
+    }
+
+    interrupt() {
+        i(PORT_WRITTEN, A, root);
+    }
+
+    constructor OutputStream(Int in) {
+        l(ADD, AI, LDA, root, ADA, in.val, IL, 0d0);
+        l(ADD, AI, LDA, current, ADA, in.val, IL, 0d0);
+    }
+
+    copyFrom(Int x) {
+        m(COPY, PA, LDA, current, ADA, x, ADS, x);
+        l(ADD, AI, LDA, current, LDA, current, IL, 0d4);
+    }
+
+    allocatePage(Int localPage) {
+        byte[4] msgType;
+        l(ADD, II, LDA, msgType, IL, 0d0, IL, 0d3);
+        m(COPY, PA, LDA, current, LDA, msgType, LDS, msgType);
+        l(ADD, AI, LDA, current, LDA, current, LDS, msgType);
+        m(COPY, PA, LDA, current, ADA, localPage, ADS, localPage);
+        l(ADD, AI, LDA, current, LDA, current, ADS, localPage);
+    }
+
+}

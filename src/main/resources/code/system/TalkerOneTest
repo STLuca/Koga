@@ -1,0 +1,46 @@
+parser system;
+
+imports {
+    InputStream;
+    OutputStream;
+    Int;
+    Pointer;
+    AdminRef;
+    Boolean;
+    While;
+    String;
+    Exit;
+}
+
+dependencies {
+    BumpAdministrator;
+}
+
+constants {
+    hello "hello server";
+}
+
+TalkerOne {
+
+    init() {
+        AdminRef admin init();
+
+        Int msgType 1;
+        Int instance 1;
+        Int junk 69;
+        Int talkInAddr port();
+        Int talkOutAddr port();
+
+        InputStream talkIn (talkOutAddr);
+        OutputStream talkOut (talkInAddr);
+        String str (hello);
+        str copyTo talkOut;
+
+        admin connect(instance junk junk talkInAddr talkOutAddr);
+        talkIn wait();
+
+        String result readFrom(talkIn);
+        Exit e ();
+    }
+
+}

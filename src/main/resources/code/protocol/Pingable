@@ -1,0 +1,11 @@
+namespace com.losm;
+
+import {
+    com.losm.Ping;
+}
+
+protocol Pingable {
+
+    Ping ping(Ping ping);
+
+}

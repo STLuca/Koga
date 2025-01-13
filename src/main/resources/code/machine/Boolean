@@ -1,0 +1,45 @@
+parser machine;
+
+Boolean {
+                
+    byte[1] val;
+
+    constructor(b1 imm) {
+        l(ADD, II, LDA, val, IL, 0d0, AL, imm);
+    }
+
+    constructor(Block block) {
+        context(PUSH);
+        block;
+        context(POP);
+    }
+
+    set(b1 imm) {
+        l(ADD, II, LDA, val, IL, 0d0, AL, imm);
+    }
+
+    set(Block block) {
+        context(PUSH);
+        block;
+        context(POP);
+    }
+
+    and(Block block) {
+        Addr end;
+        cb(EQ, AI, LDA, val, IL, 0d0, end);
+        context(PUSH);
+        block;
+        context(POP);
+        Addr end;
+    }
+
+    or(Block block) {
+        Addr end;
+        cb(EQ, AI, LDA, val, IL, 0d1, end);
+        context(PUSH);
+        block;
+        context(POP);
+        Addr end;
+    }
+
+}

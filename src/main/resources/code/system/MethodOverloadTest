@@ -1,0 +1,23 @@
+parser system;
+
+imports {
+    Int;
+    Boolean;
+    If;
+    Exit;
+}
+
+dependencies {
+    BumpAdministrator;
+}
+
+MethodOverloadTest {
+
+    main() {
+        Int x 2;
+        Int y 7;
+        x + 1 + y;
+        Exit;
+    }
+
+}

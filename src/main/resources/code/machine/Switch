@@ -1,0 +1,26 @@
+parser machine;
+
+Switch {
+
+    Addr jumps;
+    Addr cases;
+    Addr end;
+
+    constructor(Int x) {
+        j(REL, A, ADA, x.val);
+        Addr jumps;
+        Addr cases;
+    }
+
+    case(b8 label, Block block) {
+        Addr case;
+        instructions(LINK, jumps);
+        j(REL, I, case);
+        instructions(LINK, cases);
+        Addr case;
+        block;
+        j(REL, I, end);
+        Addr end;
+    }
+
+}

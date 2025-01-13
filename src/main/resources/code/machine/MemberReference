@@ -1,0 +1,62 @@
+parser machineReference;
+
+MemberReference<R> {
+
+    byte[4] instance;
+    byte[4] protocol;
+
+    constructor(Int in) {
+        l(ADD, AI, LDA, instance, ADA, in.val, IL, 0d0);
+        symbol(CLASS, protocolSymbol, LG, R);
+        c(ADDR, I, protocol, protocolSymbol);
+    }
+
+    invoke(Name method) {
+        byte[4] adminConnectMethod;
+        symbol(METHOD, adminConnectSymbol, IL, Administrator, IL, connect);
+        c(ADDR, I, adminConnectMethod, adminConnectSymbol);
+        byte[4] adminTask;
+        l(ADD, RI, LDA, adminTask, R, altTask, IL, 0d0);
+
+        m(COPY, PA, LDA, adminTask, LDA, instance, LDS, instance);
+        l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, instance);
+        m(COPY, PA, LDA, adminTask, LDA, protocol, LDS, protocol);
+        l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, protocol);
+        m(COPY, PA, LDA, adminTask, LDA, protocol, LDS, protocol);
+        l(ADD, AI, LDA, adminTask, LDA, adminTask, LDS, protocol);
+        args();
+        logician(START_ADMIN, LDA, adminConnectMethod);
+    }
+
+    arg(Any a) {
+        m(COPY, PA, LDA, adminTask, ADA, a, IL, 0d4);
+        l(ADD, AI, LDA, adminTask, LDA, adminTask, IL, 0d4);
+    }
+
+}
+
+old {
+    invoke(Name method) {
+        byte[4] current;
+        byte[4] msgType;
+        l(ADD, II, LDA, msgType, IL, 0d0, IL, 0d1);
+        m(COPY, AP, LDA, current, LDA, sysOut, IL, 0d4);
+        m(COPY, PA, LDA, current, LDA, msgType, IL, 0d4);
+        l(ADD, AI, LDA, current, LDA, current, IL, 0d4);
+        m(COPY, PA, LDA, current, LDA, instance, IL, 0d4);
+        l(ADD, AI, LDA, current, LDA, current, IL, 0d4);
+        m(COPY, PA, LDA, current, LDA, protocol, IL, 0d4);
+        l(ADD, AI, LDA, current, LDA, current, IL, 0d4);
+        m(COPY, PA, LDA, current, LDA, protocol, IL, 0d4);
+        l(ADD, AI, LDA, current, LDA, current, IL, 0d4);
+        args();
+        m(COPY, PA, LDA, sysOut, LDA, current, LDS, sysOut);
+        i(PORT_WRITTEN, A, sysOut);
+    }
+
+    arg(Any a) {
+        m(COPY, PA, LDA, current, ADA, a, IL, 0d4);
+        l(ADD, AI, LDA, current, LDA, current, IL, 0d4);
+    }
+
+}

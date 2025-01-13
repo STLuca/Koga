@@ -1,0 +1,43 @@
+parser machine;
+
+Seq {
+
+    constructor(Block try, Block catch) {
+        Addr fail;
+        Addr complete;
+        byte[4] status;
+        byte[4] statusAddr;
+        byte[4] statusParamAddr;
+        l(ADD, RI, LDA, statusAddr, R, task, LDA, status);
+        ~ status pointer is 20 bytes into the admin area
+        l(ADD, RI, LDA, statusParamAddr, R, altTask, IL, 0d20);
+
+        byte[4] awaitTaskAddr;
+        l(ADD, RI, LDA, awaitTaskAddr, R, altTask, IL, 0d0);
+
+        context(BLOCK, createTask) {
+            m(COPY, PA, LDA, statusParamAddr, LDA, statusAddr, LDS, status);
+            byte[4] adminTaskMethod;
+            symbol(METHOD, adminTaskSymbol, IL, Administrator, IL, task);
+            c(ADDR, I, adminTaskMethod, adminTaskSymbol);
+            logician(START_ADMIN, LDA, adminTaskMethod);
+        };
+
+        context(BLOCK, taskReady) {
+            byte[4] adminScheduleMethod;
+            symbol(METHOD, adminScheduleSymbol, IL, Administrator, IL, awaitTask);
+            c(ADDR, I, adminScheduleMethod, adminScheduleSymbol);
+            l(ADD, RI, LDA, awaitTaskAddr, R, altTask, IL, 0d0);
+            m(COPY, PA, LDA, awaitTaskAddr, CL, task, IL, 0d4);
+            logician(START_ADMIN, LDA, adminScheduleMethod);
+            cb(NEQ, AI, LDA, status, IL, 0d0, fail);
+        };
+
+        try;
+        j(REL, I, complete);
+        Addr fail;
+        catch;
+        Addr complete;
+    }
+
+}

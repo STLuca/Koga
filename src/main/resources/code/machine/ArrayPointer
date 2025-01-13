@@ -1,0 +1,46 @@
+parser machine;
+
+ArrayPointer<T> {
+
+    byte[4] start;
+    byte[4] size;
+    byte[4] step;
+    byte[4] addr;
+
+    constructor(Array arr) {
+        l(ADD, AI, LDA, start, ADA, arr.start, IL, 0d0);
+        l(ADD, AI, LDA, size, ADA, arr.size, IL, 0d0);
+        l(ADD, AI, LDA, step, ADA, arr.step, IL, 0d0);
+        l(ADD, AI, LDA, addr, LDA, start, IL, 0d0);
+    }
+
+    constructor(String str) {
+        l(ADD, AI, LDA, start, ADA, str.start, IL, 0d0);
+        l(ADD, AI, LDA, size, ADA, str.size, IL, 0d0);
+        l(ADD, AI, LDA, step, ADA, str.step, IL, 0d0);
+        l(ADD, AI, LDA, addr, LDA, start, IL, 0d0);
+    }
+
+    index(b12 imm) {
+        byte[4] index;
+        l(ADD, II, LDA, index, IL, 0d0, AL, imm);
+        l(MUL, AA, LDA, index, LDA, index, LDA, step);
+        l(ADD, AA, LDA, addr, LDA, start, LDA, index);
+    }
+
+    indexInt(Int int) {
+        byte[4] index;
+        l(ADD, AI, LDA, index, ADA, int.val, IL, 0d0);
+        l(MUL, AA, LDA, index, LDA, index, LDA, step);
+        l(ADD, AA, LDA, addr, LDA, start, LDA, index);
+    }
+
+    copyTo(Any val) {
+        m(COPY, AP, ADA, val, LDA, addr, LG, T);
+    }
+
+    copyFrom(Any val) {
+        m(COPY, PA, LDA, addr, ADA, val, LG, T);
+    }
+
+}

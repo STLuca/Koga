@@ -1,0 +1,11 @@
+parser machine;
+
+Debug {
+
+    constructor() {}
+
+    allocated(Int addr, Int size) {
+        d(ALLOCATED, addr.val, size.val);
+    }
+
+}

@@ -5,7 +5,7 @@ imports {
     Usable;
 }
 
-List {
+collection.List {
 
     init(Usable mc, Int size);
     set(Int index, Int value);

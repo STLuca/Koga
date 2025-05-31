@@ -12,23 +12,18 @@ import java.util.List;
 
 public class HostedParser implements Parser {
 
-    Token DEPENDENCIES, IMPORTS, CONSTRUCTOR, NAME, IMPLEMENTS, OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN,
-            SEMI_COLON, NUMBER, PARAM_TYPE, COMMA, LITERAL_ARG, OP_SQ_BRACKET,
-            CL_SQ_BRACKET, EQUALS, DOT, OP_PT_BRACE, CL_PT_BRACE, STRING, OPERATOR, TILDA;
+    Token   DEPENDENCIES, CONSTANTS, IMPORTS, IMPLEMENTS,
+            NAME, DOC_NAME, STRING, LITERAL_ARG, OPERATOR,
+            SEMI_COLON, COMMA, TILDA,
+            OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN, CL_SQ_BRACKET, OP_SQ_BRACKET, OP_PT_BRACE, CL_PT_BRACE;
     Tokens tokens = new Tokens();
     Tokens methodNameTokens = new Tokens();
+    Tokens metaTokens = new Tokens();
     HashMap<String, String> operatorNames = new HashMap<>();
 
     {
-        DEPENDENCIES  = tokens.add("'dependencies'");
-        IMPORTS       = tokens.add("'imports'");
-        CONSTRUCTOR   = tokens.add("'constructor'");
-        IMPLEMENTS    = tokens.add("'implements'");
-        PARAM_TYPE    = tokens.add("b[1-9][0-9]*");
         LITERAL_ARG   = tokens.add("0b[0-1]+|0x[0-9a-f]+|[0-9]+|true|false|\\'[a-zA-Z]\\'");
         NAME          = tokens.add("[a-zA-Z]+");
-        NUMBER        = tokens.add("[1-9]+");
-        EQUALS        = tokens.add("'='");
         OP_BRACE      = tokens.add("'{'");
         CL_BRACE      = tokens.add("'}'");
         OP_PAREN      = tokens.add("'('");
@@ -39,13 +34,22 @@ public class HostedParser implements Parser {
         CL_PT_BRACE   = tokens.add("'>'");
         SEMI_COLON    = tokens.add("';'");
         COMMA         = tokens.add("','");
-        DOT           = tokens.add("'.'");
         TILDA         = tokens.add("'~'");
         STRING        = tokens.add("\".*\"");
 
         methodNameTokens.add(NAME);
         methodNameTokens.add(SEMI_COLON);
         OPERATOR = methodNameTokens.add("[^a-zA-Z1-9({ \t]+");
+
+        {
+            DEPENDENCIES  = metaTokens.add("'dependencies'");
+            IMPORTS       = metaTokens.add("'imports'");
+            // CONSTANTS     = metaTokens.add("'constants'");
+            IMPLEMENTS    = metaTokens.add("'implements'");
+            DOC_NAME      = metaTokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
+            metaTokens.add(NAME);
+            metaTokens.add(OP_BRACE);
+        }
 
         {
             operatorNames.put("=", "set");
@@ -84,8 +88,7 @@ public class HostedParser implements Parser {
     public void parse(Sources sources, String input) {
         Scanner scanner = new Scanner(input);
         HostedCompilable c = new HostedCompilable();
-        // Token curr = scanner.expect(tokens, DISTINGUISH, "Expecting Distinguish");
-        Token curr = scanner.next(tokens);
+        Token curr = scanner.next(metaTokens);
         if (curr == IMPORTS) {
             scanner.expect(tokens, OP_BRACE);
             curr = scanner.next(tokens);
@@ -105,15 +108,19 @@ public class HostedParser implements Parser {
                 c.imports.add(i);
                 curr = scanner.next(tokens);
             }
-            curr = scanner.next(tokens);
+            curr = scanner.next(metaTokens);
         }
         if (curr == DEPENDENCIES) {
             scanner.expect(tokens, OP_BRACE);
-            curr = scanner.next(tokens);
+            curr = scanner.next(metaTokens);
             while (curr != CL_BRACE) {
-                if (curr != NAME) throw new RuntimeException("name");
+                if (curr != NAME && curr != DOC_NAME) throw new RuntimeException("name");
                 String globalName = curr.matched();
                 String localName = curr.matched();
+                if (localName.contains(".")) {
+                    String[] split = localName.split("\\.");
+                    localName = split[split.length - 1];
+                }
                 curr = scanner.next(tokens);
                 if (curr == NAME) {
                     localName = curr.matched();
@@ -126,11 +133,11 @@ public class HostedParser implements Parser {
                 c.dependencies.add(name);
                 curr = scanner.next(tokens);
             }
-            curr = scanner.next(tokens);
+            curr = scanner.next(metaTokens);
         }
-        if (curr != NAME) scanner.fail("name");
+        if (curr != NAME && curr != DOC_NAME) scanner.fail("doc name");
         c.name = curr.matched();
-        curr = scanner.next(tokens);
+        curr = scanner.next(metaTokens);
         if (curr == IMPLEMENTS) {
             while (curr != OP_BRACE) {
                 curr = scanner.expect(tokens, NAME);

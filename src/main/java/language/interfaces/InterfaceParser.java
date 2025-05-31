@@ -8,20 +8,15 @@ import language.scanning.Tokens;
 
 public class InterfaceParser implements Parser {
 
-    Token DEPENDENCIES, IMPORTS, CONSTRUCTOR, NAME, OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN,
-            SEMI_COLON, NUMBER, TYPE, PARAM_TYPE, COMMA, LITERAL_ARG, OP_SQ_BRACKET,
-            CL_SQ_BRACKET, EQUALS, DOT, OP_PT_BRACE, CL_PT_BRACE;
+    Token   DEPENDENCIES, IMPORTS,
+            NAME, DOC_NAME,
+            SEMI_COLON, COMMA, EQUALS, DOT,
+            OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN, OP_SQ_BRACKET, CL_SQ_BRACKET, OP_PT_BRACE, CL_PT_BRACE;
     Tokens tokens = new Tokens();
+    Tokens metaTokens = new Tokens();
 
     {
-        DEPENDENCIES  = tokens.add("'dependencies'");
-        IMPORTS       = tokens.add("'imports'");
-        CONSTRUCTOR   = tokens.add("'constructor'");
-        TYPE          = tokens.add("'word'"); // what is this used for?
-        PARAM_TYPE    = tokens.add("b[1-9][0-9]*");
         NAME          = tokens.add("[a-zA-Z]+");
-        LITERAL_ARG   = tokens.add("0b[0-1]+|0x[0-9a-f]+|[0-9]+");
-        NUMBER        = tokens.add("[1-9]+");
         EQUALS        = tokens.add("'='");
         OP_BRACE      = tokens.add("'{'");
         CL_BRACE      = tokens.add("'}'");
@@ -34,6 +29,14 @@ public class InterfaceParser implements Parser {
         SEMI_COLON    = tokens.add("';'");
         COMMA         = tokens.add("','");
         DOT           = tokens.add("'.'");
+
+        metaTokens.add(OP_BRACE);
+        metaTokens.add(CL_BRACE);
+        metaTokens.add(SEMI_COLON);
+        DEPENDENCIES  = metaTokens.add("'dependencies'");
+        IMPORTS       = metaTokens.add("'imports'");
+        DOC_NAME      = metaTokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
+        metaTokens.add(NAME);
     }
     
     public String name() {
@@ -44,30 +47,30 @@ public class InterfaceParser implements Parser {
         Scanner scanner = new Scanner(input);
         InterfaceCompilable ic = new InterfaceCompilable();
 
-        Token curr = scanner.next(tokens);
+        Token curr = scanner.next(metaTokens);
         if (curr == IMPORTS) {
             scanner.expect(tokens, OP_BRACE);
-            curr = scanner.next(tokens);
+            curr = scanner.next(metaTokens);
             while (curr != CL_BRACE) {
                 if (curr != NAME) throw new RuntimeException("name");
                 ic.imports.add(curr.matched());
                 scanner.expect(tokens, SEMI_COLON);
-                curr = scanner.next(tokens);
+                curr = scanner.next(metaTokens);
             }
-            curr = scanner.next(tokens);
+            curr = scanner.next(metaTokens);
         }
         if (curr == DEPENDENCIES) {
             scanner.expect(tokens, OP_BRACE);
-            curr = scanner.next(tokens);
+            curr = scanner.next(metaTokens);
             while (curr != CL_BRACE) {
                 if (curr != NAME) throw new RuntimeException("name");
                 ic.dependencies.add(curr.matched());
                 scanner.expect(tokens, SEMI_COLON);
-                curr = scanner.next(tokens);
+                curr = scanner.next(metaTokens);
             }
-            curr = scanner.next(tokens);
+            curr = scanner.next(metaTokens);
         }
-        if (curr != NAME) {
+        if (curr != DOC_NAME && curr != NAME) {
             scanner.fail("name");
         }
         ic.name = curr.matched();

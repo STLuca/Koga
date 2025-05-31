@@ -1,9 +1,15 @@
 parser machine;
 
+imports {
+    core.Char remove_me;
+    core.Connection remove_me;
+    core.Boolean remove_me;
+}
+
 Int {
 
     ~ here is a comment
-    byte[4] val;
+    Byte[4] val;
 
     constructor(b32 imm) {
         ~ Here is another comment
@@ -77,6 +83,10 @@ Int {
         i(ADD, TT, LDA, val, LDA, val, ADA, in.val);
     }
 
+    plus(Byte b) {
+
+    }
+
     multiply(b32 imm) {
         math(MULT, TI, LDA, val, LDA, val, AL, imm);
     }
@@ -108,14 +118,14 @@ Int {
     if(Int in, Block block) {
         Addr after;
         cb(NEQ, LDA, val, ADA, in.val, after);
-        Blockk block;
+        Block block;
         Addr after;
     }
 
     ifNot(Int in, Block block) {
         Addr after;
         cb(EQ, LDA, val, ADA, in.val, after);
-        Blockk block;
+        Block block;
         Addr after;
     }
 
@@ -127,7 +137,7 @@ Int {
     }
 
     plusTwice(b32 imm) {
-        byte[4] tmpVal;
+        Byte[4] tmpVal;
         i(ADD, TI, LDA, tmpVal, LDA, val, AL, imm);
         i(ADD, TI, LDA, val, LDA, tmpVal, AL, imm);
     }
@@ -135,17 +145,17 @@ Int {
     ~ Delete
     usingContext() {
         Context(IMPLICIT, int, LDA, val);
-        Blockk super default {
+        Block super default {
             i(ADD, TT, LDA, val, CL, int, CL, int);
         };
     }
 
     ~ Delete
     makeBlock(Block b) {
-        Blockk super {
+        Block super {
             i(ADD, TI, LDA, val, CL, int, IL, 0d10);
         };
-        Blockk b;
+        Block b;
     }
 
 }

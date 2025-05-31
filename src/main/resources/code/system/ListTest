@@ -11,12 +11,12 @@ imports {
 }
 
 dependencies {
-    List;
-    ArrayList;
-    SimpleAdministrator;
+    collection.ArrayList;
+    util.SimpleAdministrator;
+    collection.List;
 }
 
-ListTest {
+test.ListTest {
 
     main() {
         AdminRef admin init();

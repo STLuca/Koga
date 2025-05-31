@@ -10,10 +10,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-WhileWithBreakTest {
+test.WhileWithBreakTest {
 
     main() {
         Int x 0;

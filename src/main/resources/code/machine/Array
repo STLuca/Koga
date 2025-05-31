@@ -2,17 +2,17 @@ parser machine;
 
 Array<Usable T> {
 
-    byte[4] size;
-    byte[4] start;
-    byte[4] step;
-    byte[0] data;
+    Byte[4] size;
+    Byte[4] start;
+    Byte[4] step;
+    Byte[0] data;
 
     constructor() {}
 
     constructor(b12 imm) {
         i(ADD, II, LDA, size, IL, 0d0, AL, imm);
         i(ADD, II, LDA, step, IL, 0d0, LG, T);
-        byte[AL imm][LG T] data;
+        Byte[AL imm][LG T] data;
         i(ADD, LI, LDA, start, R, task, LDA, data);
     }
 

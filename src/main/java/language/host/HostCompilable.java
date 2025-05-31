@@ -41,8 +41,20 @@ public class HostCompilable implements Compilable {
         Document tempThisDoc = new Document();
         tempThisDoc.type = Document.Type.Host;
         tempThisDoc.name = name;
-        myClasses.documents.put(name, tempThisDoc);
-        myClasses.compilables.put(name, this);
+        tempThisDoc.methods = new Document.Method[methods.size()];
+        for (int i = 0; i < methods.size(); i++) {
+            Method m = methods.get(i);
+            Document.Method dm = new Document.Method();
+            dm.name = m.name;
+            dm.parameters = new String[m.params.size()];
+            for (int ii = 0; ii < m.params.size(); ii++) {
+                dm.parameters[ii] = m.params.get(ii).usable;
+            }
+            tempThisDoc.methods[i] = dm;
+        }
+        String[] split = name.split("\\.");
+        myClasses.documents.put(split[split.length - 1], tempThisDoc);
+        myClasses.compilables.put(split[split.length - 1], this);
 
         String administrator = null;
         for (Name dependency : dependencies) {
@@ -53,7 +65,7 @@ public class HostCompilable implements Compilable {
             compiler.dependency(dependency.globalName);
             if (administrator == null) {
                 for (String documentImplementing : document.implementing) {
-                   if (documentImplementing.equals("Administrator")) {
+                   if (documentImplementing.equals("core.Administrator")) {
                        administrator = document.name;
                        break;
                    }

@@ -9,7 +9,7 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
 constants {
@@ -17,7 +17,7 @@ constants {
     hello "Hello World!";
 }
 
-ConstantsTest {
+test.ConstantsTest {
 
     main() {
         Array<Byte> b fromBytes(array);

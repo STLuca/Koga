@@ -13,9 +13,9 @@ public class BlockStatement implements Statement {
     boolean isContextPush;
     ArrayList<Statement> block = new ArrayList<>();
     
-    public void compile(Compiler.MethodCompiler compiler, Variable variable, Map<String, Argument> arguments, Context context) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
         if (isContextPush) {
-            context.add(name, Argument.of(new MachineBlock(this.block, variable, arguments, context)));
+            context.add(name, Argument.of(new MachineBlock(this.block, sources, variable, arguments, context)));
             return;
         }
         Argument obj = null;
@@ -24,7 +24,7 @@ public class BlockStatement implements Statement {
         if (obj == null) {
             if (block == null) throw new RuntimeException("Block doesn't exist");
             for (Statement statement : block) {
-                statement.compile(compiler, variable, arguments, context);
+                statement.compile(compiler, sources, variable, arguments, context);
             }
             return;
         }
@@ -35,12 +35,14 @@ public class BlockStatement implements Statement {
     static class MachineBlock implements language.core.Block {
 
         List<Statement> statements;
+        Sources sources;
         Variable variable;
         Map<String, Argument> arguments;
         Context context;
 
-        public MachineBlock(List<Statement> statements, Variable variable, Map<String, Argument> arguments, Context context) {
+        public MachineBlock(List<Statement> statements, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
             this.statements = statements;
+            this.sources = sources;
             this.variable = variable;
             this.arguments = arguments;
             this.context = context;
@@ -48,7 +50,7 @@ public class BlockStatement implements Statement {
         
         public void execute(Compiler.MethodCompiler compiler) {
             for (Statement s : statements) {
-                s.compile(compiler, variable, arguments, context);
+                s.compile(compiler, sources, variable, arguments, context);
             }
         }
     }

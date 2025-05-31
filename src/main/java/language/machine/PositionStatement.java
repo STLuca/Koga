@@ -1,9 +1,6 @@
 package language.machine;
 
-import language.core.Argument;
-import language.core.Compiler;
-import language.core.Context;
-import language.core.Variable;
+import language.core.*;
 
 import java.util.Map;
 
@@ -12,7 +9,7 @@ public class PositionStatement implements Statement {
     String addr;
     String prevName;
 
-    public void compile(Compiler.MethodCompiler compiler, Variable variable, Map<String, Argument> arguments, Context context) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
         int addr;
         if (variable.methodAllocations.peek().containsKey(this.addr)) {
             addr = variable.methodAllocations.peek().get(this.addr).location();

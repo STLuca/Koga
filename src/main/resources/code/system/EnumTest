@@ -7,10 +7,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-EnumTest {
+test.EnumTest {
 
     main() {
         RenamedInt x 0;

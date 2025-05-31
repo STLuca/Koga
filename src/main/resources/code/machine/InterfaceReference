@@ -2,24 +2,24 @@ parser machineReference;
 
 InterfaceReference<Document R> {
 
-    byte[4] objectAddr;
-    byte[4] objectTable;
-    byte[4] interfaceTable;
+    Byte[4] objectAddr;
+    Byte[4] objectTable;
+    Byte[4] interfaceTable;
 
     constructor(Reference r) {
         i(ADD, TI, LDA, objectAddr, ADA, r.objectAddr, IL, 0d0);
         i(ADD, TI, LDA, objectTable, ADA, r.objectTable, IL, 0d0);
-        byte[2] interfaceClassSymbol;
+        Byte[2] interfaceClassSymbol;
         Symbol(INTERFACE, interfaceClassSymbol, AG, r.R, LG, R);
         c(ADDR, LI, interfaceTable, table, interfaceClassSymbol);
     }
 
     invoke(Name methodName) {
-        byte[4] iMethodSymbol;
-        byte[4] frameSize;
-        byte[4] methodAddr;
-        byte[4] newFrame;
-        byte[4] newFrameAddr;
+        Byte[4] iMethodSymbol;
+        Byte[4] frameSize;
+        Byte[4] methodAddr;
+        Byte[4] newFrame;
+        Byte[4] newFrameAddr;
         Symbol(METHOD, methodSymbol, LG, R, AL, methodName);
         c(ADDR, LI, iMethodSymbol, table, methodSymbol);
         c(SIZE, TT, LDA, frameSize, LDA, interfaceTable, LDA, iMethodSymbol);
@@ -28,13 +28,13 @@ InterfaceReference<Document R> {
 
         Admin(TASK, newFrame, objectAddr, objectTable, methodAddr, frameSize);
 
-        byte[4] frameDataAddr;
+        Byte[4] frameDataAddr;
         i(ADD, TI, LDA, frameDataAddr, LDA, newFrame, IL, 0d0);
         Args();
         Admin(AWAIT_TASK, newFrame);
     }
 
-    arg(Any a) {
+    arg(Any a, Name methodName) {
         m(COPY, TII, LDA, frameDataAddr, ADA, a, ADS, a);
         i(ADD, TI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
     }

@@ -469,32 +469,34 @@ public class Administrator implements Notifiable {
                                         }
                                     }
                                     case METHOD -> {
-                                        String[] split = s.identifier.split("\\.");
-                                        Document iDocument = documents.get(split[0]);
-                                        if (iDocument.name.equals("Administrator")) {
+                                        String[] split = s.identifier.split(" ");
+                                        String methodName = split[1];
+                                        String documentName = split[0];
+                                        Document iDocument = documents.get(documentName);
+                                        if (iDocument.name.equals("core.Administrator")) {
                                             iDocument = iHostAdmin;
                                         }
                                         switch (iDocument.type) {
                                             case Host -> {
                                                 HostInfo runtimeValues = iDocument.host;
-                                                int size = runtimeValues.methods.get(split[1]).size;
-                                                int addr = runtimeValues.methods.get(split[1]).addr + hostedValuesMap.get(iDocument).methodStartAddr;
-                                                rt.method(iDocument.name, split[1], size, addr);
+                                                int size = runtimeValues.methods.get(methodName).size;
+                                                int addr = runtimeValues.methods.get(methodName).addr + hostedValuesMap.get(iDocument).methodStartAddr;
+                                                rt.method(iDocument.name, methodName, size, addr);
                                             }
                                             case Hosted -> {
                                                 HostedInfo runtimeValues = iDocument.hosted;
-                                                int size = runtimeValues.methods.get(split[1]).size;
-                                                int addr = runtimeValues.methods.get(split[1]).addr + hostedValuesMap.get(iDocument).methodStartAddr;
-                                                rt.method(iDocument.name, split[1], size, addr);
+                                                int size = runtimeValues.methods.get(methodName).size;
+                                                int addr = runtimeValues.methods.get(methodName).addr + hostedValuesMap.get(iDocument).methodStartAddr;
+                                                rt.method(iDocument.name, methodName, size, addr);
                                             }
                                             case Interface -> {
                                                 InterfaceInfo interfaceInfo = iDocument.interfaceInfo;
-                                                int addr = interfaceInfo.methods.indexOf(split[1]);
-                                                rt.method(iDocument.name, split[1], 0, addr);
+                                                int addr = interfaceInfo.methods.indexOf(methodName);
+                                                rt.method(iDocument.name, methodName, 0, addr);
                                             }
                                             case Protocol -> {
                                                 ProtocolInfo pInfo = iDocument.protocolInfo;
-                                                ProtocolMethodInfo pmInfo = pInfo.methods.get(split[1]);
+                                                ProtocolMethodInfo pmInfo = pInfo.methods.get(methodName);
                                                 int protocolAddr = hostInfo.hostedValues.get(doc.name).protocolsAddresses.get(pInfo.name);
                                                 int pMethodAddr = pmInfo.addr;
                                                 rt.protocolMethod(s.identifier, pmInfo.id, protocolAddr + pMethodAddr);
@@ -502,20 +504,22 @@ public class Administrator implements Notifiable {
                                         }
                                     }
                                     case FIELD -> {
-                                        String[] split = s.identifier.split("\\.");
-                                        Document hostedDoc = documents.get(split[0]);
+                                        String[] split = s.identifier.split(" ");
+                                        String fieldName = split[1];
+                                        String documentName = split[0];
+                                        Document hostedDoc = documents.get(documentName);
                                         switch (hostedDoc.type) {
                                             case Hosted -> {
                                                 HostedInfo runtimeValues = hostedDoc.hosted;
                                                 int size = 0; // no size saved
-                                                int addr = runtimeValues.fields.get(split[1]).addr;
-                                                rt.field(hostedDoc.name, split[1], size, addr);
+                                                int addr = runtimeValues.fields.get(fieldName).addr;
+                                                rt.field(hostedDoc.name, fieldName, size, addr);
                                             }
                                             case Host -> {
                                                 HostInfo runtimeValues = hostedDoc.host;
                                                 int size = 0; // no size saved
-                                                int addr = runtimeValues.fields.get(split[1]).addr;
-                                                rt.field(hostedDoc.name, split[1], size, addr);
+                                                int addr = runtimeValues.fields.get(fieldName).addr;
+                                                rt.field(hostedDoc.name, fieldName, size, addr);
                                             }
                                             case Protocol, Interface -> throw new RuntimeException("Field doesn't exist for type");
                                         }
@@ -538,9 +542,11 @@ public class Administrator implements Notifiable {
                                         }
                                     }
                                     case INTERFACE -> {
-                                        String[] split = s.identifier.split("\\.");
-                                        Document concreteDocument = documents.get(split[0]);
-                                        Document interfaceDocument = documents.get(split[1]);
+                                        String[] split = s.identifier.split(" ");
+                                        String iName = split[1];
+                                        String documentName = split[0];
+                                        Document concreteDocument = documents.get(documentName);
+                                        Document interfaceDocument = documents.get(iName);
                                         int address = documentTableEntries.get(concreteDocument).get(interfaceDocument) * ENTRY_VALUE_SIZE;
                                         rt.intrface(concreteDocument.name, interfaceDocument.name, address);
                                     }

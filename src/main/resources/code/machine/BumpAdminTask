@@ -2,12 +2,12 @@ parser machine;
 
 BumpAdminTask {
 
-    byte[4] taskAddr;
-    byte[4] object;
-    byte[4] table;
-    byte[4] instruction;
-    byte[4] altTask;
-    byte[4] return;
+    Byte[4] taskAddr;
+    Byte[4] object;
+    Byte[4] table;
+    Byte[4] instruction;
+    Byte[4] altTask;
+    Byte[4] return;
 
     constructor loadInAdmin() {
         i(ADD, LI, LDA, taskAddr, R, altTask, IL, 0d0);

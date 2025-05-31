@@ -8,14 +8,14 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
 constants {
     aConstName "hello";
 }
 
-StringEqualsTest {
+test.StringEqualsTest {
 
     main() {
         String hi "hello";

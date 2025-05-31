@@ -8,10 +8,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-ExceptionTest {
+test.ExceptionTest {
 
     main() {
         Int x 0;

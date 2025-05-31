@@ -13,10 +13,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-TryTest {
+test.TryTest {
 
     main() {
         AdminRef admin init();

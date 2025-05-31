@@ -6,7 +6,7 @@ imports {
     Array;
 }
 
-Administrator {
+core.Administrator {
 
     init();
     exit();

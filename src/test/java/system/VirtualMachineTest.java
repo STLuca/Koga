@@ -68,50 +68,50 @@ public class VirtualMachineTest {
         srcMap.put("LocalDate", "structures/LocalDate");
 
         // Reference classes
-        srcMap.put("ArrayList", "reference/ArrayList");
-        srcMap.put("Chat", "reference/Chat");
-        srcMap.put("Fields", "reference/Fields");
-        srcMap.put("SimpleAdministrator", "reference/SimpleAdministrator");
+        srcMap.put("collection.ArrayList", "reference/ArrayList");
+        srcMap.put("chatting.Chat", "reference/Chat");
+        srcMap.put("test.Fields", "reference/Fields");
+        srcMap.put("util.SimpleAdministrator", "reference/SimpleAdministrator");
 
         // interface classes
-        srcMap.put("Administrator", "interfaces/Administrator");
-        srcMap.put("List", "interfaces/List");
+        srcMap.put("core.Administrator", "interfaces/Administrator");
+        srcMap.put("collection.List", "interfaces/List");
 
         // protocols
-        srcMap.put("Talker", "protocol/Talker");
-        srcMap.put("Chatting", "protocol/Chatting");
+        srcMap.put("chatting.Talker", "protocol/Talker");
+        srcMap.put("chatting.Chatting", "protocol/Chatting");
 
         // System classes
-        srcMap.put("AllocatorTest", "system/AllocatorTest");
-        srcMap.put("ArrayPointerTest", "system/ArrayPointerTest");
-        srcMap.put("ArrayListTest", "system/ArrayListTest");
-        srcMap.put("ByteAndIntTest", "system/ByteAndIntTest");
-        srcMap.put("ImplicitArgumentTest", "system/ImplicitArgumentTest");
-        srcMap.put("CharTest", "system/CharTest");
-        srcMap.put("ConstantsTest", "system/ConstantsTest");
-        srcMap.put("DeferTest", "system/DeferTest");
-        srcMap.put("EnumTest", "system/EnumTest");
-        srcMap.put("ExceptionTest", "system/ExceptionTest");
-        srcMap.put("IfTest", "system/IfTest");
-        srcMap.put("IntCompareToBoolTest", "system/IntCompareToBoolTest");
-        srcMap.put("ListTest", "system/ListTest");
-        srcMap.put("LocalVariableTest", "system/LocalVariableTest");
-        srcMap.put("MethodInvokeTest", "system/MethodInvokeTest");
-        srcMap.put("MethodOverloadTest", "system/MethodOverloadTest");
-        srcMap.put("MethodVariableTest", "system/MethodVariableTest");
-        srcMap.put("NewTest", "system/NewTest");
-        srcMap.put("NewThreadTest", "system/NewThreadTest");
-        srcMap.put("PointerTest", "system/PointerTest");
-        srcMap.put("ProxyTest", "system/ProxyTest");
-        srcMap.put("Server", "system/Server");
-        srcMap.put("StringEqualsTest", "system/StringEqualsTest");
-        srcMap.put("StructureTest", "system/StructureTest");
-        srcMap.put("SwitchTest", "system/SwitchTest");
-        srcMap.put("TalkerTest", "system/TalkerTest");
-        srcMap.put("TryTest", "system/TryTest");
-        srcMap.put("UsingReferenceTest", "system/UsingReferenceTest");
-        srcMap.put("WhileTest", "system/WhileTest");
-        srcMap.put("WhileWithBreakTest", "system/WhileWithBreakTest");
+        srcMap.put("test.AllocatorTest", "system/AllocatorTest");
+        srcMap.put("test.ArrayListTest", "system/ArrayListTest");
+        srcMap.put("test.ArrayPointerTest", "system/ArrayPointerTest");
+        srcMap.put("test.ByteAndIntTest", "system/ByteAndIntTest");
+        srcMap.put("test.ImplicitArgumentTest", "system/ImplicitArgumentTest");
+        srcMap.put("test.CharTest", "system/CharTest");
+        srcMap.put("test.ConstantsTest", "system/ConstantsTest");
+        srcMap.put("test.DeferTest", "system/DeferTest");
+        srcMap.put("test.EnumTest", "system/EnumTest");
+        srcMap.put("test.ExceptionTest", "system/ExceptionTest");
+        srcMap.put("test.IfTest", "system/IfTest");
+        srcMap.put("test.IntCompareToBoolTest", "system/IntCompareToBoolTest");
+        srcMap.put("test.ListTest", "system/ListTest");
+        srcMap.put("test.LocalVariableTest", "system/LocalVariableTest");
+        srcMap.put("test.MethodInvokeTest", "system/MethodInvokeTest");
+        srcMap.put("test.MethodOverloadTest", "system/MethodOverloadTest");
+        srcMap.put("test.MethodVariableTest", "system/MethodVariableTest");
+        srcMap.put("test.NewTest", "system/NewTest");
+        srcMap.put("test.NewThreadTest", "system/NewThreadTest");
+        srcMap.put("test.PointerTest", "system/PointerTest");
+        srcMap.put("test.ProxyTest", "system/ProxyTest");
+        srcMap.put("test.Server", "system/Server");
+        srcMap.put("test.StringEqualsTest", "system/StringEqualsTest");
+        srcMap.put("test.StructureTest", "system/StructureTest");
+        srcMap.put("test.SwitchTest", "system/SwitchTest");
+        srcMap.put("test.TalkerTest", "system/TalkerTest");
+        srcMap.put("test.TryTest", "system/TryTest");
+        srcMap.put("test.UsingReferenceTest", "system/UsingReferenceTest");
+        srcMap.put("test.WhileTest", "system/WhileTest");
+        srcMap.put("test.WhileWithBreakTest", "system/WhileWithBreakTest");
 
         Path path;
         try {
@@ -172,7 +172,7 @@ public class VirtualMachineTest {
 
     @Test
     void byteAndIntWorks() {
-        Inspector i = run("ByteAndIntTest");
+        Inspector i = run("test.ByteAndIntTest");
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         int yVal = t.altData.get("y").get("val");
@@ -184,7 +184,7 @@ public class VirtualMachineTest {
 
     @Test
     void charWorks() {
-        Inspector i = run("CharTest");
+        Inspector i = run("test.CharTest");
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         int yVal = t.altData.get("y").get("val");
@@ -196,7 +196,7 @@ public class VirtualMachineTest {
 
     @Test
     void ifWorks() {
-        Inspector i = run("IfTest");
+        Inspector i = run("test.IfTest");
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         assertThat(xVal).isEqualTo(20);
@@ -204,7 +204,7 @@ public class VirtualMachineTest {
 
     @Test
     void whileWorks() {
-        Inspector i = run("WhileTest");
+        Inspector i = run("test.WhileTest");
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         int yVal = t.altData.get("y").get("val");
@@ -214,7 +214,7 @@ public class VirtualMachineTest {
 
     @Test
     void whileWithBreakWorks() {
-        Inspector i = run("WhileWithBreakTest");
+        Inspector i = run("test.WhileWithBreakTest");
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         int yVal = t.altData.get("y").get("val");
@@ -224,7 +224,7 @@ public class VirtualMachineTest {
 
     @Test
     void basicSwitchWorks() {
-        Inspector i = run("SwitchTest");
+        Inspector i = run("test.SwitchTest");
         Inspector.Task t = i.tasks.get(0);
         int classSymbol = t.altData.get("x").get("val");
         assertThat(classSymbol).isEqualTo(10);
@@ -232,7 +232,7 @@ public class VirtualMachineTest {
 
     @Test
     void pointerWorks() {
-        Inspector i = run("PointerTest");
+        Inspector i = run("test.PointerTest");
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         int yVal = t.altData.get("y").get("val");
@@ -245,7 +245,7 @@ public class VirtualMachineTest {
     @Test
     void intCompareIntoBoolWorks() {
         // unsigned memes def don't work
-        Inspector i = run("IntCompareToBoolTest");
+        Inspector i = run("test.IntCompareToBoolTest");
         Inspector.Task t = i.tasks.get(0);
         int yVal = t.altData.get("y").get("val");
         assertThat(yVal).isEqualTo(1);
@@ -253,7 +253,7 @@ public class VirtualMachineTest {
 
     @Test
     void arrayPointerWorks() {
-        Inspector i = run("ArrayPointerTest");
+        Inspector i = run("test.ArrayPointerTest");
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         int yVal = t.altData.get("y").get("val");
@@ -265,7 +265,7 @@ public class VirtualMachineTest {
 
     @Test
     void proxyWorks() {
-        Inspector i = run("ProxyTest");
+        Inspector i = run("test.ProxyTest");
         Inspector.Task t = i.tasks.get(0);
         int yVal = t.altData.get("y").get("val");
         assertThat(yVal).isEqualTo(3);
@@ -273,7 +273,7 @@ public class VirtualMachineTest {
 
     @Test
     void machineMethodVariableWorks() {
-        Inspector i = run("MethodVariableTest");
+        Inspector i = run("test.MethodVariableTest");
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         assertThat(xVal).isEqualTo(14);
@@ -281,7 +281,7 @@ public class VirtualMachineTest {
 
     @Test
     void methodInvokeWorks() {
-        Inspector i = run("MethodInvokeTest");
+        Inspector i = run("test.MethodInvokeTest");
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         int yVal = t.altData.get("y").get("val");
@@ -291,7 +291,7 @@ public class VirtualMachineTest {
 
     @Test
     void localVariableWorks() {
-        Inspector i = run("LocalVariableTest");
+        Inspector i = run("test.LocalVariableTest");
         Inspector.Task t = i.tasks.get(0);
         int yVal = t.altData.get("y").get("val");
         assertThat(yVal).isEqualTo(16);
@@ -299,7 +299,7 @@ public class VirtualMachineTest {
 
     @Test
     void usingReferenceInstanceWork() {
-        Inspector i = run("UsingReferenceTest");
+        Inspector i = run("test.UsingReferenceTest");
         byte[] bytes = new byte[4];
         i.load(16392, bytes);
         int fieldX = bytes[0];
@@ -308,7 +308,7 @@ public class VirtualMachineTest {
 
     @Test
     void arrayListTest() {
-        Inspector i = run("ArrayListTest");
+        Inspector i = run("test.ArrayListTest");
         byte[] bytes = new byte[20];
         i.load(16680, bytes);
         int fieldX = bytes[12];
@@ -317,7 +317,7 @@ public class VirtualMachineTest {
 
     @Test
     void listTest() {
-        Inspector i = run("ListTest");
+        Inspector i = run("test.ListTest");
         byte[] bytes = new byte[20];
         i.load(16680, bytes);
         int fieldX = bytes[12];
@@ -326,7 +326,7 @@ public class VirtualMachineTest {
 
     @Test
     void exceptionTest() {
-        Inspector i = run("ExceptionTest");
+        Inspector i = run("test.ExceptionTest");
         Inspector.Task t = i.tasks.get(0);
         int yVal = t.altData.get("x").get("val");
         assertThat(yVal).isEqualTo(10);
@@ -334,7 +334,7 @@ public class VirtualMachineTest {
 
     @Test
     void constantsTest() {
-        Inspector i = run("ConstantsTest");
+        Inspector i = run("test.ConstantsTest");
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         int yVal = t.altData.get("y").get("val");
@@ -344,8 +344,8 @@ public class VirtualMachineTest {
 
     @Test
     void clientAndServerWithConnection() {
-        String clientName = "TalkerTest";
-        String serverName = "Server";
+        String clientName = "test.TalkerTest";
+        String serverName = "test.Server";
         Administrator administrator = administrator(clientName, serverName);
         int clientInstance = administrator.initHost(clientName);
         int serverInstance = administrator.initHost(serverName);
@@ -368,7 +368,7 @@ public class VirtualMachineTest {
 
     @Test
     void allocatorWorks() {
-        Inspector i = run("AllocatorTest");
+        Inspector i = run("test.AllocatorTest");
         Inspector.Task t = i.tasks.get(0);
         int allocateOneVal = t.altData.get("allocateOne").get("val");
         int allocateTwoVal = t.altData.get("allocateTwo").get("val");
@@ -378,7 +378,7 @@ public class VirtualMachineTest {
 
     @Test
     void enumWorks() {
-        Inspector i = run("EnumTest");
+        Inspector i = run("test.EnumTest");
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         assertThat(xVal).isEqualTo(4);
@@ -386,7 +386,7 @@ public class VirtualMachineTest {
 
     @Test
     void methodOverloadWorks() {
-        Inspector i = run("MethodOverloadTest");
+        Inspector i = run("test.MethodOverloadTest");
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         assertThat(xVal).isEqualTo(10);
@@ -394,7 +394,7 @@ public class VirtualMachineTest {
 
     @Test
     void callerArgumentWorks() {
-        Inspector i = run("ImplicitArgumentTest");
+        Inspector i = run("test.ImplicitArgumentTest");
         Inspector.Task t = i.tasks.get(0);
         int bVal = t.altData.get("b").get("val");
         int cVal = t.altData.get("c").get("val");
@@ -404,7 +404,7 @@ public class VirtualMachineTest {
 
     @Test
     void stringEqualsWorks() {
-        Inspector i = run("StringEqualsTest");
+        Inspector i = run("test.StringEqualsTest");
         Inspector.Task t = i.tasks.get(0);
         int bVal = t.altData.get("b").get("val");
         assertThat(bVal).isEqualTo(1);
@@ -412,7 +412,7 @@ public class VirtualMachineTest {
 
     @Test
     void tmp() {
-        Inspector i = run("NewTest");
+        Inspector i = run("test.NewTest");
         Inspector.Task t = i.tasks.get(0);
         int bVal = t.altData.get("x").get("val");
         assertThat(bVal).isEqualTo(14);
@@ -420,7 +420,7 @@ public class VirtualMachineTest {
 
     @Test
     void tryWorks() {
-        Inspector i = run("TryTest");
+        Inspector i = run("test.TryTest");
         Inspector.Task t = i.tasks.get(0);
         int bVal = t.altData.get("x").get("val");
         assertThat(bVal).isEqualTo(30);
@@ -428,7 +428,7 @@ public class VirtualMachineTest {
 
     @Test
     void structureWorks() {
-        Inspector i = run("StructureTest");
+        Inspector i = run("test.StructureTest");
         Inspector.Task t = i.tasks.get(0);
         int todayYear  = t.altData.get("today").get("year");
         int todayMonth = t.altData.get("today").get("month");
@@ -446,7 +446,7 @@ public class VirtualMachineTest {
 
     @Test
     void deferWorks() {
-        Inspector i = run("DeferTest");
+        Inspector i = run("test.DeferTest");
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         assertThat(xVal).isEqualTo(10);

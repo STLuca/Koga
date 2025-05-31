@@ -2,7 +2,7 @@ parser machine;
 
 Boolean {
                 
-    byte[1] val;
+    Byte[1] val;
 
     constructor(b1 imm) {
         i(ADD, II, LDA, val, IL, 0d0, AL, imm);
@@ -10,7 +10,7 @@ Boolean {
 
     constructor(Block block) {
         Context(PUSH);
-        Blockk block;
+        Block block;
         Context(POP);
     }
 
@@ -20,7 +20,7 @@ Boolean {
 
     set(Block block) {
         Context(PUSH);
-        Blockk block;
+        Block block;
         Context(POP);
     }
 
@@ -28,7 +28,7 @@ Boolean {
         Addr end;
         cb(EQ, TI, LDA, val, IL, 0d0, end);
         Context(PUSH);
-        Blockk block;
+        Block block;
         Context(POP);
         Addr end;
     }
@@ -37,7 +37,7 @@ Boolean {
         Addr end;
         cb(EQ, TI, LDA, val, IL, 0d1, end);
         Context(PUSH);
-        Blockk block;
+        Block block;
         Context(POP);
         Addr end;
     }

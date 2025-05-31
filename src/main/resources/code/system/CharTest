@@ -7,10 +7,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-CharTest {
+test.CharTest {
 
     main() {
         Char x 'a';

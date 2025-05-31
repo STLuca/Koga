@@ -1,12 +1,8 @@
 package language.machine;
 
-import language.core.Argument;
-import language.core.Compiler;
-import language.core.Context;
-import language.core.Variable;
+import language.core.*;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class ContextStatement implements Statement {
@@ -21,7 +17,7 @@ public class ContextStatement implements Statement {
     
     ArrayList<String> arguments = new ArrayList<>();
     
-    public void compile(Compiler.MethodCompiler compiler, Variable variable, Map<String, Argument> arguments, Context context) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
         ContextType type = ContextType.valueOf(this.arguments.get(0));
         switch (type) {
             case PUSH -> context.add(Argument.of(variable));

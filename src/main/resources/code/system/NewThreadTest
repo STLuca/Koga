@@ -7,10 +7,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-NewThreadTest {
+test.NewThreadTest {
 
     main() {
         AdminRef admin init();

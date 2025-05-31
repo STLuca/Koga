@@ -4,8 +4,8 @@ Throw {
 
     constructor() {
         Addr handlerExecute;
-        byte[4] frame;
-        byte[4] handler;
+        Byte[4] frame;
+        Byte[4] handler;
         f(GET_CURR_FRAME, frame);
         Addr searchStart;
         f(GET_HANDLER, handler, frame);

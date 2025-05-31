@@ -2,9 +2,9 @@ parser machine;
 
 String {
 
-    byte[4] size;
-    byte[4] start;
-    byte[4] step;
+    Byte[4] size;
+    Byte[4] start;
+    Byte[4] step;
 
     constructor(Int s) {
         i(ADD, TI, LDA, size, ADA, s.val, IL, 0d0);
@@ -66,11 +66,11 @@ String {
         Addr setTrue;
         Addr end;
         cb(NEQ, TT, LDA, size, ADA, in.size, setFalse);
-        byte[4] thisAddr;
-        byte[1] thisVal;
-        byte[4] inAddr;
-        byte[1] inVal;
-        byte[4] endAddr;
+        Byte[4] thisAddr;
+        Byte[1] thisVal;
+        Byte[4] inAddr;
+        Byte[1] inVal;
+        Byte[4] endAddr;
         i(ADD, TI, LDA, thisAddr, LDA, start, IL, 0d0);
         i(ADD, TI, LDA, inAddr, ADA, in.start, IL, 0d0);
         i(ADD, TT, LDA, endAddr, LDA, thisAddr, LDA, size);

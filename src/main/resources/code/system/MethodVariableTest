@@ -7,10 +7,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-MethodVariableTest {
+test.MethodVariableTest {
 
     main() {
         Int x 4;

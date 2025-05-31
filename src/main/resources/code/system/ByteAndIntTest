@@ -7,10 +7,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-ByteAndIntTest {
+test.ByteAndIntTest {
 
     main() {
         Byte x 0;

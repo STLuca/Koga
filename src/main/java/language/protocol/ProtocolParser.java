@@ -8,7 +8,7 @@ import language.scanning.Tokens;
 
 public class ProtocolParser implements Parser {
 
-    Token BYTE, PERMISSION, NAME, NUMBER,
+    Token BYTE, PERMISSION, NAME, GLOBAL_NAME, NUMBER,
           OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN, OP_SQ_BRACKET, CL_SQ_BRACKET,
           SEMI_COLON;
     Tokens tokens = new Tokens();
@@ -16,6 +16,7 @@ public class ProtocolParser implements Parser {
     {
         BYTE            = tokens.add("'Byte'");
         PERMISSION      = tokens.add("read|write|all");
+        GLOBAL_NAME     = tokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
         NAME            = tokens.add("[a-zA-Z]+");
         NUMBER          = tokens.add("4096");
         OP_BRACE        = tokens.add("'{'");
@@ -36,7 +37,7 @@ public class ProtocolParser implements Parser {
         Protocol pc = new Protocol();
 
         Token curr = scanner.next(tokens);
-        if (curr != NAME) scanner.fail("name");
+        if (curr != GLOBAL_NAME) scanner.fail("name");
         pc.name = curr.matched();
 
         scanner.expect(tokens, OP_BRACE);

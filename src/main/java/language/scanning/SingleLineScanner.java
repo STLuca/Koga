@@ -54,6 +54,22 @@ public class SingleLineScanner {
         return next;
     }
 
+    public Token expect(Token token) {
+        char c = input.charAt(inputPosition);
+        while (c == ' ' || c == '\n') {
+            inputPosition++;
+            c = input.charAt(inputPosition);
+        }
+
+        if (token.match(input, inputPosition, false)) {
+            currentToken = token;
+            inputPosition += currentToken.matched().length();
+            return token;
+        }
+        fail("No token found");
+        return null;
+    }
+
     public Token expect(Tokens tokens, Token expected) {
         Token next = next(tokens);
         if (next != expected) fail("Expecting " + expected.label() + " but found " + next.label());

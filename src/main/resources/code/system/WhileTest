@@ -8,10 +8,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-WhileTest {
+test.WhileTest {
 
     main() {
         Int x 0;

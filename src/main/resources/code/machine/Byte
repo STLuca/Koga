@@ -2,7 +2,7 @@ parser machine;
 
 Byte {
                 
-    byte[1] val;
+    Byte[1] val;
 
     constructor(b8 imm) {
         i(ADD, II, LDA, val, IL, 0d0, AL, imm);

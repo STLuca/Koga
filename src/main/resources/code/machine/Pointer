@@ -2,7 +2,7 @@ parser machine;
 
 Pointer<Usable T> {
 
-    byte[4] addr;
+    Byte[4] addr;
 
     constructor(Any val) {
         i(ADD, LI, LDA, addr, R, task, ADA, val);

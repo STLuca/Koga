@@ -12,24 +12,18 @@ import java.util.List;
 
 public class HostParser implements Parser {
 
-    Token DEPENDENCIES, CONSTANTS, IMPORTS, CONSTRUCTOR, NAME, OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN,
-            SEMI_COLON, NUMBER, PARAM_TYPE, COMMA, LITERAL_ARG, OP_SQ_BRACKET, SUPPORTS,
-            CL_SQ_BRACKET, EQUALS, DOT, OP_PT_BRACE, CL_PT_BRACE, STRING, OPERATOR, TILDA;
+    Token   DEPENDENCIES, CONSTANTS, IMPORTS, SUPPORTS,
+            LOCAL_NAME, GLOBAL_NAME, STRING, LITERAL_ARG, OPERATOR,
+            SEMI_COLON, COMMA, TILDA,
+            OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN, CL_SQ_BRACKET, OP_SQ_BRACKET, OP_PT_BRACE, CL_PT_BRACE;
     Tokens tokens = new Tokens();
     Tokens methodNameTokens = new Tokens();
+    Tokens metaTokens = new Tokens();
     HashMap<String, String> operatorNames = new HashMap<>();
 
     {
-        DEPENDENCIES  = tokens.add("'dependencies'");
-        IMPORTS       = tokens.add("'imports'");
-        CONSTANTS     = tokens.add("'constants'");
-        CONSTRUCTOR   = tokens.add("'constructor'");
-        SUPPORTS      = tokens.add("'supports'");
-        PARAM_TYPE    = tokens.add("b[1-9][0-9]*");
         LITERAL_ARG   = tokens.add("0b[0-1]+|0x[0-9a-f]+|[0-9]+|true|false|\\'[a-zA-Z]\\'");
-        NAME          = tokens.add("[a-zA-Z]+");
-        NUMBER        = tokens.add("[1-9]+");
-        EQUALS        = tokens.add("'='");
+        LOCAL_NAME    = tokens.add("[a-zA-Z]+");
         OP_BRACE      = tokens.add("'{'");
         CL_BRACE      = tokens.add("'}'");
         OP_PAREN      = tokens.add("'('");
@@ -40,13 +34,24 @@ public class HostParser implements Parser {
         CL_PT_BRACE   = tokens.add("'>'");
         SEMI_COLON    = tokens.add("';'");
         COMMA         = tokens.add("','");
-        DOT           = tokens.add("'.'");
         TILDA         = tokens.add("'~'");
         STRING        = tokens.add("\".*\"");
 
-        methodNameTokens.add(NAME);
+        methodNameTokens.add(LOCAL_NAME);
         methodNameTokens.add(SEMI_COLON);
         OPERATOR = methodNameTokens.add("[^a-zA-Z1-9({ \t]+");
+
+        {
+            DEPENDENCIES  = metaTokens.add("'dependencies'");
+            IMPORTS       = metaTokens.add("'imports'");
+            CONSTANTS     = metaTokens.add("'constants'");
+            SUPPORTS      = metaTokens.add("'supports'");
+            GLOBAL_NAME = metaTokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
+            metaTokens.add(LOCAL_NAME);
+            metaTokens.add(SEMI_COLON);
+            metaTokens.add(OP_BRACE);
+            metaTokens.add(CL_BRACE);
+        }
 
         {
             operatorNames.put("=", "set");
@@ -85,17 +90,17 @@ public class HostParser implements Parser {
     public void parse(Sources sources, String input) {
         Scanner scanner = new Scanner(input);
         HostCompilable c = new HostCompilable();
-        Token curr = scanner.next(tokens);
+        Token curr = scanner.next(metaTokens);
 
         if (curr == IMPORTS) {
             scanner.expect(tokens, OP_BRACE);
             curr = scanner.next(tokens);
             while (curr != CL_BRACE) {
-                if (curr != NAME) throw new RuntimeException("name");
+                if (curr != LOCAL_NAME) throw new RuntimeException("name");
                 String globalName = curr.matched();
                 String localName = curr.matched();
                 curr = scanner.next(tokens);
-                if (curr == NAME) {
+                if (curr == LOCAL_NAME) {
                     localName = curr.matched();
                     curr = scanner.next(tokens);
                 }
@@ -106,17 +111,21 @@ public class HostParser implements Parser {
                 c.imports.add(name);
                 curr = scanner.next(tokens);
             }
-            curr = scanner.next(tokens);
+            curr = scanner.next(metaTokens);
         }
         if (curr == DEPENDENCIES) {
             scanner.expect(tokens, OP_BRACE);
-            curr = scanner.next(tokens);
+            curr = scanner.next(metaTokens);
             while (curr != CL_BRACE) {
-                if (curr != NAME) throw new RuntimeException("name");
+                if (curr != LOCAL_NAME && curr != GLOBAL_NAME) throw new RuntimeException("name");
                 String globalName = curr.matched();
                 String localName = curr.matched();
-                curr = scanner.next(tokens);
-                if (curr == NAME) {
+                if (localName.contains(".")) {
+                    String[] split = localName.split("\\.");
+                    localName = split[split.length - 1];
+                }
+                curr = scanner.next(metaTokens);
+                if (curr == LOCAL_NAME) {
                     localName = curr.matched();
                     curr = scanner.next(tokens);
                 }
@@ -125,15 +134,15 @@ public class HostParser implements Parser {
                 name.globalName = globalName;
                 name.localName = localName;
                 c.dependencies.add(name);
-                curr = scanner.next(tokens);
+                curr = scanner.next(metaTokens);
             }
-            curr = scanner.next(tokens);
+            curr = scanner.next(metaTokens);
         }
         if (curr == CONSTANTS) {
             scanner.expect(tokens, OP_BRACE);
             curr = scanner.next(tokens);
             while (curr != CL_BRACE) {
-                if (curr != NAME) throw new RuntimeException("name");
+                if (curr != LOCAL_NAME) throw new RuntimeException("name");
                 Constant constant = new Constant();
                 constant.name = curr.matched();
                 constant.literals = new ArrayList<>();
@@ -156,14 +165,14 @@ public class HostParser implements Parser {
                 scanner.expect(tokens, SEMI_COLON);
                 curr = scanner.next(tokens);
             }
-            curr = scanner.next(tokens);
+            curr = scanner.next(metaTokens);
         }
-        if (curr != NAME) scanner.fail("name");
+        if (curr != LOCAL_NAME && curr != GLOBAL_NAME) scanner.fail("name");
         c.name = curr.matched();
-        curr = scanner.next(tokens);
+        curr = scanner.next(metaTokens);
         if (curr == SUPPORTS) {
             while (curr != OP_BRACE) {
-                curr = scanner.expect(tokens, NAME);
+                curr = scanner.expect(tokens, LOCAL_NAME);
                 c.supporting.add(curr.matched());
                 curr = scanner.next(tokens);
             }
@@ -172,9 +181,9 @@ public class HostParser implements Parser {
         curr = scanner.next(tokens);
         while (curr != CL_BRACE) {
             Token peek = scanner.peek(tokens).orElseThrow();
-            if (curr == NAME && peek == OP_PAREN) {
+            if (curr == LOCAL_NAME && peek == OP_PAREN) {
                 parseMethod(scanner, c);
-            } else if (curr == NAME) {
+            } else if (curr == LOCAL_NAME) {
                 parseVariable(scanner, c);
             } else if (curr == TILDA) {
                 scanner.takeUntilNewLine();
@@ -191,7 +200,7 @@ public class HostParser implements Parser {
         scanner.expect(tokens, OP_PAREN);
         curr = scanner.next(tokens);
         while (curr != CL_PAREN) {
-            if (curr != NAME) scanner.fail("name");
+            if (curr != LOCAL_NAME) scanner.fail("name");
             Parameter p = new Parameter();
             p.usable = curr.matched();
             curr = scanner.next(tokens);
@@ -199,7 +208,7 @@ public class HostParser implements Parser {
             if (curr == OP_PT_BRACE) {
                 curr = scanner.next(tokens);
                 while (curr != CL_PT_BRACE) {
-                    if (curr != NAME) scanner.fail("name");
+                    if (curr != LOCAL_NAME) scanner.fail("name");
                     p.generics.add(curr.matched());
                     curr = scanner.next(tokens);
                     if (curr == COMMA) curr = scanner.next(tokens);
@@ -207,7 +216,7 @@ public class HostParser implements Parser {
                 curr = scanner.next(tokens);
             }
 
-            if (curr != NAME) scanner.fail("name");
+            if (curr != LOCAL_NAME) scanner.fail("name");
             p.name = curr.matched();
 
             curr = scanner.next(tokens);
@@ -233,7 +242,7 @@ public class HostParser implements Parser {
         if (curr == TILDA) {
             scanner.takeUntilNewLine();
         }
-        if (curr != NAME) scanner.fail("name");
+        if (curr != LOCAL_NAME) scanner.fail("name");
         String currS = curr.matched();
 
         // If imports contains the first String, it's a construct statement
@@ -257,7 +266,7 @@ public class HostParser implements Parser {
                 curr = scanner.next(tokens);
                 do {
                     curr = scanner.next(tokens);
-                    if (curr != NAME) scanner.fail("name");
+                    if (curr != LOCAL_NAME) scanner.fail("name");
                     s.generics.add(curr.matched());
                     curr = scanner.next(tokens);
                 } while (curr == COMMA);
@@ -276,7 +285,7 @@ public class HostParser implements Parser {
             // While {}; // When might the be used? If there was a return inside it?
 
             // Can be name, can also be open paren/open brace. Would want to check for name before open though
-            if (curr == NAME) {
+            if (curr == LOCAL_NAME) {
                 String name = curr.matched();
                 Token peek = scanner.peek(tokens).orElseThrow();
                 if (peek == SEMI_COLON) {
@@ -287,7 +296,7 @@ public class HostParser implements Parser {
                     statements.add(s);
                     scanner.next(tokens);
                     return;
-                } else if (peek == NAME) {
+                } else if (peek == LOCAL_NAME) {
                     s.variableName = name;
                     // peek can still be method name or variable name e.g. Int x y; or Int x port(); While loop {
                     curr = scanner.next(tokens);
@@ -325,7 +334,7 @@ public class HostParser implements Parser {
             Statement s = new Statement();
             s.type = Statement.Type.INVOKE;
             s.variableName = currS;
-            if (curr == NAME) {
+            if (curr == LOCAL_NAME) {
                 s.methodName = curr.matched();
             } else if (curr == OPERATOR) {
                 if (!operatorNames.containsKey(curr.matched())) scanner.fail("Operator " + curr.matched() + " doesn't exist");
@@ -349,7 +358,7 @@ public class HostParser implements Parser {
                 Statement.Argument arg = new Statement.Argument();
                 arg.literal = curr.matched();
                 s.arguments.add(arg);
-            } else if (curr == NAME) {
+            } else if (curr == LOCAL_NAME) {
                 Statement.Argument arg = new Statement.Argument();
                 arg.name = curr.matched();
                 s.arguments.add(arg);
@@ -375,7 +384,7 @@ public class HostParser implements Parser {
                     Statement.Argument arg = new Statement.Argument();
                     if (curr == LITERAL_ARG) {
                         arg.literal = curr.matched();
-                    } else if (curr == NAME) {
+                    } else if (curr == LOCAL_NAME) {
                         arg.name = curr.matched();
                     } else {
                         scanner.fail("unknown arg");
@@ -415,14 +424,14 @@ public class HostParser implements Parser {
         curr = scanner.next(tokens);
         if (curr == OP_PT_BRACE) {
             do {
-                curr = scanner.expect(tokens, NAME);
+                curr = scanner.expect(tokens, LOCAL_NAME);
                 f.generics.add(curr.matched());
                 curr = scanner.next(tokens);
             } while (curr == COMMA);
             if (curr != CL_PT_BRACE) scanner.fail(">");
             curr = scanner.next(tokens);
         }
-        if (curr != NAME) scanner.fail("field name");
+        if (curr != LOCAL_NAME) scanner.fail("field name");
         f.name = curr.matched();
         scanner.expect(tokens, SEMI_COLON);
         c.fields.add(f);

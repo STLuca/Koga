@@ -106,7 +106,7 @@ public class MachineUsable implements Usable {
         // Try and match a constructor
         Method c = null;
         for (Method con : constructors) {
-            if (con.matches(constructorName, args)) {
+            if (con.matches(variable, constructorName, args)) {
                 c = con;
                 break;
             }
@@ -133,7 +133,7 @@ public class MachineUsable implements Usable {
 
         variable.methodAllocations.push(new HashMap<>());
         for (Statement s : c.body) {
-            s.compile(compiler, variable, argsByName, context);
+            s.compile(compiler, sources, variable, argsByName, context);
         }
         variable.methodAllocations.pop();
     }
@@ -142,7 +142,7 @@ public class MachineUsable implements Usable {
         // Find the method
         Method method = null;
         for (Method m : methods) {
-            if (m.matches(methodName, args)) {
+            if (m.matches(variable, methodName, args)) {
                 method = m;
                 break;
             }
@@ -158,7 +158,7 @@ public class MachineUsable implements Usable {
 
         variable.methodAllocations.add(new HashMap<>());
         for (Statement s : method.body) {
-            s.compile(compiler, variable, argsByName, context);
+            s.compile(compiler, sources, variable, argsByName, context);
         }
         variable.methodAllocations.pop();
     }

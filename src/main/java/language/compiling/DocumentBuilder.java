@@ -55,7 +55,7 @@ public class DocumentBuilder implements Compiler {
             if (symbol.two == null) {
                 s.identifier = symbol.one;
             } else {
-                s.identifier = symbol.one + "." + symbol.two;
+                s.identifier = symbol.one + " " + symbol.two;
             }
             d.symbols[i] = s;
         }

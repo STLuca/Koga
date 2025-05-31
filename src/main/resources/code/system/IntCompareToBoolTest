@@ -9,10 +9,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-IntCompareToBoolTest {
+test.IntCompareToBoolTest {
 
     main() {
         Int x 10;

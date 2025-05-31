@@ -1,6 +1,6 @@
 parser protocol;
 
-Talker {
+chatting.Talker {
 
     talk {
         Byte[4096] read;

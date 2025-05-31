@@ -10,11 +10,11 @@ imports {
 }
 
 dependencies {
-    Fields;
-    SimpleAdministrator;
+    test.Fields;
+    util.SimpleAdministrator;
 }
 
-UsingReferenceTest {
+test.UsingReferenceTest {
 
     Reference<Fields> f;
 

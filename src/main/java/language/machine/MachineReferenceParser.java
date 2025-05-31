@@ -1,8 +1,10 @@
 package language.machine;
 
+import language.core.Argument;
 import language.core.Sources;
 import language.core.Parser;
 import language.scanning.Scanner;
+import language.scanning.SingleLineScanner;
 import language.scanning.Token;
 import language.scanning.Tokens;
 
@@ -16,13 +18,14 @@ public class MachineReferenceParser implements Parser {
           OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN, OP_SQ_BRACKET, CL_SQ_BRACKET, OP_PT_BRACE, CL_PT_BRACE,
           SEMI_COLON, COMMA, DOT, TILDA;
     Tokens tokens = new Tokens();
+    Tokens paramTokens = new Tokens();
 
     {
         CONSTRUCTOR   = tokens.add("'constructor'");
-        BYTE          = tokens.add("'byte'");
+        BYTE          = tokens.add("'Byte'");
         ADDR          = tokens.add("'Addr'");
         POSITION      = tokens.add("'Position'");
-        BLOCK         = tokens.add("'Blockk'");
+        BLOCK         = tokens.add("'Block'");
         PARAM_TYPE    = tokens.add("b[1-9][0-9]*");
         NAME          = tokens.add("[a-zA-Z_]+");
         LITERAL_ARG   = tokens.add("0b[0-1]+|0x[0-9a-f]+|0d[0-9]+|\\\"[a-zA-Z_]+\\\"");
@@ -39,6 +42,13 @@ public class MachineReferenceParser implements Parser {
         COMMA         = tokens.add("','");
         DOT           = tokens.add("'.'");
         TILDA         = tokens.add("'~'");
+
+        PARAM_TYPE    = paramTokens.add("b[1-9][0-9]*");
+        PARAM_ARRAY   = paramTokens.add("\\[\\]");
+        paramTokens.add(COMMA);
+        paramTokens.add(CL_PAREN);
+        paramTokens.add(OP_PAREN);
+        paramTokens.add(NAME);
     }
     
     public String name() {
@@ -120,21 +130,7 @@ public class MachineReferenceParser implements Parser {
         } else {
             scanner.fail("(");
         }
-        curr = scanner.next(tokens);
-        while (curr != CL_PAREN) {
-            if (curr != PARAM_TYPE && curr != NAME) throw new RuntimeException("expecting parameter type");
-            boolean binaryType = curr == PARAM_TYPE;
-            String paramType = curr.matched();
-            curr = scanner.expect(tokens, NAME);
-            String paramName = curr.matched();
-            if (binaryType) {
-                mcc.addParam(Integer.parseInt(paramType.substring(1)), paramName, false);
-            } else {
-                mcc.addParam(paramType, paramName, false);
-            }
-            if (scanner.peek(tokens).orElse(null) == COMMA) scanner.next(tokens);
-            curr = scanner.next(tokens);
-        }
+        parseParameters(scanner, mcc.parameters);
         scanner.expect(tokens, OP_BRACE);
         curr = scanner.next(tokens);
         parseBody(scanner, mc, mcc.body);
@@ -147,21 +143,7 @@ public class MachineReferenceParser implements Parser {
         if (curr != NAME) scanner.fail("name");
         mcm.name = curr.matched();
         scanner.expect(tokens, OP_PAREN);
-        curr = scanner.next(tokens);
-        while (curr != CL_PAREN) {
-            if (curr != PARAM_TYPE && curr != NAME) throw new RuntimeException("expecting parameter type");
-            boolean binaryType = curr == PARAM_TYPE;
-            String paramType = curr.matched();
-            curr = scanner.expect(tokens, NAME);
-            String paramName = curr.matched();
-            if (binaryType) {
-                mcm.addParam(Integer.parseInt(paramType.substring(1)), paramName, false);
-            } else {
-                mcm.addParam(paramType, paramName, false);
-            }
-            if (scanner.peek(tokens).orElse(null) == COMMA) scanner.next(tokens);
-            curr = scanner.next(tokens);
-        }
+        parseParameters(scanner, mcm.parameters);
         scanner.expect(tokens, OP_BRACE);
         curr = scanner.next(tokens);
         parseBody(scanner, mc, mcm.body);
@@ -169,6 +151,46 @@ public class MachineReferenceParser implements Parser {
             mc.invokeMethod = mcm;
         } else if (mcm.name.equals("arg")) {
             mc.argMethod = mcm;
+        }
+    }
+
+    void parseParameters(Scanner scanner, ArrayList<Method.Parameter> parameters) {
+        Token curr = scanner.next(paramTokens);
+        while (curr != CL_PAREN) {
+            if (curr != PARAM_TYPE && curr != NAME) throw new RuntimeException("expecting parameter type");
+            boolean binaryType = curr == PARAM_TYPE;
+            boolean isArray = false;
+            String paramType = curr.matched();
+            curr = scanner.next(paramTokens);
+            if (curr == PARAM_ARRAY) {
+                isArray = true;
+                curr = scanner.next(paramTokens);
+            }
+            if (curr != NAME) scanner.fail("name");
+            String paramName = curr.matched();
+            if (binaryType) {
+                Method.Parameter p = new Method.Parameter();
+                p.type = Argument.Type.Literal;
+                p.bits = Integer.parseInt(paramType.substring(1));
+                p.array = isArray;
+                p.name = paramName;
+                parameters.add(p);
+            } else {
+                Method.Parameter p = new Method.Parameter();
+                if (paramType.equals("Block")) {
+                    p.type = Argument.Type.Block;
+                } else if (paramType.equals("Name")) {
+                    p.type = Argument.Type.Name;
+                } else {
+                    p.type = Argument.Type.Variable;
+                    p.className = paramType;
+                }
+                p.array = isArray;
+                p.name = paramName;
+                parameters.add(p);
+            }
+            if (scanner.peek(paramTokens).orElse(null) == COMMA) scanner.next(paramTokens);
+            curr = scanner.next(paramTokens);
         }
     }
 
@@ -192,47 +214,45 @@ public class MachineReferenceParser implements Parser {
                 Statement statement;
                 List<String> arguments;
                 switch (name) {
-                    case "Args": {
+                    case "Args" -> {
                         statement = new MachineReferenceUsable.ArgsStatement();
                         arguments = new ArrayList<>();
                         mc.argStatement = statement;
-                        break;
                     }
-                    case "Admin": {
+                    case "ArgsCopy" -> {
+                        MachineReferenceUsable.ArgsCopyStatement is = new MachineReferenceUsable.ArgsCopyStatement();
+                        arguments = is.arguments;
+                        statement = is;
+                    }
+                    case "Admin" -> {
                         AdminStatement is = new AdminStatement();
                         arguments = is.arguments;
                         statement = is;
-                        break;
                     }
-                    case "Context": {
+                    case "Context" -> {
                         ContextStatement is = new ContextStatement();
                         arguments = is.arguments;
                         statement = is;
-                        break;
                     }
-                    case "Symbol": {
+                    case "Symbol" -> {
                         SymbolStatement is = new SymbolStatement();
                         arguments = is.arguments;
                         statement = is;
-                        break;
                     }
-                    case "Proxy": {
+                    case "Proxy" -> {
                         ProxyStatement is = new ProxyStatement();
                         arguments = is.arguments;
                         statement = is;
-                        break;
                     }
-                    case "Direction": {
+                    case "Direction" -> {
                         DirectionStatement s = new DirectionStatement();
                         arguments = s.arguments;
                         statement = s;
-                        break;
                     }
-                    default: {
+                    default -> {
                         InstructionStatement is = new InstructionStatement(name);
                         arguments = is.arguments;
                         statement = is;
-                        break;
                     }
                 }
                 scanner.expect(tokens, OP_PAREN);

@@ -9,10 +9,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-DeferTest {
+test.DeferTest {
 
     main() {
         Deferrer d {

@@ -5,27 +5,27 @@ Seq {
     constructor(Block try, Block catch) {
         Addr fail;
         Addr complete;
-        byte[4] status;
-        byte[4] statusAddr;
-        byte[4] statusParamAddr;
+        Byte[4] status;
+        Byte[4] statusAddr;
+        Byte[4] statusParamAddr;
         i(ADD, LI, LDA, statusAddr, R, task, LDA, status);
         ~ status pointer is 20 bytes into the admin area
         i(ADD, LI, LDA, statusParamAddr, R, altTask, IL, 0d20);
 
-        byte[4] awaitTaskAddr;
+        Byte[4] awaitTaskAddr;
         i(ADD, LI, LDA, awaitTaskAddr, R, altTask, IL, 0d0);
 
-        Blockk createTask {
+        Block createTask {
             m(COPY, TII, LDA, statusParamAddr, LDA, statusAddr, LDS, status);
-            byte[4] adminTaskMethod;
-            Symbol(METHOD, adminTaskSymbol, IL, Administrator, IL, task);
+            Byte[4] adminTaskMethod;
+            Symbol(METHOD, adminTaskSymbol, IL, core.Administrator, IL, task);
             c(ADDR, LI, adminTaskMethod, table, adminTaskSymbol);
             logician(START_ADMIN, T, LDA, adminTaskMethod);
         };
 
-        Blockk taskReady {
-            byte[4] adminScheduleMethod;
-            Symbol(METHOD, adminScheduleSymbol, IL, Administrator, IL, awaitTask);
+        Block taskReady {
+            Byte[4] adminScheduleMethod;
+            Symbol(METHOD, adminScheduleSymbol, IL, core.Administrator, IL, awaitTask);
             c(ADDR, LI, adminScheduleMethod, table, adminScheduleSymbol);
             i(ADD, LI, LDA, awaitTaskAddr, R, altTask, IL, 0d0);
             m(COPY, TII, LDA, awaitTaskAddr, CL, task, IL, 0d4);
@@ -33,10 +33,10 @@ Seq {
             cb(NEQ, TI, LDA, status, IL, 0d0, fail);
         };
 
-        Blockk try;
+        Block try;
         j(REL, I, complete);
         Addr fail;
-        Blockk catch;
+        Block catch;
         Addr complete;
     }
 

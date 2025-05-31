@@ -1,6 +1,7 @@
 package language.machine;
 
 import language.core.Argument;
+import language.core.Variable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,36 +20,24 @@ public class Method {
     ArrayList<Parameter> parameters = new ArrayList<>();
     ArrayList<Statement> body = new ArrayList<>();
 
-    void addParam(String className, String name, boolean isArray) {
-        Method.Parameter p = new Method.Parameter();
-        if (className.equals("Block")) {
-            p.type = Argument.Type.Block;
-        } else if (className.equals("Name")) {
-            p.type = Argument.Type.Name;
-        } else {
-            p.type = Argument.Type.Variable;
-            p.className = className;
-        }
-        p.array = isArray;
-        p.name = name;
-        parameters.add(p);
-    }
-
-    void addParam(int bits, String name, boolean isArray) {
-        Method.Parameter p = new Method.Parameter();
-        p.type = Argument.Type.Literal;
-        p.bits = bits;
-        p.array = isArray;
-        p.name = name;
-        parameters.add(p);
-    }
-
-    boolean matches(String name, List<Argument> args) {
+    boolean matches(Variable variable, String name, List<Argument> args) {
         if (!name.equals(this.name)) return false;
         if (args.size() != parameters.size()) return false;
         for (int i = 0; i < args.size(); i++) {
-            if (parameters.get(i).array && args.get(i).type == Argument.Type.Literal) continue;
-            if (args.get(i).type == parameters.get(i).type) continue;
+            Parameter param = parameters.get(i);
+            Argument arg = args.get(i);
+            if (param.array && arg.type == Argument.Type.Literal) continue;
+            switch (param.type) {
+                case Variable -> {
+                    if (arg.type != Argument.Type.Variable) return false;
+                    if (param.className.equals("Any")) continue;
+                    if (variable.generics.containsKey(param.className) && variable.generics.get(param.className) == arg.variable.usable) continue;
+                    if (param.className.equals(arg.variable.usable.name())) continue;
+                }
+                case Literal, Name, Block -> {
+                    if (param.type == arg.type) continue;
+                }
+            }
             return false;
         }
         return true;

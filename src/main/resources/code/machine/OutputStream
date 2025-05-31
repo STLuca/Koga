@@ -2,8 +2,8 @@ parser machine;
 
 OutputStream {
 
-    byte[4] root;
-    byte[4] current;
+    Byte[4] root;
+    Byte[4] current;
 
     constructor(Int in) {
         i(ADD, TI, LDA, root, ADA, in.val, IL, 0d0);

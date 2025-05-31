@@ -68,7 +68,7 @@ public class MachineReferenceUsable implements Usable {
         // Try and match a constructor
         Method c = null;
         for (Method con : constructors) {
-            if (con.matches(constructorName, args)) {
+            if (con.matches(variable, constructorName, args)) {
                 c = con;
                 break;
             }
@@ -97,7 +97,7 @@ public class MachineReferenceUsable implements Usable {
 
         variable.methodAllocations.push(new HashMap<>());
         for (Statement s : c.body) {
-            s.compile(compiler, variable, argsByName, context);
+            s.compile(compiler, sources, variable, argsByName, context);
         }
         variable.methodAllocations.pop();
     }
@@ -106,14 +106,14 @@ public class MachineReferenceUsable implements Usable {
         HashMap<String, Argument> argsByName = new HashMap<>();
 
         // put the name instead of the arguments
-        argsByName.put("methodName", Argument.of(methodName));
+        Argument methodNameArg = Argument.of(methodName);
+        argsByName.put("methodName", methodNameArg);
 
         variable.methodAllocations.push(new HashMap<>());
 
-
         for (Statement s : invokeMethod.body) {
             if (argStatement != s) {
-                s.compile(compiler, variable, argsByName, context);
+                s.compile(compiler, sources, variable, argsByName, context);
                 continue;
             }
             // For each argument, invoke the argMethod
@@ -122,8 +122,9 @@ public class MachineReferenceUsable implements Usable {
             for (Argument arg : args) {
                 argArgs.put(argMethod.parameters.get(0).name, arg);
                 argArgs.put("index", Argument.of(argIndex++));
+                argArgs.put("methodName", methodNameArg);
                 for (Statement as : argMethod.body) {
-                    as.compile(compiler, variable, argArgs, context);
+                    as.compile(compiler, sources, variable, argArgs, context);
                 }
             }
         }
@@ -139,10 +140,68 @@ public class MachineReferenceUsable implements Usable {
     }
 
     public static class ArgsStatement implements Statement {
-        
-        public void compile(Compiler.MethodCompiler compiler, Variable variable, Map<String, Argument> arguments, Context context) {
 
+        public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {}
+
+    }
+
+    public static class ArgsCopyStatement implements Statement {
+
+        ArrayList<String> arguments = new ArrayList<>();
+
+        public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
+            Document d;
+            String methodName;
+
+            InputType docInType = InputType.valueOf(this.arguments.get(0).toUpperCase());
+            String input = this.arguments.get(1);
+            d = switch (docInType) {
+                case LG -> variable.documents.get(input);
+                case AG -> {
+                    String[] split = input.split("\\.");
+                    Variable var = arguments.get(split[0]).variable;
+                    yield var.documents.get(split[1]);
+                }
+                default -> throw new RuntimeException();
+            };
+
+            InputType methodInType = InputType.valueOf(this.arguments.get(2).toUpperCase());
+            input = this.arguments.get(3);
+            methodName = switch (methodInType) {
+                case IL -> input;
+                case AL -> arguments.get(input).name;
+                default -> throw new RuntimeException();
+            };
+
+            InputType inputType = InputType.valueOf(this.arguments.get(4).toUpperCase());
+            int index = inputType.resolve(this.arguments.get(5), variable, arguments, context).value();
+
+            Variable argVariable = arguments.get(this.arguments.get(7)).variable;
+
+            inputType = InputType.valueOf(this.arguments.get(8).toUpperCase());
+            int addr = inputType.resolve(this.arguments.get(9), variable, arguments, context).value();
+
+            core.Document.Method method = null;
+            for (core.Document.Method m : d.methods) {
+                if (m.name.equals(methodName)) {
+                    method = m;
+                    break;
+                }
+            }
+            String param = method.parameters[index];
+            if (param.equals(argVariable.usable.name())) {
+                new InstructionStatement("m", "COPY", "TII", "LDA", "frameDataAddr", "ADA", "a", "ADS", "a").compile(compiler, sources, variable, arguments, context);
+                new InstructionStatement("i","ADD", "TI", "LDA", "frameDataAddr", "LDA", "frameDataAddr", "ADS", "a").compile(compiler, sources, variable, arguments, context);
+            } else if (param.equals("Pointer")) {
+                int addrAddr = compiler.data(4);
+                new InstructionStatement("i", "ADD", "LI", "IL", "0d" + addrAddr, "R", "task", "ADA", "a").compile(compiler, sources, variable, arguments, context);
+                new InstructionStatement("m", "COPY", "TII", "LDA", "frameDataAddr", "IL", "0d" + addrAddr, "ADS", "a").compile(compiler, sources, variable, arguments, context);
+                new InstructionStatement("i","ADD", "TI", "LDA", "frameDataAddr", "LDA", "frameDataAddr", "IL", "0d4").compile(compiler, sources, variable, arguments, context);
+            } else {
+                throw new RuntimeException("Can't copy to argument");
+            }
         }
+
     }
 
 }

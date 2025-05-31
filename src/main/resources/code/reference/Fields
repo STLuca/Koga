@@ -7,7 +7,7 @@ imports {
     Task;
 }
 
-Fields {
+test.Fields {
 
     Int x;
 

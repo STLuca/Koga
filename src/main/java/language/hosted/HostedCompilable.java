@@ -38,8 +38,20 @@ public class HostedCompilable implements Compilable {
         Document tempThisDoc = new Document();
         tempThisDoc.type = Document.Type.Host;
         tempThisDoc.name = name;
-        myClasses.documents.put(name, tempThisDoc);
-        myClasses.compilables.put(name, this);
+        tempThisDoc.methods = new Document.Method[methods.size()];
+        for (int i = 0; i < methods.size(); i++) {
+            Method m = methods.get(i);
+            Document.Method dm = new Document.Method();
+            dm.name = m.name;
+            dm.parameters = new String[m.params.size()];
+            for (int ii = 0; ii < m.params.size(); ii++) {
+                dm.parameters[ii] = m.params.get(ii).usable;
+            }
+            tempThisDoc.methods[i] = dm;
+        }
+        String[] split = name.split("\\.");
+        myClasses.documents.put(split[split.length - 1], tempThisDoc);
+        myClasses.compilables.put(split[split.length - 1], this);
 
         for (Name dependency : dependencies) {
             sources.parse(dependency.globalName);
@@ -48,7 +60,8 @@ public class HostedCompilable implements Compilable {
             compiler.dependency(dependency.globalName);
         }
         for (String intrface : interfaces) {
-            compiler.implementing(intrface);
+            Document implementing = myClasses.documents.get(intrface);
+            compiler.implementing(implementing.name);
         }
 
         for (Name imprt : this.imports) {

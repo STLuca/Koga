@@ -8,10 +8,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-AllocatorTest {
+test.AllocatorTest {
 
     main() {
         AdminRef admin init();

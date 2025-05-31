@@ -19,10 +19,10 @@ imports {
 }
 
 dependencies {
-    Administrator;
+    core.Administrator;
 }
 
-SimpleAdministrator implements Administrator {
+util.SimpleAdministrator implements Administrator {
 
     Int bump;
     Int pageBump;

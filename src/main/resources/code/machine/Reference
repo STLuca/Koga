@@ -3,8 +3,8 @@ parser machineReference;
 Reference<Document R> {
 
     ~ comment
-    byte[4] objectAddr;
-    byte[4] objectTable;
+    Byte[4] objectAddr;
+    Byte[4] objectTable;
 
     constructor(b16 imm) {
         i(ADD, II, LDA, objectAddr, IL, 0d0, AL, imm);
@@ -23,7 +23,7 @@ Reference<Document R> {
     }
 
     constructor new() {
-        byte[4] objectSize;
+        Byte[4] objectSize;
         Symbol(CLASS, classSymbol, LG, R);
         c(SIZE, LI, objectSize, table, classSymbol);
         i(ADD, LI, LDA, objectAddr, R, task, LDA, objectAddr);
@@ -32,10 +32,10 @@ Reference<Document R> {
     }
 
     invoke(Name methodName) {
-        byte[4] adminTask;
-        byte[4] frameSize;
-        byte[4] methodAddr;
-        byte[4] newTask;
+        Byte[4] adminTask;
+        Byte[4] frameSize;
+        Byte[4] methodAddr;
+        Byte[4] newTask;
 
         i(ADD, LI, LDA, adminTask, R, altTask, IL, 0d0);
         i(ADD, LI, LDA, newTask, R, task, LDA, newTask);
@@ -57,25 +57,25 @@ Reference<Document R> {
 
         ~ use an implicit createTask body
         ~ otherwise get the status data address, copy to admin arg, and invoke admin.task
-        Blockk createTask default {
-            byte[4] status;
+        Block createTask default {
+            Byte[4] status;
             i(ADD, LI, LDA, status, R, task, LDA, status);
             m(COPY, TII, LDA, adminTask, LDA, status, LDS, status);
 
-            byte[4] adminTaskMethod;
-            Symbol(METHOD, adminTaskSymbol, IL, Administrator, IL, task);
+            Byte[4] adminTaskMethod;
+            Symbol(METHOD, adminTaskSymbol, IL, core.Administrator, IL, task);
             c(ADDR, LI, adminTaskMethod, table, adminTaskSymbol);
             logician(START_ADMIN, T, LDA, adminTaskMethod);
         };
 
-        byte[4] frameDataAddr;
+        Byte[4] frameDataAddr;
         i(ADD, TI, LDA, frameDataAddr, LDA, newTask, IL, 0d0);
         Args();
 
         Context(IMPLICIT, task, LDA, newTask);
-        Blockk taskReady default {
-            byte[4] adminScheduleMethod;
-            Symbol(METHOD, adminScheduleSymbol, IL, Administrator, IL, awaitTask);
+        Block taskReady default {
+            Byte[4] adminScheduleMethod;
+            Symbol(METHOD, adminScheduleSymbol, IL, core.Administrator, IL, awaitTask);
             c(ADDR, LI, adminScheduleMethod, table, adminScheduleSymbol);
             i(ADD, LI, LDA, adminTask, R, altTask, IL, 0d0);
             m(COPY, TII, LDA, adminTask, LDA, newTask, LDS, newTask);
@@ -84,9 +84,10 @@ Reference<Document R> {
         Context(REMOVE, task);
     }
 
-    arg(Any a) {
-        m(COPY, TII, LDA, frameDataAddr, ADA, a, ADS, a);
-        i(ADD, TI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
+    arg(Any a, Name methodName) {
+        ArgsCopy(LG, R, AL, methodName, AL, index, ADA, a, LDA, frameDataAddr);
+        ~ m(COPY, TII, LDA, frameDataAddr, ADA, a, ADS, a);
+        ~ i(ADD, TI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
     }
 
     reference(b16 fieldSymbol, Pointer dest) {

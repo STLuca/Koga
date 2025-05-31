@@ -1,20 +1,18 @@
 package language.machine;
 
 import core.Document;
-import language.core.Argument;
-import language.core.Compiler;
-import language.core.Context;
-import language.core.Variable;
+import language.core.*;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class SymbolStatement implements Statement {
 
     ArrayList<String> arguments = new ArrayList<>();
-    
-    public void compile(Compiler.MethodCompiler compiler, Variable variable, Map<String, Argument> arguments, Context context) {
+
+    // Logic here is annoying, if document type then you need to lookup the global document name
+    // generics already have the global document name
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
         Document.Symbol.Type type = Document.Symbol.Type.valueOf(this.arguments.getFirst().toUpperCase());
         String[] names = new String[2];
         for (int i = 2; i < this.arguments.size(); i+=2) {
@@ -23,7 +21,18 @@ public class SymbolStatement implements Statement {
             String input = this.arguments.get(i + 1);
             names[index] = switch (inputType) {
                 case IL -> input;
-                case AL -> arguments.get(input).name;
+                case AL -> {
+                    String name = arguments.get(input).name;
+
+                    switch (type) {
+                        case CLASS, PROTOCOL, METHOD, FIELD, INTERFACE -> {
+                            if (index == 0) {
+                                name = sources.document(name).name;
+                            }
+                        }
+                    }
+                    yield name;
+                }
                 case LG -> variable.documents.get(input).name;
                 case AG -> {
                     String[] split = input.split("\\.");

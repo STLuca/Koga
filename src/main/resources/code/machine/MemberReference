@@ -2,20 +2,20 @@ parser machineReference;
 
 MemberReference<Document R> {
 
-    byte[4] instance;
+    Byte[4] instance;
 
     constructor(Int in) {
         i(ADD, TI, LDA, instance, ADA, in.val, IL, 0d0);
     }
 
     invoke(Name methodName) {
-        byte[4] protocol;
-        byte[4] adminConnectMethod;
-        Symbol(METHOD, adminConnectSymbol, IL, Administrator, IL, connect);
+        Byte[4] protocol;
+        Byte[4] adminConnectMethod;
+        Symbol(METHOD, adminConnectSymbol, IL, core.Administrator, IL, connect);
         Symbol(METHOD, protocolMethodSymbol, LG, R, AL, methodName);
         c(ADDR, LI, adminConnectMethod, table, adminConnectSymbol);
         c(SIZE, LI, protocol, table, protocolMethodSymbol);
-        byte[4] adminTask;
+        Byte[4] adminTask;
         i(ADD, LI, LDA, adminTask, R, altTask, IL, 0d0);
 
         m(COPY, TII, LDA, adminTask, LDA, instance, LDS, instance);
@@ -27,13 +27,13 @@ MemberReference<Document R> {
         Args();
         logician(START_ADMIN, T, LDA, adminConnectMethod);
 
-        byte[4] adminSendMethod;
-        Symbol(METHOD, adminSendSymbol, IL, Administrator, IL, send);
+        Byte[4] adminSendMethod;
+        Symbol(METHOD, adminSendSymbol, IL, core.Administrator, IL, send);
         c(ADDR, LI, adminSendMethod, table, adminSendSymbol);
         logician(START_ADMIN, T, LDA, adminSendMethod);
     }
 
-    arg(Any a) {
+    arg(Any a, Name methodName) {
         m(COPY, TII, LDA, adminTask, ADA, a, IL, 0d4);
         i(ADD, TI, LDA, adminTask, LDA, adminTask, IL, 0d4);
     }

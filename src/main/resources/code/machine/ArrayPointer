@@ -2,10 +2,10 @@ parser machine;
 
 ArrayPointer<Usable T> {
 
-    byte[4] start;
-    byte[4] size;
-    byte[4] step;
-    byte[4] addr;
+    Byte[4] start;
+    Byte[4] size;
+    Byte[4] step;
+    Byte[4] addr;
 
     constructor(Array arr) {
         i(ADD, TI, LDA, start, ADA, arr.start, IL, 0d0);
@@ -22,21 +22,21 @@ ArrayPointer<Usable T> {
     }
 
     index(b12 imm) {
-        byte[4] index;
+        Byte[4] index;
         i(ADD, II, LDA, index, IL, 0d0, AL, imm);
         math(MULT, TT, LDA, index, LDA, index, LDA, step);
         i(ADD, TT, LDA, addr, LDA, start, LDA, index);
     }
 
     index(Int int) {
-        byte[4] index;
+        Byte[4] index;
         i(ADD, TI, LDA, index, ADA, int.val, IL, 0d0);
         math(MULT, TT, LDA, index, LDA, index, LDA, step);
         i(ADD, TT, LDA, addr, LDA, start, LDA, index);
     }
 
     indexInt(Int int) {
-        byte[4] index;
+        Byte[4] index;
         i(ADD, TI, LDA, index, ADA, int.val, IL, 0d0);
         math(MULT, TT, LDA, index, LDA, index, LDA, step);
         i(ADD, TT, LDA, addr, LDA, start, LDA, index);

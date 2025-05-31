@@ -9,14 +9,14 @@ Try {
     }
 
     constructor(Block block) {
-        Blockk block;
+        Block block;
         j(REL, I, end);
     }
 
     handle(Block block) {
         j(REL, I, end);
         Addr handler;
-        Blockk block;
+        Block block;
         Addr end;
     }
 
@@ -40,13 +40,13 @@ old {
 
     constructor Try(Block block) {
         f(SET_CURR_HANDLER, handler);
-        Blockk block;
+        Block block;
     }
 
     handle(Block block) {
         j(REL, I, end);
         Addr handler;
-        Blockk block;
+        Block block;
         Addr end;
     }
 }

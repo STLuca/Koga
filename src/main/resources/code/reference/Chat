@@ -15,7 +15,7 @@ imports {
     Task;
 }
 
-Chat {
+chatting.Chat {
 
     InputStream in;
     OutputStream out;

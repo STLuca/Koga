@@ -14,13 +14,13 @@ Deferrer {
         Direction(after);
         Addr end;
         Direction(before);
-        Blockk b;
+        Block b;
         Position end;
     }
 
     defer(Block b) {
         Position end prev;
-        Blockk b;
+        Block b;
         Position prev;
     }
 

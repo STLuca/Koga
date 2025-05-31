@@ -9,10 +9,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-IfTest {
+test.IfTest {
 
     ~ this demonstrates a typical if elseIf construct
     ~ all of which is implemented using the language

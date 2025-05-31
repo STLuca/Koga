@@ -8,10 +8,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-MethodOverloadTest {
+test.MethodOverloadTest {
 
     main() {
         Int x 2;

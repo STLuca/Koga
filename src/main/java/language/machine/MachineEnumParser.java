@@ -15,7 +15,7 @@ public class MachineEnumParser implements Parser {
 
      {
         LITERALS      = tokens.add("'literals'");
-        TYPE          = tokens.add("'byte'");
+        TYPE          = tokens.add("'Byte'");
         PARAM_TYPE    = tokens.add("b[1-9][0-9]*");
         NAME          = tokens.add("[a-zA-Z_]+");
         LITERAL_ARG   = tokens.add("0b[0-1]+|0x[0-9a-f]+|0d[0-9]+|\\\"[a-zA-Z_]+\\\"");

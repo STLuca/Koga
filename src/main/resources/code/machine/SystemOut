@@ -2,8 +2,8 @@ parser machine;
 
 SystemOut {
 
-    byte[4] root;
-    byte[4] current;
+    Byte[4] root;
+    Byte[4] current;
 
     constructor() {
         Symbol(SYSTEM, sysOutSymbol, IL, SystemOut);
@@ -22,7 +22,7 @@ SystemOut {
     }
 
     allocatePage(Int localPage) {
-        byte[4] msgType;
+        Byte[4] msgType;
         i(ADD, II, LDA, msgType, IL, 0d0, IL, 0d3);
         m(COPY, TII, LDA, current, LDA, msgType, LDS, msgType);
         i(ADD, TI, LDA, current, LDA, current, LDS, msgType);

@@ -64,8 +64,8 @@ class MethodBuilder implements Compiler.MethodCompiler {
     public int address() {
         Instructions.Item address = null;
         switch (direction) {
-            case BEFORE: { address = position.addressBefore(); break; }
-            case AFTER: { address = position.addressAfter(); break; }
+            case BEFORE -> { address = position.addressBefore(); }
+            case AFTER -> { address = position.addressAfter(); }
         }
         int index = currAddress;
         addresses.add(address);
@@ -79,8 +79,8 @@ class MethodBuilder implements Compiler.MethodCompiler {
             address.remove();
         }
         switch (direction) {
-            case BEFORE: { addresses.set(index, position.addressBefore()); break; }
-            case AFTER: { addresses.set(index, position.addressAfter()); break; }
+            case BEFORE -> { addresses.set(index, position.addressBefore()); }
+            case AFTER -> { addresses.set(index, position.addressAfter()); }
         }
     }
 
@@ -97,8 +97,8 @@ class MethodBuilder implements Compiler.MethodCompiler {
     public Compiler.InstructionCompiler instruction() {
         InstructionBuilder ic = new InstructionBuilder();
         switch (direction) {
-            case BEFORE: { position.insertBefore(ic); break; }
-            case AFTER: { position.insertAfter(ic); break; }
+            case BEFORE -> { position.insertBefore(ic); }
+            case AFTER -> { position.insertAfter(ic); }
         }
         return ic;
     }

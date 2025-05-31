@@ -2,8 +2,8 @@ parser machine;
 
 InputStream {
 
-    byte[4] root;
-    byte[4] current;
+    Byte[4] root;
+    Byte[4] current;
 
     constructor(Int in) {
         i(ADD, TI, LDA, root, ADA, in.val, IL, 0d0);
@@ -37,7 +37,7 @@ InputStream {
 
     wait() {
         Addr end;
-        byte[4] in;
+        Byte[4] in;
         i(ADD, II, LDA, in, IL, 0d0, IL, 0d0);
         Addr read;
         m(COPY, ITI, LDA, in, LDA, current, LDS, in);

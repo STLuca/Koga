@@ -68,7 +68,7 @@ public class MachineEnumUsable implements Usable {
         // l(ADD, II, LDA, data.name, IL, 0d0, IL, literal);
         // compiler.instruction("l", "ADD", "II", "LDA", data.name, "IL", "0d0", "IL", literal);
         variable.methodAllocations.push(new HashMap<>());
-        new InstructionStatement("i", "ADD", "II", "LDA", data.name, "IL", "0d0", "IL", literal).compile(compiler, variable, Map.of(), context);
+        new InstructionStatement("i", "ADD", "II", "LDA", data.name, "IL", "0d0", "IL", literal).compile(compiler, sources, variable, Map.of(), context);
 
         variable.methodAllocations.pop();
     }
@@ -107,9 +107,9 @@ public class MachineEnumUsable implements Usable {
             String instruction = "after" + i;
             int addr = compiler.address();
             variable.methodAllocations.peek().put(instruction, new Variable.Allocation(4, addr));
-            new InstructionStatement("cb", "NEQ", "TI", "LDA", "val", "IL", literal, instruction).compile(compiler, variable, Map.of(), context);
+            new InstructionStatement("cb", "NEQ", "TI", "LDA", "val", "IL", literal, instruction).compile(compiler, sources, variable, Map.of(), context);
             block.execute(compiler);
-            new InstructionStatement("j", "REL", "I", "end").compile(compiler, variable, Map.of(), context);
+            new InstructionStatement("j", "REL", "I", "end").compile(compiler, sources, variable, Map.of(), context);
 
             compiler.address(addr);
 

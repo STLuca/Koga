@@ -7,10 +7,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-ImplicitArgumentTest {
+test.ImplicitArgumentTest {
 
     main() {
         Int x 3;

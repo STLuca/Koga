@@ -20,12 +20,12 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
-    Chat;
-    Chatting;
+    util.SimpleAdministrator;
+    chatting.Chat;
+    chatting.Chatting;
 }
 
-Server supports Chatting {
+test.Server supports Chatting {
 
     main() {
         AdminRef admin init();

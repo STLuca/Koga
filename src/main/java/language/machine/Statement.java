@@ -1,14 +1,11 @@
 package language.machine;
 
-import language.core.Compiler;
-import language.core.Argument;
-import language.core.Context;
-import language.core.Variable;
+import language.core.*;
 
 import java.util.Map;
 
 public interface Statement {
 
-    void compile(Compiler.MethodCompiler compiler, Variable variable, Map<String, Argument> arguments, Context context);
+    void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context);
 
 }

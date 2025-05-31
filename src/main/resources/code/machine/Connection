@@ -2,9 +2,9 @@ parser machine;
 
 Connection {
 
-    byte[4] pageOne;
-    byte[4] pageTwo;
-    byte[4] instance; ~ breaks if before pageOne, not sure why yet
+    Byte[4] pageOne;
+    Byte[4] pageTwo;
+    Byte[4] instance; ~ breaks if before pageOne, not sure why yet
 
     constructor fromArray(Int instance, ArrayPointer ptr) {
         i(ADD, TI, LDA, instance, ADA, instance.val, IL, 0d0);
@@ -18,19 +18,19 @@ Connection {
     }
 
     constructor connect(Int instance, Name protocol, Name method) {
-        byte[4] protocolMethodAddr;
+        Byte[4] protocolMethodAddr;
         Symbol(METHOD, protocolMethodSymbol, AL, protocol, AL, method);
         c(ADDR, LI, protocolMethodAddr, table, protocolMethodSymbol);
 
-        byte[4] adminConnectMethod;
-        Symbol(METHOD, adminConnectSymbol, IL, Administrator, IL, connect);
+        Byte[4] adminConnectMethod;
+        Symbol(METHOD, adminConnectSymbol, IL, core.Administrator, IL, connect);
         c(ADDR, LI, adminConnectMethod, table, adminConnectSymbol);
 
-        byte[4] this;
+        Byte[4] this;
         i(ADD, LI, LDA, this, R, task, LDA, pageOne);
 
         ~ copy the instance, protocolMethodAddr, and Pointer to this args
-        byte[4] adminTask;
+        Byte[4] adminTask;
         i(ADD, LI, LDA, adminTask, R, altTask, IL, 0d0);
 
         m(COPY, TII, LDA, adminTask, ADA, instance, ADA, instance);

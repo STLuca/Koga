@@ -7,7 +7,7 @@ If {
     constructor(Int bool, Block block) {
         Addr after;
         cb(EQ, TI, ADA, bool.val, IL, 0d0, after);
-        Blockk block;
+        Block block;
         j(REL, I, end);
         Addr after;
         Addr end;
@@ -16,7 +16,7 @@ If {
     constructor(Boolean bool, Block block) {
         Addr after;
         cb(EQ, TI, ADA, bool.val, IL, 0d0, after);
-        Blockk block;
+        Block block;
         j(REL, I, end);
         Addr after;
         Addr end;
@@ -26,7 +26,17 @@ If {
         Addr after;
         Position end prev;
         cb(EQ, TI, ADA, bool.val, IL, 0d0, after);
-        Blockk block;
+        Block block;
+        j(REL, I, end);
+        Addr after;
+        Position prev;
+    }
+
+    elseIf(Boolean bool, Block block) {
+        Addr after;
+        Position end prev;
+        cb(EQ, TI, ADA, bool.val, IL, 0d0, after);
+        Block block;
         j(REL, I, end);
         Addr after;
         Position prev;
@@ -34,7 +44,7 @@ If {
 
     else(Block block) {
         Position end prev;
-        Blockk block;
+        Block block;
         Position prev;
     }
 

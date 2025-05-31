@@ -2,18 +2,18 @@ parser machineReference;
 
 AdminRef {
 
-    byte[4] object;
-    byte[4] table;
-    byte[4] frame;
+    Byte[4] object;
+    Byte[4] table;
+    Byte[4] frame;
 
     constructor() {}
 
     constructor init() {
-        byte[4] methodAddr;
-        Symbol(METHOD, methodSymbol, IL, Administrator, IL, init);
+        Byte[4] methodAddr;
+        Symbol(METHOD, methodSymbol, IL, core.Administrator, IL, init);
         c(ADDR, LI, methodAddr, table, methodSymbol);
 
-        byte[4] frameDataAddr;
+        Byte[4] frameDataAddr;
         i(ADD, LI, LDA, frameDataAddr, R, altTask, IL, 0d0);
         Args();
 
@@ -21,18 +21,18 @@ AdminRef {
     }
 
     invoke(Name methodName) {
-        byte[4] methodAddr;
-        Symbol(METHOD, methodSymbol, IL, Administrator, AL, methodName);
+        Byte[4] methodAddr;
+        Symbol(METHOD, methodSymbol, IL, core.Administrator, AL, methodName);
         c(ADDR, LI, methodAddr, table, methodSymbol);
 
-        byte[4] frameDataAddr;
+        Byte[4] frameDataAddr;
         i(ADD, LI, LDA, frameDataAddr, R, altTask, IL, 0d0);
         Args();
 
         logician(START_ADMIN, T, LDA, methodAddr);
     }
 
-    arg(Any a) {
+    arg(Any a, Name methodName) {
         m(COPY, TII, LDA, frameDataAddr, ADA, a, ADS, a);
         i(ADD, TI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
     }

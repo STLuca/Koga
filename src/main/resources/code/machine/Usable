@@ -2,7 +2,7 @@ parser machine;
 
 Usable<Usable T> {
 
-    byte[4] size;
+    Byte[4] size;
 
     constructor() {
         i(ADD, II, LDA, size, IL, 0d0, LG, T);

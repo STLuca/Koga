@@ -2,17 +2,17 @@ parser machine;
 
 Optional<Usable T> {
 
-    byte[1] present;
-    byte[0] val;
+    Byte[1] present;
+    Byte[0] val;
 
     constructor() {
         i(ADD, II, LDA, present, IL, 0d0, IL, 0d0);
-        byte[LG T] val;
+        Byte[LG T] val;
     }
 
     constructor(T pVal) {
         i(ADD, II, LDA, present, IL, 0d1, IL, 0d0);
-        byte[LG T] val;
+        Byte[LG T] val;
         m(COPY, III, LDA, val, ADA, pVal, LG, T);
     }
 

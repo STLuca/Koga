@@ -7,5 +7,5 @@ literals {
 }
 
 Status {
-    byte[1] val;
+    Byte[1] val;
 }

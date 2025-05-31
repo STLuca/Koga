@@ -8,10 +8,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-SwitchTest {
+test.SwitchTest {
 
     main() {
         Int x 0;

@@ -12,10 +12,10 @@ imports {
 }
 
 dependencies {
-    List;
+    collection.List;
 }
 
-ArrayList implements List {
+collection.ArrayList implements List {
 
     Array items;
 

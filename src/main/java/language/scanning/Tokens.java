@@ -21,13 +21,18 @@ public class Tokens {
     }
 
     public Token add(String spec, String label) {
+        Token token = create(spec, label);
+        tokens.add(token);
+        return token;
+    }
+
+    public Token create(String spec, String label) {
         Token token;
         if (spec.startsWith("'") && spec.endsWith("'")) {
             token = new LiteralToken(spec.substring(1, spec.length() - 1));
         } else {
             token = new RegexToken(spec, label);
         }
-        tokens.add(token);
         return token;
     }
 

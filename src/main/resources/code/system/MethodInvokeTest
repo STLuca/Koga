@@ -12,10 +12,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-MethodInvokeTest {
+test.MethodInvokeTest {
 
     main() {
         AdminRef admin init();
@@ -23,7 +23,7 @@ MethodInvokeTest {
         Int y 1;
         Pointer<Int> p (x);
         Reference<MethodInvokeTest> this this();
-        this second(p);
+        this second(x);
         y + 1;
         Exit;
     }

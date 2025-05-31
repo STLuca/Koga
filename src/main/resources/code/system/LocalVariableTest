@@ -12,10 +12,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-LocalVariableTest {
+test.LocalVariableTest {
 
     Int x;
 

@@ -1,30 +1,34 @@
 package language.machine;
 
+import language.core.Argument;
+import language.core.Block;
 import language.core.Sources;
 import language.core.Parser;
 import language.scanning.SingleLineScanner;
 import language.scanning.Token;
 import language.scanning.Tokens;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MachineUsableParser implements Parser {
 
-    Token CONSTRUCTOR, NAME, BYTE, ADDR, POSITION, BLOCK, ADMIN,
+    Token CONSTRUCTOR, NAME, GLOBAL_NAME, IMPORTS, BYTE, ADDR, POSITION, BLOCK,
           NUMBER, LITERAL_ARG, PARAM_TYPE, PARAM_ARRAY,
           OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN, OP_SQ_BRACKET, CL_SQ_BRACKET, OP_PT_BRACE, CL_PT_BRACE,
           SEMI_COLON, COMMA, DOT, TILDA;
     Tokens tokens = new Tokens();
+    Tokens paramTokens = new Tokens();
+    Tokens metaTokens = new Tokens();
 
     {
         CONSTRUCTOR   = tokens.add("'constructor'");
-        BYTE          = tokens.add("'byte'");
+        BYTE          = tokens.add("'Byte'");
         ADDR          = tokens.add("'Addr'");
         POSITION      = tokens.add("'Position'");
-        BLOCK         = tokens.add("'Blockk'");
-        ADMIN         = tokens.add("'ADMIN'");
-        PARAM_TYPE    = tokens.add("b[1-9][0-9]*");
-        PARAM_ARRAY   = tokens.add("\\[\\]");
+        BLOCK         = tokens.add("'Block'");
         NAME          = tokens.add("[a-zA-Z_]+");
         LITERAL_ARG   = tokens.add("0b[0-1]+|0x[0-9a-f]+|0d[0-9]+|\\\"[a-zA-Z_]+\\\"");
         NUMBER        = tokens.add("[0-9]+");
@@ -40,6 +44,20 @@ public class MachineUsableParser implements Parser {
         COMMA         = tokens.add("','");
         DOT           = tokens.add("'.'");
         TILDA         = tokens.add("'~'");
+
+        PARAM_TYPE    = paramTokens.add("b[1-9][0-9]*");
+        PARAM_ARRAY   = paramTokens.add("\\[\\]");
+        paramTokens.add(COMMA);
+        paramTokens.add(CL_PAREN);
+        paramTokens.add(OP_PAREN);
+        paramTokens.add(NAME);
+
+        IMPORTS     = metaTokens.add("'imports'");
+        metaTokens.add(SEMI_COLON);
+        metaTokens.add(OP_BRACE);
+        metaTokens.add(CL_BRACE);
+        GLOBAL_NAME = metaTokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
+        metaTokens.add(NAME);
     }
 
     public String name() {
@@ -47,11 +65,37 @@ public class MachineUsableParser implements Parser {
     }
     
     public void parse(Sources sources, String input) {
+        HashMap<String, String> usables = new HashMap<>();
         SingleLineScanner scanner = new SingleLineScanner(input);
         MachineUsable mc = new MachineUsable();
-        Token curr = scanner.next(tokens);
-        if (curr != NAME) scanner.fail("name");
+        Token curr = scanner.next(metaTokens);
+
+        if (curr == IMPORTS) {
+            scanner.expect(metaTokens, OP_BRACE);
+            curr = scanner.next(metaTokens);
+            while (curr != CL_BRACE) {
+                if (curr != GLOBAL_NAME) scanner.fail("Global name");
+                String global = curr.matched();
+                String[] split = global.split("\\.");
+                String local = split[split.length - 1];
+                curr = scanner.next(metaTokens);
+                if (curr == NAME) {
+                    local = curr.matched();
+                    curr = scanner.next(metaTokens);
+                }
+                usables.put(local, global);
+                if (curr != SEMI_COLON) scanner.fail(";");
+                curr = scanner.next(metaTokens);
+            }
+            curr = scanner.next(metaTokens);
+        }
+
+        if (curr != NAME && curr != GLOBAL_NAME) scanner.fail("name");
         mc.name = curr.matched();
+
+        String[] splitName = mc.name.split("\\.");
+        usables.put(splitName[splitName.length - 1], mc.name);
+
         curr = scanner.next(tokens);
         if (curr == OP_PT_BRACE) {
             do {
@@ -76,15 +120,16 @@ public class MachineUsableParser implements Parser {
             } else if (curr == ADDR) {
                 parseAddress(scanner, mc);
             } else if (curr == CONSTRUCTOR) {
-                parseConstructor(scanner, mc);
+                parseConstructor(scanner, mc, usables);
             } else if (curr == NAME) {
-                parseMethod(scanner, mc);
+                parseMethod(scanner, mc, usables);
             } else if (curr == TILDA) {
                 scanner.takeUntilNewLine();
             }
             curr = scanner.next(tokens);
         }
         sources.add(mc);
+
     }
 
     private void parseAddress(SingleLineScanner scanner, MachineUsable mc) {
@@ -110,7 +155,7 @@ public class MachineUsableParser implements Parser {
         mc.variables.add(data);
     }
 
-    private void parseConstructor(SingleLineScanner scanner, MachineUsable mc) {
+    private void parseConstructor(SingleLineScanner scanner, MachineUsable mc, HashMap<String, String> usables) {
         Method mcc = new Method();
         Token curr = scanner.next(tokens);
         if (curr == NAME) {
@@ -121,64 +166,65 @@ public class MachineUsableParser implements Parser {
         } else {
             scanner.fail("(");
         }
-        curr = scanner.next(tokens);
-        while (curr != CL_PAREN) {
-            if (curr != PARAM_TYPE && curr != NAME) throw new RuntimeException("expecting parameter type");
-            boolean binaryType = curr == PARAM_TYPE;
-            boolean isArray = false;
-            String paramType = curr.matched();
-            curr = scanner.next(tokens);
-            if (curr == PARAM_ARRAY) {
-                isArray = true;
-                curr = scanner.next(tokens);
-            }
-            if (curr != NAME) scanner.fail("name");
-            String paramName = curr.matched();
-            if (binaryType) {
-                mcc.addParam(Integer.parseInt(paramType.substring(1)), paramName, isArray);
-            } else {
-                mcc.addParam(paramType, paramName, isArray);
-            }
-            if (scanner.peek(tokens) == COMMA) scanner.next(tokens);
-            curr = scanner.next(tokens);
-        }
+        parseParameters(scanner, mcc.parameters, usables);
         scanner.expect(tokens, OP_BRACE);
         scanner.next(tokens);
         parseStatements(scanner, mcc.body);
         mc.constructors.add(mcc);
     }
 
-    private void parseMethod(SingleLineScanner scanner, MachineUsable mc) {
+    private void parseMethod(SingleLineScanner scanner, MachineUsable mc, HashMap<String, String> usables) {
         Method mcm = new Method();
         Token curr = scanner.current();
         if (curr != NAME) scanner.fail("name");
         mcm.name = curr.matched();
         scanner.expect(tokens, OP_PAREN);
-        curr = scanner.next(tokens);
-        while (curr != CL_PAREN) {
-            if (curr != PARAM_TYPE && curr != NAME) throw new RuntimeException("expecting parameter type");
-            boolean binaryType = curr == PARAM_TYPE;
-            boolean isArray = false;
-            String paramType = curr.matched();
-            curr = scanner.next(tokens);
-            if (curr == PARAM_ARRAY) {
-                isArray = true;
-                curr = scanner.next(tokens);
-            }
-            if (curr != NAME) scanner.fail("name");
-            String paramName = curr.matched();
-            if (binaryType) {
-                mcm.addParam(Integer.parseInt(paramType.substring(1)), paramName, isArray);
-            } else {
-                mcm.addParam(paramType, paramName, isArray);
-            }
-            if (scanner.peek(tokens) == COMMA) scanner.next(tokens);
-            curr = scanner.next(tokens);
-        }
+        parseParameters(scanner, mcm.parameters, usables);
         scanner.expect(tokens, OP_BRACE);
         scanner.next(tokens);
         parseStatements(scanner, mcm.body);
         mc.methods.add(mcm);
+    }
+
+    void parseParameters(SingleLineScanner scanner, ArrayList<Method.Parameter> parameters, HashMap<String, String> usables) {
+        Token curr = scanner.next(paramTokens);
+        while (curr != CL_PAREN) {
+            if (curr != PARAM_TYPE && curr != NAME) { scanner.fail("Invalid param type"); }
+            boolean binaryType = curr == PARAM_TYPE;
+            boolean isArray = false;
+            String paramType = curr.matched();
+            curr = scanner.next(paramTokens);
+            if (curr == PARAM_ARRAY) {
+                isArray = true;
+                curr = scanner.next(paramTokens);
+            }
+            if (curr != NAME) scanner.fail("name");
+            String paramName = curr.matched();
+
+            if (binaryType) {
+                Method.Parameter p = new Method.Parameter();
+                p.type = Argument.Type.Literal;
+                p.bits = Integer.parseInt(paramType.substring(1));
+                p.array = isArray;
+                p.name = paramName;
+                parameters.add(p);
+            } else {
+                Method.Parameter p = new Method.Parameter();
+                if (paramType.equals("Block")) {
+                    p.type = Argument.Type.Block;
+                } else if (paramType.equals("Name")) {
+                    p.type = Argument.Type.Name;
+                } else {
+                    p.type = Argument.Type.Variable;
+                    p.className = usables.getOrDefault(paramType, paramType);
+                }
+                p.array = isArray;
+                p.name = paramName;
+                parameters.add(p);
+            }
+            if (scanner.peek(paramTokens) == COMMA) scanner.next(paramTokens);
+            curr = scanner.next(paramTokens);
+        }
     }
 
     void parseStatements(SingleLineScanner scanner, List<Statement> statements) {
@@ -201,41 +247,35 @@ public class MachineUsableParser implements Parser {
                 Statement statement;
                 List<String> arguments;
                 switch (name) {
-                    case "Admin": {
+                    case "Admin" -> {
                         AdminStatement is = new AdminStatement();
                         arguments = is.arguments;
                         statement = is;
-                        break;
                     }
-                    case "Context": {
+                    case "Context" -> {
                         ContextStatement is = new ContextStatement();
                         arguments = is.arguments;
                         statement = is;
-                        break;
                     }
-                    case "Symbol": {
+                    case "Symbol" -> {
                         SymbolStatement is = new SymbolStatement();
                         arguments = is.arguments;
                         statement = is;
-                        break;
                     }
-                    case "Proxy": {
+                    case "Proxy" -> {
                         ProxyStatement is = new ProxyStatement();
                         arguments = is.arguments;
                         statement = is;
-                        break;
                     }
-                    case "Direction": {
+                    case "Direction" -> {
                         DirectionStatement s = new DirectionStatement();
                         arguments = s.arguments;
                         statement = s;
-                        break;
                     }
-                    default: {
+                    default -> {
                         InstructionStatement is = new InstructionStatement(name);
                         arguments = is.arguments;
                         statement = is;
-                        break;
                     }
                 }
                 scanner.expect(tokens, OP_PAREN);

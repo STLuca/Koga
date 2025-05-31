@@ -9,10 +9,10 @@ imports {
 }
 
 dependencies {
-    SimpleAdministrator;
+    util.SimpleAdministrator;
 }
 
-ProxyTest {
+test.ProxyTest {
 
     main() {
         Int x 1;

@@ -1,6 +1,11 @@
 parser machine;
 
-Connection {
+usables {
+    core.Int;
+    core.ArrayPointer;
+}
+
+core.Connection {
 
     Byte[4] pageOne;
     Byte[4] pageTwo;

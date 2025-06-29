@@ -6,6 +6,6 @@ literals {
     Waiting 2;
 }
 
-Status {
+core.Status {
     Byte[1] val;
 }

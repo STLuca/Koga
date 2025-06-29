@@ -1,6 +1,10 @@
 parser machine;
 
-SystemOut {
+usables {
+    core.Int;
+}
+
+core.SystemOut {
 
     Byte[4] root;
     Byte[4] current;

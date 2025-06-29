@@ -1,6 +1,6 @@
 parser machine;
 
-Seq {
+core.Seq {
 
     constructor(Block try, Block catch) {
         Addr fail;

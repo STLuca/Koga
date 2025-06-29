@@ -111,7 +111,9 @@ public class MachineUsable implements Usable {
                 break;
             }
         }
-        if (c == null) throw new RuntimeException("No constructor found");
+        if (c == null) {
+            throw new RuntimeException(String.format("No constructor found for %s.%s", this.name, constructorName));
+        }
 
         // Map the args to their name using generics and parameters
         HashMap<String, Argument> argsByName = new HashMap<>();
@@ -147,7 +149,9 @@ public class MachineUsable implements Usable {
                 break;
             }
         }
-        if (method == null) throw new RuntimeException("Method doesn't exist");
+        if (method == null) {
+            throw new RuntimeException(String.format("Can't match method %s", methodName));
+        }
 
         // Map the args to name using parameters
         HashMap<String, Argument> argsByName = new HashMap<>();

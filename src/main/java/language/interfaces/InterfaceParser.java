@@ -9,7 +9,7 @@ import language.scanning.Tokens;
 public class InterfaceParser implements Parser {
 
     Token   DEPENDENCIES, IMPORTS,
-            NAME, DOC_NAME,
+            NAME, GLOBAL_NAME,
             SEMI_COLON, COMMA, EQUALS, DOT,
             OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN, OP_SQ_BRACKET, CL_SQ_BRACKET, OP_PT_BRACE, CL_PT_BRACE;
     Tokens tokens = new Tokens();
@@ -34,8 +34,8 @@ public class InterfaceParser implements Parser {
         metaTokens.add(CL_BRACE);
         metaTokens.add(SEMI_COLON);
         DEPENDENCIES  = metaTokens.add("'dependencies'");
-        IMPORTS       = metaTokens.add("'imports'");
-        DOC_NAME      = metaTokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
+        IMPORTS       = metaTokens.add("'usables'");
+        GLOBAL_NAME = metaTokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
         metaTokens.add(NAME);
     }
     
@@ -52,7 +52,7 @@ public class InterfaceParser implements Parser {
             scanner.expect(tokens, OP_BRACE);
             curr = scanner.next(metaTokens);
             while (curr != CL_BRACE) {
-                if (curr != NAME) throw new RuntimeException("name");
+                if (curr != GLOBAL_NAME) throw new RuntimeException("name");
                 ic.imports.add(curr.matched());
                 scanner.expect(tokens, SEMI_COLON);
                 curr = scanner.next(metaTokens);
@@ -70,7 +70,7 @@ public class InterfaceParser implements Parser {
             }
             curr = scanner.next(metaTokens);
         }
-        if (curr != DOC_NAME && curr != NAME) {
+        if (curr != GLOBAL_NAME && curr != NAME) {
             scanner.fail("name");
         }
         ic.name = curr.matched();

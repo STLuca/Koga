@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class MachineProxyUsable implements Usable {
 
-    public final static String NAME = "Proxy";
+    public final static String NAME = "core.Proxy";
     public static MachineProxyUsable INSTANCE = new MachineProxyUsable();
 
     MachineProxyUsable() {}

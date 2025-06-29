@@ -1,6 +1,10 @@
 parser machineReference;
 
-MemberReference<Document R> {
+usables {
+    core.Int;
+}
+
+core.MemberReference<Document R> {
 
     Byte[4] instance;
 

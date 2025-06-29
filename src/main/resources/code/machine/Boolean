@@ -1,6 +1,6 @@
 parser machine;
 
-Boolean {
+core.Boolean {
                 
     Byte[1] val;
 

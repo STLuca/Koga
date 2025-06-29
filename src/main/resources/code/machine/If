@@ -1,6 +1,11 @@
 parser machine;
 
-If {
+usables {
+    core.Int;
+    core.Boolean;
+}
+
+core.If {
 
     Addr end;
 

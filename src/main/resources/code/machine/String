@@ -1,6 +1,13 @@
 parser machine;
 
-String {
+usables {
+    core.Int;
+    core.InputStream;
+    core.OutputStream;
+    core.Boolean;
+}
+
+core.String {
 
     Byte[4] size;
     Byte[4] start;

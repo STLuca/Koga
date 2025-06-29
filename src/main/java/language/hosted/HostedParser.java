@@ -13,7 +13,7 @@ import java.util.List;
 public class HostedParser implements Parser {
 
     Token   DEPENDENCIES, CONSTANTS, IMPORTS, IMPLEMENTS,
-            NAME, DOC_NAME, STRING, LITERAL_ARG, OPERATOR,
+            NAME, GLOBAL_NAME, STRING, LITERAL_ARG, OPERATOR,
             SEMI_COLON, COMMA, TILDA,
             OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN, CL_SQ_BRACKET, OP_SQ_BRACKET, OP_PT_BRACE, CL_PT_BRACE;
     Tokens tokens = new Tokens();
@@ -42,13 +42,15 @@ public class HostedParser implements Parser {
         OPERATOR = methodNameTokens.add("[^a-zA-Z1-9({ \t]+");
 
         {
-            DEPENDENCIES  = metaTokens.add("'dependencies'");
-            IMPORTS       = metaTokens.add("'imports'");
+            DEPENDENCIES  = metaTokens.add("'documents'");
+            IMPORTS       = metaTokens.add("'usables'");
             // CONSTANTS     = metaTokens.add("'constants'");
             IMPLEMENTS    = metaTokens.add("'implements'");
-            DOC_NAME      = metaTokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
+            GLOBAL_NAME   = metaTokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
             metaTokens.add(NAME);
+            metaTokens.add(SEMI_COLON);
             metaTokens.add(OP_BRACE);
+            metaTokens.add(CL_BRACE);
         }
 
         {
@@ -90,52 +92,53 @@ public class HostedParser implements Parser {
         HostedCompilable c = new HostedCompilable();
         Token curr = scanner.next(metaTokens);
         if (curr == IMPORTS) {
-            scanner.expect(tokens, OP_BRACE);
-            curr = scanner.next(tokens);
+            scanner.expect(metaTokens, OP_BRACE);
+            curr = scanner.next(metaTokens);
             while (curr != CL_BRACE) {
-                if (curr != NAME) throw new RuntimeException("name");
+                if (curr != GLOBAL_NAME) throw new RuntimeException("name");
                 String globalName = curr.matched();
-                String localName = curr.matched();
-                curr = scanner.next(tokens);
+                String[] split = globalName.split("\\.");
+                String localName = split[split.length - 1];
+                curr = scanner.next(metaTokens);
                 if (curr == NAME) {
                     localName = curr.matched();
-                    curr = scanner.next(tokens);
+                    curr = scanner.next(metaTokens);
                 }
                 if (curr != SEMI_COLON) { scanner.fail(";"); }
                 Name i = new Name();
                 i.globalName = globalName;
                 i.localName = localName;
                 c.imports.add(i);
-                curr = scanner.next(tokens);
+                curr = scanner.next(metaTokens);
             }
             curr = scanner.next(metaTokens);
         }
         if (curr == DEPENDENCIES) {
-            scanner.expect(tokens, OP_BRACE);
+            scanner.expect(metaTokens, OP_BRACE);
             curr = scanner.next(metaTokens);
             while (curr != CL_BRACE) {
-                if (curr != NAME && curr != DOC_NAME) throw new RuntimeException("name");
+                if (curr != NAME && curr != GLOBAL_NAME) throw new RuntimeException("name");
                 String globalName = curr.matched();
                 String localName = curr.matched();
                 if (localName.contains(".")) {
                     String[] split = localName.split("\\.");
                     localName = split[split.length - 1];
                 }
-                curr = scanner.next(tokens);
+                curr = scanner.next(metaTokens);
                 if (curr == NAME) {
                     localName = curr.matched();
-                    curr = scanner.next(tokens);
+                    curr = scanner.next(metaTokens);
                 }
                 if (curr != SEMI_COLON) { scanner.fail(";"); }
                 Name name = new Name();
                 name.globalName = globalName;
                 name.localName = localName;
                 c.dependencies.add(name);
-                curr = scanner.next(tokens);
+                curr = scanner.next(metaTokens);
             }
             curr = scanner.next(metaTokens);
         }
-        if (curr != NAME && curr != DOC_NAME) scanner.fail("doc name");
+        if (curr != NAME && curr != GLOBAL_NAME) scanner.fail("doc name");
         c.name = curr.matched();
         curr = scanner.next(metaTokens);
         if (curr == IMPLEMENTS) {
@@ -150,7 +153,7 @@ public class HostedParser implements Parser {
         while (curr != CL_BRACE) {
             Token peek = scanner.peek(tokens).orElseThrow();
             if (curr == NAME && peek == NAME) {
-                parseVariable(scanner, c);
+                parseField(scanner, c);
             } else if (curr == NAME) {
                 parseMethod(scanner, c);
             } else if (curr == TILDA) {
@@ -386,7 +389,7 @@ public class HostedParser implements Parser {
         }
     }
 
-    private void parseVariable(Scanner scanner, HostedCompilable c) {
+    private void parseField(Scanner scanner, HostedCompilable c) {
         Field f = new Field();
         Token curr = scanner.current();
         f.usable = curr.matched();

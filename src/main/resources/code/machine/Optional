@@ -1,6 +1,10 @@
 parser machine;
 
-Optional<Usable T> {
+usables {
+    core.Int;
+}
+
+core.Optional<Usable T> {
 
     Byte[1] present;
     Byte[0] val;
@@ -10,7 +14,7 @@ Optional<Usable T> {
         Byte[LG T] val;
     }
 
-    constructor(T pVal) {
+    constructor(Any pVal) {
         i(ADD, II, LDA, present, IL, 0d1, IL, 0d0);
         Byte[LG T] val;
         m(COPY, III, LDA, val, ADA, pVal, LG, T);

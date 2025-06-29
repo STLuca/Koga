@@ -8,7 +8,7 @@ import language.scanning.Tokens;
 
 public class MachineEnumParser implements Parser {
 
-    Token LITERALS, NAME, OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN,
+    Token LITERALS, NAME, GLOBAL_NAME, OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN,
             SEMI_COLON, NUMBER, TYPE, ADDR, PARAM_TYPE, PARAM_ARRAY, COMMA, LITERAL_ARG, OP_SQ_BRACKET,
             CL_SQ_BRACKET, DOT, OP_PT_BRACE, CL_PT_BRACE;
     Tokens tokens = new Tokens();
@@ -17,6 +17,7 @@ public class MachineEnumParser implements Parser {
         LITERALS      = tokens.add("'literals'");
         TYPE          = tokens.add("'Byte'");
         PARAM_TYPE    = tokens.add("b[1-9][0-9]*");
+        GLOBAL_NAME   = tokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
         NAME          = tokens.add("[a-zA-Z_]+");
         LITERAL_ARG   = tokens.add("0b[0-1]+|0x[0-9a-f]+|0d[0-9]+|\\\"[a-zA-Z_]+\\\"");
         NUMBER        = tokens.add("[0-9]+");
@@ -57,7 +58,7 @@ public class MachineEnumParser implements Parser {
             curr = scanner.next(tokens);
         }
 
-        curr = scanner.expect(tokens, NAME);
+        curr = scanner.expect(tokens, GLOBAL_NAME);
         mec.name = curr.matched();
 
         scanner.expect(tokens, OP_BRACE);

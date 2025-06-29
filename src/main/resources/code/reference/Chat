@@ -1,18 +1,18 @@
 parser hosted;
 
-imports {
-    Int;
-    Connection;
-    Reference;
-    Pointer;
-    Boolean;
-    AdminRef;
-    While;
-    OutputStream;
-    InputStream;
-    String;
-    AdminRef;
-    Task;
+usables {
+    core.Int;
+    core.Connection;
+    core.Reference;
+    core.Pointer;
+    core.Boolean;
+    core.AdminRef;
+    core.While;
+    core.OutputStream;
+    core.InputStream;
+    core.String;
+    core.AdminRef;
+    core.Task;
 }
 
 chatting.Chat {

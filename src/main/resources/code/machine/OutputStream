@@ -1,6 +1,11 @@
 parser machine;
 
-OutputStream {
+usables {
+    core.Int;
+    core.String;
+}
+
+core.OutputStream {
 
     Byte[4] root;
     Byte[4] current;

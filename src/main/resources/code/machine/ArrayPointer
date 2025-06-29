@@ -1,6 +1,12 @@
 parser machine;
 
-ArrayPointer<Usable T> {
+usables {
+    core.Array;
+    core.String;
+    core.Int;
+}
+
+core.ArrayPointer<Usable T> {
 
     Byte[4] start;
     Byte[4] size;

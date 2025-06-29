@@ -1,17 +1,17 @@
 parser host;
 
-imports {
-    Byte;
-    Int;
-    Reference;
-    Pointer;
-    Exit;
-    AdminRef;
-    Return;
-    Task;
+usables {
+    core.Byte;
+    core.Int;
+    core.Reference;
+    core.Pointer;
+    core.Exit;
+    core.AdminRef;
+    core.Return;
+    core.Task;
 }
 
-dependencies {
+documents {
     util.SimpleAdministrator;
 }
 

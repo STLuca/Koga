@@ -1,6 +1,6 @@
 parser machine;
 
-BumpAdminTask {
+core.BumpAdminTask {
 
     Byte[4] taskAddr;
     Byte[4] object;

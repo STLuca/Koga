@@ -1,6 +1,6 @@
 parser machine;
 
-Return {
+core.Return {
 
     constructor() {
         logician(STOP_ADMIN);

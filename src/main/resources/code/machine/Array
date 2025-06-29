@@ -1,6 +1,11 @@
 parser machine;
 
-Array<Usable T> {
+usables {
+    core.Usable;
+    core.Int;
+}
+
+core.Array<Usable T> {
 
     Byte[4] size;
     Byte[4] start;

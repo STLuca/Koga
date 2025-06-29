@@ -1,14 +1,14 @@
 parser structure;
 
-imports {
-    Boolean;
-    While MyWhile;
-    If;
-    Byte;
-    Int;
+usables {
+    core.Boolean;
+    core.While MyWhile;
+    core.If;
+    core.Byte;
+    core.Int;
 }
 
-LocalDate {
+core.LocalDate {
 
     Int year;
     Int month;

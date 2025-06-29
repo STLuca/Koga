@@ -52,7 +52,7 @@ public class MachineUsableParser implements Parser {
         paramTokens.add(OP_PAREN);
         paramTokens.add(NAME);
 
-        IMPORTS     = metaTokens.add("'imports'");
+        IMPORTS     = metaTokens.add("'usables'");
         metaTokens.add(SEMI_COLON);
         metaTokens.add(OP_BRACE);
         metaTokens.add(CL_BRACE);
@@ -90,7 +90,7 @@ public class MachineUsableParser implements Parser {
             curr = scanner.next(metaTokens);
         }
 
-        if (curr != NAME && curr != GLOBAL_NAME) scanner.fail("name");
+        if (curr != GLOBAL_NAME) scanner.fail("name");
         mc.name = curr.matched();
 
         String[] splitName = mc.name.split("\\.");

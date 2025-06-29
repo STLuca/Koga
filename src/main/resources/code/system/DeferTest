@@ -1,14 +1,14 @@
 parser host;
 
-imports {
-    Int;
-    Boolean;
-    If;
-    Deferrer;
-    Exit;
+usables {
+    core.Int;
+    core.Boolean;
+    core.If;
+    core.Deferrer;
+    core.Exit;
 }
 
-dependencies {
+documents {
     util.SimpleAdministrator;
 }
 

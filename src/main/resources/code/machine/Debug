@@ -1,6 +1,10 @@
 parser machine;
 
-Debug {
+usables {
+    core.Int;
+}
+
+core.Debug {
 
     constructor() {}
 

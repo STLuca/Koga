@@ -1,6 +1,6 @@
 parser machine;
 
-Throw {
+core.Throw {
 
     constructor() {
         Addr handlerExecute;

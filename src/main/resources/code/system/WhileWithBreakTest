@@ -1,15 +1,15 @@
 parser host;
 
-imports {
-    Byte;
-    Int;
-    If;
-    While;
-    Exit;
-    Boolean;
+usables {
+    core.Byte;
+    core.Int;
+    core.If;
+    core.While;
+    core.Exit;
+    core.Boolean;
 }
 
-dependencies {
+documents {
     util.SimpleAdministrator;
 }
 

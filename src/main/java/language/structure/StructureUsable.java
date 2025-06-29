@@ -35,10 +35,11 @@ public class StructureUsable implements Usable {
         thisVariable.usable = this;
         variables.put(name, thisVariable);
 
-        RenamedSources renamedSources = new RenamedSources(sources.root());
+        Sources rootSources = sources.root();
+        RenamedSources renamedSources = new RenamedSources(rootSources);
         for (Name imprt : this.imports) {
             sources.parse(imprt.globalName);
-            renamedSources.usables.put(imprt.localName, sources.usable(imprt.globalName));
+            renamedSources.usables.put(imprt.localName, rootSources.usable(imprt.globalName));
         }
         thisVariable.sources = renamedSources;
 
@@ -59,10 +60,11 @@ public class StructureUsable implements Usable {
         thisVariable.usable = this;
         variables.put(name, thisVariable);
 
-        RenamedSources renamedSources = new RenamedSources(sources.root());
+        Sources rootSources = sources.root();
+        RenamedSources renamedSources = new RenamedSources(rootSources);
         for (Name imprt : this.imports) {
             sources.parse(imprt.globalName);
-            renamedSources.usables.put(imprt.localName, sources.usable(imprt.globalName));
+            renamedSources.usables.put(imprt.localName, rootSources.usable(imprt.globalName));
         }
         thisVariable.sources = renamedSources;
 

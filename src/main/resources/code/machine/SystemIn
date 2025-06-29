@@ -1,6 +1,11 @@
 parser machine;
 
-SystemIn {
+usables {
+    core.Int;
+    core.String;
+}
+
+core.SystemIn {
 
     Byte[4] root;
     Byte[4] current;

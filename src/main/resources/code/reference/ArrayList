@@ -1,17 +1,17 @@
 parser hosted;
 
-imports {
-    Int;
-    Array;
-    ArrayPointer;
-    Reference;
-    Usable;
-    Pointer;
-    Return;
-    Task;
+usables {
+    core.Int;
+    core.Array;
+    core.ArrayPointer;
+    core.Reference;
+    core.Usable;
+    core.Pointer;
+    core.Return;
+    core.Task;
 }
 
-dependencies {
+documents {
     collection.List;
 }
 

@@ -1,6 +1,6 @@
 parser machine;
 
-Deferrer {
+core.Deferrer {
 
     Addr end;
 

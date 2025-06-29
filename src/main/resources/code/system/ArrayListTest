@@ -1,15 +1,15 @@
 parser host;
 
-imports {
-    Byte;
-    Int;
-    Reference;
-    Usable;
-    Exit;
-    AdminRef;
+usables {
+    core.Byte;
+    core.Int;
+    core.Reference;
+    core.Usable;
+    core.Exit;
+    core.AdminRef;
 }
 
-dependencies {
+documents {
     collection.ArrayList;
     util.SimpleAdministrator;
 }

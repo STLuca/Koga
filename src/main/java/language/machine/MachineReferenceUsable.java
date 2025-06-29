@@ -73,7 +73,9 @@ public class MachineReferenceUsable implements Usable {
                 break;
             }
         }
-        if (c == null) throw new RuntimeException("No constructor found");
+        if (c == null) {
+            throw new RuntimeException("No constructor found");
+        }
 
         // Map the args to their name using referencedClass and parameters
         HashMap<String, Argument> argsByName = new HashMap<>();
@@ -192,7 +194,7 @@ public class MachineReferenceUsable implements Usable {
             if (param.equals(argVariable.usable.name())) {
                 new InstructionStatement("m", "COPY", "TII", "LDA", "frameDataAddr", "ADA", "a", "ADS", "a").compile(compiler, sources, variable, arguments, context);
                 new InstructionStatement("i","ADD", "TI", "LDA", "frameDataAddr", "LDA", "frameDataAddr", "ADS", "a").compile(compiler, sources, variable, arguments, context);
-            } else if (param.equals("Pointer")) {
+            } else if (param.equals("core.Pointer")) {
                 int addrAddr = compiler.data(4);
                 new InstructionStatement("i", "ADD", "LI", "IL", "0d" + addrAddr, "R", "task", "ADA", "a").compile(compiler, sources, variable, arguments, context);
                 new InstructionStatement("m", "COPY", "TII", "LDA", "frameDataAddr", "IL", "0d" + addrAddr, "ADS", "a").compile(compiler, sources, variable, arguments, context);

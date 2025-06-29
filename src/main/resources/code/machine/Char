@@ -1,6 +1,6 @@
 parser machine;
 
-Char {
+core.Char {
 
     Byte[1] val;
 

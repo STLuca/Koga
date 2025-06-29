@@ -1,18 +1,18 @@
 parser host;
 
-imports {
-    Int;
-    If;
-    Task;
-    Seq;
-    Boolean;
-    Pointer;
-    Reference;
-    AdminRef;
-    Exit;
+usables {
+    core.Int;
+    core.If;
+    core.Task;
+    core.Seq;
+    core.Boolean;
+    core.Pointer;
+    core.Reference;
+    core.AdminRef;
+    core.Exit;
 }
 
-dependencies {
+documents {
     util.SimpleAdministrator;
 }
 

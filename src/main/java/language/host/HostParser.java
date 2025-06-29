@@ -42,8 +42,8 @@ public class HostParser implements Parser {
         OPERATOR = methodNameTokens.add("[^a-zA-Z1-9({ \t]+");
 
         {
-            DEPENDENCIES  = metaTokens.add("'dependencies'");
-            IMPORTS       = metaTokens.add("'imports'");
+            DEPENDENCIES  = metaTokens.add("'documents'");
+            IMPORTS       = metaTokens.add("'usables'");
             CONSTANTS     = metaTokens.add("'constants'");
             SUPPORTS      = metaTokens.add("'supports'");
             GLOBAL_NAME = metaTokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
@@ -93,23 +93,24 @@ public class HostParser implements Parser {
         Token curr = scanner.next(metaTokens);
 
         if (curr == IMPORTS) {
-            scanner.expect(tokens, OP_BRACE);
-            curr = scanner.next(tokens);
+            scanner.expect(metaTokens, OP_BRACE);
+            curr = scanner.next(metaTokens);
             while (curr != CL_BRACE) {
-                if (curr != LOCAL_NAME) throw new RuntimeException("name");
+                if (curr != GLOBAL_NAME) throw new RuntimeException("name");
                 String globalName = curr.matched();
-                String localName = curr.matched();
-                curr = scanner.next(tokens);
+                String[] split = globalName.split("\\.");
+                String localName = split[split.length - 1];
+                curr = scanner.next(metaTokens);
                 if (curr == LOCAL_NAME) {
                     localName = curr.matched();
-                    curr = scanner.next(tokens);
+                    curr = scanner.next(metaTokens);
                 }
                 if (curr != SEMI_COLON) { scanner.fail(";"); }
                 Name name = new Name();
                 name.globalName = globalName;
                 name.localName = localName;
                 c.imports.add(name);
-                curr = scanner.next(tokens);
+                curr = scanner.next(metaTokens);
             }
             curr = scanner.next(metaTokens);
         }

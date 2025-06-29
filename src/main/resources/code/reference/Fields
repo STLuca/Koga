@@ -1,10 +1,10 @@
 parser hosted;
 
-imports {
-    Int;
-    Reference;
-    Pointer;
-    Task;
+usables {
+    core.Int;
+    core.Reference;
+    core.Pointer;
+    core.Task;
 }
 
 test.Fields {

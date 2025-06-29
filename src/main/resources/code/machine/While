@@ -1,6 +1,11 @@
 parser machine;
 
-While {
+usables {
+    core.Int;
+    core.Boolean;
+}
+
+core.While {
 
     Addr start;
     Addr endd;

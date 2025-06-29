@@ -1,6 +1,10 @@
 parser machine;
 
-Switch {
+usables {
+    core.Int;
+}
+
+core.Switch {
 
     Addr jumps;
     Addr cases;

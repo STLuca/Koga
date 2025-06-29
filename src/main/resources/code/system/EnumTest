@@ -1,12 +1,12 @@
 parser host;
 
-imports {
-    Int RenamedInt;
-    Status;
-    Exit;
+usables {
+    core.Int RenamedInt;
+    core.Status;
+    core.Exit;
 }
 
-dependencies {
+documents {
     util.SimpleAdministrator;
 }
 

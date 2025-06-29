@@ -1,10 +1,10 @@
 parser structure;
 
-imports {
-    Int;
+usables {
+    core.Int;
 }
 
-SimpleAdminTask {
+core.SimpleAdminTask {
 
     Int myInt;
 

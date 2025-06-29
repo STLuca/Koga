@@ -1,8 +1,8 @@
 parser interface;
 
-imports {
-    Int;
-    Usable;
+usables {
+    core.Int;
+    core.Usable;
 }
 
 collection.List {

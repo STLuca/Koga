@@ -1,6 +1,11 @@
 parser machine;
 
-InputStream {
+usables {
+    core.Int;
+    core.String;
+}
+
+core.InputStream {
 
     Byte[4] root;
     Byte[4] current;

@@ -1,6 +1,6 @@
 parser machineReference;
 
-AdminRef {
+core.AdminRef {
 
     Byte[4] object;
     Byte[4] table;

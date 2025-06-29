@@ -1,6 +1,6 @@
 parser machine;
 
-Usable<Usable T> {
+core.Usable<Usable T> {
 
     Byte[4] size;
 

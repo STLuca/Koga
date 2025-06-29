@@ -1,20 +1,20 @@
 parser host;
 
-imports {
-    InputStream;
-    OutputStream;
-    Int;
-    Pointer;
-    AdminRef;
-    Boolean;
-    While;
-    String;
-    Exit;
-    Connection;
-    Reference;
+usables {
+    core.InputStream;
+    core.OutputStream;
+    core.Int;
+    core.Pointer;
+    core.AdminRef;
+    core.Boolean;
+    core.While;
+    core.String;
+    core.Exit;
+    core.Connection;
+    core.Reference;
 }
 
-dependencies {
+documents {
     util.SimpleAdministrator;
     chatting.Chat;
     chatting.Chatting;

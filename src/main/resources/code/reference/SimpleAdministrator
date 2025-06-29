@@ -1,24 +1,24 @@
 parser hosted;
 
-imports {
-    Int;
-    Boolean;
-    While;
-    Logician;
-    Reference;
-    Pointer;
-    Debug;
-    SystemOut;
-    SystemIn;
-    Return;
-    Array;
-    ArrayPointer;
-    BumpAdminTask;
-    Connection;
-    SimpleAdminTask;
+usables {
+    core.Int;
+    core.Boolean;
+    core.While;
+    core.Logician;
+    core.Reference;
+    core.Pointer;
+    core.Debug;
+    core.SystemOut;
+    core.SystemIn;
+    core.Return;
+    core.Array;
+    core.ArrayPointer;
+    core.BumpAdminTask;
+    core.Connection;
+    core.SimpleAdminTask;
 }
 
-dependencies {
+documents {
     core.Administrator;
 }
 

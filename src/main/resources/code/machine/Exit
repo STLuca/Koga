@@ -1,6 +1,6 @@
 parser machine;
 
-Exit {
+core.Exit {
 
     constructor() {
         Admin(EXIT);

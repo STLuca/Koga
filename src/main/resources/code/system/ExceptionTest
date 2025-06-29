@@ -1,13 +1,13 @@
 parser host;
 
-imports {
-    Byte;
-    Int;
-    Try;
-    Exit;
+usables {
+    core.Byte;
+    core.Int;
+    core.Try;
+    core.Exit;
 }
 
-dependencies {
+documents {
     util.SimpleAdministrator;
 }
 

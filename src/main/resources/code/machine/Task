@@ -1,6 +1,6 @@
 parser machine;
 
-Task {
+core.Task {
 
     constructor complete() {
         Admin(TRANSITION);

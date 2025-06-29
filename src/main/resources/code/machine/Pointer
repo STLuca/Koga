@@ -1,6 +1,12 @@
 parser machine;
 
-Pointer<Usable T> {
+usables {
+    core.Reference;
+    core.Int;
+    core.Pointer;
+}
+
+core.Pointer<Usable T> {
 
     Byte[4] addr;
 

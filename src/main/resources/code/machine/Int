@@ -1,12 +1,12 @@
 parser machine;
 
-imports {
-    core.Char remove_me;
-    core.Connection remove_me;
-    core.Boolean remove_me;
+usables {
+    core.Char;
+    core.Connection;
+    core.Boolean;
 }
 
-Int {
+core.Int {
 
     ~ here is a comment
     Byte[4] val;

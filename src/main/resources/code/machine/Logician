@@ -1,6 +1,10 @@
 parser machine;
 
-Logician {
+usables {
+    core.Int;
+}
+
+core.Logician {
 
     constructor schedule(Int objectAddr, Int tableAddr, Int methodAddr, Int taskAddr, Int adminTaskAddr) {
         logician(SET_OBJECT, T, ADA, objectAddr.val);

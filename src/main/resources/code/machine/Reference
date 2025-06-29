@@ -1,6 +1,10 @@
 parser machineReference;
 
-Reference<Document R> {
+usables {
+    core.Pointer;
+}
+
+core.Reference<Document R> {
 
     ~ comment
     Byte[4] objectAddr;

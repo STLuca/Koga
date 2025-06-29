@@ -35,6 +35,12 @@ public class HostedCompilable implements Compilable {
 
         RenamedSources myClasses = new RenamedSources(sources);
 
+        for (Name imprt : this.imports) {
+            sources.parse(imprt.globalName);
+            Usable usable = sources.usable(imprt.globalName);
+            myClasses.usables.put(imprt.localName, usable);
+        }
+
         Document tempThisDoc = new Document();
         tempThisDoc.type = Document.Type.Host;
         tempThisDoc.name = name;
@@ -45,7 +51,7 @@ public class HostedCompilable implements Compilable {
             dm.name = m.name;
             dm.parameters = new String[m.params.size()];
             for (int ii = 0; ii < m.params.size(); ii++) {
-                dm.parameters[ii] = m.params.get(ii).usable;
+                dm.parameters[ii] = myClasses.usable(m.params.get(ii).usable).name();
             }
             tempThisDoc.methods[i] = dm;
         }
@@ -64,14 +70,8 @@ public class HostedCompilable implements Compilable {
             compiler.implementing(implementing.name);
         }
 
-        for (Name imprt : this.imports) {
-            sources.parse(imprt.globalName);
-            Usable usable = sources.usable(imprt.globalName);
-            myClasses.usables.put(imprt.localName, usable);
-        }
-
         for (Field f : fields) {
-            Usable sc = sources.usable(f.usable);
+            Usable sc = myClasses.usable(f.usable);
             compiler.data(f.name, sc.size(sources));
         }
 
@@ -85,7 +85,7 @@ public class HostedCompilable implements Compilable {
 
             // empty construct the parameters
             for (Parameter p : m.params) {
-                Usable usable = sources.usable(p.usable);
+                Usable usable = myClasses.usable(p.usable);
                 mb.parameter(usable.name());
                 usable.declare(mb, myClasses, variables, p.name, p.generics);
             }

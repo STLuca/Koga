@@ -1,9 +1,9 @@
 parser interface;
 
-imports {
-    Int;
-    Pointer;
-    Array;
+usables {
+    core.Int;
+    core.Pointer;
+    core.Array;
 }
 
 core.Administrator {

@@ -12,7 +12,7 @@ import java.util.List;
 
 public class StructureParser implements Parser {
 
-    Token DEPENDENCIES, IMPORTS, CONSTRUCTOR, NAME, IMPLEMENTS, OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN,
+    Token DEPENDENCIES, IMPORTS, CONSTRUCTOR, NAME, GLOBAL_NAME, IMPLEMENTS, OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN,
             SEMI_COLON, NUMBER, PARAM_TYPE, COMMA, LITERAL_ARG, OP_SQ_BRACKET,
             CL_SQ_BRACKET, EQUALS, DOT, OP_PT_BRACE, CL_PT_BRACE, STRING, OPERATOR, TILDA;
     Tokens tokens = new Tokens();
@@ -21,11 +21,12 @@ public class StructureParser implements Parser {
 
     {
         DEPENDENCIES  = tokens.add("'dependencies'");
-        IMPORTS       = tokens.add("'imports'");
+        IMPORTS       = tokens.add("'usables'");
         CONSTRUCTOR   = tokens.add("'constructor'");
         IMPLEMENTS    = tokens.add("'implements'");
         PARAM_TYPE    = tokens.add("b[1-9][0-9]*");
         LITERAL_ARG   = tokens.add("0b[0-1]+|0x[0-9a-f]+|[0-9]+|true|false|\\'[a-zA-Z]\\'");
+        GLOBAL_NAME   = tokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
         NAME          = tokens.add("[a-zA-Z]+");
         NUMBER        = tokens.add("[1-9]+");
         EQUALS        = tokens.add("'='");
@@ -88,9 +89,10 @@ public class StructureParser implements Parser {
             scanner.expect(tokens, OP_BRACE);
             curr = scanner.next(tokens);
             while (curr != CL_BRACE) {
-                if (curr != NAME) throw new RuntimeException("name");
+                if (curr != GLOBAL_NAME) throw new RuntimeException("name");
                 String globalName = curr.matched();
-                String localName = curr.matched();
+                String[] split = globalName.split("\\.");
+                String localName = split[split.length - 1];
                 curr = scanner.next(tokens);
                 if (curr == NAME) {
                     localName = curr.matched();
@@ -126,8 +128,9 @@ public class StructureParser implements Parser {
             }
             curr = scanner.next(tokens);
         }
-        if (curr != NAME) scanner.fail("name");
+        if (curr != GLOBAL_NAME) scanner.fail("name");
         c.name = curr.matched();
+
         curr = scanner.next(tokens);
         if (curr != OP_BRACE) scanner.fail("{");
         curr = scanner.next(tokens);

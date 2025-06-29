@@ -9,16 +9,18 @@ import language.scanning.Token;
 import language.scanning.Tokens;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MachineReferenceParser implements Parser {
 
-    Token CONSTRUCTOR, NAME, BYTE, ADDR, POSITION, BLOCK,
+    Token CONSTRUCTOR, NAME, GLOBAL_NAME, IMPORTS, BYTE, ADDR, POSITION, BLOCK,
           NUMBER, LITERAL_ARG, PARAM_TYPE, PARAM_ARRAY,
           OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN, OP_SQ_BRACKET, CL_SQ_BRACKET, OP_PT_BRACE, CL_PT_BRACE,
           SEMI_COLON, COMMA, DOT, TILDA;
     Tokens tokens = new Tokens();
     Tokens paramTokens = new Tokens();
+    Tokens metaTokens = new Tokens();
 
     {
         CONSTRUCTOR   = tokens.add("'constructor'");
@@ -49,6 +51,13 @@ public class MachineReferenceParser implements Parser {
         paramTokens.add(CL_PAREN);
         paramTokens.add(OP_PAREN);
         paramTokens.add(NAME);
+
+        IMPORTS     = metaTokens.add("'usables'");
+        metaTokens.add(SEMI_COLON);
+        metaTokens.add(OP_BRACE);
+        metaTokens.add(CL_BRACE);
+        GLOBAL_NAME = metaTokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
+        metaTokens.add(NAME);
     }
     
     public String name() {
@@ -56,11 +65,37 @@ public class MachineReferenceParser implements Parser {
     }
     
     public void parse(Sources sources, String input) {
+        HashMap<String, String> usables = new HashMap<>();
         Scanner scanner = new Scanner(input);
         MachineReferenceUsable mc = new MachineReferenceUsable();
-        Token curr = scanner.next(tokens);
-        if (curr != NAME) scanner.fail("name");
+        Token curr = scanner.next(metaTokens);
+
+        if (curr == IMPORTS) {
+            scanner.expect(metaTokens, OP_BRACE);
+            curr = scanner.next(metaTokens);
+            while (curr != CL_BRACE) {
+                if (curr != GLOBAL_NAME) scanner.fail("Global name");
+                String global = curr.matched();
+                String[] split = global.split("\\.");
+                String local = split[split.length - 1];
+                curr = scanner.next(metaTokens);
+                if (curr == NAME) {
+                    local = curr.matched();
+                    curr = scanner.next(metaTokens);
+                }
+                usables.put(local, global);
+                if (curr != SEMI_COLON) scanner.fail(";");
+                curr = scanner.next(metaTokens);
+            }
+            curr = scanner.next(metaTokens);
+        }
+
+        if (curr != GLOBAL_NAME) scanner.fail("name");
         mc.name = curr.matched();
+
+        String[] splitName = mc.name.split("\\.");
+        usables.put(splitName[splitName.length - 1], mc.name);
+
         curr = scanner.next(tokens);
         if (curr == OP_PT_BRACE) {
             do {
@@ -85,9 +120,9 @@ public class MachineReferenceParser implements Parser {
             } else if (curr == ADDR) {
                 parseAddress(scanner, mc);
             } else if (curr == CONSTRUCTOR) {
-                parseConstructor(scanner, mc);
+                parseConstructor(scanner, mc, usables);
             } else if (curr == NAME) {
-                parseMethod(scanner, mc);
+                parseMethod(scanner, mc, usables);
             } else if (curr == TILDA) {
                 scanner.takeUntilNewLine();
             }
@@ -119,7 +154,7 @@ public class MachineReferenceParser implements Parser {
         mc.variables.add(data);
     }
 
-    private void parseConstructor(Scanner scanner, MachineReferenceUsable mc) {
+    private void parseConstructor(Scanner scanner, MachineReferenceUsable mc, HashMap<String, String> usables) {
         Method mcc = new Method();
         Token curr = scanner.next(tokens);
         if (curr == NAME) {
@@ -130,20 +165,20 @@ public class MachineReferenceParser implements Parser {
         } else {
             scanner.fail("(");
         }
-        parseParameters(scanner, mcc.parameters);
+        parseParameters(scanner, mcc.parameters, usables);
         scanner.expect(tokens, OP_BRACE);
         curr = scanner.next(tokens);
         parseBody(scanner, mc, mcc.body);
         mc.constructors.add(mcc);
     }
 
-    private void parseMethod(Scanner scanner, MachineReferenceUsable mc) {
+    private void parseMethod(Scanner scanner, MachineReferenceUsable mc, HashMap<String, String> usables) {
         Method mcm = new Method();
         Token curr = scanner.current();
         if (curr != NAME) scanner.fail("name");
         mcm.name = curr.matched();
         scanner.expect(tokens, OP_PAREN);
-        parseParameters(scanner, mcm.parameters);
+        parseParameters(scanner, mcm.parameters, usables);
         scanner.expect(tokens, OP_BRACE);
         curr = scanner.next(tokens);
         parseBody(scanner, mc, mcm.body);
@@ -154,7 +189,7 @@ public class MachineReferenceParser implements Parser {
         }
     }
 
-    void parseParameters(Scanner scanner, ArrayList<Method.Parameter> parameters) {
+    void parseParameters(Scanner scanner, ArrayList<Method.Parameter> parameters, HashMap<String, String> usables) {
         Token curr = scanner.next(paramTokens);
         while (curr != CL_PAREN) {
             if (curr != PARAM_TYPE && curr != NAME) throw new RuntimeException("expecting parameter type");
@@ -183,7 +218,7 @@ public class MachineReferenceParser implements Parser {
                     p.type = Argument.Type.Name;
                 } else {
                     p.type = Argument.Type.Variable;
-                    p.className = paramType;
+                    p.className = usables.getOrDefault(paramType, paramType);
                 }
                 p.array = isArray;
                 p.name = paramName;

@@ -1,6 +1,10 @@
 parser machineReference;
 
-InterfaceReference<Document R> {
+usables {
+    core.Reference;
+}
+
+core.InterfaceReference<Document R> {
 
     Byte[4] objectAddr;
     Byte[4] objectTable;

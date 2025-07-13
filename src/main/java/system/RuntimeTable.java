@@ -1,95 +1,140 @@
 package system;
 
-import machine.VirtualMachine;
-
 import java.util.ArrayList;
-import java.util.List;
 
-// Rename RuntimeTableBuilder
 public class RuntimeTable {
 
-    ArrayList<Integer> table = new ArrayList<>();
-    StringBuilder debug = new StringBuilder();
+    final int ENTRY_SIZE = 8;
 
-    void document(String docName) {
-        debug.append("Table: ")
-                .append(docName)
+    static class SubTable {
+        TableType type;
+        String name;
+    }
+
+    static class Entry {
+        SubTable subTable;
+        EntryType type;
+        String name;
+        int position;
+        int primary;
+        int secondary;
+    }
+
+    enum TableType {
+        Document,
+        Interface
+    }
+
+    enum EntryType {
+        Document        ("size",    "addr"),
+        Method          ("size",    "addr"),
+        Field           ("size",    "addr"),
+        Interface       ("size",    "addr"),
+        Constant        ("size",    "addr"),
+        ProtocolMethod  ("id",      "N/A"),
+        System          ("pageSize","addr"),
+        Error           ("N/A",     "N/A");
+
+        final String primaryLabel;
+        final String secondaryLabel;
+
+        EntryType(String primaryLabel, String secondaryLabel) {
+            this.primaryLabel = primaryLabel;
+            this.secondaryLabel = secondaryLabel;
+        }
+    }
+
+    ArrayList<Entry> entries = new ArrayList<>();
+
+    static Builder builder() {
+        RuntimeTable rt = new RuntimeTable();
+        return rt.new Builder();
+    }
+
+    public int[] values() {
+        int[] values = new int[entries.size() * 2];
+        int index = 0;
+        for (Entry entry : entries) {
+            values[index] = entry.primary;
+            values[index + 1] = entry.secondary;
+            index += 2;
+        }
+        return values;
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        int paddingLength = 5;
+        SubTable current = null;
+        int byteIndx = 0;
+        for (Entry entry : entries) {
+            if (entry.subTable != current) {
+                current = entry.subTable;
+
+                sb.append(current.type)
+                        .append(": ")
+                        .append(current.name)
+                        .append("\n");
+            }
+
+            sb.repeat(" ", paddingLength - String.valueOf(byteIndx).length())
+                .append(byteIndx)
+                .append(": ")
+                .repeat(" ", paddingLength - String.valueOf(entry.primary).length())
+                .append(entry.primary)
+                .append("    ~")
+                .append(" ")
+                .append(entry.type.name())
+                .append(" ")
+                .append(entry.type.primaryLabel)
+                .append(" ")
+                .append(entry.name)
                 .append("\n");
-    }
-
-    void intrface(String concreteName, String interfaceName) {
-        debug.append("Table: ")
-                .append(concreteName)
-                .append(".")
-                .append(interfaceName)
+            byteIndx += 4;
+            sb.repeat(" ", paddingLength - String.valueOf(byteIndx).length())
+                .append(byteIndx)
+                .append(": ")
+                .repeat(" ", paddingLength - String.valueOf(entry.secondary).length())
+                .append(entry.secondary)
+                .append("    ~")
+                .append(" ")
+                .append(entry.type.name())
+                .append(" ")
+                .append(entry.type.secondaryLabel)
+                .append(" ")
+                .append(entry.name)
                 .append("\n");
+            byteIndx += 4;
+        }
+        return sb.toString();
     }
 
-    void document(String docName, int size, int addr) {
-        debug(docName, size, addr);
-    }
+    class Builder {
 
-    void method(String docName, String m, int size, int addr) {
-        debug(docName + "." + m, size, addr);
-    }
+        SubTable current;
 
-    void field(String docName, String field, int size, int addr) {
-        debug(docName + "." + field, size, addr);
-    }
+        void table(TableType type, String name) {
+            SubTable subTable = new SubTable();
+            subTable.type = type;
+            subTable.name = name;
+            current = subTable;
+        }
 
-    void intrface(String concreteName, String interfaceName, int addr) {
-        debug(concreteName + "." + interfaceName, 0, addr);
-    }
+        void entry(EntryType type, String name, int primary, int secondary) {
+            int byteIndx = entries.size() * ENTRY_SIZE;
+            Entry entry = new Entry();
+            entry.subTable = current;
+            entry.type = type;
+            entry.name = name;
+            entry.position = byteIndx;
+            entry.primary = primary;
+            entry.secondary = secondary;
+            entries.add(entry);
+        }
 
-    void constant(String name, int size, int addr) {
-        debug("Const(" + name + ")", size, addr);
-    }
+        RuntimeTable table() {
+            return RuntimeTable.this;
+        }
 
-    void protocolMethod(String name, int id, int addr) {
-        debug("Protocol method(" + name + ")", id, addr, "id", "N/A");
-    }
-
-    void empty() {
-        debug("BAD SYMBOL - FIX ", 0, 0);
-    }
-
-    void system(String type, int addr) {
-        debug("System(" + type + ")", VirtualMachine.PAGE_SIZE, addr * VirtualMachine.PAGE_SIZE, "pageSize", "addr");
-    }
-
-    void debug(String name, int size, int addr) {
-        debug(name, size, addr, "size", "addr");
-    }
-
-    void debug(String name, int size, int addr, String primary, String secondary) {
-        int byteIndx = table.size() * 4;
-        pad(byteIndx);
-        debug.append(byteIndx)
-                .append(": ");
-        pad(size);
-        debug.append(size)
-                .append("    ")
-                .append(name)
-                .append(".")
-                .append(primary)
-                .append("\n");
-        pad(byteIndx + 4);
-        debug.append(byteIndx + 4)
-                .append(": ");
-        pad(addr);
-        debug.append(addr)
-                .append("    ")
-                .append(name)
-                .append(".")
-                .append(secondary)
-                .append("\n");
-        table.add(size);
-        table.add(addr);
-    }
-
-    void pad(int val) {
-        if (val < 10) debug.append(" ");
-        if (val < 100) debug.append(" ");
-        if (val < 1000) debug.append(" ");
     }
 }

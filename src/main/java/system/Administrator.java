@@ -7,11 +7,35 @@ import machine.VirtualMachine;
 
 import java.util.*;
 
-import static core.Document.Type.*;
 import static machine.VirtualMachine.PAGE_SIZE;
 import static machine.VirtualMachine.intToBytes;
 
 public class Administrator implements Notifiable {
+
+    enum Type {
+        Host,
+        Hosted,
+        Interface,
+        Protocol
+    }
+
+    public static class Symbol {
+
+        public Type type;
+        public String identifier;
+
+        public enum Type {
+            CLASS,
+            INTERFACE,
+            FIELD,
+            METHOD,
+            CONST,
+            SYSTEM,
+
+            PROTOCOLS,
+            PROTOCOL
+        }
+    }
 
     final static int MEMBER_OUT_PAGE   = 1;
     final static int MEMBER_IN_PAGE    = 2;
@@ -23,6 +47,9 @@ public class Administrator implements Notifiable {
     final static int INSTRUCTION_SIZE = 18;
 
     VirtualMachine m;
+
+    // source
+    HashMap<String, core.Document> sourceDocuments = new HashMap<>();
 
     // Loading
     HashMap<String, Document> documents = new HashMap<>();
@@ -44,6 +71,9 @@ public class Administrator implements Notifiable {
     ArrayList<LogicianQuota> quotas = new ArrayList<>();
     LogicianQuota scheduled;
 
+    // Inspecting
+    HashMap<String, InspectInfo> inspectInfo = new HashMap<>();
+
     Administrator() {
         this.m = new VirtualMachine(1, this);
     }
@@ -52,8 +82,93 @@ public class Administrator implements Notifiable {
         return new Administrator();
     }
 
+    // Compiler
+
+    byte[] compile(core.Document doc) {
+        int instructionBytesSize = 0;
+        for (core.Document.Method m : doc.methods) {
+            instructionBytesSize += m.instructions.length * INSTRUCTION_SIZE;
+        }
+        int byteIdx = 0;
+        byte[] bytes = new byte[instructionBytesSize];
+
+        for (core.Document.Method m : doc.methods) {
+            int[] addresses = new int[m.instructions.length];
+            int i = 0;
+            int curr = 0;
+            for (Instruction ignored : m.instructions) {
+                addresses[i] = curr;
+                i++;
+                curr += INSTRUCTION_SIZE;
+                // 1 byte for type, subType, inputType, src1Size, src2Size, src3Size
+                // 4 bytes for src1, src2, src3
+            }
+
+            curr = 0;
+            for (Instruction in : m.instructions) {
+                bytes[byteIdx++] = (byte) in.type.ordinal();
+                int inType = switch (in.type) {
+                    case Integer -> in.lType.ordinal();
+                    case Jump -> in.jType.ordinal();
+                    case ConditionalBranch -> in.bType.ordinal();
+                    case Class -> in.cmType.ordinal();
+                    case Logician -> in.lgType.ordinal();
+                    case Memory -> in.mType.ordinal();
+                    case Debug -> in.dType.ordinal();
+                    case Math -> in.mathType.ordinal();
+                    case Float -> in.fType.ordinal();
+                    case Atomic -> in.aType.ordinal();
+                    case Vector -> in.vType.ordinal();
+                };
+                bytes[byteIdx++] = (byte) inType;
+                bytes[byteIdx++] = (byte) in.inputType.ordinal();
+
+                int dest;
+                int src1 = in.src2;
+                switch (in.type) {
+                    case ConditionalBranch -> {
+                        dest = addresses[in.src1] - addresses[curr];
+                    }
+                    case Jump -> {
+                        switch (in.inputType) {
+                            case I -> {
+                                dest = addresses[in.src1] - addresses[curr];
+                                src1 = addresses[in.src1] - addresses[curr];
+                            }
+                            default -> {
+                                dest = in.src1;
+                            }
+                        }
+                    }
+                    default -> dest = in.src1;
+                }
+
+                bytes[byteIdx++] = (byte) in.src1Size;
+                for (Byte b : intToBytes(dest)) {
+                    bytes[byteIdx++] = b;
+                }
+
+                bytes[byteIdx++] = (byte) in.src2Size;
+                for (Byte b : intToBytes(src1)) {
+                    bytes[byteIdx++] = b;
+                }
+
+                bytes[byteIdx++] = (byte) in.src3Size;
+                for (Byte b : intToBytes(in.src3)) {
+                    bytes[byteIdx++] = b;
+                }
+
+                curr++;
+            }
+        }
+        return bytes;
+    }
+
     // adding a class
     void integrate(core.Document doc) {
+        if (!sourceDocuments.containsKey(doc.name)) {
+            sourceDocuments.put(doc.name, doc);
+        }
         if (documents.containsKey(doc.name)) return;
 
         Document iDoc = new Document();
@@ -70,7 +185,7 @@ public class Administrator implements Notifiable {
                 this.interfaceInfo.put(doc.name, interfaceInfo);
 
                 interfaceInfo.doc = iDoc;
-                iDoc.type = Interface;
+                iDoc.type = Type.Interface;
                 iDoc.interfaceInfo = interfaceInfo;
             }
             case Protocol -> {
@@ -133,7 +248,7 @@ public class Administrator implements Notifiable {
                 pInfo.pages = pages;
                 protocolInfo.put(doc.name, pInfo);
 
-                iDoc.type = Protocol;
+                iDoc.type = Type.Protocol;
                 iDoc.protocolInfo = pInfo;
             }
             case Hosted -> {
@@ -202,12 +317,17 @@ public class Administrator implements Notifiable {
                     hostedInfo.constants.put(constant.name, new ConstRuntimeValues(constant.value.length, constMap[i]));
                 }
                 hostedInfo.dependencies.addAll(Arrays.asList(doc.dependencies));
-                hostedInfo.symbols.addAll(Arrays.asList(doc.symbols));
+                for (core.Document.Symbol dSymbol : doc.symbols) {
+                    Symbol symbol = new Symbol();
+                    symbol.identifier = dSymbol.identifier;
+                    symbol.type = Symbol.Type.values()[dSymbol.type.ordinal()];
+                    hostedInfo.symbols.add(symbol);
+                }
                 hostedInfo.implementing.addAll(Arrays.asList(doc.implementing));
 
                 this.hostedInfo.put(doc.name, hostedInfo);
 
-                iDoc.type = Hosted;
+                iDoc.type = Type.Hosted;
                 iDoc.hosted = hostedInfo;
 
             }
@@ -287,9 +407,15 @@ public class Administrator implements Notifiable {
                     core.Document.Const constant = doc.consts[i];
                     hostInfo.constants.put(constant.name, new ConstRuntimeValues(constant.value.length, constMap[i]));
                 }
-                hostInfo.symbols.addAll(Arrays.asList(doc.symbols));
 
-                iDoc.type = Host;
+                for (core.Document.Symbol dSymbol : doc.symbols) {
+                    Symbol symbol = new Symbol();
+                    symbol.identifier = dSymbol.identifier;
+                    symbol.type = Symbol.Type.values()[dSymbol.type.ordinal()];
+                    hostInfo.symbols.add(symbol);
+                }
+
+                iDoc.type = Type.Host;
                 iDoc.host = hostInfo;
 
                 // Each symbol entry writes a size and address (in order)
@@ -335,7 +461,7 @@ public class Administrator implements Notifiable {
 
                 ArrayList<ProtocolInfo> protocolDependencies = new ArrayList<>();
                 for (Document protocolDependency : dependencies) {
-                    if (protocolDependency.type == Protocol) {
+                    if (protocolDependency.type == Type.Protocol) {
                         protocolDependencies.add(protocolDependency.protocolInfo);
                     }
                 }
@@ -424,47 +550,49 @@ public class Administrator implements Notifiable {
                 }
 
                 // For every dependency class, write its symbols to the runtime table
-                RuntimeTable rt = new RuntimeTable();
+                RuntimeTable.Builder rtb = RuntimeTable.builder();
                 for (Document dependency : dependencies) {
                     switch (dependency.type) {
                         case Interface -> {}
                         case Protocol -> {
-                            rt.document(dependency.name);
+                            rtb.table(RuntimeTable.TableType.Document, dependency.name);
                             for (ProtocolMethodInfo pm : dependency.protocolInfo.methods.values()) {
                                 if (hostInfo.methods.containsKey(pm.name)) {
                                     int addr = hostInfo.methods.get(pm.name).addr;
                                     int size = hostInfo.methods.get(pm.name).size;
-                                    rt.method(hostInfo.name, pm.name, size, addr);
+                                    rtb.entry(RuntimeTable.EntryType.Method, hostInfo.name + "." + pm.name, size, addr);
                                 } else {
-                                    rt.method(hostInfo.name, pm.name, 0, 0);
+                                    rtb.entry(RuntimeTable.EntryType.Method, hostInfo.name + "." + pm.name, 0, 0);
                                 }
                             }
                         }
                         case Host, Hosted -> {
-                            rt.document(dependency.name);
-                            ArrayList<core.Document.Symbol> symbols;
-                            if (dependency.type == Host) {
+                            rtb.table(RuntimeTable.TableType.Document, dependency.name);
+                            ArrayList<Symbol> symbols;
+                            if (dependency.type == Type.Host) {
                                 symbols = dependency.host.symbols;
                             } else {
                                 symbols = dependency.hosted.symbols;
                             }
-                            for (core.Document.Symbol s : symbols) {
+                            for (Symbol s : symbols) {
                                 switch (s.type) {
                                     case CLASS -> {
                                         Document document = documents.get(s.identifier);
                                         switch (document.type) {
-                                            case Protocol, Interface -> rt.empty();
+                                            case Protocol, Interface -> {
+                                                rtb.entry(RuntimeTable.EntryType.Error, "BAD SYMBOL - FIX ", 0, 0);
+                                            }
                                             case Hosted -> {
                                                 HostedInfo runtimeValues = document.hosted;
                                                 int size = runtimeValues.size;
                                                 int addr = documentTableEntries.get(document).get(document) * ENTRY_VALUE_SIZE;
-                                                rt.document(document.name, size, addr);
+                                                rtb.entry(RuntimeTable.EntryType.Document, document.name, size, addr);
                                             }
                                             case Host -> {
                                                 HostInfo runtimeValues = document.host;
                                                 int size = runtimeValues.size;
                                                 int addr = documentTableEntries.get(document).get(document) * ENTRY_VALUE_SIZE;
-                                                rt.document(document.name, size, addr);
+                                                rtb.entry(RuntimeTable.EntryType.Document, document.name, size, addr);
                                             }
                                         }
                                     }
@@ -481,25 +609,25 @@ public class Administrator implements Notifiable {
                                                 HostInfo runtimeValues = iDocument.host;
                                                 int size = runtimeValues.methods.get(methodName).size;
                                                 int addr = runtimeValues.methods.get(methodName).addr + hostedValuesMap.get(iDocument).methodStartAddr;
-                                                rt.method(iDocument.name, methodName, size, addr);
+                                                rtb.entry(RuntimeTable.EntryType.Method, iDocument.name + "." + methodName, size, addr);
                                             }
                                             case Hosted -> {
                                                 HostedInfo runtimeValues = iDocument.hosted;
                                                 int size = runtimeValues.methods.get(methodName).size;
                                                 int addr = runtimeValues.methods.get(methodName).addr + hostedValuesMap.get(iDocument).methodStartAddr;
-                                                rt.method(iDocument.name, methodName, size, addr);
+                                                rtb.entry(RuntimeTable.EntryType.Method, iDocument.name + "." + methodName, size, addr);
                                             }
                                             case Interface -> {
                                                 InterfaceInfo interfaceInfo = iDocument.interfaceInfo;
                                                 int addr = interfaceInfo.methods.indexOf(methodName);
-                                                rt.method(iDocument.name, methodName, 0, addr);
+                                                rtb.entry(RuntimeTable.EntryType.Method, iDocument.name + "." + methodName, 0, addr);
                                             }
                                             case Protocol -> {
                                                 ProtocolInfo pInfo = iDocument.protocolInfo;
                                                 ProtocolMethodInfo pmInfo = pInfo.methods.get(methodName);
                                                 int protocolAddr = hostInfo.hostedValues.get(doc.name).protocolsAddresses.get(pInfo.name);
                                                 int pMethodAddr = pmInfo.addr;
-                                                rt.protocolMethod(s.identifier, pmInfo.id, protocolAddr + pMethodAddr);
+                                                rtb.entry(RuntimeTable.EntryType.ProtocolMethod, s.identifier, pmInfo.id, protocolAddr + pMethodAddr);;
                                             }
                                         }
                                     }
@@ -513,13 +641,13 @@ public class Administrator implements Notifiable {
                                                 HostedInfo runtimeValues = hostedDoc.hosted;
                                                 int size = 0; // no size saved
                                                 int addr = runtimeValues.fields.get(fieldName).addr;
-                                                rt.field(hostedDoc.name, fieldName, size, addr);
+                                                rtb.entry(RuntimeTable.EntryType.Field, hostedDoc.name + "." + fieldName, size, addr);
                                             }
                                             case Host -> {
                                                 HostInfo runtimeValues = hostedDoc.host;
                                                 int size = 0; // no size saved
                                                 int addr = runtimeValues.fields.get(fieldName).addr;
-                                                rt.field(hostedDoc.name, fieldName, size, addr);
+                                                rtb.entry(RuntimeTable.EntryType.Field, hostedDoc.name + "." + fieldName, size, addr);
                                             }
                                             case Protocol, Interface -> throw new RuntimeException("Field doesn't exist for type");
                                         }
@@ -531,13 +659,13 @@ public class Administrator implements Notifiable {
                                                 HostedInfo runtimeValues = iDocument.hosted;
                                                 int size = runtimeValues.constants.get(s.identifier).size;
                                                 int addr = runtimeValues.constants.get(s.identifier).addr + hostedValuesMap.get(iDocument).constantsStartAddr;
-                                                rt.constant(s.identifier, size, addr);
+                                                rtb.entry(RuntimeTable.EntryType.Constant, s.identifier, size, addr);
                                             }
                                             case Host -> {
                                                 HostInfo runtimeValues = iDocument.host;
                                                 int size = runtimeValues.constants.get(s.identifier).size;
                                                 int addr = runtimeValues.constants.get(s.identifier).addr + hostedValuesMap.get(iDocument).constantsStartAddr;
-                                                rt.constant(s.identifier, size, addr);
+                                                rtb.entry(RuntimeTable.EntryType.Constant, s.identifier, size, addr);
                                             }
                                         }
                                     }
@@ -548,16 +676,24 @@ public class Administrator implements Notifiable {
                                         Document concreteDocument = documents.get(documentName);
                                         Document interfaceDocument = documents.get(iName);
                                         int address = documentTableEntries.get(concreteDocument).get(interfaceDocument) * ENTRY_VALUE_SIZE;
-                                        rt.intrface(concreteDocument.name, interfaceDocument.name, address);
+                                        rtb.entry(RuntimeTable.EntryType.Interface, concreteDocument.name + "." + interfaceDocument.name, 0, address);
                                     }
                                     case SYSTEM -> {
                                         // Runtime table only uses one page, could be more than 1 page
                                         // do I still need all these?
                                         switch (s.identifier) {
-                                            case "SystemIn" -> rt.system(s.identifier, 1);
-                                            case "SystemOut" -> rt.system(s.identifier, 2);
-                                            case "Root" -> rt.system(s.identifier, 3);
-                                            case "Administrator" -> rt.system(s.identifier, 4);
+                                            case "SystemIn" -> {
+                                                rtb.entry(RuntimeTable.EntryType.System, s.identifier, VirtualMachine.PAGE_SIZE, 1 * VirtualMachine.PAGE_SIZE);
+                                            }
+                                            case "SystemOut" -> {
+                                                rtb.entry(RuntimeTable.EntryType.System, s.identifier, VirtualMachine.PAGE_SIZE, 2 * VirtualMachine.PAGE_SIZE);
+                                            }
+                                            case "Root" -> {
+                                                rtb.entry(RuntimeTable.EntryType.System, s.identifier, VirtualMachine.PAGE_SIZE, 3 * VirtualMachine.PAGE_SIZE);
+                                            }
+                                            case "Administrator" -> {
+                                                rtb.entry(RuntimeTable.EntryType.System, s.identifier, VirtualMachine.PAGE_SIZE, 4 * VirtualMachine.PAGE_SIZE);
+                                            }
                                         }
                                     }
                                     case PROTOCOLS, PROTOCOL -> {
@@ -569,24 +705,24 @@ public class Administrator implements Notifiable {
                             switch (dependency.type) {
                                 case Host -> {
                                     for (InterfaceInfo implemented : dependency.host.implementing) {
-                                        rt.intrface(dependency.name, implemented.name);
+                                        rtb.table(RuntimeTable.TableType.Interface, dependency.name + "." + implemented.name);
                                         for (String method : implemented.methods) {
                                             HostInfo runtimeValues = dependency.host;
                                             int size = runtimeValues.methods.get(method).size;
                                             int addr = runtimeValues.methods.get(method).addr + hostedValuesMap.get(dependency).methodStartAddr;
-                                            rt.method(implemented.name, method, size, addr);
+                                            rtb.entry(RuntimeTable.EntryType.Method, implemented.name + "." + method, size, addr);
                                         }
                                     }
                                 }
                                 case Hosted -> {
                                     for (String implementingName : dependency.hosted.implementing) {
                                         InterfaceInfo implemented = documents.get(implementingName).interfaceInfo;
-                                        rt.intrface(dependency.name, implemented.name);
+                                        rtb.table(RuntimeTable.TableType.Interface, dependency.name + "." + implemented.name);
                                         for (String method : implemented.methods) {
                                             HostedInfo runtimeValues = dependency.hosted;
                                             int size = runtimeValues.methods.get(method).size;
                                             int addr = runtimeValues.methods.get(method).addr + hostedValuesMap.get(dependency).methodStartAddr;
-                                            rt.method(implemented.name, method, size, addr);
+                                            rtb.entry(RuntimeTable.EntryType.Method, implemented.name + "." + method, size, addr);
                                         }
                                     }
                                 }
@@ -595,15 +731,17 @@ public class Administrator implements Notifiable {
                     }
                 }
 
-                hostInfo.runtimeTableDebug = rt.debug.toString();
+                RuntimeTable rt = rtb.table();
+                hostInfo.runtimeTable = rt;
 
                 // Write runtime table to a free page
-                int rtPageCount = 1 + (rt.table.size() / PAGE_SIZE);
+                int[] rtValues = rt.values();
+                int rtPageCount = 1 + (rtValues.length / PAGE_SIZE);
                 int[] runtimePages = allocate(rtPageCount);
                 if (runtimePages.length > 1) throw new RuntimeException("runtime table size not supported");
                 int runtimePage = runtimePages[0];
-                for (int i = 0; i < rt.table.size(); i++) {
-                    byte[] rtBytes = machine.VirtualMachine.intToBytes(rt.table.get(i));
+                for (int i = 0; i < rtValues.length; i++) {
+                    byte[] rtBytes = machine.VirtualMachine.intToBytes(rtValues[i]);
                     System.arraycopy(rtBytes, 0, m.pages[runtimePage], (i * 4), 4);
                 }
 
@@ -662,7 +800,7 @@ public class Administrator implements Notifiable {
 
     int initHost(String documentName) {
         Document document = documents.get(documentName);
-        if (document.type != core.Document.Type.Host) throw new RuntimeException();
+        if (document.type != Type.Host) throw new RuntimeException();
 
         // get the template
         HostInfo info = document.host;
@@ -791,10 +929,15 @@ public class Administrator implements Notifiable {
         inspector.pageMap = host.pageMap;
         inspector.machine = m;
 
+        if (!inspectInfo.containsKey(hostInfo.name)) {
+            InspectInfo inspectInfo = new InspectInfo();
+            inspectInfo.host = host;
+        }
+
         // Methods
         // Use class runtime values to create methods
         Inspector.Host iHost = new Inspector.Host();
-        iHost.runtimeTable = hostInfo.runtimeTableDebug;
+        iHost.runtimeTable = hostInfo.runtimeTable.toString();
         inspector.host = iHost;
 
         byte[] pageMap = hostInfo.pagesTemplate;
@@ -934,88 +1077,6 @@ public class Administrator implements Notifiable {
         return inspector;
     }
 
-    // Compiler
-
-    byte[] compile(core.Document doc) {
-        int instructionBytesSize = 0;
-        for (core.Document.Method m : doc.methods) {
-            instructionBytesSize += m.instructions.length * INSTRUCTION_SIZE;
-        }
-        int byteIdx = 0;
-        byte[] bytes = new byte[instructionBytesSize];
-
-        for (core.Document.Method m : doc.methods) {
-            int[] addresses = new int[m.instructions.length];
-            int i = 0;
-            int curr = 0;
-            for (Instruction ignored : m.instructions) {
-                addresses[i] = curr;
-                i++;
-                curr += INSTRUCTION_SIZE;
-                // 1 byte for type, subType, inputType, src1Size, src2Size, src3Size
-                // 4 bytes for src1, src2, src3
-            }
-
-            curr = 0;
-            for (Instruction in : m.instructions) {
-                bytes[byteIdx++] = (byte) in.type.ordinal();
-                int inType = switch (in.type) {
-                    case Integer -> in.lType.ordinal();
-                    case Jump -> in.jType.ordinal();
-                    case ConditionalBranch -> in.bType.ordinal();
-                    case Class -> in.cmType.ordinal();
-                    case Logician -> in.lgType.ordinal();
-                    case Memory -> in.mType.ordinal();
-                    case Debug -> in.dType.ordinal();
-                    case Math -> in.mathType.ordinal();
-                    case Float -> in.fType.ordinal();
-                    case Atomic -> in.aType.ordinal();
-                    case Vector -> in.vType.ordinal();
-                };
-                bytes[byteIdx++] = (byte) inType;
-                bytes[byteIdx++] = (byte) in.inputType.ordinal();
-
-                int dest;
-                int src1 = in.src2;
-                switch (in.type) {
-                    case ConditionalBranch -> {
-                        dest = addresses[in.src1] - addresses[curr];
-                    }
-                    case Jump -> {
-                        switch (in.inputType) {
-                            case I -> {
-                                dest = addresses[in.src1] - addresses[curr];
-                                src1 = addresses[in.src1] - addresses[curr];
-                            }
-                            default -> {
-                                dest = in.src1;
-                            }
-                        }
-                    }
-                    default -> dest = in.src1;
-                }
-
-                bytes[byteIdx++] = (byte) in.src1Size;
-                for (Byte b : intToBytes(dest)) {
-                    bytes[byteIdx++] = b;
-                }
-
-                bytes[byteIdx++] = (byte) in.src2Size;
-                for (Byte b : intToBytes(src1)) {
-                    bytes[byteIdx++] = b;
-                }
-
-                bytes[byteIdx++] = (byte) in.src3Size;
-                for (Byte b : intToBytes(in.src3)) {
-                    bytes[byteIdx++] = b;
-                }
-
-                curr++;
-            }
-        }
-        return bytes;
-    }
-
     // Page allocator
 
     // Sets a free page to the local page in the objects page map
@@ -1097,7 +1158,7 @@ public class Administrator implements Notifiable {
         int[] methodPages;
         int size;
         ArrayList<String> dependencies = new ArrayList<>();
-        ArrayList<core.Document.Symbol> symbols = new ArrayList<>();
+        ArrayList<Symbol> symbols = new ArrayList<>();
         ArrayList<String> implementing = new ArrayList<>();
         HashMap<String, MethodRuntimeValues> methods = new HashMap<>();
         HashMap<String, FieldRuntimeValues> fields = new HashMap<>();
@@ -1120,7 +1181,7 @@ public class Administrator implements Notifiable {
         int[][] protocolPages;
         int[] methodPages;
         int size;
-        ArrayList<core.Document.Symbol> symbols = new ArrayList<>();
+        ArrayList<Symbol> symbols = new ArrayList<>();
         ArrayList<InterfaceInfo> implementing = new ArrayList<>();
         HashMap<String, MethodRuntimeValues> methods = new HashMap<>();
         HashMap<String, FieldRuntimeValues> fields = new HashMap<>();
@@ -1134,7 +1195,7 @@ public class Administrator implements Notifiable {
         int adminTable;
         int protocolsTable;
 
-        String runtimeTableDebug;
+        RuntimeTable runtimeTable;
     }
 
     static class InterfaceInfo {
@@ -1170,11 +1231,10 @@ public class Administrator implements Notifiable {
         LogicianQuota[] quotas = new LogicianQuota[8];
     }
 
-
     // maybe have an index and a type?
     static class Document {
         String name;
-        core.Document.Type type;
+        Type type;
         HostInfo host;
         HostedInfo hosted;
         InterfaceInfo interfaceInfo;
@@ -1191,4 +1251,35 @@ public class Administrator implements Notifiable {
         Processor.Snapshot snapshot;
     }
 
+    // INSPECTING
+
+    static class InspectInfo {
+        Host host;
+        HashMap<String, MethodInspect> methods = new HashMap<>();
+        ArrayList<TaskInspect> tasks = new ArrayList<>();
+    }
+
+    static class TaskInspect {
+        HashMap<String, Map<String, Integer>> data = new HashMap<>();
+        HashMap<String, Map<String, Integer>> altData = new HashMap<>();
+        int task;
+        int object;
+        int instruction;
+        int table;
+        int altTask;
+        int altObject;
+        int altInstruction;
+        int altTable;
+    }
+
+    static class MethodInspect {
+        ArrayList<MethodDataInspect> data = new ArrayList<>();
+
+    }
+
+    static class MethodDataInspect {
+        String name;
+        int position;
+        int size;
+    }
 }

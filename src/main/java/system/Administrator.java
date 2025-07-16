@@ -1,5 +1,8 @@
 package system;
 
+import core.Document;
+import core.Document.Symbol;
+import core.Document.Type;
 import core.Instruction;
 import machine.Notifiable;
 import machine.Processor;
@@ -11,31 +14,6 @@ import static machine.VirtualMachine.PAGE_SIZE;
 import static machine.VirtualMachine.intToBytes;
 
 public class Administrator implements Notifiable {
-
-    enum Type {
-        Host,
-        Hosted,
-        Interface,
-        Protocol
-    }
-
-    public static class Symbol {
-
-        public Type type;
-        public String identifier;
-
-        public enum Type {
-            CLASS,
-            INTERFACE,
-            FIELD,
-            METHOD,
-            CONST,
-            SYSTEM,
-
-            PROTOCOLS,
-            PROTOCOL
-        }
-    }
 
     final static int MEMBER_OUT_PAGE   = 1;
     final static int MEMBER_IN_PAGE    = 2;
@@ -70,9 +48,6 @@ public class Administrator implements Notifiable {
     // Scheduling
     ArrayList<LogicianQuota> quotas = new ArrayList<>();
     LogicianQuota scheduled;
-
-    // Inspecting
-    HashMap<String, InspectInfo> inspectInfo = new HashMap<>();
 
     Administrator() {
         this.m = new VirtualMachine(1, this);
@@ -166,9 +141,6 @@ public class Administrator implements Notifiable {
 
     // adding a class
     void integrate(core.Document doc) {
-        if (!sourceDocuments.containsKey(doc.name)) {
-            sourceDocuments.put(doc.name, doc);
-        }
         if (documents.containsKey(doc.name)) return;
 
         Document iDoc = new Document();
@@ -317,7 +289,7 @@ public class Administrator implements Notifiable {
                     hostedInfo.constants.put(constant.name, new ConstRuntimeValues(constant.value.length, constMap[i]));
                 }
                 hostedInfo.dependencies.addAll(Arrays.asList(doc.dependencies));
-                for (core.Document.Symbol dSymbol : doc.symbols) {
+                for (Symbol dSymbol : doc.symbols) {
                     Symbol symbol = new Symbol();
                     symbol.identifier = dSymbol.identifier;
                     symbol.type = Symbol.Type.values()[dSymbol.type.ordinal()];
@@ -408,7 +380,7 @@ public class Administrator implements Notifiable {
                     hostInfo.constants.put(constant.name, new ConstRuntimeValues(constant.value.length, constMap[i]));
                 }
 
-                for (core.Document.Symbol dSymbol : doc.symbols) {
+                for (Symbol dSymbol : doc.symbols) {
                     Symbol symbol = new Symbol();
                     symbol.identifier = dSymbol.identifier;
                     symbol.type = Symbol.Type.values()[dSymbol.type.ordinal()];
@@ -920,159 +892,13 @@ public class Administrator implements Notifiable {
     }
 
     Inspector inspect(int hostId) {
-        record Entry(int start, int end) {}
         Host host = hosts.get(hostId);
-        HostInfo hostInfo = host.template;
-
         Inspector inspector = new Inspector();
-        HashMap<Entry, core.Document.Method> methodByInstruction = new HashMap<>();
         inspector.pageMap = host.pageMap;
         inspector.machine = m;
-
-        if (!inspectInfo.containsKey(hostInfo.name)) {
-            InspectInfo inspectInfo = new InspectInfo();
-            inspectInfo.host = host;
-        }
-
-        // Methods
-        // Use class runtime values to create methods
-        Inspector.Host iHost = new Inspector.Host();
-        iHost.runtimeTable = hostInfo.runtimeTable.toString();
-        inspector.host = iHost;
-
-        byte[] pageMap = hostInfo.pagesTemplate;
-        int i = hostInfo.hostedValues.get(hostInfo.name).methodStartAddr / PAGE_SIZE; // skip runtime table and member components
-        loop: while (i < pageMap.length) {
-            byte page = pageMap[i];
-            for (HostedValues hostedInfo : hostInfo.hostedValues.values()) {
-                if ((byte) hostedInfo.methodPages[0] != page) continue;
-                for (String methodName : hostedInfo.methods.keySet()) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("Data:\n");
-                    core.Document methodDocument = hostedInfo.document;
-                    core.Document.Method method = Arrays.stream(methodDocument.methods).filter(m -> m.name.equals(methodName)).findFirst().orElseThrow();
-                    TreeSet<core.Document.Data> newOrderedData = new TreeSet<>(Comparator.comparing(core.Document.Data::start));
-                    for (core.Document.Data d : method.data) {
-                        if (d.name().contains(".")) {
-                            newOrderedData.add(d);
-                        }
-                    }
-                    for (core.Document.Data data : newOrderedData) {
-                        int start = data.start();
-                        if (start < 10) sb.append(" ");
-                        if (start < 100) sb.append(" ");
-                        sb.append(start)
-                                .append(":")
-                                .append(" ")
-                                .append(data.name())
-                                .append("\n");
-                    }
-
-                    sb.append("Instructions:\n");
-                    MethodRuntimeValues mvs = hostedInfo.methods.get(methodName);
-                    int methodAddr = (PAGE_SIZE * (i)) + mvs.addr();
-                    int methodEndAddr = (PAGE_SIZE * (i)) + mvs.endAddr();
-                    methodByInstruction.put(new Entry(methodAddr, methodEndAddr), method);
-                    for (int curr = methodAddr; curr < methodEndAddr; curr += 18) {
-                        if (curr < 10) sb.append(" ");
-                        if (curr < 100) sb.append(" ");
-                        sb.append(curr).append(": ");
-
-                        byte typeIndex = m.loadByte(host.pageMap, curr);
-                        byte subType   = m.loadByte(host.pageMap, curr + 1);
-                        byte inType    = m.loadByte(host.pageMap, curr + 2);
-                        byte destSize  = m.loadByte(host.pageMap, curr + 3);
-                        byte dest      = m.loadByte(host.pageMap, curr + 4);
-                        byte src1Size  = m.loadByte(host.pageMap, curr + 8);
-                        byte src1      = m.loadByte(host.pageMap, curr + 9);
-                        byte src2Size  = m.loadByte(host.pageMap, curr + 13);
-                        byte src2      = m.loadByte(host.pageMap, curr + 14);
-
-                        Instruction.Type type = Instruction.Type.values()[typeIndex];
-                        sb.append(type).append(" ");
-                        switch (type) {
-                            case Integer -> sb.append(Instruction.IntegerType.values()[subType]);
-                            case Jump -> sb.append(Instruction.BranchType.values()[subType]);
-                            case ConditionalBranch -> sb.append(Instruction.ConditionalBranchType.values()[subType]);
-                            case Class -> sb.append(Instruction.ClassType.values()[subType]);
-                            case Logician -> sb.append(Instruction.LogicianType.values()[subType]);
-                            case Memory -> sb.append(Instruction.MemoryType.values()[subType]);
-                            case Debug -> sb.append(Instruction.DebugType.values()[subType]);
-                        }
-                        sb.append(" ")
-                                .append(Instruction.InputType.values()[inType])
-                                .append(" dest(")
-                                .append(dest)
-                                .append(":")
-                                .append(destSize)
-                                .append(") src1(")
-                                .append(src1)
-                                .append(":")
-                                .append(src1Size)
-                                .append(") src2(")
-                                .append(src2)
-                                .append(":")
-                                .append(src2Size)
-                                .append(")");
-
-                        sb.append("\n");
-                    }
-
-                    iHost.methods.put(methodDocument.name + "." + methodName, sb.toString());
-                }
-
-                i+=hostedInfo.methodPages.length;
-                continue loop;
-            }
-        }
-
-        for (LogicianQuota quota : quotas) {
-            if (quota.host.address != hostId) continue;
-            Processor.Snapshot snapshot = quota.snapshot;
-            if (quota == scheduled) {
-                m.processors.getFirst().snapshot(snapshot);
-            }
-            Inspector.Task t = new Inspector.Task();
-
-            t.task = snapshot.task;
-            t.object = snapshot.object;
-            t.table = snapshot.table;
-            t.instruction = snapshot.instruction;
-            t.altTask = snapshot.altTask;
-            t.altObject = snapshot.altObject;
-            t.altTable = snapshot.altTable;
-            t.altInstruction = snapshot.altInstruction;
-
-            // TODO: currently only works once method has moved one instruction and admin method has moved one instruction
-            Entry entry = methodByInstruction.keySet().stream()
-                    .filter(e -> t.instruction > e.start && t.instruction <= e.end)
-                    .findFirst()
-                    .orElseThrow();
-            core.Document.Method method = methodByInstruction.get(entry);
-            for (core.Document.Data data : method.data) {
-                if (data.name().contains(".") && data.size() <= 4) {
-                    String[] split = data.name().split("\\.");
-                    t.data.putIfAbsent(split[0], new HashMap<>());
-                    t.data.get(split[0]).put(split[1], m.loadInt(host.pageMap, t.task + data.start(), data.size()));
-                }
-            }
-
-            entry = methodByInstruction.keySet().stream()
-                    .filter(e -> t.altInstruction > e.start && t.altInstruction <= e.end)
-                    .findFirst()
-                    .orElseThrow();
-
-            method = methodByInstruction.get(entry);
-            for (core.Document.Data data : method.data) {
-                if (data.name().contains(".") && data.size() <= 4) {
-                    String[] split = data.name().split("\\.");
-                    t.altData.putIfAbsent(split[0], new HashMap<>());
-                    t.altData.get(split[0]).put(split[1], m.loadInt(host.pageMap, t.altTask + data.start(), data.size()));
-                }
-            }
-
-            inspector.tasks.add(t);
-        }
+        inspector.host = host;
+        inspector.admin = this;
+        inspector.snapshot();
 
         return inspector;
     }
@@ -1147,7 +973,6 @@ public class Administrator implements Notifiable {
         processor.load(t.snapshot);
         scheduled = t;
     }
-
 
     record FieldRuntimeValues (int addr                       ) {}
     record ConstRuntimeValues (int size, int addr             ) {}
@@ -1251,35 +1076,4 @@ public class Administrator implements Notifiable {
         Processor.Snapshot snapshot;
     }
 
-    // INSPECTING
-
-    static class InspectInfo {
-        Host host;
-        HashMap<String, MethodInspect> methods = new HashMap<>();
-        ArrayList<TaskInspect> tasks = new ArrayList<>();
-    }
-
-    static class TaskInspect {
-        HashMap<String, Map<String, Integer>> data = new HashMap<>();
-        HashMap<String, Map<String, Integer>> altData = new HashMap<>();
-        int task;
-        int object;
-        int instruction;
-        int table;
-        int altTask;
-        int altObject;
-        int altInstruction;
-        int altTable;
-    }
-
-    static class MethodInspect {
-        ArrayList<MethodDataInspect> data = new ArrayList<>();
-
-    }
-
-    static class MethodDataInspect {
-        String name;
-        int position;
-        int size;
-    }
 }

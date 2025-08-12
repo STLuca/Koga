@@ -4,4 +4,4 @@
 !/.gitignore
 !/pom.xml
 !/src/**
-!/website/*
+!/docs/*

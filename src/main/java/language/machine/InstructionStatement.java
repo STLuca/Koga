@@ -189,6 +189,13 @@ public class InstructionStatement implements Statement {
                 Resolved resolvedSrc1 = src1Type.resolve(src1, variable, arguments, context);
                 Resolved resolvedSrc2 = src2Type.resolve(src2, variable, arguments, context);
                 Resolved resolvedAddr = InputType.LDA.resolve(addr, variable, arguments, context);
+                if (resolvedAddr.value() == -1) {
+                    // Put a placeholder address. Things will probably not work if the addr isn't then updated
+                    int address = compiler.address();
+                    Variable.Allocation addrAllocation = new Variable.Allocation(4, address);
+                    variable.methodAllocations.peek().put(addr, addrAllocation);
+                    resolvedAddr = new Resolved(addrAllocation.size(), addrAllocation.location());
+                }
                 ic.inputType(inType);
                 ic.src(resolvedAddr.value());
                 ic.src(resolvedSrc1.value(), resolvedSrc1.size());

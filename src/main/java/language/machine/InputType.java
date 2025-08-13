@@ -56,8 +56,11 @@ enum InputType {
                     Variable.Allocation allocation = variable.methodAllocations.peek().get(toResolve);
                     return new Resolved(allocation.size(), allocation.location());
                 }
-                Variable.Allocation allocation = variable.allocations.get(toResolve);
-                return new Resolved(allocation.size(), allocation.location());
+                if (variable.allocations.containsKey(toResolve)) {
+                    Variable.Allocation allocation = variable.allocations.get(toResolve);
+                    return new Resolved(allocation.size(), allocation.location());
+                }
+                return new Resolved(4, -1);
             }
             case ADA -> {
                 // argument should be type variable

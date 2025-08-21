@@ -33,6 +33,7 @@
         <li><a href="#String">String</a></li>
         <li><a href="#Administrator">Administrator</a></li>
         <li><a href="#Reference">Reference, Fields, and Methods</a></li>
+        <li><a href="#Structs">Structs</a></li>
         <li><a href="#HelloWorld">Hello world!</a></li>
         <li><a href="#Concurrency">Concurrency</a></li>
     </ol>
@@ -1211,6 +1212,103 @@
         We now have a pointer to the field x that we can copy to and from.
     </p>
 
+    <h3 id="Structs">Structs</h3>
+    <p>
+        Structs aren't too developed right now but a basic implementation can still be shown.
+        As you might expect, these are implemented using a new parser.
+    </p>
+    <pre>
+    <code>
+    parser structure;
+
+    usables {
+        core.Boolean;
+        core.While MyWhile;
+        core.If;
+        core.Byte;
+        core.Int;
+    }
+
+    core.LocalDate {
+
+        Int year;
+        Int month;
+        Int day;
+
+        constructor today() {
+            Int year 2025;
+            Int month 3;
+            Int day 6;
+        }
+
+        addDays(Int amount) {
+            amount + 2;
+            day + amount;
+            Boolean isTooHigh { day > 28; };
+            MyWhile (isTooHigh) {
+                month + 1;
+                day - 28;
+                isTooHigh = { day > 28; };
+            };
+        }
+
+        testing(Int amount, Block b) {
+            Boolean x true;
+            If tmp (x, b);
+        }
+
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    parser host;
+
+    usables {
+        core.Byte;
+        core.Int;
+        core.Boolean;
+        core.If;
+        core.While;
+        core.LocalDate;
+        core.Exit;
+    }
+
+    test.StructureTest {
+
+        main() {
+            LocalDate date today();
+            Int addDays 30;
+            date addDays(addDays);
+            date testing(addDays) {
+                addDays + 5;
+            };
+            Exit;
+        }
+
+    }
+    </code>
+    </pre>
+
+    <p>
+        The idea of a struct is to have a Usable that's written in terms of other usables (instead of bytes, addresses, instructions etc).
+        The benefits being that you inline the data and instructions.
+        This example makes a LocalDate struct, with some nonsense methods just to test things are working.
+        You can also see an example of changing an imported usable name (While -> MyWhile).
+    </p>
+
+    <p>
+        I think LocalDate is a good example to discuss structs.
+        It makes sense to store it's data inline however I don't think it necessarily makes sense to inline the instructions.
+        A real LocalDate implementation of plusDays would be quite a lot of instructions, using this all over a codebase could increase instruction count quite considerably.
+    </p>
+
+    <p>
+        I do think there could be a use case for an inlined object such that the data is inlined but the instructions are still separate.
+        I do think this should be quite easily possible in Koga though I've yet to prove it.
+    </p>
+
 
     <h3 id="HelloWorld">Hello world</h3>
     <p>
@@ -1659,46 +1757,55 @@
 
     <pre>
     <code>
+    usables {
+        ...
+        core.Seq;
+        core.One;
+        core.All;
+    }
 
-        main() {
-            ...
-            ~ Runs sequentially after the other
-            Seq {
-                this taskOne();
-                this taskTwo();
-                If (shouldDoTaskThree) {
-                    this taskThree();
-                };
-            } catch {
-                ~ Error handling here
-                ...
-            }
-
-            ~ Runs in parallel and continues after first one completed
-            One {
-                this taskOne();
-                this taskTwo();
-                If (shouldDoTaskThree) {
-                    this taskThree();
-                };
-            } catch {
-                ~ Error handling here
-                ...
-            }
-
-            ~ Runs in parallel and waits for all to complete
-            All {
-                this taskOne();
-                this taskTwo();
-                If (shouldDoTaskThree) {
-                    this taskThree();
-                };
-            } catch {
-                ~ error handling
-                ...
+    main() {
+        ...
+        ~ Runs sequentially after the other
+        ~ Error thrown on a method failing
+        Seq {
+            this taskOne();
+            this taskTwo();
+            If (shouldDoTaskThree) {
+                this taskThree();
             };
-            Exit;
+        } catch {
+            ~ Error handling here
+            ...
         }
+
+        ~ Runs in parallel and continues after first one completed
+        ~ Error thrown on all methods failing
+        One {
+            this taskOne();
+            this taskTwo();
+            If (shouldDoTaskThree) {
+                this taskThree();
+            };
+        } catch {
+            ~ Error handling here
+            ...
+        }
+
+        ~ Runs in parallel and waits for all to complete
+        ~ Error thrown on a single method failing
+        All {
+            this taskOne();
+            this taskTwo();
+            If (shouldDoTaskThree) {
+                this taskThree();
+            };
+        } catch {
+            ~ error handling
+            ...
+        };
+        Exit;
+    }
 
     </code>
     </pre>
@@ -1706,7 +1813,7 @@
     <p>
         The idea still needs further development.
         I do think it can work well though to implement useful concurrency constructs like All or One while keeping the syntax clean.
-        I should note that there is no "function colouring" either, every method is invoked as a single task.
+        I should note that there is no function colouring either, every method is invoked as a single task.
         This needs more explaining which will be written elsewhere and another time.
     </p>
 
@@ -1719,7 +1826,6 @@
     </p>
     <p>
         There are more examples available in the resources folder, though without explanations.
-        I didn't show all the features, there is an early stage structure parser that should perhaps be shown.
     </p>
 
 </main>

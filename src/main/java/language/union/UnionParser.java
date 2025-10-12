@@ -1,0 +1,423 @@
+package language.union;
+
+import language.core.Parser;
+import language.core.Sources;
+import language.scanning.Scanner;
+import language.scanning.Token;
+import language.scanning.Tokens;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+public class UnionParser implements Parser {
+
+    Token DEPENDENCIES, IMPORTS, CONSTRUCTOR, NAME, GLOBAL_NAME, IMPLEMENTS, OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN,
+            SEMI_COLON, NUMBER, PARAM_TYPE, COMMA, LITERAL_ARG, OP_SQ_BRACKET,
+            CL_SQ_BRACKET, EQUALS, DOT, OP_PT_BRACE, CL_PT_BRACE, STRING, OPERATOR, TILDA;
+    Tokens tokens = new Tokens();
+    Tokens methodNameTokens = new Tokens();
+    HashMap<String, String> operatorNames = new HashMap<>();
+
+    {
+        DEPENDENCIES  = tokens.add("'dependencies'");
+        IMPORTS       = tokens.add("'usables'");
+        CONSTRUCTOR   = tokens.add("'constructor'");
+        IMPLEMENTS    = tokens.add("'implements'");
+        PARAM_TYPE    = tokens.add("b[1-9][0-9]*");
+        LITERAL_ARG   = tokens.add("0b[0-1]+|0x[0-9a-f]+|[0-9]+|true|false|\\'[a-zA-Z]\\'");
+        GLOBAL_NAME   = tokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
+        NAME          = tokens.add("[a-zA-Z]+");
+        NUMBER        = tokens.add("[1-9]+");
+        EQUALS        = tokens.add("'='");
+        OP_BRACE      = tokens.add("'{'");
+        CL_BRACE      = tokens.add("'}'");
+        OP_PAREN      = tokens.add("'('");
+        CL_PAREN      = tokens.add("')'");
+        OP_SQ_BRACKET = tokens.add("'['");
+        CL_SQ_BRACKET = tokens.add("']'");
+        OP_PT_BRACE   = tokens.add("'<'");
+        CL_PT_BRACE   = tokens.add("'>'");
+        SEMI_COLON    = tokens.add("';'");
+        COMMA         = tokens.add("','");
+        DOT           = tokens.add("'.'");
+        TILDA         = tokens.add("'~'");
+        STRING        = tokens.add("\".*\"");
+
+        methodNameTokens.add(NAME);
+        methodNameTokens.add(SEMI_COLON);
+        OPERATOR = methodNameTokens.add("[^a-zA-Z1-9({ \t]+");
+
+        {
+            operatorNames.put("=", "set");
+            operatorNames.put("+", "plus");
+            operatorNames.put("-", "minus");
+            operatorNames.put("*", "multiply");
+            operatorNames.put("/", "divide");
+            operatorNames.put("%", "modulus");
+            operatorNames.put("++", "increment");
+            operatorNames.put("--", "decrement");
+            operatorNames.put("==", "equalTo");
+            operatorNames.put("!=", "notEqualTo");
+            operatorNames.put("<", "lessThan");
+            operatorNames.put(">", "greaterThan");
+            operatorNames.put(">=", "greaterThanOrEqualTo");
+            operatorNames.put("<=", "lessThanOrEqualTo");
+            operatorNames.put("->", "copyTo");
+            operatorNames.put("<-", "copyFrom");
+            operatorNames.put("#", "index");
+            operatorNames.put("@", "index");
+            operatorNames.put("&", "and");
+            operatorNames.put("|", "or");
+            operatorNames.put("<<", "shiftLeft");
+            operatorNames.put(">>", "shiftRight");
+            operatorNames.put("<<<", "altShiftLeft");
+            operatorNames.put(">>>", "altShiftRight");
+        }
+    }
+
+    @Override
+    public String name() {
+        return "union";
+    }
+
+    @Override
+    public void parse(Sources sources, String input) {
+        Scanner scanner = new Scanner(input);
+        UnionUsable u = new UnionUsable();
+        // Token curr = scanner.expect(tokens, DISTINGUISH, "Expecting Distinguish");
+        Token curr = scanner.next(tokens);
+        if (curr == IMPORTS) {
+            scanner.expect(tokens, OP_BRACE);
+            curr = scanner.next(tokens);
+            while (curr != CL_BRACE) {
+                if (curr != GLOBAL_NAME) throw new RuntimeException("name");
+                String globalName = curr.matched();
+                String[] split = globalName.split("\\.");
+                String localName = split[split.length - 1];
+                curr = scanner.next(tokens);
+                if (curr == NAME) {
+                    localName = curr.matched();
+                    curr = scanner.next(tokens);
+                }
+                if (curr != SEMI_COLON) { scanner.fail(";"); }
+                Name i = new Name();
+                i.globalName = globalName;
+                i.localName = localName;
+                u.imports.add(i);
+                curr = scanner.next(tokens);
+            }
+            curr = scanner.next(tokens);
+        }
+        if (curr == DEPENDENCIES) {
+            scanner.expect(tokens, OP_BRACE);
+            curr = scanner.next(tokens);
+            while (curr != CL_BRACE) {
+                if (curr != NAME) throw new RuntimeException("name");
+                String globalName = curr.matched();
+                String localName = curr.matched();
+                curr = scanner.next(tokens);
+                if (curr == NAME) {
+                    localName = curr.matched();
+                    curr = scanner.next(tokens);
+                }
+                if (curr != SEMI_COLON) { scanner.fail(";"); }
+                Name name = new Name();
+                name.globalName = globalName;
+                name.localName = localName;
+                u.dependencies.add(name);
+                curr = scanner.next(tokens);
+            }
+            curr = scanner.next(tokens);
+        }
+        if (curr != GLOBAL_NAME) scanner.fail("name");
+        u.name = curr.matched();
+
+        curr = scanner.next(tokens);
+        if (curr != OP_BRACE) scanner.fail("{");
+        curr = scanner.next(tokens);
+        while (curr != CL_BRACE) {
+            Token peek = scanner.peek(tokens).orElseThrow();
+            if (curr == NAME) {
+                parseStructure(scanner, u);
+                curr = scanner.next(tokens);
+            }
+        }
+        sources.add(u);
+    }
+    
+    void parseStructure(Scanner scanner, UnionUsable u) {
+        Structure structure = new Structure();
+        Token curr = scanner.current();
+        String structName = curr.matched();
+        scanner.expect(tokens, OP_BRACE);
+        curr = scanner.next(tokens);
+        while (curr != CL_BRACE) {
+            Token peek = scanner.peek(tokens).orElseThrow();
+            if (curr == NAME && peek == NAME) {
+                parseVariable(scanner, structure);
+            } else if (curr == NAME) {
+                String name = curr.matched();
+                scanner.expect(tokens, OP_PAREN);
+                parseMethod(scanner, u, structure, name, false);
+            } else if (curr == CONSTRUCTOR) {
+                curr = scanner.next(tokens);
+                String name = "";
+                if (curr == NAME) {
+                    name = curr.matched();
+                    curr = scanner.next(tokens);
+                }
+                if (curr != OP_PAREN) scanner.fail("(");
+                parseMethod(scanner, u, structure, name,true);
+            } else if (curr == TILDA) {
+                scanner.takeUntilNewLine();
+            }
+            curr = scanner.next(tokens);
+        }
+        structure.name = structName;
+        u.structures.add(structure);
+    }
+
+    private void parseMethod(Scanner scanner, UnionUsable u, Structure c, String name, boolean isConstructor) {
+        Method m = new Method();
+        m.name = name;
+        Token curr = scanner.next(tokens);
+        while (curr != CL_PAREN) {
+            if (curr != PARAM_TYPE && curr != NAME) throw new RuntimeException("expecting parameter type");
+            boolean binaryType = curr == PARAM_TYPE;
+            boolean isArray = false;
+            String paramType = curr.matched();
+            curr = scanner.next(tokens);
+//            if (curr == PARAM_ARRAY) {
+//                isArray = true;
+//                curr = scanner.next(tokens);
+//            }
+            if (curr != NAME) scanner.fail("name");
+            String paramName = curr.matched();
+            if (binaryType) {
+                m.addParam(Integer.parseInt(paramType.substring(1)), paramName);
+            } else {
+                m.addParam(paramType, paramName);
+            }
+            if (scanner.peek(tokens).orElse(null) == COMMA) scanner.next(tokens);
+            curr = scanner.next(tokens);
+        }
+        scanner.expect(tokens, OP_BRACE);
+        curr = scanner.next(tokens);
+        while (curr != CL_BRACE) {
+            if (curr == TILDA) {
+                scanner.takeUntilNewLine();
+            } else {
+                parseStatement(scanner, u, c, m.statements);
+            }
+            curr = scanner.next(tokens);
+        }
+        if (isConstructor) {
+            c.constructors.add(m);
+        } else {
+            c.methods.add(m);
+        }
+    }
+
+    private void parseStatement(Scanner scanner, UnionUsable u, Structure c, List<Statement> statements) {
+        Token curr = scanner.current();
+        if (curr == TILDA) {
+            scanner.takeUntilNewLine();
+            return;
+        }
+        if (curr != NAME) scanner.fail("name");
+        String currS = curr.matched();
+
+        // If imports contains the first String, it's a construct statement
+        boolean contains = false;
+        for (Name i : u.imports) {
+            if (i.localName.equals(currS)) { contains = true; break; }
+        }
+        if (contains) {
+            Statement s = new Statement();
+            // Construct statement
+            // check for generics
+            // check if there is a name
+            // check if 1 arg constructor
+            // should be series of ( and {
+            // Can continue into invokes if name before ;
+            s.type = Statement.Type.CONSTRUCT;
+            s.usable = currS;
+
+            // generics
+            if (scanner.peek(tokens).orElse(null) == OP_PT_BRACE) {
+                curr = scanner.next(tokens);
+                do {
+                    curr = scanner.next(tokens);
+                    if (curr != NAME) scanner.fail("name");
+                    s.generics.add(curr.matched());
+                    curr = scanner.next(tokens);
+                } while (curr == COMMA);
+                if (curr != CL_PT_BRACE) scanner.fail(">");
+            }
+
+            curr = scanner.next(tokens);
+
+
+            // Int x;
+            // Int x 0;
+            // Int x (0);
+            // Int x port();
+            // While w {};
+            // While loop{}; // Maybe don't allow this because you can't tell if it's a variable name or constructor name? perhaps While _ loop{}
+            // While {}; // When might the be used? If there was a return inside it?
+
+            // Can be name, can also be open paren/open brace. Would want to check for name before open though
+            if (curr == NAME) {
+                String name = curr.matched();
+                Token peek = scanner.peek(tokens).orElseThrow();
+                if (peek == SEMI_COLON) {
+                    // name is a variable name
+                    s.type = Statement.Type.DECLARE;
+                    s.variableName = name;
+                    s.methodName = "";
+                    statements.add(s);
+                    scanner.next(tokens);
+                    return;
+                } else if (peek == NAME) {
+                    // name is the variable name
+                    s.variableName = name;
+                    // peek can still be method name or variable name e.g. Int x y; or Int x port(); While loop {
+                    curr = scanner.next(tokens);
+                    s.methodName = curr.matched();
+                } else if (peek == OP_PAREN || peek == OP_BRACE) {
+                    // must be the constructor name?
+                    s.variableName = name;
+                    s.methodName = "";
+                } else if (peek == LITERAL_ARG || peek == STRING) {
+                    s.variableName = name;
+                    s.methodName = "";
+                }
+                curr = scanner.next(tokens);
+            } else {
+                s.variableName = "_";
+                s.methodName = "";
+                if (curr == SEMI_COLON) {
+                    statements.add(s);
+                    return;
+                }
+            }
+
+            // No more names, just args now?
+            parseMethodArguments(scanner, u, c, s);
+            statements.add(s);
+
+            // chained statements
+            curr = scanner.current();
+            if (curr == SEMI_COLON) return;
+            currS = s.variableName;
+        } else {
+            curr = scanner.next(methodNameTokens);
+        }
+        while (curr != SEMI_COLON) {
+            Statement s = new Statement();
+            s.type = Statement.Type.INVOKE;
+            s.variableName = currS;
+            if (curr == NAME) {
+                s.methodName = curr.matched();
+            } else if (curr == OPERATOR) {
+                if (!operatorNames.containsKey(curr.matched())) scanner.fail("Operator " + curr.matched() + " doesn't exist");
+                s.methodName = operatorNames.get(curr.matched());
+            } else {
+                scanner.fail("Failed parsing method name");
+            }
+            scanner.next(tokens);
+            parseMethodArguments(scanner, u, c, s);
+            statements.add(s);
+            curr = scanner.current();
+        }
+    }
+
+    private void parseMethodArguments(Scanner scanner, UnionUsable u, Structure c, Statement s) {
+        Token curr = scanner.current();
+
+        if (curr != OP_PAREN && curr != OP_BRACE) {
+            // Single argument only
+            if (curr == LITERAL_ARG) {
+                Statement.Argument arg = new Statement.Argument();
+                arg.literal = curr.matched();
+                s.arguments.add(arg);
+            } else if (curr == NAME) {
+                Statement.Argument arg = new Statement.Argument();
+                arg.name = curr.matched();
+                s.arguments.add(arg);
+            } else if (curr == STRING) {
+                Statement.Argument arg = new Statement.Argument();
+                arg.array = new ArrayList<>();
+                curr.matched().chars().forEach(i -> arg.array.add(String.valueOf(i)));
+                arg.array.remove(0);
+                arg.array.remove(arg.array.size() - 1);
+                s.arguments.add(arg);
+            }
+            scanner.next(methodNameTokens);
+            return;
+        }
+
+        // multiple arguments
+        while (curr == OP_PAREN || curr == OP_BRACE) {
+
+            if (curr == OP_PAREN) {
+                // literals or variables
+                curr = scanner.next(tokens);
+                while (curr != CL_PAREN) {
+                    Statement.Argument arg = new Statement.Argument();
+                    if (curr == LITERAL_ARG) {
+                        arg.literal = curr.matched();
+                    } else if (curr == NAME) {
+                        arg.name = curr.matched();
+                    } else {
+                        scanner.fail("unknown arg");
+                    }
+                    s.arguments.add(arg);
+
+                    curr = scanner.next(tokens);
+                    if (curr == COMMA) curr = scanner.next(tokens);
+                }
+            } else if (curr == OP_BRACE) {
+                // block argument
+                Statement.Argument arg = new Statement.Argument();
+                arg.block = new ArrayList<>();
+                curr = scanner.next(tokens);
+                while (curr != CL_BRACE) {
+                    parseStatement(scanner, u, c, arg.block);
+                    curr = scanner.next(tokens);
+                }
+                s.arguments.add(arg);
+            } else {
+                scanner.fail("( or {");
+            }
+
+            Token peek = scanner.peek(tokens).orElse(null);
+            if (peek == OP_PAREN || peek == OP_BRACE) {
+                curr = scanner.next(tokens);
+            } else {
+                curr = scanner.next(methodNameTokens);
+            }
+        }
+    }
+
+    private void parseVariable(Scanner scanner, Structure c) {
+        Field f = new Field();
+        Token curr = scanner.current();
+        f.usable = curr.matched();
+        curr = scanner.next(tokens);
+        if (curr == OP_PT_BRACE) {
+            do {
+                curr = scanner.expect(tokens, NAME);
+                f.generics.add(curr.matched());
+                curr = scanner.next(tokens);
+            } while (curr == COMMA);
+            if (curr != CL_PT_BRACE) scanner.fail(">");
+            curr = scanner.next(tokens);
+        }
+        if (curr != NAME) scanner.fail("field name");
+        f.name = curr.matched();
+        scanner.expect(tokens, SEMI_COLON);
+        c.fields.add(f);
+    }
+}

@@ -1,0 +1,30 @@
+parser host;
+
+usables {
+    core.Int;
+    core.Exit;
+    parser.ParserContext;
+}
+
+documents {
+    util.SimpleAdministrator;
+}
+
+test.UnionTest {
+
+    main() {
+        Int x 1;
+        ParserContext pcNum aNumber();
+        pcNum match
+            (Number) {
+                pcNum addToFromNumber(x);
+            }
+            (Letter) {
+                pcNum addToFromLetter(x);
+            };
+        ParserContext pcLet aLetter();
+        pcLet addTo(x);
+        Exit;
+    }
+
+}

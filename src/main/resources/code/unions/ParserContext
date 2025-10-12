@@ -1,0 +1,45 @@
+parser union;
+
+usables {
+    core.Int;
+    core.Boolean;
+}
+
+parser.ParserContext {
+
+    Number {
+        Int one;
+        Int two;
+
+        constructor aNumber() {
+            one + 2;
+        }
+
+        addToFromNumber(Int x) {
+            x + one;
+        }
+
+        addTo(Int x) {
+            x + one;
+        }
+
+    }
+
+    Letter {
+        Boolean b;
+        Int a;
+
+        constructor aLetter() {
+            a + 5;
+        }
+
+        addToFromLetter(Int x) {
+            x + a;
+        }
+
+        addTo(Int x) {
+            x + a;
+        }
+    }
+
+}

@@ -13,6 +13,7 @@ import language.machine.MachineUsableParser;
 import language.parsing.FileClassParser;
 import language.protocol.ProtocolParser;
 import language.structure.StructureParser;
+import language.union.UnionParser;
 import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
@@ -67,6 +68,9 @@ public class VirtualMachineTest {
         srcMap.put("core.SimpleAdminTask", "structures/SimpleAdminTask");
         srcMap.put("core.LocalDate", "structures/LocalDate");
 
+        // unions
+        srcMap.put("parser.ParserContext", "unions/ParserContext");
+
         // Reference classes
         srcMap.put("collection.ArrayList", "reference/ArrayList");
         srcMap.put("chatting.Chat", "reference/Chat");
@@ -109,6 +113,7 @@ public class VirtualMachineTest {
         srcMap.put("test.SwitchTest", "system/SwitchTest");
         srcMap.put("test.TalkerTest", "system/TalkerTest");
         srcMap.put("test.TryTest", "system/TryTest");
+        srcMap.put("test.UnionTest", "system/UnionTest");
         srcMap.put("test.UsingReferenceTest", "system/UsingReferenceTest");
         srcMap.put("test.WhileTest", "system/WhileTest");
         srcMap.put("test.WhileWithBreakTest", "system/WhileWithBreakTest");
@@ -125,6 +130,7 @@ public class VirtualMachineTest {
         parser.addClassParser(new MachineEnumParser());
         parser.addClassParser(new HostedParser());
         parser.addClassParser(new StructureParser());
+        parser.addClassParser(new UnionParser());
         parser.addClassParser(new HostParser());
         parser.addClassParser(new InterfaceParser());
         parser.addClassParser(new ProtocolParser());
@@ -450,6 +456,14 @@ public class VirtualMachineTest {
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         assertThat(xVal).isEqualTo(10);
+    }
+
+    @Test
+    void unionWorks() {
+        Inspector i = run("test.UnionTest");
+        Inspector.Task t = i.tasks.get(0);
+        int xVal = t.altData.get("x").get("val");
+        assertThat(xVal).isEqualTo(8);
     }
 
 }

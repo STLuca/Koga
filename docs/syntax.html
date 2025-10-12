@@ -34,6 +34,7 @@
         <li><a href="#Administrator">Administrator</a></li>
         <li><a href="#Reference">Reference, Fields, and Methods</a></li>
         <li><a href="#Structs">Structs</a></li>
+        <li><a href="#Unions">Unions</a></li>
         <li><a href="#HelloWorld">Hello world!</a></li>
         <li><a href="#Concurrency">Concurrency</a></li>
     </ol>
@@ -1307,6 +1308,122 @@
     <p>
         I do think there could be a use case for an inlined object such that the data is inlined but the instructions are still separate.
         I do think this should be quite easily possible in Koga though I've yet to prove it.
+    </p>
+
+
+    <h3 id="Unions">Unions</h3>
+    <p>
+        Unions are pretty undeveloped too, but a basic implementation can also be shown.
+        Again, as expected, these are implemented with a new parser.
+    </p>
+
+    <pre>
+    <code>
+    parser union;
+
+    usables {
+        core.Int;
+        core.Boolean;
+    }
+
+    parser.ParserContext {
+
+        Number {
+            Int one;
+            Int two;
+
+            constructor aNumber() {
+                one + 2;
+            }
+
+            addToFromNumber(Int x) {
+                x + one;
+            }
+
+            addTo(Int x) {
+                x + one;
+            }
+
+        }
+
+        Letter {
+            Boolean b;
+            Int a;
+
+            constructor aLetter() {
+                a + 5;
+            }
+
+            addToFromLetter(Int x) {
+                x + a;
+            }
+
+            addTo(Int x) {
+                x + a;
+            }
+        }
+
+    }
+    </code>
+    </pre>
+
+    <pre>
+    <code>
+    parser host;
+
+    usables {
+        core.Int;
+        core.Exit;
+        parser.ParserContext;
+    }
+
+    documents {
+        util.SimpleAdministrator;
+    }
+
+    test.UnionTest {
+
+        main() {
+            Int x 1;
+            ParserContext pcNum aNumber();
+            pcNum match
+                (Number) {
+                    pcNum addToFromNumber(x);
+                }
+                (Letter) {
+                    pcNum addToFromLetter(x);
+                };
+            ParserContext pcLet aLetter();
+            pcLet addTo(x);
+            Exit;
+        }
+
+    }
+    </code>
+    </pre>
+
+    <p>
+        The union here has two possible structures: Number and Letter (this example makes no sense so just focus on the syntax).
+        An implicit byte named type is added, so these would be referred to as tagged unions in other languages.
+        Number, the biggest structure in the union, has a size of 8 bytes.
+        Combined with the type byte, the union size here is 9 bytes.
+    </p>
+
+    <p>
+        The constructor invocation will search through the union structures for a matching constructor.
+        These constructors implicitly set the type.
+    </p>
+
+    <p>
+        The union has an implicit match method that behaves similar to an enum.
+        A difference in this case is that the union variable changes to be the matched structure when inside the block.
+        So in our case, <code>pcNum match (Number) { block... }</code>, pcNum becomes a Number structure inside that block.
+        This means you wouldn't be able to invoke the match statement again, because it doesn't exist on that structure, only on the union.
+    </p>
+
+    <p>
+        You can also invoke methods that exist on every structure in the union.
+        This is the same thing as writing a match that invokes that method on each structure.
     </p>
 
 

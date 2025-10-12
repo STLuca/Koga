@@ -140,25 +140,24 @@ public class VirtualMachineTest {
         Administrator administrator = Administrator.boot();
 
         // Parse all required dependencies
-        ArrayList<Compilable> dependencies = new ArrayList<>();
+        ArrayList<Document> dependencies = new ArrayList<>();
         Set<String> haveCompiled = new HashSet<>();
         Deque<String> toCompile = new ArrayDeque<>(Arrays.asList(classNames));
         while (!toCompile.isEmpty()) {
             String compile = toCompile.pop();
             if (haveCompiled.contains(compile)) continue;
             parser.parse(compile);
-            Compilable compiled = parser.compilable(compile);
-            toCompile.addAll(compiled.dependencies());
+            Document compiled = parser.document(compile, Compilable.Level.Head);
+            if (compiled.dependencies != null) {
+                toCompile.addAll(Arrays.asList(compiled.dependencies));
+            }
             haveCompiled.add(compile);
             dependencies.addFirst(compiled);
         }
 
         // Compile all dependencies
-        for (Compilable dependency : dependencies) {
-            Compiler compiler = new DocumentBuilder();
-            dependency.compile(parser, compiler);
-            Document document = compiler.document();
-            parser.add(document);
+        for (Document dependency : dependencies) {
+            Document document = parser.document(dependency.name, Compilable.Level.Full);
             administrator.integrate(document);
         }
 

@@ -140,6 +140,13 @@ public class HostedParser implements Parser {
         }
         if (curr != NAME && curr != GLOBAL_NAME) scanner.fail("doc name");
         c.name = curr.matched();
+        // Add self as dependency
+        String[] split = c.name.split("\\.");
+        Name name = new Name();
+        name.globalName = c.name;
+        name.localName = split[split.length - 1];
+        c.dependencies.add(name);
+
         curr = scanner.next(metaTokens);
         if (curr == IMPLEMENTS) {
             while (curr != OP_BRACE) {

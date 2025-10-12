@@ -1,6 +1,7 @@
 package language.parsing;
 
 import core.Document;
+import language.compiling.DocumentBuilder;
 import language.core.Compilable;
 import language.core.Parser;
 import language.core.Sources;
@@ -28,6 +29,7 @@ public class FileClassParser implements Sources {
     HashMap<String, Compilable> compilableClasses = new HashMap<>();
     HashMap<String, Usable> compilerClasses = new HashMap<>();
     HashMap<String, Document> documents = new HashMap<>();
+    HashMap<String, Document> headDocuments = new HashMap<>();
 
     public FileClassParser(Path root, Map<String, String> files) {
         this.root = root;
@@ -81,15 +83,37 @@ public class FileClassParser implements Sources {
         return compilerClasses.get(name);
     }
 
-    public Compilable compilable(String name) {
-        return compilableClasses.get(name);
-    }
-
-    public Document document(String name) {
-        return documents.get(name);
-    }
-
-    public void add(Document d) {
-        documents.put(d.name, d);
+    public Document document(String name, Compilable.Level level) {
+        switch (level) {
+            case Head -> {
+                if (headDocuments.containsKey(name)) {
+                    return headDocuments.get(name);
+                }
+                if (compilableClasses.containsKey(name)) {
+                    DocumentBuilder compiler = new DocumentBuilder();
+                    compilableClasses.get(name).compile(this, compiler, level);
+                    Document document = compiler.document();
+                    headDocuments.put(name, document);
+                    return document;
+                }
+            }
+            case Full -> {
+                if (documents.containsKey(name)) {
+                    return documents.get(name);
+                }
+                if (compilableClasses.containsKey(name)) {
+                    DocumentBuilder compiler = new DocumentBuilder();
+                    compilableClasses.get(name).compile(this, compiler, level);
+                    Document document = compiler.document();
+                    documents.put(name, document);
+                    return document;
+                }
+                return documents.get(name);
+            }
+            default -> {
+                throw new RuntimeException();
+            }
+        }
+        throw new RuntimeException();
     }
 }

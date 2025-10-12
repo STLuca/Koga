@@ -20,7 +20,7 @@ public class Protocol implements Compilable {
         return List.of();
     }
     
-    public void compile(Sources sources, Compiler compiler) {
+    public void compile(Sources sources, Compiler compiler, Level level) {
         compiler.name(name);
         Compiler.ProtocolCompiler pc = compiler.protocol();
 

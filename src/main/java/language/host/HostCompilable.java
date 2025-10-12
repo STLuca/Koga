@@ -32,7 +32,7 @@ public class HostCompilable implements Compilable {
         return dependencies;
     }
 
-    public void compile(Sources sources, Compiler compiler) {
+    public void compile(Sources sources, Compiler compiler, Level level) {
         compiler.name(name);
         compiler.type(Document.Type.Host);
 
@@ -44,28 +44,31 @@ public class HostCompilable implements Compilable {
             myClasses.usables.put(imprt.localName, usable);
         }
 
-        Document tempThisDoc = new Document();
-        tempThisDoc.type = Document.Type.Host;
-        tempThisDoc.name = name;
-        tempThisDoc.methods = new Document.Method[methods.size()];
-        for (int i = 0; i < methods.size(); i++) {
-            Method m = methods.get(i);
-            Document.Method dm = new Document.Method();
-            dm.name = m.name;
-            dm.parameters = new String[m.params.size()];
-            for (int ii = 0; ii < m.params.size(); ii++) {
-                dm.parameters[ii] = myClasses.usable(m.params.get(ii).usable).name();
+        if (level == Level.Head) {
+            for (Field f : fields) {
+                Usable sc = myClasses.usable(f.usable);
+                compiler.data(f.name, sc.size(sources));
             }
-            tempThisDoc.methods[i] = dm;
+
+            for (Method m : methods) {
+                Compiler.MethodCompiler mb = compiler.method();
+                mb.name(m.name);
+                for (Parameter p : m.params) {
+                    Usable usable = myClasses.usable(p.usable);
+                    mb.parameter(usable.name());
+                }
+            }
+            for (Name dependency : dependencies) {
+                compiler.dependency(dependency.globalName);
+            }
+
+            return;
         }
-        String[] split = name.split("\\.");
-        myClasses.documents.put(split[split.length - 1], tempThisDoc);
-        myClasses.compilables.put(split[split.length - 1], this);
 
         String administrator = null;
         for (Name dependency : dependencies) {
             sources.parse(dependency.globalName);
-            Document document = sources.document(dependency.globalName);
+            Document document = sources.document(dependency.globalName, Level.Head);
             myClasses.documents.put(dependency.localName, document);
 
             compiler.dependency(dependency.globalName);

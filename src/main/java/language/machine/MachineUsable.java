@@ -45,7 +45,7 @@ public class MachineUsable implements Usable {
                     variable.generics.put(generic.name, value);
                 }
                 case Document -> {
-                    Document doc = sources.document(generics.get(i));
+                    Document doc = sources.document(generics.get(i), Compilable.Level.Head);
                     variable.documents.put(generic.name, doc);
                 }
             }
@@ -97,7 +97,7 @@ public class MachineUsable implements Usable {
                     variable.generics.put(generic.name, value);
                 }
                 case Document -> {
-                    Document doc = sources.document(generics.get(i));
+                    Document doc = sources.document(generics.get(i), Compilable.Level.Head);
                     variable.documents.put(generic.name, doc);
                 }
             }

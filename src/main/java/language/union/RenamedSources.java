@@ -30,19 +30,11 @@ public class RenamedSources implements Sources {
         return usables.get(name);
     }
 
-    public Document document(String name) {
+    public Document document(String name, Compilable.Level level) {
         return documents.get(name);
     }
 
-    public Compilable compilable(String name) {
-        return compilables.get(name);
-    }
-
     public void add(Usable c) {
-        throw new UnsupportedOperationException();
-    }
-
-    public void add(Document d) {
         throw new UnsupportedOperationException();
     }
 

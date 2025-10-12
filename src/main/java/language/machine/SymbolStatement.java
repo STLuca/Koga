@@ -27,7 +27,7 @@ public class SymbolStatement implements Statement {
                     switch (type) {
                         case CLASS, PROTOCOL, METHOD, FIELD, INTERFACE -> {
                             if (index == 0) {
-                                name = sources.document(name).name;
+                                name = sources.document(name, Compilable.Level.Head).name;
                             }
                         }
                     }

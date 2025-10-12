@@ -107,6 +107,8 @@ public class Inspector {
                              .repeat(" ", 5 - String.valueOf(currAddress).length())
                              .append(currAddress)
                              .append(": ");
+                     sb.append(in.type)
+                             .append(" ");
                      switch(in.type) {
                          case Integer -> sb.append(in.lType);
                          case Jump -> sb.append(in.jType);

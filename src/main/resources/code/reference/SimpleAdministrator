@@ -123,7 +123,8 @@ util.SimpleAdministrator implements Administrator {
         taskPtr + 4;
         taskPtr <- returnAddr;
         taskPtr + 4;
-        taskPtr <- statusOut;
+        Int pa pointerAddr(statusOut);
+        taskPtr <- pa;
 
         idOut <- workingAreaAddr;
 

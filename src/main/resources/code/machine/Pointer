@@ -10,7 +10,7 @@ core.Pointer<Usable T> {
 
     Byte[4] addr;
 
-    constructor(Any val) {
+    constructor(T val) {
         i(ADD, LI, LDA, addr, R, task, ADA, val);
     }
 
@@ -30,11 +30,11 @@ core.Pointer<Usable T> {
         i(ADD, TI, LDA, addr, ADA, addr.val, IL, 0d0);
     }
 
-    copyTo(Any val) {
+    copyTo(T val) {
         m(COPY, ITI, ADA, val, LDA, addr, LG, T);
     }
 
-    copyFrom(Any val) {
+    copyFrom(T val) {
         m(COPY, TII, LDA, addr, ADA, val, LG, T);
     }
 

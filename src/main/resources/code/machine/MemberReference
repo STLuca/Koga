@@ -37,7 +37,7 @@ core.MemberReference<Document R> {
         logician(START_ADMIN, T, LDA, adminSendMethod);
     }
 
-    arg(Any a, Name methodName) {
+    arg(Variable a, Name methodName) {
         m(COPY, TII, LDA, adminTask, ADA, a, IL, 0d4);
         i(ADD, TI, LDA, adminTask, LDA, adminTask, IL, 0d4);
     }

@@ -30,7 +30,7 @@ public class Method {
             switch (param.type) {
                 case Variable -> {
                     if (arg.type != Argument.Type.Variable) return false;
-                    if (param.className.equals("Any")) continue;
+                    // if (param.className.equals("Any")) continue;
                     if (variable.generics.containsKey(param.className) && variable.generics.get(param.className) == arg.variable.usable) continue;
                     if (param.className.equals(arg.variable.usable.name())) continue;
                 }

@@ -48,11 +48,11 @@ core.ArrayPointer<Usable T> {
         i(ADD, TT, LDA, addr, LDA, start, LDA, index);
     }
 
-    copyTo(Any val) {
+    copyTo(T val) {
         m(COPY, ITI, ADA, val, LDA, addr, LG, T);
     }
 
-    copyFrom(Any val) {
+    copyFrom(T val) {
         m(COPY, TII, LDA, addr, ADA, val, LG, T);
     }
 

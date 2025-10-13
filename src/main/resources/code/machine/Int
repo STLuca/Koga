@@ -4,6 +4,7 @@ usables {
     core.Char;
     core.Connection;
     core.Boolean;
+    core.Pointer;
 }
 
 core.Int {
@@ -61,6 +62,10 @@ core.Int {
 
     constructor instance(Connection connection) {
         i(ADD, TI, LDA, val, ADA, connection.instance, IL, 0d0);
+    }
+
+    constructor pointerAddr(Pointer p) {
+        i(ADD, TI, LDA, val, ADA, p.addr, IL, 0d0);
     }
 
     set(b32 imm) {

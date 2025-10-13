@@ -31,7 +31,7 @@ core.AdminRef {
         logician(START_ADMIN, T, LDA, methodAddr);
     }
 
-    arg(Any a, Name methodName) {
+    arg(Variable a, Name methodName) {
         m(COPY, TII, LDA, frameDataAddr, ADA, a, ADS, a);
         i(ADD, TI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
     }

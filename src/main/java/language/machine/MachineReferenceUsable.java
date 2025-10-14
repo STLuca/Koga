@@ -20,7 +20,19 @@ public class MachineReferenceUsable implements Usable {
     public String name() {
         return name;
     }
-    
+
+    @Override
+    public int genericIndex(String name) {
+        int i = 0;
+        for (Generic g : generics) {
+            if (g.name.equals(name)) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }
+
     public void declare(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics) {
         Variable variable = new Variable();
         variable.name = name;
@@ -31,11 +43,17 @@ public class MachineReferenceUsable implements Usable {
             switch (generic.type) {
                 case Usable -> {
                     Usable value = sources.usable(generics.get(i));
-                    variable.generics.put(generic.name, value);
+                    Variable.Generic g = new Variable.Generic();
+                    g.type = Variable.Generic.Type.Usable;
+                    g.usable = value;
+                    variable.generics.add(g);
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
-                    variable.documents.put(generic.name, doc);
+                    Variable.Generic g = new Variable.Generic();
+                    g.type = Variable.Generic.Type.Document;
+                    g.document = doc;
+                    variable.generics.add(g);
                 }
             }
         }
@@ -56,11 +74,17 @@ public class MachineReferenceUsable implements Usable {
             switch (generic.type) {
                 case Usable -> {
                     Usable value = sources.usable(generics.get(i));
-                    variable.generics.put(generic.name, value);
+                    Variable.Generic g = new Variable.Generic();
+                    g.type = Variable.Generic.Type.Usable;
+                    g.usable = value;
+                    variable.generics.add(g);
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
-                    variable.documents.put(generic.name, doc);
+                    Variable.Generic g = new Variable.Generic();
+                    g.type = Variable.Generic.Type.Document;
+                    g.document = doc;
+                    variable.generics.add(g);
                 }
             }
         }
@@ -158,11 +182,17 @@ public class MachineReferenceUsable implements Usable {
             InputType docInType = InputType.valueOf(this.arguments.get(0).toUpperCase());
             String input = this.arguments.get(1);
             d = switch (docInType) {
-                case LG -> variable.documents.get(input);
+                case LG -> {
+                    int index = variable.usable.genericIndex(input);
+                    Variable.Generic g = variable.generics.get(index);
+                    yield g.document;
+                }
                 case AG -> {
                     String[] split = input.split("\\.");
                     Variable var = arguments.get(split[0]).variable;
-                    yield var.documents.get(split[1]);
+                    int index = var.usable.genericIndex(split[1]);
+                    Variable.Generic g = var.generics.get(index);
+                    yield g.document;
                 }
                 default -> throw new RuntimeException();
             };

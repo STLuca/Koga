@@ -33,11 +33,17 @@ public class SymbolStatement implements Statement {
                     }
                     yield name;
                 }
-                case LG -> variable.documents.get(input).name;
+                case LG -> {
+                    int gIndex = variable.usable.genericIndex(input);
+                    Variable.Generic g = variable.generics.get(gIndex);
+                    yield g.document.name;
+                }
                 case AG -> {
                     String[] split = input.split("\\.");
                     Variable var = arguments.get(split[0]).variable;
-                    yield var.documents.get(split[1]).name;
+                    int gIndex = var.usable.genericIndex(split[1]);
+                    Variable.Generic g = var.generics.get(gIndex);
+                    yield g.document.name;
                 }
                 default -> throw new RuntimeException();
             };

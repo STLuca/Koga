@@ -2,6 +2,7 @@ package language.machine;
 
 import language.core.Argument;
 import language.core.Context;
+import language.core.Usable;
 import language.core.Variable;
 
 import java.util.Map;
@@ -104,26 +105,17 @@ enum InputType {
                 return new Resolved(4, size);
             }
             case LG -> {
-                if (variable.documents.containsKey(toResolve)) {
-                    throw new RuntimeException();
-                    // return new Resolved(variable.compilableGenerics2.get(toResolve).name(), 4);
-                } else if (variable.generics.containsKey(toResolve)) {
-                    return new Resolved(4, variable.generics.get(toResolve).size(null));
-                } else {
-                    // Not a concrete class
-                }
+                int index = variable.usable.genericIndex(toResolve);
+                Usable u = variable.generics.get(index).usable;
+                return new Resolved(4, u.size(null));
             }
             case AG -> {
                 String[] split = toResolve.split("\\.");
                 Variable var = arguments.get(split[0]).variable;
-                if (var.documents.containsKey(split[1])) {
-                    throw new RuntimeException();
-                    // return new Resolved(variable.compilableGenerics2.get(toResolve).name(), 4);
-                } else if (var.generics.containsKey(split[1])) {
-                    return new Resolved(4, variable.generics.get(split[1]).size(null));
-                } else {
-                    // Not a concrete class
-                }
+
+                int index = var.usable.genericIndex(split[1]);
+                Usable u = var.generics.get(index).usable;
+                return new Resolved(4, u.size(null));
             }
         }
         throw new RuntimeException();

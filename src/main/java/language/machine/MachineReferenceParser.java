@@ -4,7 +4,6 @@ import language.core.Argument;
 import language.core.Sources;
 import language.core.Parser;
 import language.scanning.Scanner;
-import language.scanning.SingleLineScanner;
 import language.scanning.Token;
 import language.scanning.Tokens;
 
@@ -50,6 +49,8 @@ public class MachineReferenceParser implements Parser {
         paramTokens.add(COMMA);
         paramTokens.add(CL_PAREN);
         paramTokens.add(OP_PAREN);
+        paramTokens.add(OP_PT_BRACE);
+        paramTokens.add(CL_PT_BRACE);
         paramTokens.add(NAME);
 
         IMPORTS     = metaTokens.add("'usables'");
@@ -165,7 +166,7 @@ public class MachineReferenceParser implements Parser {
         } else {
             scanner.fail("(");
         }
-        parseParameters(scanner, mcc.parameters, usables);
+        parseParameters(scanner, mc, mcc.parameters, usables);
         scanner.expect(tokens, OP_BRACE);
         curr = scanner.next(tokens);
         parseBody(scanner, mc, mcc.body);
@@ -178,7 +179,7 @@ public class MachineReferenceParser implements Parser {
         if (curr != NAME) scanner.fail("name");
         mcm.name = curr.matched();
         scanner.expect(tokens, OP_PAREN);
-        parseParameters(scanner, mcm.parameters, usables);
+        parseParameters(scanner, mc, mcm.parameters, usables);
         scanner.expect(tokens, OP_BRACE);
         curr = scanner.next(tokens);
         parseBody(scanner, mc, mcm.body);
@@ -189,7 +190,7 @@ public class MachineReferenceParser implements Parser {
         }
     }
 
-    void parseParameters(Scanner scanner, ArrayList<Method.Parameter> parameters, HashMap<String, String> usables) {
+    void parseParameters(Scanner scanner, MachineReferenceUsable mc, ArrayList<Method.Parameter> parameters, HashMap<String, String> usables) {
         Token curr = scanner.next(paramTokens);
         while (curr != CL_PAREN) {
             if (curr != PARAM_TYPE && curr != NAME) throw new RuntimeException("expecting parameter type");
@@ -197,9 +198,20 @@ public class MachineReferenceParser implements Parser {
             boolean isArray = false;
             String paramType = curr.matched();
             curr = scanner.next(paramTokens);
+            ArrayList<String> generics = new ArrayList<>();
             if (curr == PARAM_ARRAY) {
                 isArray = true;
                 curr = scanner.next(paramTokens);
+            } else if (curr == OP_PT_BRACE) {
+                while (curr != CL_PT_BRACE) {
+                    curr = scanner.expect(tokens, NAME);
+                    generics.add(curr.matched());
+                    curr = scanner.next(tokens);
+                    if (curr == COMMA) {
+                        curr = scanner.next(tokens);
+                    }
+                }
+                curr = scanner.next(tokens);
             }
             if (curr != NAME) scanner.fail("name");
             String paramName = curr.matched();
@@ -218,7 +230,17 @@ public class MachineReferenceParser implements Parser {
                     p.type = Argument.Type.Name;
                 } else {
                     p.type = Argument.Type.Variable;
-                    p.className = usables.getOrDefault(paramType, paramType);
+                    Method.VariableMatcher vm = new Method.VariableMatcher();
+                    buildVariableMatcher(vm, paramType, usables, mc.generics);
+                    p.variableMatcher = vm;
+                    if (!generics.isEmpty()) {
+                        vm.subMatchers = new ArrayList<>();
+                    }
+                    for (String generic : generics) {
+                        Method.VariableMatcher gvm = new Method.VariableMatcher();
+                        buildVariableMatcher(gvm, generic, usables, mc.generics);
+                        p.variableMatcher.subMatchers.add(gvm);
+                    }
                 }
                 p.array = isArray;
                 p.name = paramName;
@@ -226,6 +248,22 @@ public class MachineReferenceParser implements Parser {
             }
             if (scanner.peek(paramTokens).orElse(null) == COMMA) scanner.next(paramTokens);
             curr = scanner.next(paramTokens);
+        }
+    }
+
+    void buildVariableMatcher(Method.VariableMatcher vm, String name, HashMap<String, String> usables, ArrayList<Generic> generics) {
+        boolean isGeneric = false;
+        for (Generic g : generics) {
+            if (g.name.equals(name)) {
+                isGeneric = true;
+                break;
+            }
+        }
+        vm.isGeneric = isGeneric;
+        if (isGeneric) {
+            vm.name = name;
+        } else {
+            vm.name = usables.get(name);
         }
     }
 

@@ -2,20 +2,23 @@ package language.core;
 
 import core.Document;
 
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Stack;
+import java.util.*;
 
 public class Variable {
     public record Allocation(int size, int location) {}
 
     public String name;
     public Usable usable;
-    public HashMap<String, Usable> generics = new HashMap<>();
-    public HashMap<String, Document> documents = new HashMap<>();
+    public ArrayList<Generic> generics = new ArrayList<>();
     public HashMap<String, Allocation> allocations = new HashMap<>();
     public ArrayDeque<Map<String, Allocation>> methodAllocations = new ArrayDeque<>();
     public Sources sources;
+
+    public static class Generic {
+        public enum Type { Usable, Document }
+        public Type type;
+        public Usable usable;
+        public Document document;
+    }
 
 }

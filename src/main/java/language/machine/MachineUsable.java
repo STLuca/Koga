@@ -22,6 +22,18 @@ public class MachineUsable implements Usable {
         return name;
     }
 
+    @Override
+    public int genericIndex(String name) {
+        int i = 0;
+        for (Generic g : generics) {
+            if (g.name.equals(name)) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }
+
     public int size(Sources sources) {
         int total = 0;
         for (Data v : variables) {
@@ -42,11 +54,17 @@ public class MachineUsable implements Usable {
             switch (generic.type) {
                 case Usable -> {
                     Usable value = sources.usable(generics.get(i));
-                    variable.generics.put(generic.name, value);
+                    Variable.Generic g = new Variable.Generic();
+                    g.type = Variable.Generic.Type.Usable;
+                    g.usable = value;
+                    variable.generics.add(g);
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
-                    variable.documents.put(generic.name, doc);
+                    Variable.Generic g = new Variable.Generic();
+                    g.type = Variable.Generic.Type.Document;
+                    g.document = doc;
+                    variable.generics.add(g);
                 }
             }
         }
@@ -94,11 +112,17 @@ public class MachineUsable implements Usable {
             switch (generic.type) {
                 case Usable -> {
                     Usable value = sources.usable(generics.get(i));
-                    variable.generics.put(generic.name, value);
+                    Variable.Generic g = new Variable.Generic();
+                    g.type = Variable.Generic.Type.Usable;
+                    g.usable = value;
+                    variable.generics.add(g);
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
-                    variable.documents.put(generic.name, doc);
+                    Variable.Generic g = new Variable.Generic();
+                    g.type = Variable.Generic.Type.Document;
+                    g.document = doc;
+                    variable.generics.add(g);
                 }
             }
         }

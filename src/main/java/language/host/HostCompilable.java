@@ -12,8 +12,8 @@ import java.util.List;
 public class HostCompilable implements Compilable {
 
     String name;
-    ArrayList<Name> imports = new ArrayList<>();
-    ArrayList<Name> dependencies = new ArrayList<>();
+    ArrayList<String> imports = new ArrayList<>();
+    ArrayList<String> dependencies = new ArrayList<>();
     ArrayList<Constant> constants = new ArrayList<>();
     String administrator;
     ArrayList<String> supporting = new ArrayList<>();
@@ -26,8 +26,8 @@ public class HostCompilable implements Compilable {
 
     public List<String> dependencies() {
         ArrayList<String> dependencies = new ArrayList<>();
-        for (Name dependency : this.dependencies) {
-            dependencies.add(dependency.globalName);
+        for (String dependency : this.dependencies) {
+            dependencies.add(dependency);
         }
         return dependencies;
     }
@@ -36,17 +36,13 @@ public class HostCompilable implements Compilable {
         compiler.name(name);
         compiler.type(Document.Type.Host);
 
-        RenamedSources myClasses = new RenamedSources(sources);
-
-        for (Name imprt : this.imports) {
-            sources.parse(imprt.globalName);
-            Usable usable = sources.usable(imprt.globalName);
-            myClasses.usables.put(imprt.localName, usable);
+        for (String imprt : this.imports) {
+            sources.parse(imprt);
         }
 
         if (level == Level.Head) {
             for (Field f : fields) {
-                Usable sc = myClasses.usable(f.usable);
+                Usable sc = sources.usable(f.usable);
                 compiler.data(f.name, sc.size(sources));
             }
 
@@ -54,24 +50,23 @@ public class HostCompilable implements Compilable {
                 Compiler.MethodCompiler mb = compiler.method();
                 mb.name(m.name);
                 for (Parameter p : m.params) {
-                    Usable usable = myClasses.usable(p.usable);
+                    Usable usable = sources.usable(p.usable);
                     mb.parameter(usable.name());
                 }
             }
-            for (Name dependency : dependencies) {
-                compiler.dependency(dependency.globalName);
+            for (String dependency : dependencies) {
+                compiler.dependency(dependency);
             }
 
             return;
         }
 
         String administrator = null;
-        for (Name dependency : dependencies) {
-            sources.parse(dependency.globalName);
-            Document document = sources.document(dependency.globalName, Level.Head);
-            myClasses.documents.put(dependency.localName, document);
+        for (String dependency : dependencies) {
+            sources.parse(dependency);
+            Document document = sources.document(dependency, Level.Head);
 
-            compiler.dependency(dependency.globalName);
+            compiler.dependency(dependency);
             if (administrator == null) {
                 for (String documentImplementing : document.implementing) {
                    if (documentImplementing.equals("core.Administrator")) {
@@ -100,7 +95,7 @@ public class HostCompilable implements Compilable {
         }
 
         for (Field f : fields) {
-            Usable sc = myClasses.usable(f.usable);
+            Usable sc = sources.usable(f.usable);
             compiler.data(f.name, sc.size(sources));
         }
 
@@ -112,14 +107,14 @@ public class HostCompilable implements Compilable {
 
             // declare the parameters
             for (Parameter p : m.params) {
-                Usable usable = myClasses.usable(p.usable);
+                Usable usable = sources.usable(p.usable);
                 mb.parameter(usable.name());
-                usable.declare(mb, myClasses, variables, p.name, p.generics);
+                usable.declare(mb, sources, variables, p.name, p.generics);
             }
 
             // handle each statement in the body
             for (Statement stmt : m.statements) {
-                stmt.handle(mb, myClasses, variables, context);
+                stmt.handle(mb, sources, variables, context);
             }
         }
     }

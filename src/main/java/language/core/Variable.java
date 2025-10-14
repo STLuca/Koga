@@ -12,7 +12,6 @@ public class Variable {
     public ArrayList<Generic> generics = new ArrayList<>();
     public HashMap<String, Allocation> allocations = new HashMap<>();
     public ArrayDeque<Map<String, Allocation>> methodAllocations = new ArrayDeque<>();
-    public Sources sources;
 
     public static class Generic {
         public enum Type { Usable, Document }

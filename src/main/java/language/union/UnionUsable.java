@@ -10,8 +10,8 @@ public class UnionUsable implements Usable {
     static final int TYPE_SIZE = 1;
 
     String name;
-    ArrayList<Name> imports = new ArrayList<>();
-    ArrayList<Name> dependencies = new ArrayList<>();
+    ArrayList<String> imports = new ArrayList<>();
+    ArrayList<String> dependencies = new ArrayList<>();
     ArrayList<Structure> structures = new ArrayList<>();
 
     @Override
@@ -40,15 +40,11 @@ public class UnionUsable implements Usable {
         thisVariable.usable = this;
         variables.put(name, thisVariable);
 
-        Sources rootSources = sources.root();
-        RenamedSources renamedSources = new RenamedSources(rootSources);
-        for (Name imprt : this.imports) {
-            sources.parse(imprt.globalName);
-            renamedSources.usables.put(imprt.localName, rootSources.usable(imprt.globalName));
+        for (String imprt : this.imports) {
+            sources.parse(imprt);
         }
-        thisVariable.sources = renamedSources;
 
-        int maxSize = size(renamedSources);
+        int maxSize = size(sources);
         int typeLocation = compiler.data(TYPE_SIZE);
         thisVariable.allocations.put("type", new Variable.Allocation(TYPE_SIZE, typeLocation));
         compiler.debugData(thisVariable.name, "type", typeLocation, TYPE_SIZE);
@@ -58,9 +54,9 @@ public class UnionUsable implements Usable {
             mc.parent = compiler;
             mc.location = location;
             for (Field f : struct.fields) {
-                Usable u = renamedSources.usable(f.usable);
+                Usable u = sources.usable(f.usable);
                 String fieldName = name + "." + struct.name + "." + f.name;
-                u.declare(mc, renamedSources, variables, fieldName, f.generics);
+                u.declare(mc, sources, variables, fieldName, f.generics);
             }
         }
     }
@@ -72,13 +68,9 @@ public class UnionUsable implements Usable {
         thisVariable.usable = this;
         variables.put(name, thisVariable);
 
-        Sources rootSources = sources.root();
-        RenamedSources renamedSources = new RenamedSources(rootSources);
-        for (Name imprt : this.imports) {
-            sources.parse(imprt.globalName);
-            renamedSources.usables.put(imprt.localName, rootSources.usable(imprt.globalName));
+        for (String imprt : this.imports) {
+            sources.parse(imprt);
         }
-        thisVariable.sources = renamedSources;
 
         Structure structure = null;
         Method method = null;
@@ -104,7 +96,7 @@ public class UnionUsable implements Usable {
         thisVariable.methodAllocations.add(methodAllocations);
 
         String constructorStructName = "";
-        int maxSize = size(renamedSources);
+        int maxSize = size(sources);
         int typeLocation = compiler.data(TYPE_SIZE);
         thisVariable.allocations.put("type", new Variable.Allocation(TYPE_SIZE, typeLocation));
         compiler.debugData(thisVariable.name, "type", typeLocation, TYPE_SIZE);
@@ -121,9 +113,9 @@ public class UnionUsable implements Usable {
             mc.parent = compiler;
             mc.location = location;
             for (Field f : struct.fields) {
-                Usable u = renamedSources.usable(f.usable);
+                Usable u = sources.usable(f.usable);
                 String fieldName = name + "." + struct.name + "." + f.name;
-                u.declare(mc, renamedSources, variables, fieldName, f.generics);
+                u.declare(mc, sources, variables, fieldName, f.generics);
             }
         }
 
@@ -131,7 +123,7 @@ public class UnionUsable implements Usable {
         mc.parent = compiler;
         mc.location = location;
         for (Statement stmt : method.statements) {
-            stmt.handle(mc, renamedSources, variables, argsByName, name + "." + constructorStructName, context);
+            stmt.handle(mc, sources, variables, argsByName, name + "." + constructorStructName, context);
         }
         thisVariable.methodAllocations.pop();
     }

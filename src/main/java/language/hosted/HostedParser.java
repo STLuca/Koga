@@ -12,6 +12,12 @@ import java.util.List;
 
 public class HostedParser implements Parser {
 
+    static class Context {
+        HostedCompilable c;
+        HashMap<String, String> usables = new HashMap<>();
+        HashMap<String, String> documents = new HashMap<>();
+    }
+
     Token   DEPENDENCIES, CONSTANTS, IMPORTS, IMPLEMENTS,
             NAME, GLOBAL_NAME, STRING, LITERAL_ARG, OPERATOR,
             SEMI_COLON, COMMA, TILDA,
@@ -90,6 +96,9 @@ public class HostedParser implements Parser {
     public void parse(Sources sources, String input) {
         Scanner scanner = new Scanner(input);
         HostedCompilable c = new HostedCompilable();
+        Context ctx = new Context();
+        ctx.c = c;
+
         Token curr = scanner.next(metaTokens);
         if (curr == IMPORTS) {
             scanner.expect(metaTokens, OP_BRACE);
@@ -105,10 +114,8 @@ public class HostedParser implements Parser {
                     curr = scanner.next(metaTokens);
                 }
                 if (curr != SEMI_COLON) { scanner.fail(";"); }
-                Name i = new Name();
-                i.globalName = globalName;
-                i.localName = localName;
-                c.imports.add(i);
+                ctx.usables.put(localName, globalName);
+                c.imports.add(globalName);
                 curr = scanner.next(metaTokens);
             }
             curr = scanner.next(metaTokens);
@@ -130,10 +137,8 @@ public class HostedParser implements Parser {
                     curr = scanner.next(metaTokens);
                 }
                 if (curr != SEMI_COLON) { scanner.fail(";"); }
-                Name name = new Name();
-                name.globalName = globalName;
-                name.localName = localName;
-                c.dependencies.add(name);
+                ctx.documents.put(localName, globalName);
+                c.dependencies.add(globalName);
                 curr = scanner.next(metaTokens);
             }
             curr = scanner.next(metaTokens);
@@ -142,16 +147,14 @@ public class HostedParser implements Parser {
         c.name = curr.matched();
         // Add self as dependency
         String[] split = c.name.split("\\.");
-        Name name = new Name();
-        name.globalName = c.name;
-        name.localName = split[split.length - 1];
-        c.dependencies.add(name);
+        ctx.documents.put(split[split.length - 1], c.name);
+        c.dependencies.add(c.name);
 
         curr = scanner.next(metaTokens);
         if (curr == IMPLEMENTS) {
             while (curr != OP_BRACE) {
                 curr = scanner.expect(tokens, NAME);
-                c.interfaces.add(curr.matched());
+                c.interfaces.add(ctx.documents.get(curr.matched()));
                 curr = scanner.next(tokens);
             }
         }
@@ -160,9 +163,9 @@ public class HostedParser implements Parser {
         while (curr != CL_BRACE) {
             Token peek = scanner.peek(tokens).orElseThrow();
             if (curr == NAME && peek == NAME) {
-                parseField(scanner, c);
+                parseField(scanner, ctx);
             } else if (curr == NAME) {
-                parseMethod(scanner, c);
+                parseMethod(scanner, ctx);
             } else if (curr == TILDA) {
                 scanner.takeUntilNewLine();
             }
@@ -171,7 +174,7 @@ public class HostedParser implements Parser {
         sources.add(c);
     }
 
-    private void parseMethod(Scanner scanner, HostedCompilable c) {
+    private void parseMethod(Scanner scanner, Context ctx) {
         Token curr = scanner.current();
         Method m = new Method();
         m.name = curr.matched();
@@ -180,14 +183,20 @@ public class HostedParser implements Parser {
         while (curr != CL_PAREN) {
             if (curr != NAME) scanner.fail("name");
             Parameter p = new Parameter();
-            p.usable = curr.matched();
+            p.usable = ctx.usables.get(curr.matched());
             curr = scanner.next(tokens);
 
             if (curr == OP_PT_BRACE) {
                 curr = scanner.next(tokens);
                 while (curr != CL_PT_BRACE) {
                     if (curr != NAME) scanner.fail("name");
-                    p.generics.add(curr.matched());
+                    if (ctx.usables.containsKey(curr.matched())) {
+                        p.generics.add(ctx.usables.get(curr.matched()));
+                    } else if (ctx.documents.containsKey(curr.matched())) {
+                        p.generics.add(ctx.documents.get(curr.matched()));
+                    } else {
+                        p.generics.add(curr.matched());
+                    }
                     curr = scanner.next(tokens);
                     if (curr == COMMA) curr = scanner.next(tokens);
                 }
@@ -207,14 +216,14 @@ public class HostedParser implements Parser {
             if (curr == TILDA) {
                 scanner.takeUntilNewLine();
             } else {
-                parseStatement(scanner, c, m.statements);
+                parseStatement(scanner, ctx, m.statements);
             }
             curr = scanner.next(tokens);
         }
-        c.methods.add(m);
+        ctx.c.methods.add(m);
     }
 
-    private void parseStatement(Scanner scanner, HostedCompilable c, List<Statement> statements) {
+    private void parseStatement(Scanner scanner, Context ctx, List<Statement> statements) {
         Token curr = scanner.current();
         if (curr == TILDA) {
             scanner.takeUntilNewLine();
@@ -224,10 +233,7 @@ public class HostedParser implements Parser {
         String currS = curr.matched();
 
         // If imports contains the first String, it's a construct statement
-        boolean contains = false;
-        for (Name i : c.imports) {
-            if (i.localName.equals(currS)) { contains = true; break; }
-        }
+        boolean contains = ctx.usables.containsKey(currS);
         if (contains) {
             Statement s = new Statement();
             // Construct statement
@@ -237,7 +243,7 @@ public class HostedParser implements Parser {
             // should be series of ( and {
             // Can continue into invokes if name before ;
             s.type = Statement.Type.CONSTRUCT;
-            s.usable = currS;
+            s.usable = ctx.usables.get(currS);
 
             // generics
             if (scanner.peek(tokens).orElse(null) == OP_PT_BRACE) {
@@ -245,7 +251,11 @@ public class HostedParser implements Parser {
                 do {
                     curr = scanner.next(tokens);
                     if (curr != NAME) scanner.fail("name");
-                    s.generics.add(curr.matched());
+                    if (ctx.usables.containsKey(curr.matched())) {
+                        s.generics.add(ctx.usables.get(curr.matched()));
+                    } else if (ctx.documents.containsKey(curr.matched())) {
+                        s.generics.add(ctx.documents.get(curr.matched()));
+                    }
                     curr = scanner.next(tokens);
                 } while (curr == COMMA);
                 if (curr != CL_PT_BRACE) scanner.fail(">");
@@ -299,7 +309,7 @@ public class HostedParser implements Parser {
             }
 
             // No more names, just args now?
-            parseMethodArguments(scanner, c, s);
+            parseMethodArguments(scanner, ctx, s);
             statements.add(s);
 
             // chained statements
@@ -322,13 +332,13 @@ public class HostedParser implements Parser {
                 scanner.fail("Failed parsing method name");
             }
             scanner.next(tokens);
-            parseMethodArguments(scanner, c, s);
+            parseMethodArguments(scanner, ctx, s);
             statements.add(s);
             curr = scanner.current();
         }
     }
 
-    private void parseMethodArguments(Scanner scanner, HostedCompilable c, Statement s) {
+    private void parseMethodArguments(Scanner scanner, Context ctx, Statement s) {
         Token curr = scanner.current();
 
         if (curr != OP_PAREN && curr != OP_BRACE) {
@@ -379,7 +389,7 @@ public class HostedParser implements Parser {
                 arg.block = new ArrayList<>();
                 curr = scanner.next(tokens);
                 while (curr != CL_BRACE) {
-                    parseStatement(scanner, c, arg.block);
+                    parseStatement(scanner, ctx, arg.block);
                     curr = scanner.next(tokens);
                 }
                 s.arguments.add(arg);
@@ -396,15 +406,19 @@ public class HostedParser implements Parser {
         }
     }
 
-    private void parseField(Scanner scanner, HostedCompilable c) {
+    private void parseField(Scanner scanner, Context ctx) {
         Field f = new Field();
         Token curr = scanner.current();
-        f.usable = curr.matched();
+        f.usable = ctx.usables.get(curr.matched());
         curr = scanner.next(tokens);
         if (curr == OP_PT_BRACE) {
             do {
                 curr = scanner.expect(tokens, NAME);
-                f.generics.add(curr.matched());
+                if (ctx.usables.containsKey(curr.matched())) {
+                    f.generics.add(ctx.usables.get(curr.matched()));
+                } else if (ctx.documents.containsKey(curr.matched())) {
+                    f.generics.add(ctx.documents.get(curr.matched()));
+                }
                 curr = scanner.next(tokens);
             } while (curr == COMMA);
             if (curr != CL_PT_BRACE) scanner.fail(">");
@@ -413,7 +427,7 @@ public class HostedParser implements Parser {
         if (curr != NAME) scanner.fail("field name");
         f.name = curr.matched();
         scanner.expect(tokens, SEMI_COLON);
-        c.fields.add(f);
+        ctx.c.fields.add(f);
     }
 
 }

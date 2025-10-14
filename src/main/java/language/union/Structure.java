@@ -45,7 +45,6 @@ class Structure implements Usable {
 
     @Override
     public void invoke(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String methodName, List<Argument> arguments, Context context) {
-        sources = variable.sources;
         Method method = null;
         for (Method m : methods) {
             if (m.name.equals(methodName)) {

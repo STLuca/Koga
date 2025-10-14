@@ -12,6 +12,12 @@ import java.util.List;
 
 public class HostParser implements Parser {
 
+    static class Context {
+        HostCompilable c;
+        HashMap<String, String> usables = new HashMap<>();
+        HashMap<String, String> documents = new HashMap<>();
+    }
+
     Token   DEPENDENCIES, CONSTANTS, IMPORTS, SUPPORTS,
             LOCAL_NAME, GLOBAL_NAME, STRING, LITERAL_ARG, OPERATOR,
             SEMI_COLON, COMMA, TILDA,
@@ -91,6 +97,8 @@ public class HostParser implements Parser {
         Scanner scanner = new Scanner(input);
         HostCompilable c = new HostCompilable();
         Token curr = scanner.next(metaTokens);
+        Context ctx = new Context();
+        ctx.c = c;
 
         if (curr == IMPORTS) {
             scanner.expect(metaTokens, OP_BRACE);
@@ -106,10 +114,8 @@ public class HostParser implements Parser {
                     curr = scanner.next(metaTokens);
                 }
                 if (curr != SEMI_COLON) { scanner.fail(";"); }
-                Name name = new Name();
-                name.globalName = globalName;
-                name.localName = localName;
-                c.imports.add(name);
+                ctx.usables.put(localName, globalName);
+                c.imports.add(globalName);
                 curr = scanner.next(metaTokens);
             }
             curr = scanner.next(metaTokens);
@@ -131,10 +137,8 @@ public class HostParser implements Parser {
                     curr = scanner.next(tokens);
                 }
                 if (curr != SEMI_COLON) { scanner.fail(";"); }
-                Name name = new Name();
-                name.globalName = globalName;
-                name.localName = localName;
-                c.dependencies.add(name);
+                ctx.documents.put(localName, globalName);
+                c.dependencies.add(globalName);
                 curr = scanner.next(metaTokens);
             }
             curr = scanner.next(metaTokens);
@@ -172,16 +176,14 @@ public class HostParser implements Parser {
         c.name = curr.matched();
         // Add self as dependency
         String[] split = c.name.split("\\.");
-        Name name = new Name();
-        name.globalName = c.name;
-        name.localName = split[split.length - 1];
-        c.dependencies.add(name);
+        ctx.documents.put(split[split.length - 1], c.name);
+        c.dependencies.add(c.name);
 
         curr = scanner.next(metaTokens);
         if (curr == SUPPORTS) {
             while (curr != OP_BRACE) {
                 curr = scanner.expect(tokens, LOCAL_NAME);
-                c.supporting.add(curr.matched());
+                c.supporting.add(ctx.documents.get(curr.matched()));
                 curr = scanner.next(tokens);
             }
         }
@@ -190,9 +192,9 @@ public class HostParser implements Parser {
         while (curr != CL_BRACE) {
             Token peek = scanner.peek(tokens).orElseThrow();
             if (curr == LOCAL_NAME && peek == OP_PAREN) {
-                parseMethod(scanner, c);
+                parseMethod(scanner, ctx);
             } else if (curr == LOCAL_NAME) {
-                parseVariable(scanner, c);
+                parseVariable(scanner, ctx);
             } else if (curr == TILDA) {
                 scanner.takeUntilNewLine();
             }
@@ -201,7 +203,7 @@ public class HostParser implements Parser {
         sources.add(c);
     }
 
-    private void parseMethod(Scanner scanner, HostCompilable c) {
+    private void parseMethod(Scanner scanner, Context ctx) {
         Token curr = scanner.current();
         Method m = new Method();
         m.name = curr.matched();
@@ -210,14 +212,18 @@ public class HostParser implements Parser {
         while (curr != CL_PAREN) {
             if (curr != LOCAL_NAME) scanner.fail("name");
             Parameter p = new Parameter();
-            p.usable = curr.matched();
+            p.usable = ctx.usables.get(curr.matched());
             curr = scanner.next(tokens);
 
             if (curr == OP_PT_BRACE) {
                 curr = scanner.next(tokens);
                 while (curr != CL_PT_BRACE) {
                     if (curr != LOCAL_NAME) scanner.fail("name");
-                    p.generics.add(curr.matched());
+                    if (ctx.usables.containsKey(curr.matched())) {
+                        p.generics.add(ctx.usables.get(curr.matched()));
+                    } else if (ctx.documents.containsKey(curr.matched())) {
+                        p.generics.add(ctx.documents.get(curr.matched()));
+                    }
                     curr = scanner.next(tokens);
                     if (curr == COMMA) curr = scanner.next(tokens);
                 }
@@ -237,15 +243,15 @@ public class HostParser implements Parser {
             if (curr == TILDA) {
                 scanner.takeUntilNewLine();
             } else {
-                parseStatement(scanner, c, m.statements);
+                parseStatement(scanner, ctx, m.statements);
             }
 
             curr = scanner.next(tokens);
         }
-        c.methods.add(m);
+        ctx.c.methods.add(m);
     }
 
-    private void parseStatement(Scanner scanner, HostCompilable c, List<Statement> statements) {
+    private void parseStatement(Scanner scanner, Context ctx, List<Statement> statements) {
         Token curr = scanner.current();
         if (curr == TILDA) {
             scanner.takeUntilNewLine();
@@ -254,10 +260,7 @@ public class HostParser implements Parser {
         String currS = curr.matched();
 
         // If imports contains the first String, it's a construct statement
-        boolean contains = false;
-        for (Name i : c.imports) {
-            if (i.localName.equals(currS)) { contains = true; break; }
-        }
+        boolean contains = ctx.usables.containsKey(currS);
         if (contains) {
             Statement s = new Statement();
             // Construct statement
@@ -267,7 +270,7 @@ public class HostParser implements Parser {
             // should be series of ( and {
             // Can continue into invokes if name before ;
             s.type = Statement.Type.CONSTRUCT;
-            s.usable = currS;
+            s.usable = ctx.usables.get(currS);
 
             // generics
             if (scanner.peek(tokens).orElse(null) == OP_PT_BRACE) {
@@ -275,7 +278,11 @@ public class HostParser implements Parser {
                 do {
                     curr = scanner.next(tokens);
                     if (curr != LOCAL_NAME) scanner.fail("name");
-                    s.generics.add(curr.matched());
+                    if (ctx.usables.containsKey(curr.matched())) {
+                        s.generics.add(ctx.usables.get(curr.matched()));
+                    } else if (ctx.documents.containsKey(curr.matched())) {
+                        s.generics.add(ctx.documents.get(curr.matched()));
+                    }
                     curr = scanner.next(tokens);
                 } while (curr == COMMA);
                 if (curr != CL_PT_BRACE) scanner.fail(">");
@@ -328,7 +335,7 @@ public class HostParser implements Parser {
             }
 
             // No more names, just args now?
-            parseMethodArguments(scanner, c, s);
+            parseMethodArguments(scanner, ctx, s);
             statements.add(s);
 
             // chained statements
@@ -351,13 +358,13 @@ public class HostParser implements Parser {
                 scanner.fail("Failed parsing method name");
             }
             scanner.next(tokens);
-            parseMethodArguments(scanner, c, s);
+            parseMethodArguments(scanner, ctx, s);
             statements.add(s);
             curr = scanner.current();
         }
     }
 
-    private void parseMethodArguments(Scanner scanner, HostCompilable c, Statement s) {
+    private void parseMethodArguments(Scanner scanner, Context ctx, Statement s) {
         Token curr = scanner.current();
 
         if (curr != OP_PAREN && curr != OP_BRACE) {
@@ -368,7 +375,11 @@ public class HostParser implements Parser {
                 s.arguments.add(arg);
             } else if (curr == LOCAL_NAME) {
                 Statement.Argument arg = new Statement.Argument();
-                arg.name = curr.matched();
+                if (ctx.documents.containsKey(curr.matched())) {
+                    arg.name = ctx.documents.get(curr.matched());
+                } else {
+                    arg.name = curr.matched();
+                }
                 s.arguments.add(arg);
             } else if (curr == STRING) {
                 Statement.Argument arg = new Statement.Argument();
@@ -393,7 +404,11 @@ public class HostParser implements Parser {
                     if (curr == LITERAL_ARG) {
                         arg.literal = curr.matched();
                     } else if (curr == LOCAL_NAME) {
-                        arg.name = curr.matched();
+                        if (ctx.documents.containsKey(curr.matched())) {
+                            arg.name = ctx.documents.get(curr.matched());
+                        } else {
+                            arg.name = curr.matched();
+                        }
                     } else {
                         scanner.fail("unknown arg");
                     }
@@ -408,7 +423,7 @@ public class HostParser implements Parser {
                 arg.block = new ArrayList<>();
                 curr = scanner.next(tokens);
                 while (curr != CL_BRACE) {
-                    parseStatement(scanner, c, arg.block);
+                    parseStatement(scanner, ctx, arg.block);
                     curr = scanner.next(tokens);
                 }
                 s.arguments.add(arg);
@@ -425,15 +440,19 @@ public class HostParser implements Parser {
         }
     }
 
-    private void parseVariable(Scanner scanner, HostCompilable c) {
+    private void parseVariable(Scanner scanner, Context ctx) {
         Field f = new Field();
         Token curr = scanner.current();
-        f.usable = curr.matched();
+        f.usable = ctx.usables.get(curr.matched());
         curr = scanner.next(tokens);
         if (curr == OP_PT_BRACE) {
             do {
                 curr = scanner.expect(tokens, LOCAL_NAME);
-                f.generics.add(curr.matched());
+                if (ctx.usables.containsKey(curr.matched())) {
+                    f.generics.add(ctx.usables.get(curr.matched()));
+                } else if (ctx.documents.containsKey(curr.matched())) {
+                    f.generics.add(ctx.documents.get(curr.matched()));
+                }
                 curr = scanner.next(tokens);
             } while (curr == COMMA);
             if (curr != CL_PT_BRACE) scanner.fail(">");
@@ -442,7 +461,7 @@ public class HostParser implements Parser {
         if (curr != LOCAL_NAME) scanner.fail("field name");
         f.name = curr.matched();
         scanner.expect(tokens, SEMI_COLON);
-        c.fields.add(f);
+        ctx.c.fields.add(f);
     }
 
 }

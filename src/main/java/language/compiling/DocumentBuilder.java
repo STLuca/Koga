@@ -1,6 +1,7 @@
 package language.compiling;
 
 import core.Document;
+import core.Types;
 import language.core.Compiler;
 
 import java.util.*;
@@ -8,11 +9,11 @@ import java.util.*;
 public class DocumentBuilder implements Compiler {
 
     record Data(int start, int size) {}
-    record Symbol(Document.Symbol.Type type, String one, String two) {}
+    record Symbol(Types.Symbol type, String one, String two) {}
     record Constant(String name, byte[] bytes) {}
 
     String name;
-    Document.Type type;
+    Types.Document type;
     String administrator;
     LinkedHashSet<String> dependencies = new LinkedHashSet<>();
     ArrayList<Constant> constants = new ArrayList<>();
@@ -81,7 +82,7 @@ public class DocumentBuilder implements Compiler {
         this.name = name;
     }
     
-    public void type(Document.Type type) {
+    public void type(Types.Document type) {
         this.type = type;
     }
 
@@ -104,7 +105,7 @@ public class DocumentBuilder implements Compiler {
         dependencies.add(name);
     }
 
-    public int symbol(Document.Symbol.Type type, String name) {
+    public int symbol(Types.Symbol type, String name) {
         Symbol contains = null;
         for (Symbol s : symbols) {
             if (s.type == type && s.one.equals(name) && s.two == null) {
@@ -120,7 +121,7 @@ public class DocumentBuilder implements Compiler {
         return symbols.size() - 1;
     }
     
-    public int symbol(Document.Symbol.Type type, String document, String name) {
+    public int symbol(Types.Symbol type, String document, String name) {
         Symbol contains = null;
         for (Symbol s : symbols) {
             if (s.type == type && s.one.equals(document) && s.two.equals(name)) {

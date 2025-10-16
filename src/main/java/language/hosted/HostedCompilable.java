@@ -1,6 +1,7 @@
 package language.hosted;
 
 import core.Document;
+import core.Types;
 import language.core.*;
 import language.core.Compiler;
 
@@ -31,7 +32,7 @@ public class HostedCompilable implements Compilable {
 
     public void compile(Sources sources, Compiler compiler, Level level) {
         compiler.name(name);
-        compiler.type(Document.Type.Hosted);
+        compiler.type(Types.Document.Hosted);
 
         for (String imprt : this.imports) {
             sources.parse(imprt);

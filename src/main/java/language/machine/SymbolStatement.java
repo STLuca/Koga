@@ -1,6 +1,6 @@
 package language.machine;
 
-import core.Document;
+import core.Types;
 import language.core.*;
 
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ public class SymbolStatement implements Statement {
     // Logic here is annoying, if document type then you need to lookup the global document name
     // generics already have the global document name
     public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
-        Document.Symbol.Type type = Document.Symbol.Type.valueOf(this.arguments.getFirst().toUpperCase());
+        Types.Symbol type = Types.Symbol.valueOf(this.arguments.getFirst().toUpperCase());
         String[] names = new String[2];
         for (int i = 2; i < this.arguments.size(); i+=2) {
             InputType inputType = InputType.valueOf(this.arguments.get(i).toUpperCase());

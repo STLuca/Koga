@@ -158,7 +158,8 @@ public class VirtualMachineTest {
         // Compile all dependencies
         for (Document dependency : dependencies) {
             Document document = parser.document(dependency.name, Compilable.Level.Full);
-            administrator.integrate(document);
+            byte[] bytes = document.bytes();
+            administrator.integrate(bytes);
         }
 
         return administrator;

@@ -1,6 +1,6 @@
 package language.interfaces;
 
-import core.Document;
+import core.Types;
 import language.core.Sources;
 import language.core.Compilable;
 import language.core.Compiler;
@@ -26,7 +26,7 @@ public class InterfaceCompilable implements Compilable {
     
     public void compile(Sources sources, Compiler compiler, Level level) {
         compiler.name(name);
-        compiler.type(Document.Type.Interface);
+        compiler.type(Types.Document.Interface);
 //        int classSymbol = compiler.symbol(Class.Symbol.Type.CLASS, name);
 //        for (Method method : methods) {
 //            compiler.symbol(Class.Symbol.Type.METHOD, classSymbol, method.name);

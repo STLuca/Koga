@@ -1,6 +1,6 @@
 package language.machine;
 
-import core.Instruction;
+import core.Types;
 import language.core.*;
 import language.machine.InputType.Resolved;
 
@@ -41,10 +41,10 @@ public class InstructionStatement implements Statement {
             case I, INTEGER -> {
                 Compiler.InstructionCompiler ic = compiler.instruction();
                 List<String> values = this.arguments;
-                ic.type(Instruction.Type.Integer);
-                ic.subType(Instruction.IntegerType.valueOf(values.get(0)));
+                ic.type(Types.Instruction.Integer);
+                ic.subType(Types.IntegerType.valueOf(values.get(0)));
 
-                Instruction.InputType inType = Instruction.InputType.valueOf(values.get(1));
+                Types.InputType inType = Types.InputType.valueOf(values.get(1));
                 ic.inputType(inType);
 
                 InputType destType;
@@ -59,7 +59,7 @@ public class InstructionStatement implements Statement {
                         dest = values.get(2);
                         src1Type = InputType.LDA;
                         src1 = values.get(3);
-                        src2Type = inType == Instruction.InputType.TI ? InputType.AL : InputType.ADA;
+                        src2Type = inType == Types.InputType.TI ? InputType.AL : InputType.ADA;
                         src2 = values.get(4);
                     }
                     case 8 -> {
@@ -82,10 +82,10 @@ public class InstructionStatement implements Statement {
             case MATH -> {
                 Compiler.InstructionCompiler ic = compiler.instruction();
                 List<String> values = this.arguments;
-                ic.type(Instruction.Type.Math);
-                ic.subType(Instruction.MathType.valueOf(values.get(0)));
+                ic.type(Types.Instruction.Math);
+                ic.subType(Types.MathType.valueOf(values.get(0)));
 
-                Instruction.InputType inType = Instruction.InputType.valueOf(values.get(1));
+                Types.InputType inType = Types.InputType.valueOf(values.get(1));
                 ic.inputType(inType);
 
                 InputType destType;
@@ -100,7 +100,7 @@ public class InstructionStatement implements Statement {
                         dest = values.get(2);
                         src1Type = InputType.LDA;
                         src1 = values.get(3);
-                        src2Type = inType == Instruction.InputType.TI ? InputType.AL : InputType.ADA;
+                        src2Type = inType == Types.InputType.TI ? InputType.AL : InputType.ADA;
                         src2 = values.get(4);
                     }
                     case 8 -> {
@@ -123,10 +123,10 @@ public class InstructionStatement implements Statement {
             case J, JUMP -> {
                 Compiler.InstructionCompiler ic = compiler.instruction();
                 List<String> values = this.arguments;
-                ic.type(Instruction.Type.Jump);
-                ic.subType(Instruction.BranchType.valueOf(values.get(0)));
+                ic.type(Types.Instruction.Jump);
+                ic.subType(Types.BranchType.valueOf(values.get(0)));
 
-                Instruction.InputType inType = Instruction.InputType.valueOf(values.get(1));
+                Types.InputType inType = Types.InputType.valueOf(values.get(1));
                 ic.inputType(inType);
 
                 InputType addrType;
@@ -159,9 +159,9 @@ public class InstructionStatement implements Statement {
             case CB -> {
                 Compiler.InstructionCompiler ic = compiler.instruction();
                 List<String> values = this.arguments;
-                ic.type(Instruction.Type.ConditionalBranch);
-                ic.subType(Instruction.ConditionalBranchType.valueOf(values.get(0)));
-                Instruction.InputType inType;
+                ic.type(Types.Instruction.ConditionalBranch);
+                ic.subType(Types.ConditionalBranchType.valueOf(values.get(0)));
+                Types.InputType inType;
                 InputType src1Type;
                 String src1;
                 InputType src2Type;
@@ -169,7 +169,7 @@ public class InstructionStatement implements Statement {
                 String addr;
                 switch (values.size()) {
                     case 6 -> {
-                        inType = Instruction.InputType.TT;
+                        inType = Types.InputType.TT;
                         src1Type = InputType.valueOf(values.get(1));
                         src1 = values.get(2);
                         src2Type = InputType.valueOf(values.get(3));
@@ -177,7 +177,7 @@ public class InstructionStatement implements Statement {
                         addr = values.get(5);
                     }
                     case 7 -> {
-                        inType = Instruction.InputType.valueOf(values.get(1));
+                        inType = Types.InputType.valueOf(values.get(1));
                         src1Type = InputType.valueOf(values.get(2));
                         src1 = values.get(3);
                         src2Type = InputType.valueOf(values.get(4));
@@ -204,9 +204,9 @@ public class InstructionStatement implements Statement {
             case C, CLASS -> {
                 Compiler.InstructionCompiler ic = compiler.instruction();
                 List<String> values = this.arguments;
-                ic.type(Instruction.Type.Class);
-                ic.subType(Instruction.ClassType.valueOf(values.get(0)));
-                ic.inputType(Instruction.InputType.valueOf(values.get(1)));
+                ic.type(Types.Instruction.Class);
+                ic.subType(Types.ClassType.valueOf(values.get(0)));
+                ic.inputType(Types.InputType.valueOf(values.get(1)));
                 InputType destType;
                 String dest;
                 InputType src1Type;
@@ -245,9 +245,9 @@ public class InstructionStatement implements Statement {
             case M, MEMORY -> {
                 Compiler.InstructionCompiler ic = compiler.instruction();
                 List<String> values = this.arguments;
-                ic.type(Instruction.Type.Memory);
-                ic.subType(Instruction.MemoryType.valueOf(values.get(0)));
-                ic.inputType(Instruction.InputType.valueOf(values.get(1)));
+                ic.type(Types.Instruction.Memory);
+                ic.subType(Types.MemoryType.valueOf(values.get(0)));
+                ic.inputType(Types.InputType.valueOf(values.get(1)));
                 InputType destType = InputType.valueOf(values.get(2));
                 String dest = values.get(3);
                 InputType srcType = InputType.valueOf(values.get(4));
@@ -265,8 +265,8 @@ public class InstructionStatement implements Statement {
             case D, DEBUG -> {
                 Compiler.InstructionCompiler ic = compiler.instruction();
                 List<String> values = this.arguments;
-                ic.type(Instruction.Type.Debug);
-                ic.subType(Instruction.DebugType.valueOf(values.get(0)));
+                ic.type(Types.Instruction.Debug);
+                ic.subType(Types.DebugType.valueOf(values.get(0)));
                 String src = values.get(1);
                 String size = values.get(2);
                 Resolved resolvedSrc = InputType.ADA.resolve(src, variable, arguments, context);
@@ -278,20 +278,20 @@ public class InstructionStatement implements Statement {
             case LOGICIAN -> {
                 Compiler.InstructionCompiler ic = compiler.instruction();
                 List<String> values = this.arguments;
-                ic.type(Instruction.Type.Logician);
-                Instruction.LogicianType subType = Instruction.LogicianType.valueOf(values.get(0));
+                ic.type(Types.Instruction.Logician);
+                Types.LogicianType subType = Types.LogicianType.valueOf(values.get(0));
                 ic.subType(subType);
                 ic.src(0, 0);
                 switch (subType) {
                     case SET_OBJECT, SET_TABLE, START_ADMIN, SET_ALT_TASK, SET_ALT_OBJECT, SET_ALT_TABLE -> {
-                        ic.inputType(Instruction.InputType.valueOf(values.get(1)));
+                        ic.inputType(Types.InputType.valueOf(values.get(1)));
                         InputType srcType = InputType.valueOf(values.get(2));
                         Resolved resolvedSrc = srcType.resolve(values.get(3), variable, arguments, context);
 
                         ic.src(resolvedSrc.value(), resolvedSrc.size());
                     }
                     case SET, SET_METHOD_AND_TASK -> {
-                        ic.inputType(Instruction.InputType.valueOf(values.get(1)));
+                        ic.inputType(Types.InputType.valueOf(values.get(1)));
                         InputType src1Type = InputType.valueOf(values.get(2));
                         Resolved resolvedSrc1 = src1Type.resolve(values.get(3), variable, arguments, context);
                         InputType src2Type = InputType.valueOf(values.get(4));
@@ -301,7 +301,7 @@ public class InstructionStatement implements Statement {
                     }
                     case STOP_ADMIN -> {}
                     case NOTIFY_SUPERVISOR -> {
-                        ic.inputType(Instruction.InputType.valueOf(values.get(1)));
+                        ic.inputType(Types.InputType.valueOf(values.get(1)));
                         String src = values.get(2);
                         Resolved resolvedSrc = InputType.LDA.resolve(src, variable, arguments, context);
                         ic.src(resolvedSrc.value(), resolvedSrc.size());

@@ -2,6 +2,7 @@ package language.compiling;
 
 import core.Document;
 import core.Instruction;
+import core.Types;
 import language.core.Compiler;
 
 import java.util.*;
@@ -103,11 +104,11 @@ class MethodBuilder implements Compiler.MethodCompiler {
         return ic;
     }
     
-    public int symbol(Document.Symbol.Type type, String name) {
+    public int symbol(Types.Symbol type, String name) {
         return documentBuilder.symbol(type, name);
     }
     
-    public int symbol(Document.Symbol.Type type, String document, String name) {
+    public int symbol(Types.Symbol type, String document, String name) {
         return documentBuilder.symbol(type, document, name);
     }
 
@@ -115,7 +116,7 @@ class MethodBuilder implements Compiler.MethodCompiler {
         String name = "c_" + documentBuilder.constants.size();
         DocumentBuilder.Constant c = new DocumentBuilder.Constant(name, bytes);
         documentBuilder.constants.add(c);
-        return documentBuilder.symbol(Document.Symbol.Type.CONST, name);
+        return documentBuilder.symbol(Types.Symbol.CONST, name);
     }
 
     public void parameter(String name) {

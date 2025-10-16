@@ -1,6 +1,6 @@
 package language.machine;
 
-import core.Document;
+import core.Types;
 import language.core.*;
 
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class AdminStatement implements Statement {
             }
             default -> throw new RuntimeException();
         };
-        int allocateAddr = compiler.symbol(Document.Symbol.Type.METHOD, "core.Administrator", methodName);
+        int allocateAddr = compiler.symbol(Types.Symbol.METHOD, "core.Administrator", methodName);
         Argument arg = Argument.of(allocateAddr);
         arguments.put(methodSymbol, arg);
 

@@ -1,6 +1,6 @@
 package language.union;
 
-import core.Document;
+import core.Types;
 import language.core.Compiler;
 
 public class SharedLocationMethodCompiler implements Compiler.MethodCompiler {
@@ -41,12 +41,12 @@ public class SharedLocationMethodCompiler implements Compiler.MethodCompiler {
     }
 
     @Override
-    public int symbol(Document.Symbol.Type type, String name) {
+    public int symbol(Types.Symbol type, String name) {
         return parent.symbol(type, name);
     }
 
     @Override
-    public int symbol(Document.Symbol.Type type, String document, String name) {
+    public int symbol(Types.Symbol type, String document, String name) {
         return parent.symbol(type, document, name);
     }
 

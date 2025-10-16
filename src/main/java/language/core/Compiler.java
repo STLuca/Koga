@@ -1,20 +1,20 @@
 package language.core;
 
 import core.Document;
-import core.Instruction;
+import core.Types;
 
 public interface Compiler {
 
     Document document();
     void name(String name);
-    void type(Document.Type type);
+    void type(Types.Document type);
     ProtocolCompiler protocol();
 
     MethodCompiler method();
     void administrator(String name);
     void dependency(String name);
-    int symbol(Document.Symbol.Type type, String name);
-    int symbol(Document.Symbol.Type type, String document, String name);
+    int symbol(Types.Symbol type, String name);
+    int symbol(Types.Symbol type, String document, String name);
     void supporting(String protocol);
     void implementing(String name);
     void constant(String name, byte[] bytes);
@@ -32,8 +32,8 @@ public interface Compiler {
         void address(int index);
         int position(int addr);
         void direction(InsertDirection direction);
-        int symbol(Document.Symbol.Type type, String name);
-        int symbol(Document.Symbol.Type type, String document, String name);
+        int symbol(Types.Symbol type, String name);
+        int symbol(Types.Symbol type, String document, String name);
         int constant(byte[] bytes);
         void parameter(String name);
         InstructionCompiler instruction();
@@ -42,21 +42,21 @@ public interface Compiler {
 
     interface InstructionCompiler {
 
-        void type(Instruction.Type type);
+        void type(Types.Instruction type);
 
-        void subType(Instruction.IntegerType subType);
-        void subType(Instruction.BranchType subType);
-        void subType(Instruction.ConditionalBranchType subType);
-        void subType(Instruction.ClassType subType);
-        void subType(Instruction.MemoryType subType);
-        void subType(Instruction.LogicianType subType);
-        void subType(Instruction.InterruptType subType);
-        void subType(Instruction.DebugType subType);
-        void subType(Instruction.MathType subType);
-        void subType(Instruction.AtomicType subType);
-        void subType(Instruction.VectorType subType);
+        void subType(Types.IntegerType subType);
+        void subType(Types.BranchType subType);
+        void subType(Types.ConditionalBranchType subType);
+        void subType(Types.ClassType subType);
+        void subType(Types.MemoryType subType);
+        void subType(Types.LogicianType subType);
+        void subType(Types.InterruptType subType);
+        void subType(Types.DebugType subType);
+        void subType(Types.MathType subType);
+        void subType(Types.AtomicType subType);
+        void subType(Types.VectorType subType);
 
-        void inputType(Instruction.InputType inputType);
+        void inputType(Types.InputType inputType);
 
         void src(int location, int size);
         void src(int address);
@@ -66,8 +66,8 @@ public interface Compiler {
         Document document();
         MethodCompiler method();
         void administrator(String name);
-        int symbol(Document.Symbol.Type type, String name);
-        int symbol(Document.Symbol.Type type, String document, String name);
+        int symbol(Types.Symbol type, String name);
+        int symbol(Types.Symbol type, String document, String name);
         void implementing(String name);
         void constant(String name, byte[] bytes);
         int data(String name, int size);
@@ -75,8 +75,8 @@ public interface Compiler {
 
     interface HostedCompiler {
         void implementing(String name);
-        int symbol(Document.Symbol.Type type, String name);
-        int symbol(Document.Symbol.Type type, String document, String name);
+        int symbol(Types.Symbol type, String name);
+        int symbol(Types.Symbol type, String document, String name);
         int data(String name, int size);
         MethodCompiler method();
     }

@@ -1,6 +1,6 @@
 package machine;
 
-import static core.Instruction.*;
+import core.Types;
 
 public class Processor {
 
@@ -80,8 +80,8 @@ public class Processor {
 
         int startInstruction = instruction;
 
-        Type type = Type.values()[typeIndex];
-        InputType inType = InputType.values()[inputType];
+        Types.Instruction type = Types.Instruction.values()[typeIndex];
+        Types.InputType inType = Types.InputType.values()[inputType];
 
         int src1 = src1In;
         int src2 = 0;
@@ -134,7 +134,7 @@ public class Processor {
 
         switch (type) {
             case Integer -> {
-                int result = switch (IntegerType.values()[subType]) {
+                int result = switch (Types.IntegerType.values()[subType]) {
                     case ADD  -> src2 + src3;
                     case SUB  -> src2 - src3;
                     case SLL  -> src2 << src3;
@@ -153,14 +153,14 @@ public class Processor {
             }
 
             case Math -> {
-                int result = switch (MathType.values()[subType]) {
+                int result = switch (Types.MathType.values()[subType]) {
                     case MULT  -> src2 * src3;
                 };
                 machine.store(pageMap, task + src1In, result, src1Size);
             }
 
             case Jump -> {
-                switch (BranchType.values()[subType]) {
+                switch (Types.BranchType.values()[subType]) {
                     case REL -> {
                         int destAddr = switch (inType) {
                             case T -> src2 * instructionSize;
@@ -174,7 +174,7 @@ public class Processor {
 
 
             case ConditionalBranch -> {
-                boolean branch = switch (ConditionalBranchType.values()[subType]) {
+                boolean branch = switch (Types.ConditionalBranchType.values()[subType]) {
                     case EQ   -> src2 == src3;
                     case NEQ  -> src2 != src3;
                     case LT   -> src2 < src3;
@@ -188,7 +188,7 @@ public class Processor {
 
 
             case Class -> {
-                int offset = switch (ClassType.values()[subType]) {
+                int offset = switch (Types.ClassType.values()[subType]) {
                     case SIZE -> 0;
                     case ADDR -> 4;
                 };
@@ -199,7 +199,7 @@ public class Processor {
 
 
             case Logician -> {
-                switch (LogicianType.values()[subType]) {
+                switch (Types.LogicianType.values()[subType]) {
                     case SET_OBJECT     -> object    = src2;
                     case SET_TABLE      -> table     = src2;
                     case SET_ALT_TASK   -> altTask   = src2;
@@ -240,7 +240,7 @@ public class Processor {
 
 
             case Memory -> {
-                switch (MemoryType.values()[subType]) {
+                switch (Types.MemoryType.values()[subType]) {
                     case COPY -> {
                         switch (inType) {
                             case III -> {

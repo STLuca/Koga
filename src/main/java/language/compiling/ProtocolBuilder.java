@@ -1,10 +1,10 @@
 package language.compiling;
 
 import core.Document;
+import core.Types;
 import language.core.Compiler;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ProtocolBuilder implements Compiler.ProtocolCompiler {
 
@@ -12,7 +12,7 @@ public class ProtocolBuilder implements Compiler.ProtocolCompiler {
     
     public Document document() {
         Document c = new Document();
-        c.type = Document.Type.Protocol;
+        c.type = Types.Document.Protocol;
         c.protocolMethods = new Document.ProtocolMethod[builders.size()];
         for (int i = 0; i < builders.size(); i++) {
             ProtocolMethodBuilder pmb = builders.get(i);

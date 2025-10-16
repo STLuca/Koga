@@ -1,6 +1,7 @@
 package language.compiling;
 
 import core.Instruction;
+import core.Types;
 import language.core.Compiler;
 
 import java.util.List;
@@ -9,22 +10,22 @@ public class InstructionBuilder implements Compiler.InstructionCompiler {
 
     static int SRC_COUNT = 3;
 
-    public Instruction.Type type;
+    public Types.Instruction type;
 
-    public Instruction.IntegerType lType;
-    public Instruction.BranchType jType;
-    public Instruction.ConditionalBranchType bType;
-    public Instruction.ClassType cmType;
-    public Instruction.MemoryType mType;
-    public Instruction.LogicianType lgType;
-    public Instruction.InterruptType iType;
-    public Instruction.DebugType dType;
-    public Instruction.MathType mathType;
-    public Instruction.FloatType fType;
-    public Instruction.AtomicType aType;
-    public Instruction.VectorType vType;
+    public Types.IntegerType lType;
+    public Types.BranchType jType;
+    public Types.ConditionalBranchType bType;
+    public Types.ClassType cmType;
+    public Types.MemoryType mType;
+    public Types.LogicianType lgType;
+    public Types.InterruptType iType;
+    public Types.DebugType dType;
+    public Types.MathType mathType;
+    public Types.FloatType fType;
+    public Types.AtomicType aType;
+    public Types.VectorType vType;
 
-    public Instruction.InputType inputType = Instruction.InputType.NONE;
+    public Types.InputType inputType = Types.InputType.NONE;
 
     int srcIndex = 0;
     int[] srcs = new int[SRC_COUNT * 2];
@@ -64,58 +65,58 @@ public class InstructionBuilder implements Compiler.InstructionCompiler {
         return in;
     }
     
-    public void type(Instruction.Type type) {
+    public void type(Types.Instruction type) {
         this.type = type;
     }
     
-    public void subType(Instruction.IntegerType lType) {
+    public void subType(Types.IntegerType lType) {
         this.lType = lType;
     }
     
-    public void subType(Instruction.BranchType jType) {
+    public void subType(Types.BranchType jType) {
         this.jType = jType;
     }
     
-    public void subType(Instruction.ConditionalBranchType bType) {
+    public void subType(Types.ConditionalBranchType bType) {
         this.bType = bType;
     }
     
-    public void subType(Instruction.ClassType cmType) {
+    public void subType(Types.ClassType cmType) {
         this.cmType = cmType;
     }
     
-    public void subType(Instruction.MemoryType mType) {
+    public void subType(Types.MemoryType mType) {
         this.mType = mType;
     }
     
-    public void subType(Instruction.LogicianType lgType) {
+    public void subType(Types.LogicianType lgType) {
         this.lgType = lgType;
     }
     
-    public void subType(Instruction.InterruptType iType) {
+    public void subType(Types.InterruptType iType) {
         this.iType = iType;
     }
     
-    public void subType(Instruction.DebugType dType) {
+    public void subType(Types.DebugType dType) {
         this.dType = dType;
     }
 
     @Override
-    public void subType(Instruction.MathType subType) {
+    public void subType(Types.MathType subType) {
         this.mathType = subType;
     }
 
     @Override
-    public void subType(Instruction.AtomicType subType) {
+    public void subType(Types.AtomicType subType) {
 
     }
 
     @Override
-    public void subType(Instruction.VectorType subType) {
+    public void subType(Types.VectorType subType) {
 
     }
 
-    public void inputType(Instruction.InputType inputType) {
+    public void inputType(Types.InputType inputType) {
         this.inputType = inputType;
     }
     

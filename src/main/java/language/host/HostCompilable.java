@@ -1,11 +1,11 @@
 package language.host;
 
 import core.Document;
+import core.Types;
 import language.core.*;
 import language.core.Compiler;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class HostCompilable implements Compilable {
 
     public void compile(Sources sources, Compiler compiler, Level level) {
         compiler.name(name);
-        compiler.type(Document.Type.Host);
+        compiler.type(Types.Document.Host);
 
         for (String imprt : this.imports) {
             sources.parse(imprt);

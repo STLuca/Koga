@@ -1,11 +1,7 @@
 parser machineEnum;
 
-literals {
-    Success 0;
-    Error   1;
-    Waiting 2;
-}
-
 core.Status {
-    Byte[1] val;
+    Success {}
+    Error   {}
+    Waiting {}
 }

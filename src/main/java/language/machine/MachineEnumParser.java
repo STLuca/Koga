@@ -43,35 +43,28 @@ public class MachineEnumParser implements Parser {
     public void parse(Sources sources, String input) {
         Scanner scanner = new Scanner(input);
         MachineEnumStructure mec = new MachineEnumStructure();
-        Token curr = scanner.next(tokens);
-        if (curr != LITERALS) scanner.fail("literals");
-        curr = scanner.expect(tokens, OP_BRACE);
-        curr = scanner.next(tokens);
-        while (curr != CL_BRACE) {
-            MachineEnumStructure.Literal l = new MachineEnumStructure.Literal();
-            if (curr != NAME) scanner.fail("name");
-            l.name = curr.matched();
-            curr = scanner.expect(tokens, NUMBER);
-            l.value = curr.matched();
-            mec.literals.add(l);
-            scanner.expect(tokens, SEMI_COLON);
-            curr = scanner.next(tokens);
-        }
 
-        curr = scanner.expect(tokens, GLOBAL_NAME);
+        Token curr = scanner.expect(tokens, GLOBAL_NAME);
         mec.name = curr.matched();
 
         scanner.expect(tokens, OP_BRACE);
-        scanner.expect(tokens, TYPE);
-        scanner.expect(tokens, OP_SQ_BRACKET);
+        curr = scanner.next(tokens);
+        int currLiteral = 0;
+        while (curr != CL_BRACE) {
+            if (curr != NAME) scanner.fail("name");
+            MachineEnumStructure.Literal l = new MachineEnumStructure.Literal();
+            l.name = curr.matched();
+            l.value = String.valueOf(currLiteral++);
+            mec.literals.add(l);
+            scanner.expect(tokens, OP_BRACE);
+            scanner.expect(tokens, CL_BRACE);
+            curr = scanner.next(tokens);
+        }
 
-        Data data = new Data();
-        curr = scanner.expect(tokens, NUMBER);
-        data.size = Integer.parseInt(curr.matched());
-        scanner.expect(tokens, CL_SQ_BRACKET);
-        curr = scanner.expect(tokens, NAME);
-        data.name = curr.matched();
-        mec.data = data;
+        Data d = new Data();
+        d.size = 1;
+        d.name = "val";
+        mec.data = d;
 
         sources.add(mec);
     }

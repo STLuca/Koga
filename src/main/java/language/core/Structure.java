@@ -2,7 +2,7 @@ package language.core;
 
 import java.util.*;
 
-public interface Usable {
+public interface Structure {
 
     String name();
     default int genericIndex(String name) {
@@ -27,12 +27,12 @@ public interface Usable {
             List<Argument> arguments,
             Context context
     );
-    void invoke(
+    void operate(
             Compiler.MethodCompiler compiler,
             Sources sources,
             Map<String, Variable> variables,
             Variable variable,
-            String methodName,
+            String operationName,
             List<Argument> arguments,
             Context context
     );

@@ -1,10 +1,10 @@
-package language.union;
+package language.enumeration;
 
 import java.util.ArrayList;
 
 public class Field {
 
-    String usable;
+    String structure;
     ArrayList<String> generics = new ArrayList<>();
     String name;
 

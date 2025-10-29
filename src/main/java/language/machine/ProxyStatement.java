@@ -15,6 +15,6 @@ public class ProxyStatement implements Statement {
 
         Variable proxy = arguments.get(this.arguments.get(0)).variable;
         int location = variable.allocations.get(this.arguments.get(1)).location();
-        proxy.usable.proxy(null, proxy, location);
+        proxy.structure.proxy(null, proxy, location);
     }
 }

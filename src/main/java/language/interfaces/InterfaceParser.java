@@ -34,7 +34,7 @@ public class InterfaceParser implements Parser {
         metaTokens.add(CL_BRACE);
         metaTokens.add(SEMI_COLON);
         DEPENDENCIES  = metaTokens.add("'dependencies'");
-        IMPORTS       = metaTokens.add("'usables'");
+        IMPORTS       = metaTokens.add("'structures'");
         GLOBAL_NAME = metaTokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
         metaTokens.add(NAME);
     }
@@ -93,7 +93,7 @@ public class InterfaceParser implements Parser {
         while (curr != CL_PAREN) {
             if (curr != NAME) scanner.fail("name");
             Parameter p = new Parameter();
-            p.Usable = curr.matched();
+            p.structure = curr.matched();
             scanner.expect(tokens, NAME);
             p.name = curr.matched();
             m.params.add(p);

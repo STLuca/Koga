@@ -1,7 +1,7 @@
-package language.structure;
+package language.enumeration;
 
-import language.core.Sources;
 import language.core.Parser;
+import language.core.Sources;
 import language.scanning.Scanner;
 import language.scanning.Token;
 import language.scanning.Tokens;
@@ -10,11 +10,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class StructureParser implements Parser {
+public class EnumParser implements Parser {
 
     static class Context {
-        StructureUsable c;
-        HashMap<String, String> usables = new HashMap<>();
+        EnumStructure c;
+        HashMap<String, String> structures = new HashMap<>();
         HashMap<String, String> documents = new HashMap<>();
     }
 
@@ -27,7 +27,7 @@ public class StructureParser implements Parser {
 
     {
         DEPENDENCIES  = tokens.add("'dependencies'");
-        IMPORTS       = tokens.add("'usables'");
+        IMPORTS       = tokens.add("'structures'");
         CONSTRUCTOR   = tokens.add("'constructor'");
         IMPLEMENTS    = tokens.add("'implements'");
         PARAM_TYPE    = tokens.add("b[1-9][0-9]*");
@@ -82,15 +82,17 @@ public class StructureParser implements Parser {
         }
     }
 
+    @Override
     public String name() {
-        return "structure";
+        return "enum";
     }
 
+    @Override
     public void parse(Sources sources, String input) {
         Scanner scanner = new Scanner(input);
-        StructureUsable c = new StructureUsable();
+        EnumStructure u = new EnumStructure();
         Context ctx = new Context();
-        ctx.c = c;
+        ctx.c = u;
 
         // Token curr = scanner.expect(tokens, DISTINGUISH, "Expecting Distinguish");
         Token curr = scanner.next(tokens);
@@ -108,8 +110,8 @@ public class StructureParser implements Parser {
                     curr = scanner.next(tokens);
                 }
                 if (curr != SEMI_COLON) { scanner.fail(";"); }
-                ctx.usables.put(localName, globalName);
-                c.imports.add(globalName);
+                ctx.structures.put(localName, globalName);
+                u.imports.add(globalName);
                 curr = scanner.next(tokens);
             }
             curr = scanner.next(tokens);
@@ -128,25 +130,41 @@ public class StructureParser implements Parser {
                 }
                 if (curr != SEMI_COLON) { scanner.fail(";"); }
                 ctx.documents.put(localName, globalName);
-                c.dependencies.add(globalName);
+                u.dependencies.add(globalName);
                 curr = scanner.next(tokens);
             }
             curr = scanner.next(tokens);
         }
         if (curr != GLOBAL_NAME) scanner.fail("name");
-        c.name = curr.matched();
+        u.name = curr.matched();
 
         curr = scanner.next(tokens);
         if (curr != OP_BRACE) scanner.fail("{");
         curr = scanner.next(tokens);
         while (curr != CL_BRACE) {
             Token peek = scanner.peek(tokens).orElseThrow();
+            if (curr == NAME) {
+                parseStructure(scanner, ctx);
+                curr = scanner.next(tokens);
+            }
+        }
+        sources.add(u);
+    }
+    
+    void parseStructure(Scanner scanner, Context ctx) {
+        Structure structure = new Structure();
+        Token curr = scanner.current();
+        String structName = curr.matched();
+        scanner.expect(tokens, OP_BRACE);
+        curr = scanner.next(tokens);
+        while (curr != CL_BRACE) {
+            Token peek = scanner.peek(tokens).orElseThrow();
             if (curr == NAME && peek == NAME) {
-                parseVariable(scanner, ctx);
+                parseVariable(scanner, ctx, structure);
             } else if (curr == NAME) {
                 String name = curr.matched();
                 scanner.expect(tokens, OP_PAREN);
-                parseMethod(scanner, ctx, name, false);
+                parseMethod(scanner, ctx, structure, name, false);
             } else if (curr == CONSTRUCTOR) {
                 curr = scanner.next(tokens);
                 String name = "";
@@ -155,16 +173,17 @@ public class StructureParser implements Parser {
                     curr = scanner.next(tokens);
                 }
                 if (curr != OP_PAREN) scanner.fail("(");
-                parseMethod(scanner, ctx, name,true);
+                parseMethod(scanner, ctx, structure, name,true);
             } else if (curr == TILDA) {
                 scanner.takeUntilNewLine();
             }
             curr = scanner.next(tokens);
         }
-        sources.add(c);
+        structure.name = structName;
+        ctx.c.structures.add(structure);
     }
 
-    private void parseMethod(Scanner scanner, Context ctx, String name, boolean isConstructor) {
+    private void parseMethod(Scanner scanner, Context ctx, Structure c, String name, boolean isConstructor) {
         Method m = new Method();
         m.name = name;
         Token curr = scanner.next(tokens);
@@ -172,7 +191,7 @@ public class StructureParser implements Parser {
             if (curr != PARAM_TYPE && curr != NAME) throw new RuntimeException("expecting parameter type");
             boolean binaryType = curr == PARAM_TYPE;
             boolean isArray = false;
-            String paramType = curr.matched();
+            String paramType = ctx.structures.get(curr.matched());
             curr = scanner.next(tokens);
 //            if (curr == PARAM_ARRAY) {
 //                isArray = true;
@@ -194,18 +213,18 @@ public class StructureParser implements Parser {
             if (curr == TILDA) {
                 scanner.takeUntilNewLine();
             } else {
-                parseStatement(scanner, ctx, m.statements);
+                parseStatement(scanner, ctx, c, m.statements);
             }
             curr = scanner.next(tokens);
         }
         if (isConstructor) {
-            ctx.c.constructors.add(m);
+            c.constructors.add(m);
         } else {
-            ctx.c.methods.add(m);
+            c.methods.add(m);
         }
     }
 
-    private void parseStatement(Scanner scanner, Context ctx, List<Statement> statements) {
+    private void parseStatement(Scanner scanner, Context ctx, Structure c, List<Statement> statements) {
         Token curr = scanner.current();
         if (curr == TILDA) {
             scanner.takeUntilNewLine();
@@ -215,7 +234,7 @@ public class StructureParser implements Parser {
         String currS = curr.matched();
 
         // If imports contains the first String, it's a construct statement
-        boolean contains = ctx.usables.containsKey(currS);
+        boolean contains = ctx.structures.containsKey(currS);
         if (contains) {
             Statement s = new Statement();
             // Construct statement
@@ -225,7 +244,7 @@ public class StructureParser implements Parser {
             // should be series of ( and {
             // Can continue into invokes if name before ;
             s.type = Statement.Type.CONSTRUCT;
-            s.usable = ctx.usables.get(currS);
+            s.structure = ctx.structures.get(currS);
 
             // generics
             if (scanner.peek(tokens).orElse(null) == OP_PT_BRACE) {
@@ -233,8 +252,8 @@ public class StructureParser implements Parser {
                 do {
                     curr = scanner.next(tokens);
                     if (curr != NAME) scanner.fail("name");
-                    if (ctx.usables.containsKey(curr.matched())) {
-                        s.generics.add(ctx.usables.get(curr.matched()));
+                    if (ctx.structures.containsKey(curr.matched())) {
+                        s.generics.add(ctx.structures.get(curr.matched()));
                     } else if (ctx.documents.containsKey(curr.matched())) {
                         s.generics.add(ctx.documents.get(curr.matched()));
                     }
@@ -291,7 +310,7 @@ public class StructureParser implements Parser {
             }
 
             // No more names, just args now?
-            parseMethodArguments(scanner, ctx, s);
+            parseMethodArguments(scanner, ctx, c, s);
             statements.add(s);
 
             // chained statements
@@ -314,13 +333,13 @@ public class StructureParser implements Parser {
                 scanner.fail("Failed parsing method name");
             }
             scanner.next(tokens);
-            parseMethodArguments(scanner, ctx, s);
+            parseMethodArguments(scanner, ctx, c, s);
             statements.add(s);
             curr = scanner.current();
         }
     }
 
-    private void parseMethodArguments(Scanner scanner, Context ctx, Statement s) {
+    private void parseMethodArguments(Scanner scanner, Context ctx, Structure c, Statement s) {
         Token curr = scanner.current();
 
         if (curr != OP_PAREN && curr != OP_BRACE) {
@@ -371,7 +390,7 @@ public class StructureParser implements Parser {
                 arg.block = new ArrayList<>();
                 curr = scanner.next(tokens);
                 while (curr != CL_BRACE) {
-                    parseStatement(scanner, ctx, arg.block);
+                    parseStatement(scanner, ctx, c, arg.block);
                     curr = scanner.next(tokens);
                 }
                 s.arguments.add(arg);
@@ -388,15 +407,19 @@ public class StructureParser implements Parser {
         }
     }
 
-    private void parseVariable(Scanner scanner, Context ctx) {
+    private void parseVariable(Scanner scanner, Context ctx, Structure s) {
         Field f = new Field();
         Token curr = scanner.current();
-        f.usable = ctx.usables.get(curr.matched());
+        f.structure = ctx.structures.get(curr.matched());
         curr = scanner.next(tokens);
         if (curr == OP_PT_BRACE) {
             do {
                 curr = scanner.expect(tokens, NAME);
-                f.generics.add(ctx.usables.get(curr.matched()));
+                if (ctx.structures.containsKey(curr.matched())) {
+                    f.generics.add(ctx.structures.get(curr.matched()));
+                } else if (ctx.documents.containsKey(curr.matched())) {
+                    f.generics.add(ctx.documents.get(curr.matched()));
+                }
                 curr = scanner.next(tokens);
             } while (curr == COMMA);
             if (curr != CL_PT_BRACE) scanner.fail(">");
@@ -405,7 +428,6 @@ public class StructureParser implements Parser {
         if (curr != NAME) scanner.fail("field name");
         f.name = curr.matched();
         scanner.expect(tokens, SEMI_COLON);
-        ctx.c.fields.add(f);
+        s.fields.add(f);
     }
-
 }

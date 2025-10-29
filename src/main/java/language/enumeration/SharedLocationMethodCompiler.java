@@ -1,4 +1,4 @@
-package language.union;
+package language.enumeration;
 
 import core.Types;
 import language.core.Compiler;

@@ -1,6 +1,6 @@
-parser machine;
+parser machineComposite;
 
-usables {
+structures {
     core.Int;
     core.ArrayPointer;
 }
@@ -22,9 +22,9 @@ core.Connection {
         i(ADD, TI, LDA, instance, ADA, instance, IL, 0d0);
     }
 
-    constructor connect(Int instance, Name protocol, Name method) {
+    constructor connect(Int instance, Name protocol, Name operation) {
         Byte[4] protocolMethodAddr;
-        Symbol(METHOD, protocolMethodSymbol, AL, protocol, AL, method);
+        Symbol(METHOD, protocolMethodSymbol, AL, protocol, AL, operation);
         c(ADDR, LI, protocolMethodAddr, table, protocolMethodSymbol);
 
         Byte[4] adminConnectMethod;

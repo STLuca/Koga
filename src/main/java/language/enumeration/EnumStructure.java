@@ -1,11 +1,11 @@
-package language.union;
+package language.enumeration;
 
 import language.core.*;
 import language.machine.InstructionStatement;
 
 import java.util.*;
 
-public class UnionUsable implements Usable {
+public class EnumStructure implements language.core.Structure {
 
     static final int TYPE_SIZE = 1;
 
@@ -37,7 +37,7 @@ public class UnionUsable implements Usable {
     public void declare(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics) {
         Variable thisVariable = new Variable();
         thisVariable.name = name;
-        thisVariable.usable = this;
+        thisVariable.structure = this;
         variables.put(name, thisVariable);
 
         for (String imprt : this.imports) {
@@ -54,7 +54,7 @@ public class UnionUsable implements Usable {
             mc.parent = compiler;
             mc.location = location;
             for (Field f : struct.fields) {
-                Usable u = sources.usable(f.usable);
+                language.core.Structure u = sources.structure(f.structure);
                 String fieldName = name + "." + struct.name + "." + f.name;
                 u.declare(mc, sources, variables, fieldName, f.generics);
             }
@@ -65,7 +65,7 @@ public class UnionUsable implements Usable {
     public void construct(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics, String constructorName, List<Argument> arguments, Context context) {
         Variable thisVariable = new Variable();
         thisVariable.name = name;
-        thisVariable.usable = this;
+        thisVariable.structure = this;
         variables.put(name, thisVariable);
 
         for (String imprt : this.imports) {
@@ -113,7 +113,7 @@ public class UnionUsable implements Usable {
             mc.parent = compiler;
             mc.location = location;
             for (Field f : struct.fields) {
-                Usable u = sources.usable(f.usable);
+                language.core.Structure u = sources.structure(f.structure);
                 String fieldName = name + "." + struct.name + "." + f.name;
                 u.declare(mc, sources, variables, fieldName, f.generics);
             }
@@ -129,10 +129,10 @@ public class UnionUsable implements Usable {
     }
 
     @Override
-    public void invoke(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String methodName, List<Argument> arguments, Context context) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String operationName, List<Argument> arguments, Context context) {
         HashMap<String, Variable.Allocation> methodAllocations = new HashMap<>();
         variable.methodAllocations.add(methodAllocations);
-        switch (methodName) {
+        switch (operationName) {
             case "match" -> {
                 if (arguments.size() % 2 != 0) { throw new RuntimeException("Should be type followed by block for every type"); }
                 for (int i = 0; i < arguments.size(); i+=2) {
@@ -159,9 +159,9 @@ public class UnionUsable implements Usable {
                     compiler.address(caseAddr);
 
                     // execute block
-                    variable.usable = structures.get(i / 2);
+                    variable.structure = structures.get(i / 2);
                     arguments.get(i + 1).block.execute(compiler);
-                    variable.usable = this;
+                    variable.structure = this;
 
 
                     new InstructionStatement("j", "REL", "I", "end").compile(compiler, sources, variable, Map.of(), context);
@@ -175,7 +175,7 @@ public class UnionUsable implements Usable {
                 for (Structure s : structures) {
                     boolean found = false;
                     for (Method m : s.methods) {
-                        if (m.name.equals(methodName)) {
+                        if (m.name.equals(operationName)) {
                             methods.add(m);
                             found = true;
                             break;
@@ -207,7 +207,7 @@ public class UnionUsable implements Usable {
                     compiler.address(caseAddr);
 
                     // execute block
-                    variable.usable = structures.get(i / 2);
+                    variable.structure = structures.get(i / 2);
                     Method m = methods.get(i);
                     for (Statement stmt : m.statements) {
                         HashMap<String, Argument> args = new HashMap<>();
@@ -217,7 +217,7 @@ public class UnionUsable implements Usable {
                         }
                         stmt.handle(compiler, sources, variables, args, variable.name + "." + s.name, context);
                     }
-                    variable.usable = this;
+                    variable.structure = this;
 
                     new InstructionStatement("j", "REL", "I", "end").compile(compiler, sources, variable, Map.of(), context);
                     compiler.address(end);

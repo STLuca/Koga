@@ -1,11 +1,10 @@
 package language.hosted;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Field {
 
-    String usable;
+    String structure;
     ArrayList<String> generics = new ArrayList<>();
     String name;
 

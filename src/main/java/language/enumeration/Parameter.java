@@ -1,12 +1,8 @@
-package language.structure;
+package language.enumeration;
 
 import language.core.Argument;
-import language.core.Usable;
-import language.core.Variable;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class Parameter {
 
@@ -15,7 +11,7 @@ public class Parameter {
     // Type literal
     int bits;
     // Type variable
-    String usable;
+    String structure;
     ArrayList<String> generics = new ArrayList<>();
 
 }

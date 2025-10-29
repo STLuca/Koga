@@ -1,6 +1,6 @@
 parser hosted;
 
-usables {
+structures {
     core.Int;
     core.Reference;
     core.Pointer;

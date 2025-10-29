@@ -1,4 +1,4 @@
-package language.structure;
+package language.composite;
 
 import language.core.*;
 
@@ -22,7 +22,7 @@ public class Statement {
     }
 
     Type type;
-    String usable;
+    String structure;
     String variableName;
     String methodName;
     ArrayList<String> generics = new ArrayList<>();
@@ -75,20 +75,20 @@ public class Statement {
 
         switch (type) {
             case DECLARE -> {
-                Usable usable = sources.usable(this.usable);
-                usable.declare(compiler, sources, variables, name + "." + variableName, generics);
+                Structure structure = sources.structure(this.structure);
+                structure.declare(compiler, sources, variables, name + "." + variableName, generics);
             }
             case CONSTRUCT -> {
-                Usable usable = sources.usable(this.usable);
-                usable.construct(compiler, sources, variables, name + "." + variableName, generics, methodName, args, context);
+                Structure structure = sources.structure(this.structure);
+                structure.construct(compiler, sources, variables, name + "." + variableName, generics, methodName, args, context);
             }
             case INVOKE -> {
                 Variable variable = variables.get(name + "." + variableName);
                 if (variable == null) {
                     variable = argsByName.get(variableName).variable;
                 }
-                Usable sc = variable.usable;
-                sc.invoke(compiler, sources, variables, variable, methodName, args, context);
+                Structure sc = variable.structure;
+                sc.operate(compiler, sources, variables, variable, methodName, args, context);
             }
         }
     }

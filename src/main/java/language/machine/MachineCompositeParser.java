@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MachineUsableParser implements Parser {
+public class MachineCompositeParser implements Parser {
 
     Token CONSTRUCTOR, NAME, GLOBAL_NAME, IMPORTS, BYTE, ADDR, POSITION, BLOCK,
           NUMBER, LITERAL_ARG, PARAM_TYPE, PARAM_ARRAY,
@@ -52,7 +52,7 @@ public class MachineUsableParser implements Parser {
         paramTokens.add(CL_PT_BRACE);
         paramTokens.add(NAME);
 
-        IMPORTS     = metaTokens.add("'usables'");
+        IMPORTS     = metaTokens.add("'structures'");
         metaTokens.add(SEMI_COLON);
         metaTokens.add(OP_BRACE);
         metaTokens.add(CL_BRACE);
@@ -61,13 +61,13 @@ public class MachineUsableParser implements Parser {
     }
 
     public String name() {
-        return "machine";
+        return "machineComposite";
     }
     
     public void parse(Sources sources, String input) {
-        HashMap<String, String> usables = new HashMap<>();
+        HashMap<String, String> structures = new HashMap<>();
         SingleLineScanner scanner = new SingleLineScanner(input);
-        MachineUsable mc = new MachineUsable();
+        MachineCompositeStructure mc = new MachineCompositeStructure();
         Token curr = scanner.next(metaTokens);
 
         if (curr == IMPORTS) {
@@ -83,7 +83,7 @@ public class MachineUsableParser implements Parser {
                     local = curr.matched();
                     curr = scanner.next(metaTokens);
                 }
-                usables.put(local, global);
+                structures.put(local, global);
                 if (curr != SEMI_COLON) scanner.fail(";");
                 curr = scanner.next(metaTokens);
             }
@@ -94,7 +94,7 @@ public class MachineUsableParser implements Parser {
         mc.name = curr.matched();
 
         String[] splitName = mc.name.split("\\.");
-        usables.put(splitName[splitName.length - 1], mc.name);
+        structures.put(splitName[splitName.length - 1], mc.name);
 
         curr = scanner.next(tokens);
         if (curr == OP_PT_BRACE) {
@@ -120,9 +120,9 @@ public class MachineUsableParser implements Parser {
             } else if (curr == ADDR) {
                 parseAddress(scanner, mc);
             } else if (curr == CONSTRUCTOR) {
-                parseConstructor(scanner, mc, usables);
+                parseConstructor(scanner, mc, structures);
             } else if (curr == NAME) {
-                parseMethod(scanner, mc, usables);
+                parseMethod(scanner, mc, structures);
             } else if (curr == TILDA) {
                 scanner.takeUntilNewLine();
             }
@@ -132,13 +132,13 @@ public class MachineUsableParser implements Parser {
 
     }
 
-    private void parseAddress(SingleLineScanner scanner, MachineUsable mc) {
+    private void parseAddress(SingleLineScanner scanner, MachineCompositeStructure mc) {
         Token curr = scanner.expect(tokens, NAME);
         mc.addresses.add(curr.matched());
         scanner.expect(tokens, SEMI_COLON);
     }
 
-    private void parseVariable(SingleLineScanner scanner, MachineUsable mc) {
+    private void parseVariable(SingleLineScanner scanner, MachineCompositeStructure mc) {
         Token curr = scanner.current();
         Data data = new Data();
         data.type = Data.Type.valueOf(curr.matched().toUpperCase());
@@ -155,8 +155,8 @@ public class MachineUsableParser implements Parser {
         mc.variables.add(data);
     }
 
-    private void parseConstructor(SingleLineScanner scanner, MachineUsable mc, HashMap<String, String> usables) {
-        Method mcc = new Method();
+    private void parseConstructor(SingleLineScanner scanner, MachineCompositeStructure mc, HashMap<String, String> structures) {
+        Operation mcc = new Operation();
         Token curr = scanner.next(tokens);
         if (curr == NAME) {
             mcc.name = curr.matched();
@@ -166,27 +166,27 @@ public class MachineUsableParser implements Parser {
         } else {
             scanner.fail("(");
         }
-        parseParameters(scanner, mc, mcc.parameters, usables);
+        parseParameters(scanner, mc, mcc.parameters, structures);
         scanner.expect(tokens, OP_BRACE);
         scanner.next(tokens);
         parseStatements(scanner, mcc.body);
         mc.constructors.add(mcc);
     }
 
-    private void parseMethod(SingleLineScanner scanner, MachineUsable mc, HashMap<String, String> usables) {
-        Method mcm = new Method();
+    private void parseMethod(SingleLineScanner scanner, MachineCompositeStructure mc, HashMap<String, String> structures) {
+        Operation mcm = new Operation();
         Token curr = scanner.current();
         if (curr != NAME) scanner.fail("name");
         mcm.name = curr.matched();
         scanner.expect(tokens, OP_PAREN);
-        parseParameters(scanner, mc, mcm.parameters, usables);
+        parseParameters(scanner, mc, mcm.parameters, structures);
         scanner.expect(tokens, OP_BRACE);
         scanner.next(tokens);
         parseStatements(scanner, mcm.body);
-        mc.methods.add(mcm);
+        mc.operations.add(mcm);
     }
 
-    void parseParameters(SingleLineScanner scanner, MachineUsable mc, ArrayList<Method.Parameter> parameters, HashMap<String, String> usables) {
+    void parseParameters(SingleLineScanner scanner, MachineCompositeStructure mc, ArrayList<Operation.Parameter> parameters, HashMap<String, String> structures) {
         Token curr = scanner.next(paramTokens);
         while (curr != CL_PAREN) {
             if (curr != PARAM_TYPE && curr != NAME) { scanner.fail("Invalid param type"); }
@@ -213,29 +213,29 @@ public class MachineUsableParser implements Parser {
             String paramName = curr.matched();
 
             if (binaryType) {
-                Method.Parameter p = new Method.Parameter();
+                Operation.Parameter p = new Operation.Parameter();
                 p.type = Argument.Type.Literal;
                 p.bits = Integer.parseInt(paramType.substring(1));
                 p.array = isArray;
                 p.name = paramName;
                 parameters.add(p);
             } else {
-                Method.Parameter p = new Method.Parameter();
+                Operation.Parameter p = new Operation.Parameter();
                 if (paramType.equals("Block")) {
                     p.type = Argument.Type.Block;
                 } else if (paramType.equals("Name")) {
                     p.type = Argument.Type.Name;
                 } else {
                     p.type = Argument.Type.Variable;
-                    Method.VariableMatcher vm = new Method.VariableMatcher();
-                    buildVariableMatcher(vm, paramType, usables, mc.generics);
+                    Operation.VariableMatcher vm = new Operation.VariableMatcher();
+                    buildVariableMatcher(vm, paramType, structures, mc.generics);
                     p.variableMatcher = vm;
                     if (!generics.isEmpty()) {
                         vm.subMatchers = new ArrayList<>();
                     }
                     for (String generic : generics) {
-                        Method.VariableMatcher gvm = new Method.VariableMatcher();
-                        buildVariableMatcher(gvm, generic, usables, mc.generics);
+                        Operation.VariableMatcher gvm = new Operation.VariableMatcher();
+                        buildVariableMatcher(gvm, generic, structures, mc.generics);
                         p.variableMatcher.subMatchers.add(gvm);
                     }
                 }
@@ -248,7 +248,7 @@ public class MachineUsableParser implements Parser {
         }
     }
 
-    void buildVariableMatcher(Method.VariableMatcher vm, String name, HashMap<String, String> usables, ArrayList<Generic> generics) {
+    void buildVariableMatcher(Operation.VariableMatcher vm, String name, HashMap<String, String> structures, ArrayList<Generic> generics) {
         boolean isGeneric = false;
         for (Generic g : generics) {
             if (g.name.equals(name)) {
@@ -260,7 +260,7 @@ public class MachineUsableParser implements Parser {
         if (isGeneric) {
             vm.name = name;
         } else {
-            vm.name = usables.get(name);
+            vm.name = structures.get(name);
         }
     }
 

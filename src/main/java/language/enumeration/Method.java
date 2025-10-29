@@ -1,9 +1,8 @@
-package language.structure;
+package language.enumeration;
 
 import language.core.Argument;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Method {
 
@@ -20,7 +19,7 @@ public class Method {
             p.type = Argument.Type.Name;
         } else {
             p.type = Argument.Type.Variable;
-            p.usable = typeName;
+            p.structure = typeName;
         }
         params.add(p);
     }

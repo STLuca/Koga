@@ -1,12 +1,12 @@
-parser machine;
+parser machineComposite;
 
-usables {
+structures {
     core.Array;
     core.String;
     core.Int;
 }
 
-core.ArrayPointer<Usable T> {
+core.ArrayPointer<Structure T> {
 
     Byte[4] start;
     Byte[4] size;

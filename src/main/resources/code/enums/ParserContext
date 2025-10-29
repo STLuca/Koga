@@ -1,6 +1,6 @@
-parser union;
+parser enum;
 
-usables {
+structures {
     core.Int;
     core.Boolean;
 }

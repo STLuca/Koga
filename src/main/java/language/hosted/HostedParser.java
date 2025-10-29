@@ -14,7 +14,7 @@ public class HostedParser implements Parser {
 
     static class Context {
         HostedCompilable c;
-        HashMap<String, String> usables = new HashMap<>();
+        HashMap<String, String> structures = new HashMap<>();
         HashMap<String, String> documents = new HashMap<>();
     }
 
@@ -49,7 +49,7 @@ public class HostedParser implements Parser {
 
         {
             DEPENDENCIES  = metaTokens.add("'documents'");
-            IMPORTS       = metaTokens.add("'usables'");
+            IMPORTS       = metaTokens.add("'structures'");
             // CONSTANTS     = metaTokens.add("'constants'");
             IMPLEMENTS    = metaTokens.add("'implements'");
             GLOBAL_NAME   = metaTokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
@@ -114,7 +114,7 @@ public class HostedParser implements Parser {
                     curr = scanner.next(metaTokens);
                 }
                 if (curr != SEMI_COLON) { scanner.fail(";"); }
-                ctx.usables.put(localName, globalName);
+                ctx.structures.put(localName, globalName);
                 c.imports.add(globalName);
                 curr = scanner.next(metaTokens);
             }
@@ -183,15 +183,15 @@ public class HostedParser implements Parser {
         while (curr != CL_PAREN) {
             if (curr != NAME) scanner.fail("name");
             Parameter p = new Parameter();
-            p.usable = ctx.usables.get(curr.matched());
+            p.structure = ctx.structures.get(curr.matched());
             curr = scanner.next(tokens);
 
             if (curr == OP_PT_BRACE) {
                 curr = scanner.next(tokens);
                 while (curr != CL_PT_BRACE) {
                     if (curr != NAME) scanner.fail("name");
-                    if (ctx.usables.containsKey(curr.matched())) {
-                        p.generics.add(ctx.usables.get(curr.matched()));
+                    if (ctx.structures.containsKey(curr.matched())) {
+                        p.generics.add(ctx.structures.get(curr.matched()));
                     } else if (ctx.documents.containsKey(curr.matched())) {
                         p.generics.add(ctx.documents.get(curr.matched()));
                     } else {
@@ -233,7 +233,7 @@ public class HostedParser implements Parser {
         String currS = curr.matched();
 
         // If imports contains the first String, it's a construct statement
-        boolean contains = ctx.usables.containsKey(currS);
+        boolean contains = ctx.structures.containsKey(currS);
         if (contains) {
             Statement s = new Statement();
             // Construct statement
@@ -243,7 +243,7 @@ public class HostedParser implements Parser {
             // should be series of ( and {
             // Can continue into invokes if name before ;
             s.type = Statement.Type.CONSTRUCT;
-            s.usable = ctx.usables.get(currS);
+            s.structure = ctx.structures.get(currS);
 
             // generics
             if (scanner.peek(tokens).orElse(null) == OP_PT_BRACE) {
@@ -251,8 +251,8 @@ public class HostedParser implements Parser {
                 do {
                     curr = scanner.next(tokens);
                     if (curr != NAME) scanner.fail("name");
-                    if (ctx.usables.containsKey(curr.matched())) {
-                        s.generics.add(ctx.usables.get(curr.matched()));
+                    if (ctx.structures.containsKey(curr.matched())) {
+                        s.generics.add(ctx.structures.get(curr.matched()));
                     } else if (ctx.documents.containsKey(curr.matched())) {
                         s.generics.add(ctx.documents.get(curr.matched()));
                     }
@@ -409,13 +409,13 @@ public class HostedParser implements Parser {
     private void parseField(Scanner scanner, Context ctx) {
         Field f = new Field();
         Token curr = scanner.current();
-        f.usable = ctx.usables.get(curr.matched());
+        f.structure = ctx.structures.get(curr.matched());
         curr = scanner.next(tokens);
         if (curr == OP_PT_BRACE) {
             do {
                 curr = scanner.expect(tokens, NAME);
-                if (ctx.usables.containsKey(curr.matched())) {
-                    f.generics.add(ctx.usables.get(curr.matched()));
+                if (ctx.structures.containsKey(curr.matched())) {
+                    f.generics.add(ctx.structures.get(curr.matched()));
                 } else if (ctx.documents.containsKey(curr.matched())) {
                     f.generics.add(ctx.documents.get(curr.matched()));
                 }

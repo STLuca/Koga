@@ -23,7 +23,7 @@ public class Statement {
     }
 
     Type type;
-    String usable;
+    String structure;
     String variableName;
     String methodName;
     ArrayList<String> generics = new ArrayList<>();
@@ -69,17 +69,17 @@ public class Statement {
 
         switch (type) {
             case DECLARE -> {
-                Usable usable = sources.usable(this.usable);
-                usable.declare(compiler, sources, variables, variableName, generics);
+                Structure structure = sources.structure(this.structure);
+                structure.declare(compiler, sources, variables, variableName, generics);
             }
             case CONSTRUCT -> {
-                Usable usable = sources.usable(this.usable);
-                usable.construct(compiler, sources, variables, variableName, generics, methodName, args, context);
+                Structure structure = sources.structure(this.structure);
+                structure.construct(compiler, sources, variables, variableName, generics, methodName, args, context);
             }
             case INVOKE -> {
                 Variable variable = variables.get(variableName);
-                Usable sc = variable.usable;
-                sc.invoke(compiler, sources, variables, variable, methodName, args, context);
+                Structure sc = variable.structure;
+                sc.operate(compiler, sources, variables, variable, methodName, args, context);
             }
         }
     }

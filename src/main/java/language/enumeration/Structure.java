@@ -1,4 +1,4 @@
-package language.union;
+package language.enumeration;
 
 import language.core.*;
 
@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class Structure implements Usable {
+class Structure implements language.core.Structure {
 
     String name;
     ArrayList<Field> fields = new ArrayList<>();
@@ -17,7 +17,7 @@ class Structure implements Usable {
     public int size(Sources sources) {
         int size = 0;
         for (Field f : fields) {
-            Usable u = sources.usable(f.usable);
+            language.core.Structure u = sources.structure(f.structure);
             size += u.size(sources);
         }
         return size;
@@ -44,10 +44,10 @@ class Structure implements Usable {
     }
 
     @Override
-    public void invoke(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String methodName, List<Argument> arguments, Context context) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String operationName, List<Argument> arguments, Context context) {
         Method method = null;
         for (Method m : methods) {
-            if (m.name.equals(methodName)) {
+            if (m.name.equals(operationName)) {
                 method = m;
                 break;
             }

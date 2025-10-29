@@ -1,4 +1,4 @@
-package language.structure;
+package language.composite;
 
 import language.core.*;
 
@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StructureUsable implements Usable {
+public class CompositeStructure implements Structure {
 
     String name;
     ArrayList<String> imports = new ArrayList<>();
@@ -23,7 +23,7 @@ public class StructureUsable implements Usable {
     public int size(Sources sources) {
         int size = 0;
         for (Field f : fields) {
-            Usable u = sources.usable(f.name);
+            Structure u = sources.structure(f.name);
             size += u.size(sources);
         }
         return size;
@@ -32,7 +32,7 @@ public class StructureUsable implements Usable {
     public void declare(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics) {
         Variable thisVariable = new Variable();
         thisVariable.name = name;
-        thisVariable.usable = this;
+        thisVariable.structure = this;
         variables.put(name, thisVariable);
 
         for (String imprt : this.imports) {
@@ -40,7 +40,7 @@ public class StructureUsable implements Usable {
         }
 
         for (Field f : fields) {
-            Usable u = sources.usable(f.usable);
+            Structure u = sources.structure(f.structure);
             String fieldName = name + "." + f.name;
             u.declare(compiler, sources, variables, fieldName, f.generics);
         }
@@ -53,7 +53,7 @@ public class StructureUsable implements Usable {
     public void construct(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics, String constructorName, List<Argument> arguments, Context context) {
         Variable thisVariable = new Variable();
         thisVariable.name = name;
-        thisVariable.usable = this;
+        thisVariable.structure = this;
         variables.put(name, thisVariable);
 
         for (String imprt : this.imports) {
@@ -81,10 +81,10 @@ public class StructureUsable implements Usable {
         }
     }
     
-    public void invoke(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String methodName, List<Argument> arguments, Context context) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String operationName, List<Argument> arguments, Context context) {
         Method method = null;
         for (Method m : methods) {
-            if (m.name.equals(methodName)) {
+            if (m.name.equals(operationName)) {
                 method = m;
                 break;
             }

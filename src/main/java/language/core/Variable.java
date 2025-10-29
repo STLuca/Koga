@@ -8,15 +8,15 @@ public class Variable {
     public record Allocation(int size, int location) {}
 
     public String name;
-    public Usable usable;
+    public Structure structure;
     public ArrayList<Generic> generics = new ArrayList<>();
     public HashMap<String, Allocation> allocations = new HashMap<>();
     public ArrayDeque<Map<String, Allocation>> methodAllocations = new ArrayDeque<>();
 
     public static class Generic {
-        public enum Type { Usable, Document }
+        public enum Type { Structure, Document }
         public Type type;
-        public Usable usable;
+        public Structure structure;
         public Document document;
     }
 

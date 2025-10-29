@@ -1,13 +1,13 @@
 parser interface;
 
-usables {
+structures {
     core.Int;
-    core.Usable;
+    core.Structure;
 }
 
 collection.List {
 
-    init(Usable mc, Int size);
+    init(Structure mc, Int size);
     set(Int index, Int value);
 
 }

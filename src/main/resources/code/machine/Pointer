@@ -1,12 +1,12 @@
-parser machine;
+parser machineComposite;
 
-usables {
+structures {
     core.Reference;
     core.Int;
     core.Pointer;
 }
 
-core.Pointer<Usable T> {
+core.Pointer<Structure T> {
 
     Byte[4] addr;
 

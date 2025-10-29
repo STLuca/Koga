@@ -1,6 +1,6 @@
 parser hosted;
 
-usables {
+structures {
     core.Int;
     core.Boolean;
     core.While;
@@ -233,7 +233,7 @@ util.SimpleAdministrator implements Administrator {
         protocolMethodPtr -> protocol;
 
         Int msgType 1;
-        Int method 5;
+        Int operation 5;
         out <- msgType;
         out <- instance;
         out <- protocol;

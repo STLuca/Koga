@@ -6,9 +6,9 @@ public interface Sources {
 
     Sources root();
     boolean parse(String name);
-    Usable usable(String name);
+    Structure structure(String name);
     Document document(String name, Compilable.Level level);
-    void add(Usable c);
+    void add(Structure c);
     void add(Compilable c);
 
 }

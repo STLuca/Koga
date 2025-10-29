@@ -186,11 +186,11 @@
 
     <h5>Core</h5>
     <p>
-        At the core of the language is two interfaces: Compilable and Usable.
-        An example of a Compilable would be an ArrayList, and examples of Usable would be Int, Boolean, If, While.
+        At the core of the language is two interfaces: Compilable and Structure.
+        An example of a Compilable would be an ArrayList, and examples of Structure would be Int, Boolean, If, While.
         A Compilable is given a DocumentBuilder which it uses to add fields, methods, symbols.
-        A Usable has a bit more going on, with methods like declare, construct, invoke.
-        It's given a MethodBuilder, which is used to add method local fields, add instructions, add instruction addresses etc.
+        A Structure has a bit more going on, with methods like declare, construct, invoke.
+        It's given a MethodBuilder, which is used to add operation local fields, add instructions, add instruction addresses etc.
     </p>
 
     <h5>Parsers</h5>
@@ -202,12 +202,12 @@
         This means when there is a new parser version, you don't have to update every file at once, you might leave a few difficult files on an old version.
     </p>
 
-    <h5>Usables</h5>
+    <h5>Structures</h5>
 
     <p>
         These are written in terms of the machine and document methods.
         These can define variables, which are either bytes or instruction addresses.
-        They can define constructors and methods which will then define a sequence of machine instructions to add to the document method builder.
+        They can define constructors and methods which will then define a sequence of machine instructions to add to the document operation builder.
     </p>
 
     <pre>
@@ -247,7 +247,7 @@
 
     <p>
         Take this small example of an Int and its usage.<br/>
-        <code>Int x 0</code> - this statement constructs a variable x using the Int usable. It runs the matched Int constructor i.e. a no name constructor that takes a single immediate argument.<br/>
+        <code>Int x 0</code> - this statement constructs a variable x using the Int structure. It runs the matched Int constructor i.e. a no name constructor that takes a single immediate argument.<br/>
         In this case, when compiling the main methods first statement, 4 bytes will be allocated along with the one instruction <code>l(ADD, II, LDA, val, IL, 0d0, AL, imm);</code>
         Int methods can now be called on the variable x, in essence doing the same thing as the constructor e.g. <code>x plus(5);</code>.
     </p>
@@ -457,7 +457,7 @@
     <p>
         I somewhat lied about choosing the single task design.
         It's actually more like a dual task, each task has secondary space to run local admin tasks e.g. allocation.
-        For example, if your method were 200 bytes and the local admins largest method were 300, the tasks total size would be 500.
+        For example, if your operation were 200 bytes and the local admins largest operation were 300, the tasks total size would be 500.
         This does mean that admin methods can't call admin methods, but that's perfectly fine in my opinion.
     </p>
 
@@ -498,32 +498,32 @@
     <p>
         I personally think generics are better than templates and that while they are very useful, they are only really useful for a small number of cases e.g. container sources.
         I want to keep the feature simple enough to handle these cases, and try not to go much further.
-        There's a few interactions with generics in Koga due to the existence of usables and compilables.
+        There's a few interactions with generics in Koga due to the existence of structures and compilables.
     </p>
 
     <ul>
-        <li>Array&lt;Int&gt; - a usable with a usable generic</li>
-        <li>Reference&lt;ArrayList&gt; - a usable with a compilable generic</li>
-        <li>ArrayList&lt;Int&gt; - a compilable with a usable generic</li>
-        <li>ArrayList&lt;Reference&lt;ArrayList&gt;&gt; - compilable with a usable generic with a compilable generic</li>
+        <li>Array&lt;Int&gt; - a structure with a structure generic</li>
+        <li>Reference&lt;ArrayList&gt; - a structure with a compilable generic</li>
+        <li>ArrayList&lt;Int&gt; - a compilable with a structure generic</li>
+        <li>ArrayList&lt;Reference&lt;ArrayList&gt;&gt; - compilable with a structure generic with a compilable generic</li>
     </ul>
     <p>
         A compilable only really uses generics for type checking, it doesn't have access to any of the generic information.
         However, an ArrayList needs access to the generic's size when allocating the array.
         For this to work you have to send the information to the ArrayList at runtime.
-        For example, a usable called Usable&lt;T&gt; will contain the size, so you pass this during construction.
+        For example, a structure called Structure&lt;T&gt; will contain the size, so you pass this during construction.
     </p>
     <p>
-        A usable, existing only at compile time, has access to the generic information.
+        A structure, existing only at compile time, has access to the generic information.
         Therefore, Array&lt;T&gt; can query for the size of T.
         This is a small lie, the generic must be concrete at compile time (could be used within a generic compilable)
     </p>
     <p>
-        What about a usable with a compilable generic?
+        What about a structure with a compilable generic?
         Well here, looking at the reference example, you can use the generics name to add symbols to the symbol table.
         For example, you can add a symbol for the class T.
         Now you can use that symbol to add a runtime table lookup instruction for the size of T (i.e. how much space the type needs, an object with only an Int field would need 4 bytes).
-        The Reference usable does this in its constructor method "new" to allocate the new instance, and also for method invocation.
+        The Reference structure does this in its constructor operation "new" to allocate the new instance, and also for operation invocation.
     </p>
     <p>
         The generics are pretty undeveloped right now, really only implemented just enough to somewhat work.

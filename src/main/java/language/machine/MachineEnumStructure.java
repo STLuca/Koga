@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MachineEnumUsable implements Usable {
+public class MachineEnumStructure implements Structure {
 
     static class Literal {
         String name;
@@ -30,7 +30,7 @@ public class MachineEnumUsable implements Usable {
     public void declare(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics) {
         Variable variable = new Variable();
         variable.name = name;
-        variable.usable = this;
+        variable.structure = this;
         variables.put(name, variable);
         int allocation = compiler.data(data.size);
         variable.allocations.put(data.name, new Variable.Allocation(data.size, allocation));
@@ -44,7 +44,7 @@ public class MachineEnumUsable implements Usable {
     public void construct(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics, String constructorName, List<Argument> arguments, Context context) {
         Variable variable = new Variable();
         variable.name = name;
-        variable.usable = this;
+        variable.structure = this;
         variables.put(name, variable);
         // Read literal from args
         if (arguments.size() != 1) throw new RuntimeException("Only 1 argument allowed for enum constructor");
@@ -73,8 +73,8 @@ public class MachineEnumUsable implements Usable {
         variable.methodAllocations.pop();
     }
     
-    public void invoke(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String methodName, List<Argument> arguments, Context context) {
-        if (!methodName.equals("match")) throw new RuntimeException("expecting method match");
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String operationName, List<Argument> arguments, Context context) {
+        if (!operationName.equals("match")) throw new RuntimeException("expecting method match");
         if (arguments.size() == 0) throw new RuntimeException("expecting arguments");
         if (arguments.size() % 2 != 0) throw new RuntimeException("expecting even number of arguments");
 

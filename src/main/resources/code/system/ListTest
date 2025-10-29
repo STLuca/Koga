@@ -1,11 +1,11 @@
 parser host;
 
-usables {
+structures {
     core.Byte;
     core.Int;
     core.Reference;
     core.InterfaceReference;
-    core.Usable;
+    core.Structure;
     core.Exit;
     core.AdminRef;
 }
@@ -22,7 +22,7 @@ test.ListTest {
         AdminRef admin init();
         Reference<ArrayList> arrayList new();
         InterfaceReference<List> list (arrayList);
-        Usable<Int> mc ();
+        Structure<Int> mc ();
         Int size 5;
         list init(mc size);
         Int index 3;

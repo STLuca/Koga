@@ -2,7 +2,7 @@ package language.interfaces;
 
 public class Parameter {
 
-    String Usable;
+    String structure;
     String name;
 
 }

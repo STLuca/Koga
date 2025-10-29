@@ -1,10 +1,10 @@
-parser machine;
+parser machineComposite;
 
-usables {
+structures {
     core.Int;
 }
 
-core.Optional<Usable T> {
+core.Optional<Structure T> {
 
     Byte[1] present;
     Byte[0] val;

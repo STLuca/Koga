@@ -1,19 +1,17 @@
 package system;
 
 import core.Document;
-import language.core.Compiler;
 import language.core.Compilable;
-import language.compiling.DocumentBuilder;
 import language.host.HostParser;
 import language.hosted.HostedParser;
 import language.interfaces.InterfaceParser;
 import language.machine.MachineEnumParser;
 import language.machine.MachineReferenceParser;
-import language.machine.MachineUsableParser;
+import language.machine.MachineCompositeParser;
 import language.parsing.FileClassParser;
 import language.protocol.ProtocolParser;
-import language.structure.StructureParser;
-import language.union.UnionParser;
+import language.composite.CompositeParser;
+import language.enumeration.EnumParser;
 import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
@@ -45,7 +43,6 @@ public class VirtualMachineTest {
         srcMap.put("core.Int", "machine/Int");
         srcMap.put("core.InterfaceReference", "machine/InterfaceReference");
         srcMap.put("core.Logician", "machine/Logician");
-        srcMap.put("core.Usable", "machine/Usable");
         srcMap.put("core.MemberReference", "machine/MemberReference");
         srcMap.put("core.Optional", "machine/Optional");
         srcMap.put("core.Pointer", "machine/Pointer");
@@ -54,6 +51,7 @@ public class VirtualMachineTest {
         srcMap.put("core.Seq", "machine/Seq");
         srcMap.put("core.Status", "machine/Status");
         srcMap.put("core.String", "machine/String");
+        srcMap.put("core.Structure", "machine/Structure");
         srcMap.put("core.Switch", "machine/Switch");
         srcMap.put("core.InputStream", "machine/InputStream");
         srcMap.put("core.OutputStream", "machine/OutputStream");
@@ -64,12 +62,12 @@ public class VirtualMachineTest {
         srcMap.put("core.Try", "machine/Try");
         srcMap.put("core.While", "machine/While");
 
-        // structures
-        srcMap.put("core.SimpleAdminTask", "structures/SimpleAdminTask");
-        srcMap.put("core.LocalDate", "structures/LocalDate");
+        // composites
+        srcMap.put("core.SimpleAdminTask", "composites/SimpleAdminTask");
+        srcMap.put("core.LocalDate", "composites/LocalDate");
 
-        // unions
-        srcMap.put("parser.ParserContext", "unions/ParserContext");
+        // enums
+        srcMap.put("parser.ParserContext", "enums/ParserContext");
 
         // Reference classes
         srcMap.put("collection.ArrayList", "reference/ArrayList");
@@ -125,12 +123,12 @@ public class VirtualMachineTest {
             throw new RuntimeException(e);
         }
         parser = new FileClassParser(path, srcMap);
-        parser.addClassParser(new MachineUsableParser());
+        parser.addClassParser(new MachineCompositeParser());
         parser.addClassParser(new MachineReferenceParser());
         parser.addClassParser(new MachineEnumParser());
         parser.addClassParser(new HostedParser());
-        parser.addClassParser(new StructureParser());
-        parser.addClassParser(new UnionParser());
+        parser.addClassParser(new CompositeParser());
+        parser.addClassParser(new EnumParser());
         parser.addClassParser(new HostParser());
         parser.addClassParser(new InterfaceParser());
         parser.addClassParser(new ProtocolParser());

@@ -6,12 +6,12 @@ import language.core.Compiler;
 import java.util.List;
 import java.util.Map;
 
-public class MachineProxyUsable implements Usable {
+public class MachineProxyStructure implements Structure {
 
     public final static String NAME = "core.Proxy";
-    public static MachineProxyUsable INSTANCE = new MachineProxyUsable();
+    public static MachineProxyStructure INSTANCE = new MachineProxyStructure();
 
-    MachineProxyUsable() {}
+    MachineProxyStructure() {}
     
     public String name() {
         return NAME;
@@ -24,7 +24,7 @@ public class MachineProxyUsable implements Usable {
     public void declare(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics) {
         Variable variable = new Variable();
         variable.name = name;
-        variable.usable = sources.usable(generics.get(0));
+        variable.structure = sources.structure(generics.get(0));
         variables.put(name, variable);
         // variable.proxy = true
     }
@@ -40,7 +40,7 @@ public class MachineProxyUsable implements Usable {
         // variable.generics.get(0).declare(compiler, variable, List.of(), null);
     }
     
-    public void invoke(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String methodName, List<Argument> arguments, Context context) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String operationName, List<Argument> arguments, Context context) {
         // variable.generics.get(0).invoke(compiler, variable, admin, methodName, arguments);
     }
 

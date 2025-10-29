@@ -42,7 +42,7 @@ public class HostCompilable implements Compilable {
 
         if (level == Level.Head) {
             for (Field f : fields) {
-                Usable sc = sources.usable(f.usable);
+                Structure sc = sources.structure(f.structure);
                 compiler.data(f.name, sc.size(sources));
             }
 
@@ -50,8 +50,8 @@ public class HostCompilable implements Compilable {
                 Compiler.MethodCompiler mb = compiler.method();
                 mb.name(m.name);
                 for (Parameter p : m.params) {
-                    Usable usable = sources.usable(p.usable);
-                    mb.parameter(usable.name());
+                    Structure structure = sources.structure(p.structure);
+                    mb.parameter(structure.name());
                 }
             }
             for (String dependency : dependencies) {
@@ -95,7 +95,7 @@ public class HostCompilable implements Compilable {
         }
 
         for (Field f : fields) {
-            Usable sc = sources.usable(f.usable);
+            Structure sc = sources.structure(f.structure);
             compiler.data(f.name, sc.size(sources));
         }
 
@@ -107,9 +107,9 @@ public class HostCompilable implements Compilable {
 
             // declare the parameters
             for (Parameter p : m.params) {
-                Usable usable = sources.usable(p.usable);
-                mb.parameter(usable.name());
-                usable.declare(mb, sources, variables, p.name, p.generics);
+                Structure structure = sources.structure(p.structure);
+                mb.parameter(structure.name());
+                structure.declare(mb, sources, variables, p.name, p.generics);
             }
 
             // handle each statement in the body

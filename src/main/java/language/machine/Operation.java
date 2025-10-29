@@ -6,7 +6,7 @@ import language.core.Variable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Method {
+public class Operation {
 
     public static class VariableMatcher {
 
@@ -17,11 +17,11 @@ public class Method {
         boolean match(Variable variable, Argument arg) {
             boolean matches;
             if (isGeneric) {
-                int index = variable.usable.genericIndex(name);
+                int index = variable.structure.genericIndex(name);
                 if (index == -1) return false;
-                matches = variable.generics.get(index).usable == arg.variable.usable;
+                matches = variable.generics.get(index).structure == arg.variable.structure;
             } else {
-                matches = name.equals(arg.variable.usable.name());
+                matches = name.equals(arg.variable.structure.name());
             }
             if (!matches) {
                 return false;
@@ -36,7 +36,7 @@ public class Method {
             for (int i = 0; i < subMatchers.size(); i++) {
                 VariableMatcher m = subMatchers.get(i);
                 Variable.Generic g = arg.variable.generics.get(i);
-                if (!m.name.equals(g.usable.name())) {
+                if (!m.name.equals(g.structure.name())) {
                     allMatch = false;
                 }
             }

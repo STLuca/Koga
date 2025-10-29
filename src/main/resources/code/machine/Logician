@@ -1,6 +1,6 @@
-parser machine;
+parser machineComposite;
 
-usables {
+structures {
     core.Int;
 }
 

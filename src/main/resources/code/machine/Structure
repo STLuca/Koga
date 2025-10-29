@@ -1,6 +1,6 @@
-parser machine;
+parser machineComposite;
 
-core.Usable<Usable T> {
+core.Structure<Structure T> {
 
     Byte[4] size;
 

@@ -1,4 +1,4 @@
-package language.union;
+package language.composite;
 
 import language.core.Argument;
 
@@ -11,7 +11,7 @@ public class Parameter {
     // Type literal
     int bits;
     // Type variable
-    String usable;
+    String structure;
     ArrayList<String> generics = new ArrayList<>();
 
 }

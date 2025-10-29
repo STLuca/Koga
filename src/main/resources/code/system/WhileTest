@@ -1,6 +1,6 @@
 parser host;
 
-usables {
+structures {
     core.Int;
     core.Boolean;
     core.While;

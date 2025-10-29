@@ -2,7 +2,7 @@ package language.machine;
 
 import language.core.Argument;
 import language.core.Context;
-import language.core.Usable;
+import language.core.Structure;
 import language.core.Variable;
 
 import java.util.Map;
@@ -105,16 +105,16 @@ enum InputType {
                 return new Resolved(4, size);
             }
             case LG -> {
-                int index = variable.usable.genericIndex(toResolve);
-                Usable u = variable.generics.get(index).usable;
+                int index = variable.structure.genericIndex(toResolve);
+                Structure u = variable.generics.get(index).structure;
                 return new Resolved(4, u.size(null));
             }
             case AG -> {
                 String[] split = toResolve.split("\\.");
                 Variable var = arguments.get(split[0]).variable;
 
-                int index = var.usable.genericIndex(split[1]);
-                Usable u = var.generics.get(index).usable;
+                int index = var.structure.genericIndex(split[1]);
+                Structure u = var.generics.get(index).structure;
                 return new Resolved(4, u.size(null));
             }
         }

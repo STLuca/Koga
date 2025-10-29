@@ -6,16 +6,16 @@ import language.core.Compiler;
 
 import java.util.*;
 
-public class MachineReferenceUsable implements Usable {
+public class MachineReferenceStructure implements Structure {
 
     String name;
     ArrayList<Data> variables = new ArrayList<>();
     ArrayList<String> addresses = new ArrayList<>();
-    ArrayList<Method> constructors = new ArrayList<>();
+    ArrayList<Operation> constructors = new ArrayList<>();
     ArrayList<Generic> generics = new ArrayList<>();
-    Method invokeMethod;
+    Operation invokeOperation;
     Statement argStatement;
-    Method argMethod;
+    Operation argOperation;
     
     public String name() {
         return name;
@@ -36,16 +36,16 @@ public class MachineReferenceUsable implements Usable {
     public void declare(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics) {
         Variable variable = new Variable();
         variable.name = name;
-        variable.usable = this;
+        variable.structure = this;
         variables.put(name, variable);
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
             switch (generic.type) {
-                case Usable -> {
-                    Usable value = sources.usable(generics.get(i));
+                case Structure -> {
+                    Structure value = sources.structure(generics.get(i));
                     Variable.Generic g = new Variable.Generic();
-                    g.type = Variable.Generic.Type.Usable;
-                    g.usable = value;
+                    g.type = Variable.Generic.Type.Structure;
+                    g.structure = value;
                     variable.generics.add(g);
                 }
                 case Document -> {
@@ -66,17 +66,17 @@ public class MachineReferenceUsable implements Usable {
     public void construct(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics, String constructorName, List<Argument> args, Context context) {
         Variable variable = new Variable();
         variable.name = name;
-        variable.usable = this;
+        variable.structure = this;
         variables.put(name, variable);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
             switch (generic.type) {
-                case Usable -> {
-                    Usable value = sources.usable(generics.get(i));
+                case Structure -> {
+                    Structure value = sources.structure(generics.get(i));
                     Variable.Generic g = new Variable.Generic();
-                    g.type = Variable.Generic.Type.Usable;
-                    g.usable = value;
+                    g.type = Variable.Generic.Type.Structure;
+                    g.structure = value;
                     variable.generics.add(g);
                 }
                 case Document -> {
@@ -90,8 +90,8 @@ public class MachineReferenceUsable implements Usable {
         }
 
         // Try and match a constructor
-        Method c = null;
-        for (Method con : constructors) {
+        Operation c = null;
+        for (Operation con : constructors) {
             if (con.matches(variable, constructorName, args)) {
                 c = con;
                 break;
@@ -106,7 +106,7 @@ public class MachineReferenceUsable implements Usable {
 
         // setup parameter arguments
         int i = 0;
-        for (Method.Parameter p : c.parameters) {
+        for (Operation.Parameter p : c.parameters) {
             argsByName.put(p.name, args.get(i));
             i++;
         }
@@ -128,16 +128,16 @@ public class MachineReferenceUsable implements Usable {
         variable.methodAllocations.pop();
     }
 
-    public void invoke(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String methodName, List<Argument> args, Context context) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String operationName, List<Argument> args, Context context) {
         HashMap<String, Argument> argsByName = new HashMap<>();
 
         // put the name instead of the arguments
-        Argument methodNameArg = Argument.of(methodName);
+        Argument methodNameArg = Argument.of(operationName);
         argsByName.put("methodName", methodNameArg);
 
         variable.methodAllocations.push(new HashMap<>());
 
-        for (Statement s : invokeMethod.body) {
+        for (Statement s : invokeOperation.body) {
             if (argStatement != s) {
                 s.compile(compiler, sources, variable, argsByName, context);
                 continue;
@@ -146,10 +146,10 @@ public class MachineReferenceUsable implements Usable {
             int argIndex = 0;
             HashMap<String, Argument> argArgs = new HashMap<>();
             for (Argument arg : args) {
-                argArgs.put(argMethod.parameters.get(0).name, arg);
+                argArgs.put(argOperation.parameters.get(0).name, arg);
                 argArgs.put("index", Argument.of(argIndex++));
                 argArgs.put("methodName", methodNameArg);
-                for (Statement as : argMethod.body) {
+                for (Statement as : argOperation.body) {
                     as.compile(compiler, sources, variable, argArgs, context);
                 }
             }
@@ -183,14 +183,14 @@ public class MachineReferenceUsable implements Usable {
             String input = this.arguments.get(1);
             d = switch (docInType) {
                 case LG -> {
-                    int index = variable.usable.genericIndex(input);
+                    int index = variable.structure.genericIndex(input);
                     Variable.Generic g = variable.generics.get(index);
                     yield g.document;
                 }
                 case AG -> {
                     String[] split = input.split("\\.");
                     Variable var = arguments.get(split[0]).variable;
-                    int index = var.usable.genericIndex(split[1]);
+                    int index = var.structure.genericIndex(split[1]);
                     Variable.Generic g = var.generics.get(index);
                     yield g.document;
                 }
@@ -221,7 +221,7 @@ public class MachineReferenceUsable implements Usable {
                 }
             }
             String param = method.parameters[index];
-            if (param.equals(argVariable.usable.name())) {
+            if (param.equals(argVariable.structure.name())) {
                 new InstructionStatement("m", "COPY", "TII", "LDA", "frameDataAddr", "ADA", "a", "ADS", "a").compile(compiler, sources, variable, arguments, context);
                 new InstructionStatement("i","ADD", "TI", "LDA", "frameDataAddr", "LDA", "frameDataAddr", "ADS", "a").compile(compiler, sources, variable, arguments, context);
             } else if (param.equals("core.Pointer")) {

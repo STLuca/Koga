@@ -1,6 +1,6 @@
 parser interface;
 
-usables {
+structures {
     core.Int;
     core.Pointer;
     core.Array;

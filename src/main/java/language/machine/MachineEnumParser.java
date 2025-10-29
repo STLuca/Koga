@@ -42,13 +42,13 @@ public class MachineEnumParser implements Parser {
     
     public void parse(Sources sources, String input) {
         Scanner scanner = new Scanner(input);
-        MachineEnumUsable mec = new MachineEnumUsable();
+        MachineEnumStructure mec = new MachineEnumStructure();
         Token curr = scanner.next(tokens);
         if (curr != LITERALS) scanner.fail("literals");
         curr = scanner.expect(tokens, OP_BRACE);
         curr = scanner.next(tokens);
         while (curr != CL_BRACE) {
-            MachineEnumUsable.Literal l = new MachineEnumUsable.Literal();
+            MachineEnumStructure.Literal l = new MachineEnumStructure.Literal();
             if (curr != NAME) scanner.fail("name");
             l.name = curr.matched();
             curr = scanner.expect(tokens, NUMBER);

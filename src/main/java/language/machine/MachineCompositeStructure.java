@@ -9,14 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MachineUsable implements Usable {
+public class MachineCompositeStructure implements Structure {
 
     String name;
     ArrayList<Generic> generics = new ArrayList<>();
     ArrayList<Data> variables = new ArrayList<>();
     ArrayList<String> addresses = new ArrayList<>();
-    ArrayList<Method> constructors = new ArrayList<>();
-    ArrayList<Method> methods = new ArrayList<>();
+    ArrayList<Operation> constructors = new ArrayList<>();
+    ArrayList<Operation> operations = new ArrayList<>();
 
     public String name() {
         return name;
@@ -47,16 +47,16 @@ public class MachineUsable implements Usable {
         // Setup variable
         Variable variable = new Variable();
         variable.name = name;
-        variable.usable = this;
+        variable.structure = this;
         variables.put(name, variable);
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
             switch (generic.type) {
-                case Usable -> {
-                    Usable value = sources.usable(generics.get(i));
+                case Structure -> {
+                    Structure value = sources.structure(generics.get(i));
                     Variable.Generic g = new Variable.Generic();
-                    g.type = Variable.Generic.Type.Usable;
-                    g.usable = value;
+                    g.type = Variable.Generic.Type.Structure;
+                    g.structure = value;
                     variable.generics.add(g);
                 }
                 case Document -> {
@@ -84,7 +84,7 @@ public class MachineUsable implements Usable {
     
     public void proxy(Sources sources, Variable variable, int location) {
         // Setup variable
-        variable.usable = this;
+        variable.structure = this;
         // generics
 
         // setup data and addresses
@@ -103,18 +103,18 @@ public class MachineUsable implements Usable {
     public void construct(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics, String constructorName, List<Argument> args, Context context) {
         Variable variable = new Variable();
         variable.name = name;
-        variable.usable = this;
+        variable.structure = this;
         variables.put(name, variable);
         // Setup variable
         if (this.generics.size() != generics.size()) throw new RuntimeException();
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
             switch (generic.type) {
-                case Usable -> {
-                    Usable value = sources.usable(generics.get(i));
+                case Structure -> {
+                    Structure value = sources.structure(generics.get(i));
                     Variable.Generic g = new Variable.Generic();
-                    g.type = Variable.Generic.Type.Usable;
-                    g.usable = value;
+                    g.type = Variable.Generic.Type.Structure;
+                    g.structure = value;
                     variable.generics.add(g);
                 }
                 case Document -> {
@@ -128,8 +128,8 @@ public class MachineUsable implements Usable {
         }
 
         // Try and match a constructor
-        Method c = null;
-        for (Method con : constructors) {
+        Operation c = null;
+        for (Operation con : constructors) {
             if (con.matches(variable, constructorName, args)) {
                 c = con;
                 break;
@@ -142,7 +142,7 @@ public class MachineUsable implements Usable {
         // Map the args to their name using generics and parameters
         HashMap<String, Argument> argsByName = new HashMap<>();
         int i = 0;
-        for (Method.Parameter p : c.parameters) {
+        for (Operation.Parameter p : c.parameters) {
             argsByName.put(p.name, args.get(i));
             i++;
         }
@@ -164,28 +164,28 @@ public class MachineUsable implements Usable {
         variable.methodAllocations.pop();
     }
 
-    public void invoke(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String methodName, List<Argument> args, Context context) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String operationName, List<Argument> args, Context context) {
         // Find the method
-        Method method = null;
-        for (Method m : methods) {
-            if (m.matches(variable, methodName, args)) {
-                method = m;
+        Operation operation = null;
+        for (Operation m : operations) {
+            if (m.matches(variable, operationName, args)) {
+                operation = m;
                 break;
             }
         }
-        if (method == null) {
-            throw new RuntimeException(String.format("Can't match method %s", methodName));
+        if (operation == null) {
+            throw new RuntimeException(String.format("Can't match method %s", operationName));
         }
 
         // Map the args to name using parameters
         HashMap<String, Argument> argsByName = new HashMap<>();
         int i = 0;
-        for (Method.Parameter param : method.parameters) {
+        for (Operation.Parameter param : operation.parameters) {
             argsByName.put(param.name, args.get(i++));
         }
 
         variable.methodAllocations.add(new HashMap<>());
-        for (Statement s : method.body) {
+        for (Statement s : operation.body) {
             s.compile(compiler, sources, variable, argsByName, context);
         }
         variable.methodAllocations.pop();

@@ -2,7 +2,7 @@ package language.machine;
 
 public class Generic {
 
-    enum Type {Usable, Document}
+    enum Type {Structure, Document}
 
     Type type;
     String name;

@@ -1,4 +1,4 @@
-parser machine;
+parser machineComposite;
 
 core.Char {
 

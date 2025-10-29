@@ -5,8 +5,8 @@ import language.compiling.DocumentBuilder;
 import language.core.Compilable;
 import language.core.Parser;
 import language.core.Sources;
-import language.core.Usable;
-import language.machine.MachineProxyUsable;
+import language.core.Structure;
+import language.machine.MachineProxyStructure;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,13 +27,13 @@ public class FileClassParser implements Sources {
     LinkedHashMap<String, Parser> parsers = new LinkedHashMap<>();
 
     HashMap<String, Compilable> compilableClasses = new HashMap<>();
-    HashMap<String, Usable> compilerClasses = new HashMap<>();
+    HashMap<String, Structure> compilerClasses = new HashMap<>();
     HashMap<String, Document> documents = new HashMap<>();
     HashMap<String, Document> headDocuments = new HashMap<>();
 
     public FileClassParser(Path root, Map<String, String> files) {
         this.root = root;
-        compilerClasses.put(MachineProxyUsable.NAME, MachineProxyUsable.INSTANCE);
+        compilerClasses.put(MachineProxyStructure.NAME, MachineProxyStructure.INSTANCE);
         this.files = new HashMap<>(files);
     }
 
@@ -71,7 +71,7 @@ public class FileClassParser implements Sources {
         return this;
     }
 
-    public void add(Usable c) {
+    public void add(Structure c) {
         compilerClasses.put(c.name(), c);
     }
     
@@ -79,7 +79,7 @@ public class FileClassParser implements Sources {
         compilableClasses.put(c.name(), c);
     }
 
-    public Usable usable(String name) {
+    public Structure structure(String name) {
         return compilerClasses.get(name);
     }
 

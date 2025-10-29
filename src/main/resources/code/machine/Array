@@ -1,11 +1,11 @@
-parser machine;
+parser machineComposite;
 
-usables {
-    core.Usable;
+structures {
+    core.Structure;
     core.Int;
 }
 
-core.Array<Usable T> {
+core.Array<Structure T> {
 
     Byte[4] size;
     Byte[4] start;
@@ -28,7 +28,7 @@ core.Array<Usable T> {
         i(ADD, II, LDA, step, IL, 0d0, LG, T);
     }
 
-    constructor dynamic(Usable mc, Int x) {
+    constructor dynamic(Structure mc, Int x) {
         i(ADD, TI, LDA, size, ADA, x.val, IL, 0d0);
         math(MULT, TT, size, size, mc.size);
         i(ADD, TI, LDA, step, ADA, mc.size, IL, 0d0);

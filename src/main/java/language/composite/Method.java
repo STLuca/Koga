@@ -1,4 +1,4 @@
-package language.union;
+package language.composite;
 
 import language.core.Argument;
 
@@ -19,7 +19,7 @@ public class Method {
             p.type = Argument.Type.Name;
         } else {
             p.type = Argument.Type.Variable;
-            p.usable = typeName;
+            p.structure = typeName;
         }
         params.add(p);
     }

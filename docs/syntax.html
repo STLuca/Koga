@@ -71,7 +71,7 @@
         </li>
         <li>
             <strong>Protocol</strong> documents, similar to Interfaces, specify a table of protocol methods for Host documents to follow.
-            A protocol method is different from an interface method because Hosts don't share memory space with each other.
+            A protocol operation is different from an interface operation because Hosts don't share memory space with each other.
             An example is a window system.
         </li>
     </ul>
@@ -81,16 +81,16 @@
     <p>
         Koga is more of an extendable language of languages than a language in and of itself.
         Each source file starts by naming the parser it wants to use e.g. <code>parser hosted;</code>.
-        Each parser builds an object that implements one of two interfaces: Usable or Compilable.
+        Each parser builds an object that implements one of two interfaces: Structure or Compilable.
     </p>
 
     <ul>
         <li>
-            A <strong>Compilable</strong> is the simpler of the two, this has a <code>compile(DocumentBuilder)</code> method, the idea here being this builds a Document.
+            A <strong>Compilable</strong> is the simpler of the two, this has a <code>compile(DocumentBuilder)</code> operation, the idea here being this builds a Document.
         </li>
         <li>
-            A <strong>Usable</strong> is more complicated and has a few methods, all fairly similar to each other: <code>declare</code>, <code>construct</code>, and <code>invoke</code>. Each accept a MethodBuilder.
-            The idea being these are used to build up a method e.g. the instructions.
+            A <strong>Structure</strong> is more complicated and has a few methods, all fairly similar to each other: <code>declare</code>, <code>construct</code>, and <code>invoke</code>. Each accept a MethodBuilder.
+            The idea being these are used to build up a operation e.g. the instructions.
         </li>
     </ul>
 
@@ -99,7 +99,7 @@
         Let's start by looking at how the Byte and Int are defined, and how you can use them.
     </p>
     <pre><code>
-    parser machine;
+    parser machineComposite;
 
     core.Byte {
 
@@ -118,7 +118,7 @@
     </pre>
     <pre>
     <code>
-    parser machine;
+    parser machineComposite;
 
     core.Int {
 
@@ -148,7 +148,7 @@
     <code>
     parser host;
 
-    usables {
+    structures {
         core.Byte;
         core.Int;
     }
@@ -171,11 +171,11 @@
     </pre>
 
     <p>
-        Let's start with the "machine" parser.
+        Let's start with the "machineComposite" parser.
         This is like writing assembly in the style of a Java class.
         Looking at the Int source, it's like it has fields, constructors, and methods.
         It's got one field named "val" which is an address to a sequence of four bytes.
-        The constructor and method statements here are defined in terms of machine instruction builders.
+        The constructor and operation statements here are defined in terms of machine instruction builders.
     </p>
     <p>
         Some Document types have methods, and those methods have instructions. A compiled instruction has:
@@ -210,14 +210,14 @@
         The statements in these methods aren't instructions though, they are instruction builders.
         The difference is the builder sources need to be resolved during compilation.
         Each source is instead two value, a resolve type and a string value.
-        For example, "LDA, val" says to use the local data address for the field val i.e. this usable should have a data field named val.
-        If you had a method with just one Int, then val would compile to 0. If you had two Ints, the second Int's val would be at address 4 as the first Int val uses bytes 0 1 2 3.
+        For example, "LDA, val" says to use the local data address for the field val i.e. this structure should have a data field named val.
+        If you had a operation with just one Int, then val would compile to 0. If you had two Ints, the second Int's val would be at address 4 as the first Int val uses bytes 0 1 2 3.
         The resolvable types are:
     </p>
     <ul>
         <li>Immediate literal (IL) - 0d1, 0b0110</li>
         <li>
-            Argument literal (AL) - these are literal values passed in when invoking the method or constructor.
+            Argument literal (AL) - these are literal values passed in when invoking the operation or constructor.
             In ByteAndIntTest, these would be 0, 10, 25, 111.
         </li>
         <li>Local data address (LDA) - The address of a local data field e.g. the val data in Int</li>
@@ -255,11 +255,11 @@
     </ul>
     <p>
         Now lets look at ByteAndIntTest.
-        This uses the host parser, and you can see it declares the imported usables Int and Byte.
-        The general structure and method statements should look familiar.
-        Each statement type uses the usables interface in different ways.
-        Our first three statements are constructor statements, these call a constructor on the specified Usable and save a new variable with the specified name to its context e.g. x, y, z.
-        The last four statements are invoke statements, these lookup a variable with the given name and then invoke the "plus" method on the usable (note that "+" is an alias for "plus").
+        This uses the host parser, and you can see it declares the imported structures Int and Byte.
+        The general structure and operation statements should look familiar.
+        Each statement type uses the structures interface in different ways.
+        Our first three statements are constructor statements, these call a constructor on the specified Structure and save a new variable with the specified name to its context e.g. x, y, z.
+        The last four statements are invoke statements, these lookup a variable with the given name and then invoke the "plus" operation on the structure (note that "+" is an alias for "plus").
         Note also that you mutate the variable, you don't make a new one, so x + 5 is equivalent to x += 5 in other languages.
     </p>
 
@@ -268,7 +268,7 @@
     <p>Now we'll look at how some basic control flow is defined.</p>
     <pre>
     <code>
-    parser machine;
+    parser machineComposite;
 
     core.Boolean {
 
@@ -284,9 +284,9 @@
 
     <pre>
     <code>
-    parser machine;
+    parser machineComposite;
 
-    usables {
+    structures {
         core.Boolean;
     }
 
@@ -327,7 +327,7 @@
     <code>
     parser host;
 
-    usables {
+    structures {
         core.Int;
         core.Boolean;
         core.If;
@@ -354,13 +354,13 @@
     <p>
         If defines an address field instead of a data field previously seen in Int and Byte.
         Addresses give a name to an instruction position, you can declare them and update them with the syntax <code>Addr addrName</code>.
-        These can be scoped to the method or to the variable.
+        These can be scoped to the operation or to the variable.
         The If has an address named "end" that is kept to after all the if instructions.
-        This is where an if/elseIf method that succeeds will jump after executing its block.
+        This is where an if/elseIf operation that succeeds will jump after executing its block.
         You can also position at an address, and when you append an instruction, the instruction is appended before the positioned address.
     </p>
     <p>
-        Blocks are a way to pass a sequence of instructions to the usables.
+        Blocks are a way to pass a sequence of instructions to the structures.
         In our IfTest example, the block passed to the If constructor <code>x + 5 + 5;</code> will have two integer add instructions.
         Blocks are defined between braces, and when interleaving with other arguments, you would close those arguments with a closing parenthesis e.g. (a) { ... } instead of (a, { ... }).
         These can be interleaved e.g. (a) { ... } (b) { ... }.
@@ -368,7 +368,7 @@
         In the If example, we name it "block" and so we just write <code>Block block;</code>.
     </p>
     <p>
-        Usables methods don't have return types, this allows you to continually chain methods e.g. constructor into elseIf into else.
+        Structures methods don't have return types, this allows you to continually chain methods e.g. constructor into elseIf into else.
         It might seem unnatural to use a semicolon at the end of an if-elseif-else chain, but this does keep the syntax consistent.
     </p>
     <p>
@@ -379,9 +379,9 @@
     </p>
     <p>
         Another thing to note is the constructor that has an Boolean parameter, but you could define multiple constructors without other parameters.
-        You don't really have to stop there, Int itself can have an if method as shown immediately below.
+        You don't really have to stop there, Int itself can have an if operation as shown immediately below.
         Not to say whether you should or not, but it's possible.
-        Remember, there aren't any "method invocations" happening here, we're just adding instructions to our method, same as writing an if in Java.
+        Remember, there aren't any "operation invocations" happening here, we're just adding instructions to our operation, same as writing an if in Java.
     </p>
     <pre>
     <code>
@@ -434,9 +434,9 @@
 
     <pre>
     <code>
-    parser machine;
+    parser machineComposite;
 
-    usables {
+    structures {
         core.Int;
     }
 
@@ -516,7 +516,7 @@
 
     <p>
         Something to note is the statement <code>y = { x < 10; };</code>.
-        The runs the set method on Boolean y that accepts one block.
+        The runs the set operation on Boolean y that accepts one block.
         Another way of writing this is <code>x lessThan(10, y);</code>.
         The problem lies in that the lessThan operates on the Int, so we have nowhere good to write the result, unless we overwrite the Int value.
         This means we need a destination parameter, but then you end up with the syntax <code>x < (10, y);</code>.
@@ -524,9 +524,9 @@
     </p>
 
     <p>
-        Look at our new Boolean set method, you'll see context statements.
+        Look at our new Boolean set operation, you'll see context statements.
         These are adding the Boolean as an implicit argument, so every invoke in the block will have that Boolean appended to its argument list.
-        This allows us to do <code>{ x < 10; }</code> and run the <code>lessThan(b32 imm, Boolean dest)</code> method.
+        This allows us to do <code>{ x < 10; }</code> and run the <code>lessThan(b32 imm, Boolean dest)</code> operation.
         This feature is still somewhat fresh and could do with some more thought.
     </p>
 
@@ -537,7 +537,7 @@
     </p>
     <pre>
     <code>
-    parser machine;
+    parser machineComposite;
 
     core.Switch {
 
@@ -570,7 +570,7 @@
     <code>
     parser host;
 
-    usables {
+    structures {
         core.Byte;
         core.Int;
         core.Switch;
@@ -628,7 +628,7 @@
     <code>
     parser host;
 
-    usables {
+    structures {
         core.Int;
         core.Status;
     }
@@ -653,7 +653,7 @@
 
     <p>
         Here's a new parser, machineEnum.
-        This creates a Usable just like our other examples and so will be used inside a Host parser in the same way.
+        This creates a Structure just like our other examples and so will be used inside a Host parser in the same way.
         The difference here though is that the functionality is mostly implemented within the Java code and the enum configuration is quite minimal.
     </p>
 
@@ -665,8 +665,8 @@
     </p>
 
     <p>
-        As you can see, there isn't a "match" method defined anywhere in Status, nor a constructor.
-        This is all implemented in the MachineEnumUsable using the literals and its field.
+        As you can see, there isn't a "match" operation defined anywhere in Status, nor a constructor.
+        This is all implemented in the MachineEnumStructure using the literals and its field.
     </p>
 
     <h3 id="Pointer">Pointer</h3>
@@ -676,9 +676,9 @@
     </p>
     <pre>
     <code>
-    parser machine;
+    parser machineComposite;
 
-    core.Pointer&lt;Usable T&gt; {
+    core.Pointer&lt;Structure T&gt; {
 
         byte[4] addr;
 
@@ -701,7 +701,7 @@
     <code>
     parser host;
 
-    usables {
+    structures {
         core.Int;
         core.Pointer;
     }
@@ -724,7 +724,7 @@
 
     <p>
         Looking at PointerTest, we construct the pointer at x, copy to y and copy from z.
-        That method then ends with x:3, y:1, z:3.
+        That operation then ends with x:3, y:1, z:3.
     </p>
 
     <p>
@@ -751,17 +751,17 @@
     </p>
 
     <p>
-        Generics parameters have to be specified as a Usable generic or a Document generic.
-        A Usable generic will allow accessing the size of the specific generic whereas a Document generic will use things like the document name.
+        Generics parameters have to be specified as a Structure generic or a Document generic.
+        A Structure generic will allow accessing the size of the specific generic whereas a Document generic will use things like the document name.
     </p>
 
     <h3 id="Array">Array</h3>
     <p></p>
     <pre>
     <code>
-    parser machine;
+    parser machineComposite;
 
-    core.Array&lt;Usable T&gt; {
+    core.Array&lt;Structure T&gt; {
 
         Byte[4] size;
         Byte[4] start;
@@ -783,9 +783,9 @@
 
     <pre>
     <code>
-    parser machine;
+    parser machineComposite;
 
-    core.ArrayPointer&lt;Usable T&gt; {
+    core.ArrayPointer&lt;Structure T&gt; {
 
         byte[4] start;
         byte[4] size;
@@ -822,7 +822,7 @@
     <code>
     parser host;
 
-    usables {
+    structures {
         core.Byte;
         core.Int;
         core.Array;
@@ -850,8 +850,8 @@
     <p>
         Arrays are similar to pointers, in fact we even have an ArrayPointer.
         There is a "byte[0]" field that gets allocated in the constructor "Byte[AL imm][LG T] data;".
-        This allocates space in the method (and thus has to be sized at compile time) using the input value and the size of the generic.
-        In this case, 3 Ints (an Int being 4 bytes) leads to 12 bytes allocated on the method.
+        This allocates space in the operation (and thus has to be sized at compile time) using the input value and the size of the generic.
+        In this case, 3 Ints (an Int being 4 bytes) leads to 12 bytes allocated on the operation.
     </p>
     <p>
         You can probably guess what the ArrayPointer is for.
@@ -864,7 +864,7 @@
 
     <pre>
     <code>
-    parser machine;
+    parser machineComposite;
 
     core.String {
 
@@ -897,7 +897,7 @@
     <code>
     parser host;
 
-    usables {
+    structures {
         core.Boolean;
         core.String;
     }
@@ -926,12 +926,12 @@
 
     <p>
         Host and Hosted documents also have a symbol table/runtime table, and just like everything else, you manipulate this table using the language.
-        Each symbol has two values at runtime, for example a hosted document method will have a size and address (how much space the method needs and the instruction address).
-        Looking at some examples you might use runtime values to load the addr of a const, the size of a class, or the address and size of a method.
+        Each symbol has two values at runtime, for example a hosted document operation will have a size and address (how much space the operation needs and the instruction address).
+        Looking at some examples you might use runtime values to load the addr of a const, the size of a class, or the address and size of a operation.
     </p>
 
     <p>
-        You can append symbols using the compiler statement "Symbol", this will also add a literal argument to your method with the given name and index of the symbol.
+        You can append symbols using the compiler statement "Symbol", this will also add a literal argument to your operation with the given name and index of the symbol.
         You can then use the class (c) instruction builder and that new argument literal to add a runtime table load instruction.
         Looking at the String name constructor, we get the symbol table index for a const symbol with the input name, and store in a literal argument named constSymbol.
         We then add instructions to load both the addr and size at that table index.
@@ -939,7 +939,7 @@
 
     <p>
         Strings are very similar to arrays, they have an addr and a size along with a step, though this is always one right now (one byte characters).
-        The addr in a String could reference directly to the constant, or you might allocate space in the method and address it there, or you might allocate space in your process memory and address it there.
+        The addr in a String could reference directly to the constant, or you might allocate space in the operation and address it there, or you might allocate space in your process memory and address it there.
     </p>
 
     <h3 id="Administrator">Administrator</h3>
@@ -948,7 +948,7 @@
     <code>
     parser interface;
 
-    usables {
+    structures {
         core.Int;
         core.Pointer;
     }
@@ -979,7 +979,7 @@
     <code>
     parser host;
 
-    usables {
+    structures {
         core.Int;
         core.Pointer;
         core.AdminRef;
@@ -1027,20 +1027,20 @@
         I haven't made it clear yet, Koga doesn't use traditional frame stack threads.
         The tasks (i.e. the methods) have space allocated only for that task.
         You might refer to them as stackless coroutines but I don't like that name.
-        This poses a problem though, how can you allocate space for a new task, in particular space to invoke an administrator method?
-        Every task actually has space for itself and also space to invoke an administrator method.
+        This poses a problem though, how can you allocate space for a new task, in particular space to invoke an administrator operation?
+        Every task actually has space for itself and also space to invoke an administrator operation.
     </p>
 
     <h3 id="Reference">References, Fields, and Methods</h3>
     <p>
-        It's time to start using a Document's methods and fields, not just Usables.
+        It's time to start using a Document's methods and fields, not just Structures.
         Let's look at how this is implemented using the language.
     </p>
     <pre>
     <code>
-    parser machine;
+    parser machineComposite;
 
-    Pointer&lt;Usable T&gt; {
+    Pointer&lt;Structure T&gt; {
 
         byte[4] addr;
 
@@ -1133,7 +1133,7 @@
     <code>
     parser host;
 
-    usables {
+    structures {
         core.Int;
         core.Reference;
         core.Pointer;
@@ -1169,17 +1169,17 @@
     </pre>
 
     <p>
-        We can ignore what the method "second" is doing as it isn't really relevant, it's just some code, fairly verbose code in this case.
-        We're just interested in calling the method.
+        We can ignore what the operation "second" is doing as it isn't really relevant, it's just some code, fairly verbose code in this case.
+        We're just interested in calling the operation.
     </p>
 
     <p>
         The Reference code here is rather large and requires some focus and thought to look at.
         The first thing to note is that it uses a new parser named "machineReference".
-        The Usable produced by a machineReference parser is different, running a method will run the invoke method using the name of the method as the argument.
+        The Structure produced by a machineReference parser is different, running a operation will run the invoke operation using the name of the operation as the argument.
         In our case "this second(p)" uses the Reference variable named "this" and run "second(p)".
-        This runs the Reference.invoke method with "second" as the name argument.
-        All the instructions there are to setup and run the "LocalVariableTest.second" method.
+        This runs the Reference.invoke operation with "second" as the name argument.
+        All the instructions there are to setup and run the "LocalVariableTest.second" operation.
     </p>
 
     <pre>
@@ -1190,14 +1190,14 @@
     </pre>
     <p>
         In this example, <code>r second(arg1 arg2);</code> is like doing <code>r invoke(second);</code>.
-        You'll see an "arg(Any a)" method in Reference and an "args();" compiler instruction used in its invoke method.
+        You'll see an "arg(Any a)" operation in Reference and an "args();" compiler instruction used in its invoke operation.
         This is how the arguments are iterated and copied over to the new task.
     </p>
 
     <p>
         Looking at Reference invoke.
         It makes a symbol using the methodName argument.
-        It uses this symbol index to add a table lookup instruction, getting the method address at runtime.
+        It uses this symbol index to add a table lookup instruction, getting the operation address at runtime.
         It then invokes an admin instruction to create a new task.
         Copies over the arguments to this tasks memory space.
         It then invokes an admin instruction to schedule the new task.
@@ -1222,7 +1222,7 @@
     <code>
     parser structure;
 
-    usables {
+    structures {
         core.Boolean;
         core.While MyWhile;
         core.If;
@@ -1266,7 +1266,7 @@
     <code>
     parser host;
 
-    usables {
+    structures {
         core.Byte;
         core.Int;
         core.Boolean;
@@ -1293,10 +1293,10 @@
     </pre>
 
     <p>
-        The idea of a struct is to have a Usable that's written in terms of other usables (instead of bytes, addresses, instructions etc).
+        The idea of a struct is to have a Structure that's written in terms of other structures (instead of bytes, addresses, instructions etc).
         The benefits being that you inline the data and instructions.
         This example makes a LocalDate struct, with some nonsense methods just to test things are working.
-        You can also see an example of changing an imported usable name (While -> MyWhile).
+        You can also see an example of changing an imported structure name (While -> MyWhile).
     </p>
 
     <p>
@@ -1319,9 +1319,9 @@
 
     <pre>
     <code>
-    parser union;
+    parser enum;
 
-    usables {
+    structures {
         core.Int;
         core.Boolean;
     }
@@ -1371,7 +1371,7 @@
     <code>
     parser host;
 
-    usables {
+    structures {
         core.Int;
         core.Exit;
         parser.ParserContext;
@@ -1415,7 +1415,7 @@
     </p>
 
     <p>
-        The union has an implicit match method that behaves similar to an enum.
+        The union has an implicit match operation that behaves similar to an enum.
         A difference in this case is that the union variable changes to be the matched structure when inside the block.
         So in our case, <code>pcNum match (Number) { block... }</code>, pcNum becomes a Number structure inside that block.
         This means you wouldn't be able to invoke the match statement again, because it doesn't exist on that structure, only on the union.
@@ -1423,7 +1423,7 @@
 
     <p>
         You can also invoke methods that exist on every structure in the union.
-        This is the same thing as writing a match that invokes that method on each structure.
+        This is the same thing as writing a match that invokes that operation on each structure.
     </p>
 
 
@@ -1452,7 +1452,7 @@
     <code>
     parser hosted;
 
-    usables {
+    structures {
         core.Int;
         core.Connection;
         core.Reference;
@@ -1556,7 +1556,7 @@
     <code>
     parser host;
 
-    usables {
+    structures {
         core.InputStream;
         core.OutputStream;
         core.Int;
@@ -1603,7 +1603,7 @@
     <code>
     parser host;
 
-    usables {
+    structures {
         core.InputStream;
         core.OutputStream;
         core.AdminRef;
@@ -1692,7 +1692,7 @@
 
     <pre>
     <code>
-    parser machine;
+    parser machineComposite;
 
     core.Seq {
 
@@ -1803,7 +1803,7 @@
     <code>
     parser host;
 
-    usables {
+    structures {
         core.Int;
         core.If;
         core.Task;
@@ -1861,12 +1861,12 @@
     </p>
 
     <p>
-        The initial Reference example I showed earlier was a bit of a lie, the above Reference is the more accurate Reference.invoke method.
+        The initial Reference example I showed earlier was a bit of a lie, the above Reference is the more accurate Reference.invoke operation.
         You can see an example of a comment, just start the line with a ~ which represent the curvature of writing.
     </p>
 
     <p>
-        In this invoke method, we are trying to invoke two blocks, createTask and taskReady, however we have some default instructions to use if these blocks don't exist.
+        In this invoke operation, we are trying to invoke two blocks, createTask and taskReady, however we have some default instructions to use if these blocks don't exist.
         They might not exist because the blocks here aren't passed in as arguments, they are named implicits.
         This allows the reference to be configured when scheduling new tasks, by default awaiting the created task.
         You can pass in a block instead to await a group of tasks, allowing you to have constructs shown below.
@@ -1874,7 +1874,7 @@
 
     <pre>
     <code>
-    usables {
+    structures {
         ...
         core.Seq;
         core.One;
@@ -1884,7 +1884,7 @@
     main() {
         ...
         ~ Runs sequentially after the other
-        ~ Error thrown on a method failing
+        ~ Error thrown on a operation failing
         Seq {
             this taskOne();
             this taskTwo();
@@ -1910,7 +1910,7 @@
         }
 
         ~ Runs in parallel and waits for all to complete
-        ~ Error thrown on a single method failing
+        ~ Error thrown on a single operation failing
         All {
             this taskOne();
             this taskTwo();
@@ -1930,7 +1930,7 @@
     <p>
         The idea still needs further development.
         I do think it can work well though to implement useful concurrency constructs like All or One while keeping the syntax clean.
-        I should note that there is no function colouring either, every method is invoked as a single task.
+        I should note that there is no function colouring either, every operation is invoked as a single task.
         This needs more explaining which will be written elsewhere and another time.
     </p>
 

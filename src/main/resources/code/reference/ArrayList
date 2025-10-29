@@ -1,11 +1,11 @@
 parser hosted;
 
-usables {
+structures {
     core.Int;
     core.Array;
     core.ArrayPointer;
     core.Reference;
-    core.Usable;
+    core.Structure;
     core.Pointer;
     core.Return;
     core.Task;
@@ -19,7 +19,7 @@ collection.ArrayList implements List {
 
     Array items;
 
-    init(Usable<T> mc, Int size) {
+    init(Structure<T> mc, Int size) {
         Reference<ArrayList> this this();
         Pointer<Array> thisItems (this items);
         Array<Int> items dynamic(mc size);

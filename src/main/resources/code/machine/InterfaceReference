@@ -1,6 +1,6 @@
 parser machineReference;
 
-usables {
+structures {
     core.Reference;
 }
 

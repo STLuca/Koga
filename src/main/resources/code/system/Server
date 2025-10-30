@@ -9,7 +9,7 @@ structures {
     core.While;
     core.If;
     core.Array;
-    core.ArrayPointer;
+    core.ArrayAccessor;
     core.Pointer;
     core.Thread;
     core.String;

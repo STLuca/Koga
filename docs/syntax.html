@@ -781,7 +781,7 @@
     <code>
     parser machineComposite;
 
-    core.ArrayPointer&lt;Structure T&gt; {
+    core.ArrayAccessor&lt;Structure T&gt; {
 
         byte[4] start;
         byte[4] size;
@@ -822,17 +822,17 @@
         core.Byte;
         core.Int;
         core.Array;
-        core.ArrayPointer;
+        core.ArrayAccessor;
     }
 
-    test.ArrayPointerTest {
+    test.ArrayAccessorTest {
 
         main() {
             Int x 4;
             Int y 5;
             Int z 0;
             Array&lt;Int&gt; arr (3);
-            ArrayPointer&lt;Int&gt; p (arr);
+            ArrayAccessor&lt;Int&gt; p (arr);
             p copyFrom(x);
             p index(2);
             p copyFrom(y);
@@ -844,13 +844,13 @@
     </pre>
 
     <p>
-        Arrays are similar to pointers, in fact we even have an ArrayPointer.
+        Arrays are similar to pointers.
         There is a "byte[0]" field that gets allocated in the constructor "Byte[AL imm][LG T] data;".
         This allocates space in the operation (and thus has to be sized at compile time) using the input value and the size of the generic.
         In this case, 3 Ints (an Int being 4 bytes) leads to 12 bytes allocated on the operation.
     </p>
     <p>
-        You can probably guess what the ArrayPointer is for.
+        You can probably guess what the ArrayAccessor is for.
         It currently copies all the array values too, to do things like bounds checking.
         I do hope to improve this in the future to not need to copy the values.
         You could also write an Array that comes with a pointer depending on use cases.
@@ -1608,7 +1608,7 @@
         core.While;
         core.If;
         core.Array;
-        core.ArrayPointer;
+        core.ArrayAccessor;
         core.Pointer;
         core.Thread;
         core.String;

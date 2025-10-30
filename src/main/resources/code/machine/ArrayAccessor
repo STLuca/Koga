@@ -6,7 +6,7 @@ structures {
     core.Int;
 }
 
-core.ArrayPointer<Structure T> {
+core.ArrayAccessor<Structure T> {
 
     Byte[4] start;
     Byte[4] size;

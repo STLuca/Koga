@@ -2,7 +2,7 @@ parser host;
 
 structures {
     core.Array;
-    core.ArrayPointer;
+    core.ArrayAccessor;
     core.Byte;
     core.String;
     core.Exit;
@@ -21,14 +21,14 @@ test.ConstantsTest {
 
     main() {
         Array<Byte> b fromBytes(array);
-        ArrayPointer<Byte> p (b);
+        ArrayAccessor<Byte> p (b);
         Byte x 0;
         p index(2);
         p copyTo(x);
 
         String s (hello);
         Byte y 0;
-        ArrayPointer<Byte> sp (s);
+        ArrayAccessor<Byte> sp (s);
         sp index(4);
         sp copyTo(y);
 

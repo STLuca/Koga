@@ -2,7 +2,7 @@ parser machineComposite;
 
 structures {
     core.Int;
-    core.ArrayPointer;
+    core.ArrayAccessor;
 }
 
 core.Connection {
@@ -11,7 +11,7 @@ core.Connection {
     Byte[4] pageTwo;
     Byte[4] instance; ~ breaks if before pageOne, not sure why yet
 
-    constructor fromArray(Int instance, ArrayPointer<Int> ptr) {
+    constructor fromArray(Int instance, ArrayAccessor<Int> ptr) {
         i(ADD, TI, LDA, instance, ADA, instance.val, IL, 0d0);
         m(COPY, ITI, LDA, pageOne, ADA, ptr.start, IL, 0d8);
     }

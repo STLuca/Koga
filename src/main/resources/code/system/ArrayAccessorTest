@@ -4,7 +4,7 @@ structures {
     core.Byte;
     core.Int;
     core.Array;
-    core.ArrayPointer;
+    core.ArrayAccessor;
     core.Exit;
 }
 
@@ -12,14 +12,14 @@ documents {
     util.SimpleAdministrator;
 }
 
-test.ArrayPointerTest {
+test.ArrayAccessorTest {
 
     main() {
         Int x 4;
         Int y 5;
         Int z 0;
         Array<Int> arr (3);
-        ArrayPointer<Int> p (arr);
+        ArrayAccessor<Int> p (arr);
         p copyFrom(x);
         p index(2);
         p copyFrom(y);

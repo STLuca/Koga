@@ -30,7 +30,7 @@ public class VirtualMachineTest {
         // Machine classes
         srcMap.put("core.AdminRef", "machine/AdminRef");
         srcMap.put("core.Array", "machine/Array");
-        srcMap.put("core.ArrayPointer", "machine/ArrayPointer");
+        srcMap.put("core.ArrayAccessor", "machine/ArrayAccessor");
         srcMap.put("core.Boolean", "machine/Boolean");
         srcMap.put("core.BumpAdminTask", "machine/BumpAdminTask");
         srcMap.put("core.Byte", "machine/Byte");
@@ -86,7 +86,7 @@ public class VirtualMachineTest {
         // System classes
         srcMap.put("test.AllocatorTest", "system/AllocatorTest");
         srcMap.put("test.ArrayListTest", "system/ArrayListTest");
-        srcMap.put("test.ArrayPointerTest", "system/ArrayPointerTest");
+        srcMap.put("test.ArrayAccessorTest", "system/ArrayAccessorTest");
         srcMap.put("test.ByteAndIntTest", "system/ByteAndIntTest");
         srcMap.put("test.ImplicitArgumentTest", "system/ImplicitArgumentTest");
         srcMap.put("test.CharTest", "system/CharTest");
@@ -256,8 +256,8 @@ public class VirtualMachineTest {
     }
 
     @Test
-    void arrayPointerWorks() {
-        Inspector i = run("test.ArrayPointerTest");
+    void ArrayAccessorWorks() {
+        Inspector i = run("test.ArrayAccessorTest");
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         int yVal = t.altData.get("y").get("val");

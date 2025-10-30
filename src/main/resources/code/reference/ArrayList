@@ -3,7 +3,7 @@ parser hosted;
 structures {
     core.Int;
     core.Array;
-    core.ArrayPointer;
+    core.ArrayAccessor;
     core.Reference;
     core.Structure;
     core.Pointer;
@@ -32,7 +32,7 @@ collection.ArrayList implements List {
         Pointer<Array> thisItems (this items);
         Array<Int> items (0);
         thisItems copyTo(items);
-        ArrayPointer<Int> p (items);
+        ArrayAccessor<Int> p (items);
         p indexInt(index);
         p copyFrom(value);
         Task t complete();

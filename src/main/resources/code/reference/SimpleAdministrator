@@ -62,6 +62,10 @@ util.SimpleAdministrator implements Administrator {
         Return;
     }
 
+    reference(Pointer<Int> referencer, Pointer<Int> reference) {
+
+    }
+
     port(Pointer<Int> res) {
         Reference<SimpleAdministrator> this alt();
         Pointer<Int> thisPageBump admin(this pageBump);

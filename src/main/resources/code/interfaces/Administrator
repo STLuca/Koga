@@ -11,7 +11,9 @@ core.Administrator {
     init();
     exit();
 
-    allocate(Pointer p, Int size);
+    allocate(Pointer referencer, Int size);
+    reference(Pointer referencer, Pointer reference);
+
     port(Pointer res);
 
     task(Pointer idOut, Int objectAddr, Int objectTableAddr, Int methodAddr, Int methodSize);

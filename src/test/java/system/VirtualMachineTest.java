@@ -77,7 +77,7 @@ public class VirtualMachineTest {
 
         // interface classes
         srcMap.put("core.Administrator", "interfaces/Administrator");
-        srcMap.put("collection.List", "interfaces/List");
+        srcMap.put("collection.SimpleList", "interfaces/List");
 
         // protocols
         srcMap.put("chatting.Talker", "protocol/Talker");

@@ -14,7 +14,11 @@ public class SymbolStatement implements Statement {
     // generics already have the global document name
     public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
         Types.Symbol type = Types.Symbol.valueOf(this.arguments.getFirst().toUpperCase());
-        String[] names = new String[2];
+        int nameLength = (this.arguments.size() - 2) / 2;
+        if (nameLength != 1 && nameLength != 2) {
+            throw new RuntimeException();
+        }
+        String[] names = new String[nameLength];
         for (int i = 2; i < this.arguments.size(); i+=2) {
             InputType inputType = InputType.valueOf(this.arguments.get(i).toUpperCase());
             int index = (i / 2) - 1;
@@ -25,8 +29,13 @@ public class SymbolStatement implements Statement {
                     String name = arguments.get(input).name;
 
                     switch (type) {
-                        case CLASS, PROTOCOL, METHOD, FIELD, INTERFACE -> {
+                        case CLASS, PROTOCOL, METHOD, INTERFACE -> {
                             if (index == 0) {
+                                name = sources.document(name, Compilable.Level.Head).name;
+                            }
+                        }
+                        case FIELD -> {
+                            if (index == 0 && nameLength == 2) {
                                 name = sources.document(name, Compilable.Level.Head).name;
                             }
                         }
@@ -50,7 +59,7 @@ public class SymbolStatement implements Statement {
         }
 
         int symbol;
-        if (names[1] == null) {
+        if (nameLength == 1) {
             symbol = compiler.symbol(type, names[0]);
         } else {
             symbol = compiler.symbol(type, names[0], names[1]);

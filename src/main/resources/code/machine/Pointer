@@ -17,7 +17,13 @@ core.Pointer<Structure T> {
     constructor(Reference r, Name field) {
         Symbol(FIELD, fieldSymbol, AG, r.R, AL, field);
         c(ADDR, LI, addr, table, fieldSymbol);
-        i(ADD, TT, addr, addr, r.objectAddr);
+        i(ADD, LT, LDA, addr, R, object, LDA, addr);
+    }
+
+    constructor this(Name field) {
+        Symbol(FIELD, fieldSymbol, AL, field);
+        c(ADDR, LI, addr, table, fieldSymbol);
+        i(ADD, LT, LDA, addr, R, object, LDA, addr);
     }
 
     constructor admin(Reference r, Name field) {

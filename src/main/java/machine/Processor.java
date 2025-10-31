@@ -98,6 +98,10 @@ public class Processor {
                 src2 = getRegisterValue(src2In);
                 src3 = src3In;
             }
+            case LT -> {
+                src2 = getRegisterValue(src2In);
+                src3 = machine.loadInt(pageMap, task + src3In, src3Size);
+            }
             case II -> {
                 src2 = src2In;
                 src3 = src3In;

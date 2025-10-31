@@ -13,7 +13,7 @@ structures {
 documents {
     collection.ArrayList;
     util.SimpleAdministrator;
-    collection.List;
+    collection.SimpleList List;
 }
 
 test.ListTest {

@@ -12,7 +12,7 @@ structures {
 }
 
 documents {
-    collection.List;
+    collection.SimpleList List;
 }
 
 collection.ArrayList implements List {

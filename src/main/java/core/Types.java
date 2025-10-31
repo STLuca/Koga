@@ -51,6 +51,7 @@ public class Types {
 
         II,
         LI,
+        LT,
         TI,
         TT,
 

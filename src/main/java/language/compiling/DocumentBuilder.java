@@ -116,7 +116,15 @@ public class DocumentBuilder implements Compiler {
         if (contains != null) {
             return symbols.indexOf(contains);
         }
-        Symbol newSymbol = new Symbol(type, name, null);
+        Symbol newSymbol;
+        switch (type) {
+            case FIELD -> {
+                newSymbol = new Symbol(type, this.name, name);
+            }
+            default -> {
+                newSymbol = new Symbol(type, name, null);
+            }
+        }
         symbols.add(newSymbol);
         return symbols.size() - 1;
     }

@@ -43,7 +43,9 @@ public class MachineCompositeStructure implements Structure {
     }
 
     public void declare(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics) {
-        if (this.generics.size() != generics.size()) throw new RuntimeException();
+        if (this.generics.size() != generics.size()) {
+            throw new RuntimeException();
+        }
         // Setup variable
         Variable variable = new Variable();
         variable.name = name;

@@ -1,0 +1,48 @@
+parser hosted;
+
+structures {
+    core.Structure;
+    core.Int;
+    core.Pointer;
+    core.InterfaceReference IRef;
+    core.Reference;
+    core.Array;
+    core.Task;
+}
+
+documents {
+    collection.List;
+    collection.ListAccessor;
+    collection.StaticListAccessor;
+}
+
+collection.StaticList implements List {
+
+    Int size;
+    Array items;
+
+    init(Structure<Int> struct, Int sizeIn) {
+        ~ Init size
+        Pointer<Int> thisSize this(size);
+        Int startSize 0;
+        thisSize <- startSize;
+
+        ~ Init items
+        Pointer<Array> thisItems this(items);
+        Array<Int> newItems dynamic(struct sizeIn);
+        thisItems <- newItems;
+
+        Task t complete();
+    }
+
+    accessor(Pointer<IRef> accessorOut) {
+        Reference<StaticListAccessor> accessor new();
+        Reference<StaticList> this this();
+        accessor init(this);
+        IRef<ListAccessor> listAccessor (accessor);
+        accessorOut <- listAccessor;
+
+        Task t complete();
+    }
+
+}

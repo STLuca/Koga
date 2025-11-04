@@ -83,6 +83,13 @@ public class VirtualMachineTest {
         srcMap.put("chatting.Talker", "protocol/Talker");
         srcMap.put("chatting.Chatting", "protocol/Chatting");
 
+        // collections
+        srcMap.put("collection.List", "collections/List");
+        srcMap.put("collection.ListAccessor", "collections/ListAccessor");
+        srcMap.put("collection.StaticList", "collections/StaticList");
+        srcMap.put("collection.StaticListAccessor", "collections/StaticListAccessor");
+
+
         // System classes
         srcMap.put("test.AllocatorTest", "system/AllocatorTest");
         srcMap.put("test.ArrayListTest", "system/ArrayListTest");
@@ -106,6 +113,7 @@ public class VirtualMachineTest {
         srcMap.put("test.PointerTest", "system/PointerTest");
         srcMap.put("test.ProxyTest", "system/ProxyTest");
         srcMap.put("test.Server", "system/Server");
+        srcMap.put("test.StaticListTest", "system/StaticListTest");
         srcMap.put("test.StringEqualsTest", "system/StringEqualsTest");
         srcMap.put("test.StructureTest", "system/StructureTest");
         srcMap.put("test.SwitchTest", "system/SwitchTest");
@@ -462,6 +470,15 @@ public class VirtualMachineTest {
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("x").get("val");
         assertThat(xVal).isEqualTo(8);
+    }
+
+    @Test
+    void staticListTest() {
+        Inspector i = run("test.StaticListTest");
+        String is = i.toString();
+        Inspector.Task t = i.tasks.get(0);
+        int xVal = t.altData.get("writeElement").get("val");
+        assertThat(xVal).isEqualTo(19);
     }
 
 }

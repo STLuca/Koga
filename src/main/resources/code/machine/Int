@@ -5,6 +5,7 @@ structures {
     core.Connection;
     core.Boolean;
     core.Pointer;
+    core.Byte;
 }
 
 core.Int {

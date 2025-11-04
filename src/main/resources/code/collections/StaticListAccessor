@@ -1,0 +1,98 @@
+parser hosted;
+
+structures {
+    core.Reference;
+    core.ArrayAccessor;
+    core.Array;
+    core.Pointer;
+    core.Task;
+    core.Int;
+}
+
+documents {
+    collection.StaticList;
+    collection.ListAccessor;
+}
+
+collection.StaticListAccessor implements ListAccessor {
+
+    Reference list;
+    ArrayAccessor accessor;
+    ~ TODO
+    ~ Reference<StaticList>
+    ~ ArrayAccessor<T>
+
+    init(Reference<StaticList> listIn) {
+        ~ Create the ArrayAccessor
+        Pointer<Array> listItemsPtr (listIn items);
+        Array<Int> listItems;
+        listItemsPtr -> listItems;
+        ArrayAccessor<Int> initAccessor (listItems);
+
+        ~ write initialised values to this
+        Pointer<Reference> thisList this(list);
+        Pointer<ArrayAccessor> thisAccessor this(accessor);
+        thisList <- listIn;
+        thisAccessor <- initAccessor;
+
+        Task t complete();
+    }
+
+    size(Pointer<Int> intOut) {
+        Task t complete();
+    }
+
+    next() {
+        Task t complete();
+    }
+
+    previous() {
+        Task t complete();
+    }
+
+    index(Int index) {
+        ~ Load accessor
+        Pointer<ArrayAccessor> thisAccessorPtr this(accessor);
+        ArrayAccessor<Int> thisAccessor;
+        thisAccessorPtr -> thisAccessor;
+
+        ~ index and store the accessor
+        thisAccessor index (index);
+        thisAccessorPtr <- thisAccessor;
+
+        Task t complete();
+    }
+
+    add(Pointer<Int> structIn) {
+        ~ Load accessor
+        Pointer<ArrayAccessor> thisAccessorPtr this(accessor);
+        ArrayAccessor<Int> thisAccessor;
+        thisAccessorPtr -> thisAccessor;
+
+        ~ Store the structIn
+        thisAccessor <- structIn;
+
+        ~ increment accessor and store accessor
+        thisAccessor next ();
+        thisAccessorPtr <- thisAccessor;
+
+        Task t complete();
+    }
+
+    remove() {
+        Task t complete();
+    }
+
+    get(Pointer<Int> structOut) {
+        ~ Load accessor
+        Pointer<ArrayAccessor> thisAccessorPtr this(accessor);
+        ArrayAccessor<Int> thisAccessor;
+        thisAccessorPtr -> thisAccessor;
+
+        ~ Load the struct
+        thisAccessor -> structOut;
+
+        Task t complete();
+    }
+
+}

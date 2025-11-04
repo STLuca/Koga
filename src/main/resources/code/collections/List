@@ -1,0 +1,16 @@
+parser interface;
+
+structures {
+    core.Structure;
+    core.Int;
+    core.Pointer;
+    core.InterfaceReference;
+}
+
+collection.List {
+
+    accessor(Pointer accessorOut);
+
+}
+
+~ Pointer<InterfaceReference<ListAccessor>>

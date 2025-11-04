@@ -1,0 +1,54 @@
+parser host;
+
+structures {
+    core.Byte;
+    core.Int;
+    core.Reference;
+    core.InterfaceReference;
+    core.Pointer;
+    core.Structure;
+    core.Exit;
+    core.AdminRef;
+}
+
+documents {
+    collection.StaticList;
+    util.SimpleAdministrator;
+    collection.List;
+    collection.ListAccessor;
+}
+
+test.StaticListTest {
+
+    main() {
+        AdminRef admin init();
+        Reference<StaticList> staticList new();
+        Structure<Int> mc ();
+        Int size 5;
+        staticList init(mc size);
+        InterfaceReference<List> list (staticList);
+
+        ~ Get the list accessor
+        InterfaceReference<ListAccessor> listAccessor;
+        Pointer<InterfaceReference> listAccessorPtr (listAccessor);
+        list accessor(listAccessorPtr);
+
+        ~ Add two elements
+        Int elementOne 19;
+        Pointer<Int> elementOnePtr (elementOne);
+        listAccessor add (elementOnePtr);
+        Int elementTwo 21;
+        Pointer<Int> elementTwoPtr (elementTwo);
+        listAccessor add (elementTwoPtr);
+
+        ~ Retrieve the first element
+        Int index 0;
+        listAccessor index (index);
+        Int writeElement;
+        Pointer<Int> writeElementPtr (writeElement);
+        listAccessor get (writeElementPtr);
+
+        Exit;
+    }
+
+}

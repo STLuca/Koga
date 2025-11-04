@@ -68,7 +68,14 @@ public class Operation {
                     if (arg.type != Argument.Type.Variable) return false;
                     if (param.variableMatcher.match(variable, arg)) continue;
                 }
-                case Literal, Name, Block -> {
+                case Name -> {
+                    if (arg.type == Argument.Type.Name || arg.type == Argument.Type.Variable) {
+                        continue;
+                    } else {
+                        return false;
+                    }
+                }
+                case Literal, Block -> {
                     if (param.type == arg.type) continue;
                 }
             }

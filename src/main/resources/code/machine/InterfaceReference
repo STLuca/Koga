@@ -22,20 +22,23 @@ core.InterfaceReference<Document R> {
         Byte[4] iMethodSymbol;
         Byte[4] frameSize;
         Byte[4] methodAddr;
-        Byte[4] newFrame;
-        Byte[4] newFrameAddr;
+        Byte[4] newTask;
+        Byte[4] statusOut;
+
+        ~ Create the new task
+        i(ADD, LI, LDA, newTask, R, task, LDA, newTask);
+        i(ADD, LI, LDA, status, R, task, LDA, status);
         Symbol(METHOD, methodSymbol, LG, R, AL, methodName);
         c(ADDR, LI, iMethodSymbol, table, methodSymbol);
         c(SIZE, TT, LDA, frameSize, LDA, interfaceTable, LDA, iMethodSymbol);
-        i(ADD, LI, LDA, newFrame, R, task, LDA, newFrame);
         c(ADDR, TT, LDA, methodAddr, LDA, interfaceTable, LDA, iMethodSymbol);
+        Admin(TASK, newTask, objectAddr, objectTable, methodAddr, frameSize, statusOut);
 
-        Admin(TASK, newFrame, objectAddr, objectTable, methodAddr, frameSize);
 
         Byte[4] frameDataAddr;
-        i(ADD, TI, LDA, frameDataAddr, LDA, newFrame, IL, 0d0);
+        i(ADD, TI, LDA, frameDataAddr, LDA, newTask, IL, 0d0);
         Args();
-        Admin(AWAIT_TASK, newFrame);
+        Admin(AWAIT_TASK, newTask);
     }
 
     arg(Variable a, Name methodName) {

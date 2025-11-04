@@ -81,11 +81,9 @@ public class Scanner {
         }
         b.append(lines.get(inputLineNumber));
         b.append("\n");
-        for (int i = 0; i < inputPosition; i++) {
-            b.append(" ");
-        }
+        b.append(" ".repeat(Math.max(0, inputPosition)));
         b.append("^\n");
-        if (inputLineNumber < lines.size() - 1){
+        if (inputLineNumber < lines.size() - 1) {
             b.append(lines.get(inputLineNumber + 1));
         }
         throw new RuntimeException(b.toString());

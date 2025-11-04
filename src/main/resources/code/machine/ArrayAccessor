@@ -4,6 +4,7 @@ structures {
     core.Array;
     core.String;
     core.Int;
+    core.Pointer;
 }
 
 core.ArrayAccessor<Structure T> {
@@ -48,6 +49,19 @@ core.ArrayAccessor<Structure T> {
         i(ADD, TT, LDA, addr, LDA, start, LDA, index);
     }
 
+    next() {
+        ~ Bounds checking
+        i(ADD, TT, LDA, addr, LDA, addr, LDA, step);
+    }
+
+    copyTo(Pointer valPtr) {
+        m(COPY, TTT, ADA, valPtr.addr, LDA, addr, LDA, step);
+    }
+
+    copyFrom(Pointer valPtr) {
+        m(COPY, TTT, LDA, addr, ADA, valPtr.addr, LDA, step);
+    }
+
     copyTo(T val) {
         m(COPY, ITI, ADA, val, LDA, addr, LG, T);
     }
@@ -55,5 +69,6 @@ core.ArrayAccessor<Structure T> {
     copyFrom(T val) {
         m(COPY, TII, LDA, addr, ADA, val, LG, T);
     }
+
 
 }

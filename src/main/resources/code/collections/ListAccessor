@@ -1,0 +1,18 @@
+parser interface;
+
+structures {
+    core.Int;
+    core.Pointer;
+}
+
+collection.ListAccessor {
+
+    size(Pointer intOut);
+    next();
+    previous();
+    index(Int index);
+    add(Pointer struct);
+    remove();
+    get(Pointer structOut);
+
+}

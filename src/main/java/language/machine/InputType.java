@@ -80,6 +80,9 @@ enum InputType {
                     if (a.location() < start) start = a.location();
                     size += a.size();
                 }
+                if (start == Integer.MAX_VALUE) {
+                    throw new RuntimeException("variable has no allocations");
+                }
                 return new Resolved(size, start);
             }
             case LDS -> {

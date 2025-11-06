@@ -1,5 +1,6 @@
 package language.composite;
 
+import language.core.Argument;
 import language.core.Sources;
 import language.core.Parser;
 import language.scanning.Scanner;
@@ -16,6 +17,7 @@ public class CompositeParser implements Parser {
         CompositeStructure c;
         HashMap<String, String> structures = new HashMap<>();
         HashMap<String, String> documents = new HashMap<>();
+        ArrayList<String> generics = new ArrayList<>();
     }
 
     Token DEPENDENCIES, IMPORTS, CONSTRUCTOR, NAME, GLOBAL_NAME, IMPLEMENTS, OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN,
@@ -161,6 +163,7 @@ public class CompositeParser implements Parser {
                 g.type = Generic.Type.valueOf(type);
                 g.name = name;
                 c.generics.add(g);
+                ctx.generics.add(name);
                 curr = scanner.next(tokens);
             } while (curr == COMMA);
             if (curr != CL_PT_BRACE) scanner.fail(">");
@@ -201,24 +204,34 @@ public class CompositeParser implements Parser {
         while (curr != CL_PAREN) {
             if (curr != NAME) scanner.fail("name");
             Parameter p = new Parameter();
-            p.structure = ctx.structures.get(curr.matched());
-            curr = scanner.next(tokens);
-
-            if (curr == OP_PT_BRACE) {
+            if (ctx.structures.containsKey(curr.matched())) {
+                p.structure = ctx.structures.get(curr.matched());
                 curr = scanner.next(tokens);
-                while (curr != CL_PT_BRACE) {
-                    if (curr != NAME) scanner.fail("name");
-                    if (ctx.structures.containsKey(curr.matched())) {
-                        p.generics.add(ctx.structures.get(curr.matched()));
-                    } else if (ctx.documents.containsKey(curr.matched())) {
-                        p.generics.add(ctx.documents.get(curr.matched()));
-                    } else {
-                        p.generics.add(curr.matched());
+
+                if (curr == OP_PT_BRACE) {
+                    curr = scanner.next(tokens);
+                    while (curr != CL_PT_BRACE) {
+                        if (curr != NAME) scanner.fail("name");
+                        if (ctx.structures.containsKey(curr.matched())) {
+                            p.generics.add(ctx.structures.get(curr.matched()));
+                        } else if (ctx.documents.containsKey(curr.matched())) {
+                            p.generics.add(ctx.documents.get(curr.matched()));
+                        } else {
+                            p.generics.add(curr.matched());
+                        }
+                        curr = scanner.next(tokens);
+                        if (curr == COMMA) curr = scanner.next(tokens);
                     }
                     curr = scanner.next(tokens);
-                    if (curr == COMMA) curr = scanner.next(tokens);
                 }
+            } else if (ctx.generics.contains(curr.matched())) {
+                p.generic = ctx.generics.indexOf(curr.matched());
                 curr = scanner.next(tokens);
+            } else if (curr.matched().equals("Block")) {
+                p.type = Argument.Type.Block;
+                curr = scanner.next(tokens);
+            } else {
+                throw new RuntimeException();
             }
 
             if (curr != NAME) scanner.fail("name");
@@ -274,11 +287,21 @@ public class CompositeParser implements Parser {
                 do {
                     curr = scanner.next(tokens);
                     if (curr != NAME) scanner.fail("name");
-                    if (ctx.structures.containsKey(curr.matched())) {
-                        s.generics.add(ctx.structures.get(curr.matched()));
-                    } else if (ctx.documents.containsKey(curr.matched())) {
-                        s.generics.add(ctx.documents.get(curr.matched()));
+                    Statement.GenericArgument g = new Statement.GenericArgument();
+                    String name = curr.matched();
+                    if (ctx.generics.contains(name)) {
+                        g.type = Statement.GenericArgument.Type.Generic;
+                        g.name = name;
+                    } else {
+                        g.type = Statement.GenericArgument.Type.Known;
+                        if (ctx.structures.containsKey(curr.matched())) {
+                            g.name = ctx.structures.get(curr.matched());
+                        } else if (ctx.documents.containsKey(curr.matched())) {
+                            g.name = ctx.documents.get(curr.matched());
+                        }
                     }
+                    s.generics.add(g);
+
                     curr = scanner.next(tokens);
                 } while (curr == COMMA);
                 if (curr != CL_PT_BRACE) scanner.fail(">");

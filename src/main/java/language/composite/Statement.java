@@ -21,11 +21,20 @@ public class Statement {
         List<String> array;
     }
 
+    public static class GenericArgument {
+        enum Type {
+            Known,
+            Generic
+        }
+        Type type;
+        String name;
+    }
+
     Type type;
     String structure;
     String variableName;
     String methodName;
-    ArrayList<String> generics = new ArrayList<>();
+    ArrayList<GenericArgument> generics = new ArrayList<>();
     ArrayList<Argument> arguments = new ArrayList<>();
 
     void handle(
@@ -33,6 +42,7 @@ public class Statement {
             Sources sources,
             Map<String, Variable> variables,
             Map<String, language.core.Argument> argsByName,
+            Map<String, Structure> genericsByName,
             String name,
             Context context
     ) {
@@ -45,7 +55,7 @@ public class Statement {
                 int literal = parseLiteral(arg.literal);
                 args.add(language.core.Argument.of(literal));
             } else if (arg.block != null) {
-                Block b = new Block(arg.block, sources, variables, argsByName, name, context);
+                Block b = new Block(arg.block, sources, variables, argsByName, genericsByName, name, context);
                 args.add(language.core.Argument.of(b));
             } else if (arg.name != null) {
                 Variable variable = variables.get(name + "." + arg.name);
@@ -73,6 +83,22 @@ public class Statement {
             args.addAll(context.defaults());
         }
 
+        ArrayList<String> resolvedGenerics = new ArrayList<>();
+        for (GenericArgument g : this.generics) {
+            switch (g.type) {
+                case Known -> {
+                    resolvedGenerics.add(g.name);
+                }
+                case Generic -> {
+                    String resolved = genericsByName.get(g.name).name();
+                    resolvedGenerics.add(resolved);
+                }
+                case null, default -> {
+                    throw new RuntimeException();
+                }
+            }
+        }
+
         switch (type) {
             case DECLARE -> {
                 if (this.structure.equals("Block")) {
@@ -83,12 +109,12 @@ public class Statement {
                     arg.block.execute(compiler);
                 } else {
                     Structure structure = sources.structure(this.structure);
-                    structure.declare(compiler, sources, variables, name + "." + variableName, generics);
+                    structure.declare(compiler, sources, variables, name + "." + variableName, resolvedGenerics);
                 }
             }
             case CONSTRUCT -> {
                 Structure structure = sources.structure(this.structure);
-                structure.construct(compiler, sources, variables, name + "." + variableName, generics, methodName, args, context);
+                structure.construct(compiler, sources, variables, name + "." + variableName, resolvedGenerics, methodName, args, context);
             }
             case INVOKE -> {
                 Variable variable = variables.get(name + "." + variableName);
@@ -107,6 +133,7 @@ public class Statement {
         Sources sources;
         Map<String, Variable> variables;
         Map<String, language.core.Argument> argsByName;
+        Map<String, Structure> genericsByName;
         String name;
         Context context;
 
@@ -115,6 +142,7 @@ public class Statement {
                 Sources sources,
                 Map<String, Variable> variables,
                 Map<String, language.core.Argument> argsByName,
+                Map<String, Structure> genericsByName,
                 String name,
                 Context context
         ) {
@@ -122,13 +150,14 @@ public class Statement {
             this.sources = sources;
             this.variables = variables;
             this.argsByName = argsByName;
+            this.genericsByName = genericsByName;
             this.name = name;
             this.context = context;
         }
         
         public void execute(Compiler.MethodCompiler compiler) {
             for (Statement stmt : block) {
-                stmt.handle(compiler, sources, variables, argsByName, name, context);
+                stmt.handle(compiler, sources, variables, argsByName, genericsByName, name, context);
             }
         }
     }

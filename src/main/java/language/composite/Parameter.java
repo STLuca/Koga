@@ -13,5 +13,6 @@ public class Parameter {
     // Type variable
     String structure;
     ArrayList<String> generics = new ArrayList<>();
+    int generic = -1;
 
 }

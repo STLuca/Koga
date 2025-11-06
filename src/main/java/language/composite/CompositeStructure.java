@@ -83,8 +83,14 @@ public class CompositeStructure implements Structure {
             argsByName.put(param.name, arguments.get(i++));
         }
 
+        HashMap<String, Structure> genericsByName = new HashMap<>();
+        i = 0;
+        for (Generic g : this.generics) {
+            genericsByName.put(g.name, sources.structure(generics.get(i++)));
+        }
+
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, sources, variables, argsByName, name, context);
+            stmt.handle(compiler, sources, variables, argsByName, genericsByName, name, context);
         }
     }
     
@@ -105,8 +111,14 @@ public class CompositeStructure implements Structure {
             argsByName.put(param.name, arguments.get(i++));
         }
 
+        HashMap<String, Structure> genericsByName = new HashMap<>();
+        i = 0;
+        for (Generic g : this.generics) {
+            genericsByName.put(g.name, variable.generics.get(i++).structure);
+        }
+
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, sources, variables, argsByName, variable.name, context);
+            stmt.handle(compiler, sources, variables, argsByName, genericsByName, variable.name, context);
         }
 
     }

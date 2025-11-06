@@ -42,7 +42,7 @@ public class Statement {
             Sources sources,
             Map<String, Variable> variables,
             Map<String, language.core.Argument> argsByName,
-            Map<String, Structure> genericsByName,
+            Map<String, Variable.Generic> genericsByName,
             String name,
             Context context
     ) {
@@ -90,7 +90,7 @@ public class Statement {
                     resolvedGenerics.add(g.name);
                 }
                 case Generic -> {
-                    String resolved = genericsByName.get(g.name).name();
+                    String resolved = genericsByName.get(g.name).structure.name();
                     resolvedGenerics.add(resolved);
                 }
                 case null, default -> {
@@ -108,7 +108,7 @@ public class Statement {
                     }
                     arg.block.execute(compiler);
                 } else if (genericsByName.containsKey(this.structure)) {
-                    Structure structure = genericsByName.get(this.structure);
+                    Structure structure = genericsByName.get(this.structure).structure;
                     structure.declare(compiler, sources, variables, variableName, resolvedGenerics);
                 } else {
                     Structure structure = sources.structure(this.structure);
@@ -136,7 +136,7 @@ public class Statement {
         Sources sources;
         Map<String, Variable> variables;
         Map<String, language.core.Argument> argsByName;
-        Map<String, Structure> genericsByName;
+        Map<String, Variable.Generic> genericsByName;
         String name;
         Context context;
 
@@ -145,7 +145,7 @@ public class Statement {
                 Sources sources,
                 Map<String, Variable> variables,
                 Map<String, language.core.Argument> argsByName,
-                Map<String, Structure> genericsByName,
+                Map<String, Variable.Generic> genericsByName,
                 String name,
                 Context context
         ) {

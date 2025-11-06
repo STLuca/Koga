@@ -10,6 +10,7 @@ structures {
     core.Exit;
     core.AdminRef;
     collection.ListIterator;
+    collection.ListView;
 }
 
 documents {
@@ -48,6 +49,8 @@ test.StaticListTest {
         Int writeElement;
         Pointer<Int> writeElementPtr (writeElement);
         listAccessor get (writeElementPtr);
+
+        ListView<Int> view;
 
         ~ Iterator usage
         Int sum 0;

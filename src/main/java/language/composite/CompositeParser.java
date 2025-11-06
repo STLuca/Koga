@@ -464,7 +464,11 @@ public class CompositeParser implements Parser {
     private void parseVariable(Scanner scanner, Context ctx) {
         Field f = new Field();
         Token curr = scanner.current();
-        f.structure = ctx.structures.get(curr.matched());
+        if (ctx.structures.containsKey(curr.matched())) {
+            f.structure = ctx.structures.get(curr.matched());
+        } else {
+            f.structure = curr.matched();
+        }
         curr = scanner.next(tokens);
         if (curr == OP_PT_BRACE) {
             do {

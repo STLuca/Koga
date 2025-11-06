@@ -87,6 +87,7 @@ public class VirtualMachineTest {
         srcMap.put("collection.List", "collections/List");
         srcMap.put("collection.ListAccessor", "collections/ListAccessor");
         srcMap.put("collection.ListIterator", "collections/ListIterator");
+        srcMap.put("collection.ListView", "collections/ListView");
         srcMap.put("collection.StaticList", "collections/StaticList");
         srcMap.put("collection.StaticListAccessor", "collections/StaticListAccessor");
 

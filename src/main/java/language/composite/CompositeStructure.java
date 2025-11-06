@@ -37,6 +37,26 @@ public class CompositeStructure implements Structure {
         thisVariable.structure = this;
         variables.put(name, thisVariable);
 
+        HashMap<String, Variable.Generic> genericsByName = new HashMap<>();
+        for (int i = 0; i < this.generics.size(); i++) {
+            Generic generic = this.generics.get(i);
+            Variable.Generic g = new Variable.Generic();
+            switch (generic.type) {
+                case Structure -> {
+                    Structure value = sources.structure(generics.get(i));
+                    g.type = Variable.Generic.Type.Structure;
+                    g.structure = value;
+                }
+                case Document -> {
+                    Document doc = sources.document(generics.get(i), Compilable.Level.Head);
+                    g.type = Variable.Generic.Type.Document;
+                    g.document = doc;
+                }
+            }
+            thisVariable.generics.add(g);
+            genericsByName.put(generic.name, g);
+        }
+
         for (String imprt : this.imports) {
             sources.parse(imprt);
         }
@@ -47,7 +67,12 @@ public class CompositeStructure implements Structure {
         }
 
         for (Field f : fields) {
-            Structure u = sources.structure(f.structure);
+            Structure u;
+            if (genericsByName.containsKey(f.structure)) {
+                u = genericsByName.get(f.structure).structure;
+            } else {
+                u = sources.structure(f.structure);
+            }
             String fieldName = name + "." + f.name;
             u.declare(compiler, sources, variables, fieldName, f.generics);
         }
@@ -62,6 +87,26 @@ public class CompositeStructure implements Structure {
         thisVariable.name = name;
         thisVariable.structure = this;
         variables.put(name, thisVariable);
+
+        HashMap<String, Variable.Generic> genericsByName = new HashMap<>();
+        for (int i = 0; i < this.generics.size(); i++) {
+            Generic generic = this.generics.get(i);
+            Variable.Generic g = new Variable.Generic();
+            switch (generic.type) {
+                case Structure -> {
+                    Structure value = sources.structure(generics.get(i));
+                    g.type = Variable.Generic.Type.Structure;
+                    g.structure = value;
+                }
+                case Document -> {
+                    Document doc = sources.document(generics.get(i), Compilable.Level.Head);
+                    g.type = Variable.Generic.Type.Document;
+                    g.document = doc;
+                }
+            }
+            thisVariable.generics.add(g);
+            genericsByName.put(generic.name, g);
+        }
 
         for (String imprt : this.imports) {
             sources.parse(imprt);
@@ -81,12 +126,6 @@ public class CompositeStructure implements Structure {
         int i = 0;
         for (Parameter param : method.params) {
             argsByName.put(param.name, arguments.get(i++));
-        }
-
-        HashMap<String, Structure> genericsByName = new HashMap<>();
-        i = 0;
-        for (Generic g : this.generics) {
-            genericsByName.put(g.name, sources.structure(generics.get(i++)));
         }
 
         for (Statement stmt : method.statements) {
@@ -111,10 +150,10 @@ public class CompositeStructure implements Structure {
             argsByName.put(param.name, arguments.get(i++));
         }
 
-        HashMap<String, Structure> genericsByName = new HashMap<>();
+        HashMap<String, Variable.Generic> genericsByName = new HashMap<>();
         i = 0;
         for (Generic g : this.generics) {
-            genericsByName.put(g.name, variable.generics.get(i++).structure);
+            genericsByName.put(g.name, variable.generics.get(i++));
         }
 
         for (Statement stmt : method.statements) {

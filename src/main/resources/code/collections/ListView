@@ -1,0 +1,12 @@
+parser composite;
+
+structures {
+    core.Int;
+}
+
+collection.ListView<Structure T> {
+
+    Int size;
+    T element;
+
+}

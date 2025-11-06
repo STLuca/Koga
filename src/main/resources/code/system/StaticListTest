@@ -51,8 +51,7 @@ test.StaticListTest {
 
         ~ Iterator usage
         Int sum 0;
-        Int element;
-        ListIterator<Int> (list, element) {
+        ListIterator<Int> (list) {
             sum + element;
         };
 

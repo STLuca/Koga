@@ -107,6 +107,9 @@ public class Statement {
                         throw new RuntimeException();
                     }
                     arg.block.execute(compiler);
+                } else if (genericsByName.containsKey(this.structure)) {
+                    Structure structure = genericsByName.get(this.structure);
+                    structure.declare(compiler, sources, variables, variableName, resolvedGenerics);
                 } else {
                     Structure structure = sources.structure(this.structure);
                     structure.declare(compiler, sources, variables, name + "." + variableName, resolvedGenerics);

@@ -16,10 +16,11 @@ documents {
 
 collection.ListIterator<Structure T> {
 
-    constructor(InterfaceReference<List> listRef, T element, Block b) {
+    constructor(InterfaceReference<List> listRef, Block b) {
         InterfaceReference<ListAccessor> accessor;
         Pointer<InterfaceReference> accessorPtr (accessor);
         listRef accessor(accessorPtr);
+        T element;
         Pointer<T> elementPtr (element);
         Int size;
         Pointer<Int> sizePtr (size);

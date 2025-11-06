@@ -482,6 +482,8 @@ public class VirtualMachineTest {
         assertThat(xVal).isEqualTo(19);
         int sumVal = t.altData.get("sum").get("val");
         assertThat(sumVal).isEqualTo(40);
+        int lastElementVal = t.altData.get("element").get("val");
+        assertThat(lastElementVal).isEqualTo(21);
     }
 
 }

@@ -269,8 +269,9 @@ public class CompositeParser implements Parser {
 
         // If imports contains the first String, it's a construct statement
         boolean isBlock = currS.equals("Block");
-        boolean contains = ctx.structures.containsKey(currS);
-        if (isBlock || contains) {
+        boolean isGeneric = ctx.generics.contains(currS);
+        boolean isStructure = ctx.structures.containsKey(currS);
+        if (isBlock || isStructure || isGeneric) {
             Statement s = new Statement();
             // Construct statement
             // check for generics
@@ -279,7 +280,15 @@ public class CompositeParser implements Parser {
             // should be series of ( and {
             // Can continue into invokes if name before ;
             s.type = Statement.Type.CONSTRUCT;
-            s.structure = isBlock ? "Block" : ctx.structures.get(currS);
+            if (isBlock) {
+                s.structure = "Block";
+            } else if (isGeneric) {
+                s.structure = currS;
+            } else if (isStructure) {
+                s.structure = ctx.structures.get(currS);
+            } else {
+                throw new RuntimeException();
+            }
 
             // generics
             if (scanner.peek(tokens).orElse(null) == OP_PT_BRACE) {

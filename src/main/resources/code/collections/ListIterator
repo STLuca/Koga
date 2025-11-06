@@ -1,0 +1,38 @@
+parser composite;
+
+structures {
+    core.Int;
+    core.Proxy;
+    core.InterfaceReference;
+    core.Pointer;
+    core.While;
+    core.Boolean;
+}
+
+documents {
+    collection.List;
+    collection.ListAccessor;
+}
+
+collection.ListIterator {
+
+    constructor(InterfaceReference<List> listRef, Int element, Block b) {
+        InterfaceReference<ListAccessor> accessor;
+        Pointer<InterfaceReference> accessorPtr (accessor);
+        listRef accessor(accessorPtr);
+        Pointer<Int> elementPtr (element);
+        Int size;
+        Pointer<Int> sizePtr (size);
+        accessor size (sizePtr);
+        Int index 0;
+        Boolean isNotEnd { index != size; };
+        While (isNotEnd) {
+            accessor index (index);
+            accessor get (elementPtr);
+            Block b;
+            index + 1;
+            isNotEnd = { index != size; };
+        };
+    }
+
+}

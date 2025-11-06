@@ -23,13 +23,11 @@ public class CompositeParser implements Parser {
             CL_SQ_BRACKET, EQUALS, DOT, OP_PT_BRACE, CL_PT_BRACE, STRING, OPERATOR, TILDA;
     Tokens tokens = new Tokens();
     Tokens methodNameTokens = new Tokens();
+    Tokens metaTokens = new Tokens();
     HashMap<String, String> operatorNames = new HashMap<>();
 
     {
-        DEPENDENCIES  = tokens.add("'dependencies'");
-        IMPORTS       = tokens.add("'structures'");
         CONSTRUCTOR   = tokens.add("'constructor'");
-        IMPLEMENTS    = tokens.add("'implements'");
         PARAM_TYPE    = tokens.add("b[1-9][0-9]*");
         LITERAL_ARG   = tokens.add("0b[0-1]+|0x[0-9a-f]+|[0-9]+|true|false|\\'[a-zA-Z]\\'");
         GLOBAL_NAME   = tokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
@@ -53,6 +51,16 @@ public class CompositeParser implements Parser {
         methodNameTokens.add(NAME);
         methodNameTokens.add(SEMI_COLON);
         OPERATOR = methodNameTokens.add("[^a-zA-Z1-9({ \t]+");
+
+        {
+            IMPORTS       = metaTokens.add("'structures'");
+            DEPENDENCIES  = metaTokens.add("'documents'");
+            GLOBAL_NAME   = metaTokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
+            metaTokens.add(NAME);
+            metaTokens.add(SEMI_COLON);
+            metaTokens.add(OP_BRACE);
+            metaTokens.add(CL_BRACE);
+        }
 
         {
             operatorNames.put("=", "set");
@@ -92,46 +100,49 @@ public class CompositeParser implements Parser {
         Context ctx = new Context();
         ctx.c = c;
 
-        // Token curr = scanner.expect(tokens, DISTINGUISH, "Expecting Distinguish");
-        Token curr = scanner.next(tokens);
+        Token curr = scanner.next(metaTokens);
         if (curr == IMPORTS) {
-            scanner.expect(tokens, OP_BRACE);
-            curr = scanner.next(tokens);
+            scanner.expect(metaTokens, OP_BRACE);
+            curr = scanner.next(metaTokens);
             while (curr != CL_BRACE) {
                 if (curr != GLOBAL_NAME) throw new RuntimeException("name");
                 String globalName = curr.matched();
                 String[] split = globalName.split("\\.");
                 String localName = split[split.length - 1];
-                curr = scanner.next(tokens);
+                curr = scanner.next(metaTokens);
                 if (curr == NAME) {
                     localName = curr.matched();
-                    curr = scanner.next(tokens);
+                    curr = scanner.next(metaTokens);
                 }
                 if (curr != SEMI_COLON) { scanner.fail(";"); }
                 ctx.structures.put(localName, globalName);
                 c.imports.add(globalName);
-                curr = scanner.next(tokens);
+                curr = scanner.next(metaTokens);
             }
-            curr = scanner.next(tokens);
+            curr = scanner.next(metaTokens);
         }
         if (curr == DEPENDENCIES) {
-            scanner.expect(tokens, OP_BRACE);
-            curr = scanner.next(tokens);
+            scanner.expect(metaTokens, OP_BRACE);
+            curr = scanner.next(metaTokens);
             while (curr != CL_BRACE) {
-                if (curr != NAME) throw new RuntimeException("name");
+                if (curr != NAME && curr != GLOBAL_NAME) throw new RuntimeException("name");
                 String globalName = curr.matched();
                 String localName = curr.matched();
-                curr = scanner.next(tokens);
+                if (localName.contains(".")) {
+                    String[] split = localName.split("\\.");
+                    localName = split[split.length - 1];
+                }
+                curr = scanner.next(metaTokens);
                 if (curr == NAME) {
                     localName = curr.matched();
-                    curr = scanner.next(tokens);
+                    curr = scanner.next(metaTokens);
                 }
                 if (curr != SEMI_COLON) { scanner.fail(";"); }
                 ctx.documents.put(localName, globalName);
                 c.dependencies.add(globalName);
-                curr = scanner.next(tokens);
+                curr = scanner.next(metaTokens);
             }
-            curr = scanner.next(tokens);
+            curr = scanner.next(metaTokens);
         }
         if (curr != GLOBAL_NAME) scanner.fail("name");
         c.name = curr.matched();
@@ -169,24 +180,34 @@ public class CompositeParser implements Parser {
         m.name = name;
         Token curr = scanner.next(tokens);
         while (curr != CL_PAREN) {
-            if (curr != PARAM_TYPE && curr != NAME) throw new RuntimeException("expecting parameter type");
-            boolean binaryType = curr == PARAM_TYPE;
-            boolean isArray = false;
-            String paramType = curr.matched();
-            curr = scanner.next(tokens);
-//            if (curr == PARAM_ARRAY) {
-//                isArray = true;
-//                curr = scanner.next(tokens);
-//            }
             if (curr != NAME) scanner.fail("name");
-            String paramName = curr.matched();
-            if (binaryType) {
-                m.addParam(Integer.parseInt(paramType.substring(1)), paramName);
-            } else {
-                m.addParam(paramType, paramName);
-            }
-            if (scanner.peek(tokens).orElse(null) == COMMA) scanner.next(tokens);
+            Parameter p = new Parameter();
+            p.structure = ctx.structures.get(curr.matched());
             curr = scanner.next(tokens);
+
+            if (curr == OP_PT_BRACE) {
+                curr = scanner.next(tokens);
+                while (curr != CL_PT_BRACE) {
+                    if (curr != NAME) scanner.fail("name");
+                    if (ctx.structures.containsKey(curr.matched())) {
+                        p.generics.add(ctx.structures.get(curr.matched()));
+                    } else if (ctx.documents.containsKey(curr.matched())) {
+                        p.generics.add(ctx.documents.get(curr.matched()));
+                    } else {
+                        p.generics.add(curr.matched());
+                    }
+                    curr = scanner.next(tokens);
+                    if (curr == COMMA) curr = scanner.next(tokens);
+                }
+                curr = scanner.next(tokens);
+            }
+
+            if (curr != NAME) scanner.fail("name");
+            p.name = curr.matched();
+
+            curr = scanner.next(tokens);
+            if (curr == COMMA) curr = scanner.next(tokens);
+            m.params.add(p);
         }
         scanner.expect(tokens, OP_BRACE);
         curr = scanner.next(tokens);
@@ -215,8 +236,9 @@ public class CompositeParser implements Parser {
         String currS = curr.matched();
 
         // If imports contains the first String, it's a construct statement
+        boolean isBlock = currS.equals("Block");
         boolean contains = ctx.structures.containsKey(currS);
-        if (contains) {
+        if (isBlock || contains) {
             Statement s = new Statement();
             // Construct statement
             // check for generics
@@ -225,7 +247,7 @@ public class CompositeParser implements Parser {
             // should be series of ( and {
             // Can continue into invokes if name before ;
             s.type = Statement.Type.CONSTRUCT;
-            s.structure = ctx.structures.get(currS);
+            s.structure = isBlock ? "Block" : ctx.structures.get(currS);
 
             // generics
             if (scanner.peek(tokens).orElse(null) == OP_PT_BRACE) {

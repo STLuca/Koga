@@ -86,6 +86,7 @@ public class VirtualMachineTest {
         // collections
         srcMap.put("collection.List", "collections/List");
         srcMap.put("collection.ListAccessor", "collections/ListAccessor");
+        srcMap.put("collection.ListIterator", "collections/ListIterator");
         srcMap.put("collection.StaticList", "collections/StaticList");
         srcMap.put("collection.StaticListAccessor", "collections/StaticListAccessor");
 
@@ -479,6 +480,8 @@ public class VirtualMachineTest {
         Inspector.Task t = i.tasks.get(0);
         int xVal = t.altData.get("writeElement").get("val");
         assertThat(xVal).isEqualTo(19);
+        int sumVal = t.altData.get("sum").get("val");
+        assertThat(sumVal).isEqualTo(40);
     }
 
 }

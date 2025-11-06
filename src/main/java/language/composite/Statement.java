@@ -75,8 +75,16 @@ public class Statement {
 
         switch (type) {
             case DECLARE -> {
-                Structure structure = sources.structure(this.structure);
-                structure.declare(compiler, sources, variables, name + "." + variableName, generics);
+                if (this.structure.equals("Block")) {
+                    language.core.Argument arg = argsByName.get(variableName);
+                    if (arg.type != language.core.Argument.Type.Block) {
+                        throw new RuntimeException();
+                    }
+                    arg.block.execute(compiler);
+                } else {
+                    Structure structure = sources.structure(this.structure);
+                    structure.declare(compiler, sources, variables, name + "." + variableName, generics);
+                }
             }
             case CONSTRUCT -> {
                 Structure structure = sources.structure(this.structure);

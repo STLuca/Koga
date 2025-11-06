@@ -39,6 +39,8 @@ collection.StaticListAccessor implements ListAccessor {
     }
 
     size(Pointer<Int> intOut) {
+        Int size 2;
+        intOut <- size;
         Task t complete();
     }
 

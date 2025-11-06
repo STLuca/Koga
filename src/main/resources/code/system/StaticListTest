@@ -9,6 +9,7 @@ structures {
     core.Structure;
     core.Exit;
     core.AdminRef;
+    collection.ListIterator;
 }
 
 documents {
@@ -47,6 +48,13 @@ test.StaticListTest {
         Int writeElement;
         Pointer<Int> writeElementPtr (writeElement);
         listAccessor get (writeElementPtr);
+
+        ~ Iterator usage
+        Int sum 0;
+        Int element;
+        ListIterator<Int> (list, element) {
+            sum + element;
+        };
 
         Exit;
     }

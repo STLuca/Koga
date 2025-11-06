@@ -1,5 +1,6 @@
 package language.composite;
 
+import core.Document;
 import language.core.*;
 
 import java.util.ArrayList;
@@ -37,6 +38,11 @@ public class CompositeStructure implements Structure {
 
         for (String imprt : this.imports) {
             sources.parse(imprt);
+        }
+
+        for (String dependency : dependencies) {
+            sources.parse(dependency);
+            Document document = sources.document(dependency, Compilable.Level.Head);
         }
 
         for (Field f : fields) {

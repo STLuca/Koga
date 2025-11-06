@@ -14,7 +14,7 @@ documents {
     collection.ListAccessor;
 }
 
-collection.ListIterator {
+collection.ListIterator<Structure T> {
 
     constructor(InterfaceReference<List> listRef, Int element, Block b) {
         InterfaceReference<ListAccessor> accessor;

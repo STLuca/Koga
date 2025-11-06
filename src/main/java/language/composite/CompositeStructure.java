@@ -13,6 +13,7 @@ public class CompositeStructure implements Structure {
     String name;
     ArrayList<String> imports = new ArrayList<>();
     ArrayList<String> dependencies = new ArrayList<>();
+    ArrayList<Generic> generics = new ArrayList<>();
     ArrayList<Field> fields = new ArrayList<>();
     ArrayList<Method> constructors = new ArrayList<>();
     ArrayList<Method> methods = new ArrayList<>();

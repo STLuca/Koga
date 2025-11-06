@@ -147,8 +147,27 @@ public class CompositeParser implements Parser {
         if (curr != GLOBAL_NAME) scanner.fail("name");
         c.name = curr.matched();
 
+        String[] splitName = c.name.split("\\.");
+        ctx.structures.put(splitName[splitName.length - 1], c.name);
+
         curr = scanner.next(tokens);
+        if (curr == OP_PT_BRACE) {
+            do {
+                curr = scanner.expect(tokens, NAME);
+                String type = curr.matched();
+                curr = scanner.expect(tokens, NAME);
+                String name = curr.matched();
+                Generic g = new Generic();
+                g.type = Generic.Type.valueOf(type);
+                g.name = name;
+                c.generics.add(g);
+                curr = scanner.next(tokens);
+            } while (curr == COMMA);
+            if (curr != CL_PT_BRACE) scanner.fail(">");
+            curr = scanner.next(tokens);
+        }
         if (curr != OP_BRACE) scanner.fail("{");
+
         curr = scanner.next(tokens);
         while (curr != CL_BRACE) {
             Token peek = scanner.peek(tokens).orElseThrow();

@@ -15,7 +15,7 @@ public class BlockStatement implements Statement {
     
     public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
         if (isContextPush) {
-            context.add(name, Argument.of(new MachineBlock(this.block, sources, variable, arguments, context)));
+            context.add(name, Argument.of(new MachineBlock(this.block, sources, variable, arguments, context, context.state())));
             return;
         }
         Argument obj = null;
@@ -39,19 +39,24 @@ public class BlockStatement implements Statement {
         Variable variable;
         Map<String, Argument> arguments;
         Context context;
+        int state;
 
-        public MachineBlock(List<Statement> statements, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
+        public MachineBlock(List<Statement> statements, Sources sources, Variable variable, Map<String, Argument> arguments, Context context, int state) {
             this.statements = statements;
             this.sources = sources;
             this.variable = variable;
             this.arguments = arguments;
             this.context = context;
+            this.state = state;
         }
         
         public void execute(Compiler.MethodCompiler compiler) {
+            int current = context.state();
+            context.setState(this.state);
             for (Statement s : statements) {
                 s.compile(compiler, sources, variable, arguments, context);
             }
+            context.setState(current);
         }
     }
 

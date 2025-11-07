@@ -67,10 +67,9 @@ public class MachineEnumStructure implements Structure {
         // instructions
         // l(ADD, II, LDA, data.name, IL, 0d0, IL, literal);
         // compiler.instruction("l", "ADD", "II", "LDA", data.name, "IL", "0d0", "IL", literal);
-        variable.methodAllocations.push(new HashMap<>());
+        context.startOperation();
         new InstructionStatement("i", "ADD", "II", "LDA", data.name, "IL", "0d0", "IL", literal).compile(compiler, sources, variable, Map.of(), context);
-
-        variable.methodAllocations.pop();
+        context.stopOperation();
     }
     
     public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> arguments) {
@@ -78,9 +77,10 @@ public class MachineEnumStructure implements Structure {
         if (arguments.size() == 0) throw new RuntimeException("expecting arguments");
         if (arguments.size() % 2 != 0) throw new RuntimeException("expecting even number of arguments");
 
-        variable.methodAllocations.push(new HashMap<>());
+        context.startOperation();
         int endAddr = compiler.address();
-        variable.methodAllocations.peek().put("end", new Variable.Allocation(4, endAddr));
+        Variable.Allocation allocation = new Variable.Allocation(4, endAddr);
+        context.operationAllocation("end", allocation);
 
         int i = 0;
         while(i < arguments.size()) {
@@ -106,7 +106,8 @@ public class MachineEnumStructure implements Structure {
             // Addr instruction;
             String instruction = "after" + i;
             int addr = compiler.address();
-            variable.methodAllocations.peek().put(instruction, new Variable.Allocation(4, addr));
+            Variable.Allocation afterAllocation = new Variable.Allocation(4, addr);
+            context.operationAllocation(instruction, afterAllocation);
             new InstructionStatement("cb", "NEQ", "TI", "LDA", "val", "IL", literal, instruction).compile(compiler, sources, variable, Map.of(), context);
             block.execute(compiler);
             new InstructionStatement("j", "REL", "I", "end").compile(compiler, sources, variable, Map.of(), context);
@@ -116,7 +117,7 @@ public class MachineEnumStructure implements Structure {
             i += 2;
         }
         compiler.address(endAddr);
-        variable.methodAllocations.pop();
+        context.stopOperation();
     }
 
 }

@@ -11,7 +11,6 @@ public class Variable {
     public Structure structure;
     public LinkedHashMap<String, Generic> generics = new LinkedHashMap<>();
     public HashMap<String, Allocation> allocations = new HashMap<>();
-    public ArrayDeque<Map<String, Allocation>> methodAllocations = new ArrayDeque<>();
 
     public static class Generic {
         public enum Type { Structure, Document }

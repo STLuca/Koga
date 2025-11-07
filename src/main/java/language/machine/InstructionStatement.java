@@ -193,7 +193,7 @@ public class InstructionStatement implements Statement {
                     // Put a placeholder address. Things will probably not work if the addr isn't then updated
                     int address = compiler.address();
                     Variable.Allocation addrAllocation = new Variable.Allocation(4, address);
-                    variable.methodAllocations.peek().put(addr, addrAllocation);
+                    context.operationAllocation(addr, addrAllocation);
                     resolvedAddr = new Resolved(addrAllocation.size(), addrAllocation.location());
                 }
                 ic.inputType(inType);

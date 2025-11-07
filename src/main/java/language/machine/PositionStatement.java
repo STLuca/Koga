@@ -11,14 +11,15 @@ public class PositionStatement implements Statement {
 
     public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
         int addr;
-        if (variable.methodAllocations.peek().containsKey(this.addr)) {
-            addr = variable.methodAllocations.peek().get(this.addr).location();
+        if (context.operationAllocation(this.addr) != null) {
+            addr = context.operationAllocation(this.addr).location();
         } else {
             addr = variable.allocations.get(this.addr).location();
         }
         int prev = compiler.position(addr);
         if (this.prevName != null) {
-            variable.methodAllocations.peek().put(prevName, new Variable.Allocation(4, prev));
+            Variable.Allocation allocation = new Variable.Allocation(4, prev);
+            context.operationAllocation(prevName, allocation);
         }
     }
 

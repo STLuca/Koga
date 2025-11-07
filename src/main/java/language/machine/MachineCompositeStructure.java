@@ -146,11 +146,11 @@ public class MachineCompositeStructure implements Structure {
             compiler.debugData(variable.name, v.name, location, v.size);
         }
 
-        variable.methodAllocations.push(new HashMap<>());
+        context.startOperation();
         for (Statement s : c.body) {
             s.compile(compiler, sources, variable, argsByName, context);
         }
-        variable.methodAllocations.pop();
+        context.stopOperation();
     }
 
     public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> args) {
@@ -173,11 +173,11 @@ public class MachineCompositeStructure implements Structure {
             argsByName.put(param.name, args.get(i++));
         }
 
-        variable.methodAllocations.add(new HashMap<>());
+        context.startOperation();
         for (Statement s : operation.body) {
             s.compile(compiler, sources, variable, argsByName, context);
         }
-        variable.methodAllocations.pop();
+        context.stopOperation();
     }
 
 }

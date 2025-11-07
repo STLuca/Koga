@@ -116,11 +116,11 @@ public class MachineReferenceStructure implements Structure {
             compiler.debugData(variable.name, v.name, location, v.size);
         }
 
-        variable.methodAllocations.push(new HashMap<>());
+        context.startOperation();
         for (Statement s : c.body) {
             s.compile(compiler, sources, variable, argsByName, context);
         }
-        variable.methodAllocations.pop();
+        context.stopOperation();
     }
 
     public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> args) {
@@ -130,7 +130,7 @@ public class MachineReferenceStructure implements Structure {
         Argument methodNameArg = Argument.of(operationName);
         argsByName.put("methodName", methodNameArg);
 
-        variable.methodAllocations.push(new HashMap<>());
+        context.startOperation();
 
         for (Statement s : invokeOperation.body) {
             if (argStatement != s) {
@@ -149,7 +149,7 @@ public class MachineReferenceStructure implements Structure {
                 }
             }
         }
-        variable.methodAllocations.pop();
+        context.stopOperation();
     }
 
     public int size(Sources sources) {

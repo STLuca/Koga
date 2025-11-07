@@ -21,7 +21,7 @@ public class DataStatement implements Statement {
         if (variable.allocations.containsKey(name)) {
             variable.allocations.put(name, new Variable.Allocation(allocateSize, allocated));
         } else {
-            variable.methodAllocations.peek().put(name, new Variable.Allocation(allocateSize, allocated));
+            context.operationAllocation(name, new Variable.Allocation(allocateSize, allocated));
         }
         compiler.debugData(variable.name, name, allocated, allocateSize);
     }

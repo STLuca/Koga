@@ -52,10 +52,12 @@ public class AdminStatement implements Statement {
         arguments.put(methodSymbol, arg);
 
         int location = compiler.data(4);
-        variable.methodAllocations.peek().put(methodAddr, new Variable.Allocation(4, location));
+        Variable.Allocation allocation = new Variable.Allocation(4, location);
+        context.operationAllocation(methodAddr, allocation);
         compiler.debugData(variable.name, methodAddr, location, 4);
         location = compiler.data(4);
-        variable.methodAllocations.peek().put(frameDataAddr, new Variable.Allocation(4, location));
+        allocation = new Variable.Allocation(4, location);
+        context.operationAllocation(frameDataAddr, allocation);
         compiler.debugData(variable.name, frameDataAddr, location, 4);
 
         new InstructionStatement("c", "ADDR", "LI", "LDA", methodAddr, "R", "table", "AL", methodSymbol).compile(compiler, sources, variable, arguments, context);

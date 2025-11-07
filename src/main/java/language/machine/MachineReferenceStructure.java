@@ -21,18 +21,6 @@ public class MachineReferenceStructure implements Structure {
         return name;
     }
 
-    @Override
-    public int genericIndex(String name) {
-        int i = 0;
-        for (Generic g : generics) {
-            if (g.name.equals(name)) {
-                return i;
-            }
-            i++;
-        }
-        return -1;
-    }
-
     public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
         Variable variable = new Variable();
         variable.name = name;

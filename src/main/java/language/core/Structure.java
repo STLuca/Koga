@@ -5,9 +5,6 @@ import java.util.*;
 public interface Structure {
 
     String name();
-    default int genericIndex(String name) {
-        return -1;
-    };
     int size(Sources sources);
     void proxy(Sources sources, Variable variable, int location);
     void declare(

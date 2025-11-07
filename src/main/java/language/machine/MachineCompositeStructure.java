@@ -21,18 +21,6 @@ public class MachineCompositeStructure implements Structure {
         return name;
     }
 
-    @Override
-    public int genericIndex(String name) {
-        int i = 0;
-        for (Generic g : generics) {
-            if (g.name.equals(name)) {
-                return i;
-            }
-            i++;
-        }
-        return -1;
-    }
-
     public int size(Sources sources) {
         int total = 0;
         for (Data v : variables) {

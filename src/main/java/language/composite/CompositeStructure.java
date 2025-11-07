@@ -36,7 +36,6 @@ public class CompositeStructure implements Structure {
         thisVariable.structure = this;
         context.add(thisVariable);
 
-        HashMap<String, Variable.Generic> genericsByName = new HashMap<>();
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
             Variable.Generic g = new Variable.Generic();
@@ -53,7 +52,6 @@ public class CompositeStructure implements Structure {
                 }
             }
             thisVariable.generics.put(generic.name, g);
-            genericsByName.put(generic.name, g);
         }
 
         for (String imprt : this.imports) {
@@ -67,8 +65,8 @@ public class CompositeStructure implements Structure {
 
         for (Field f : fields) {
             Structure u;
-            if (genericsByName.containsKey(f.structure)) {
-                u = genericsByName.get(f.structure).structure;
+            if (thisVariable.generics.containsKey(f.structure)) {
+                u = thisVariable.generics.get(f.structure).structure;
             } else {
                 u = sources.structure(f.structure);
             }
@@ -87,7 +85,6 @@ public class CompositeStructure implements Structure {
         thisVariable.structure = this;
         context.add(thisVariable);
 
-        HashMap<String, Variable.Generic> genericsByName = new HashMap<>();
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
             Variable.Generic g = new Variable.Generic();
@@ -104,7 +101,6 @@ public class CompositeStructure implements Structure {
                 }
             }
             thisVariable.generics.put(generic.name, g);
-            genericsByName.put(generic.name, g);
         }
 
         for (String imprt : this.imports) {
@@ -128,7 +124,7 @@ public class CompositeStructure implements Structure {
         }
 
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, sources, argsByName, genericsByName, name, context);
+            stmt.handle(compiler, sources, argsByName, thisVariable.generics, name, context);
         }
     }
     
@@ -149,14 +145,8 @@ public class CompositeStructure implements Structure {
             argsByName.put(param.name, arguments.get(i++));
         }
 
-        HashMap<String, Variable.Generic> genericsByName = new HashMap<>();
-        i = 0;
-        for (Generic g : this.generics) {
-            genericsByName.put(g.name, variable.generics.get(g.name));
-        }
-
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, sources, argsByName, genericsByName, variable.name, context);
+            stmt.handle(compiler, sources, argsByName, variable.generics, variable.name, context);
         }
 
     }

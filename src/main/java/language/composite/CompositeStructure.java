@@ -52,7 +52,7 @@ public class CompositeStructure implements Structure {
                     g.document = doc;
                 }
             }
-            thisVariable.generics.add(g);
+            thisVariable.generics.put(generic.name, g);
             genericsByName.put(generic.name, g);
         }
 
@@ -103,7 +103,7 @@ public class CompositeStructure implements Structure {
                     g.document = doc;
                 }
             }
-            thisVariable.generics.add(g);
+            thisVariable.generics.put(generic.name, g);
             genericsByName.put(generic.name, g);
         }
 
@@ -152,7 +152,7 @@ public class CompositeStructure implements Structure {
         HashMap<String, Variable.Generic> genericsByName = new HashMap<>();
         i = 0;
         for (Generic g : this.generics) {
-            genericsByName.put(g.name, variable.generics.get(i++));
+            genericsByName.put(g.name, variable.generics.get(g.name));
         }
 
         for (Statement stmt : method.statements) {

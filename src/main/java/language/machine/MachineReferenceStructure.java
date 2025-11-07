@@ -46,14 +46,14 @@ public class MachineReferenceStructure implements Structure {
                     Variable.Generic g = new Variable.Generic();
                     g.type = Variable.Generic.Type.Structure;
                     g.structure = value;
-                    variable.generics.add(g);
+                    variable.generics.put(generic.name, g);
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
                     Variable.Generic g = new Variable.Generic();
                     g.type = Variable.Generic.Type.Document;
                     g.document = doc;
-                    variable.generics.add(g);
+                    variable.generics.put(generic.name, g);
                 }
             }
         }
@@ -84,14 +84,14 @@ public class MachineReferenceStructure implements Structure {
                     Variable.Generic g = new Variable.Generic();
                     g.type = Variable.Generic.Type.Structure;
                     g.structure = value;
-                    variable.generics.add(g);
+                    variable.generics.put(generic.name, g);
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
                     Variable.Generic g = new Variable.Generic();
                     g.type = Variable.Generic.Type.Document;
                     g.document = doc;
-                    variable.generics.add(g);
+                    variable.generics.put(generic.name, g);
                 }
             }
         }
@@ -190,15 +190,13 @@ public class MachineReferenceStructure implements Structure {
             String input = this.arguments.get(1);
             d = switch (docInType) {
                 case LG -> {
-                    int index = variable.structure.genericIndex(input);
-                    Variable.Generic g = variable.generics.get(index);
+                    Variable.Generic g = variable.generics.get(input);
                     yield g.document;
                 }
                 case AG -> {
                     String[] split = input.split("\\.");
                     Variable var = arguments.get(split[0]).variable;
-                    int index = var.structure.genericIndex(split[1]);
-                    Variable.Generic g = var.generics.get(index);
+                    Variable.Generic g = var.generics.get(split[1]);
                     yield g.document;
                 }
                 default -> throw new RuntimeException();

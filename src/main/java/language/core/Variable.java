@@ -9,7 +9,7 @@ public class Variable {
 
     public String name;
     public Structure structure;
-    public ArrayList<Generic> generics = new ArrayList<>();
+    public LinkedHashMap<String, Generic> generics = new LinkedHashMap<>();
     public HashMap<String, Allocation> allocations = new HashMap<>();
     public ArrayDeque<Map<String, Allocation>> methodAllocations = new ArrayDeque<>();
 

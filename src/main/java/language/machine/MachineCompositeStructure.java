@@ -58,14 +58,14 @@ public class MachineCompositeStructure implements Structure {
                     Variable.Generic g = new Variable.Generic();
                     g.type = Variable.Generic.Type.Structure;
                     g.structure = value;
-                    variable.generics.add(g);
+                    variable.generics.put(generic.name, g);
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
                     Variable.Generic g = new Variable.Generic();
                     g.type = Variable.Generic.Type.Document;
                     g.document = doc;
-                    variable.generics.add(g);
+                    variable.generics.put(generic.name, g);
                 }
             }
         }
@@ -116,14 +116,14 @@ public class MachineCompositeStructure implements Structure {
                     Variable.Generic g = new Variable.Generic();
                     g.type = Variable.Generic.Type.Structure;
                     g.structure = value;
-                    variable.generics.add(g);
+                    variable.generics.put(generic.name, g);
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
                     Variable.Generic g = new Variable.Generic();
                     g.type = Variable.Generic.Type.Document;
                     g.document = doc;
-                    variable.generics.add(g);
+                    variable.generics.put(generic.name, g);
                 }
             }
         }

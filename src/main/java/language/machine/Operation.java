@@ -17,9 +17,8 @@ public class Operation {
         boolean match(Variable variable, Argument arg) {
             boolean matches;
             if (isGeneric) {
-                int index = variable.structure.genericIndex(name);
-                if (index == -1) return false;
-                matches = variable.generics.get(index).structure == arg.variable.structure;
+                if (!variable.generics.containsKey(name)) return false;
+                matches = variable.generics.get(name).structure == arg.variable.structure;
             } else {
                 matches = name.equals(arg.variable.structure.name());
             }
@@ -33,9 +32,10 @@ public class Operation {
                 return false;
             }
             boolean allMatch = true;
+            List<Variable.Generic> orderedGenerics = arg.variable.generics.sequencedValues().stream().toList();
             for (int i = 0; i < subMatchers.size(); i++) {
                 VariableMatcher m = subMatchers.get(i);
-                Variable.Generic g = arg.variable.generics.get(i);
+                Variable.Generic g = orderedGenerics.get(i);
                 if (!m.name.equals(g.structure.name())) {
                     allMatch = false;
                 }

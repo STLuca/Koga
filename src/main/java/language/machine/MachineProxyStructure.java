@@ -4,7 +4,6 @@ import language.core.*;
 import language.core.Compiler;
 
 import java.util.List;
-import java.util.Map;
 
 public class MachineProxyStructure implements Structure {
 
@@ -21,11 +20,11 @@ public class MachineProxyStructure implements Structure {
         return 0;
     }
     
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
         Variable variable = new Variable();
         variable.name = name;
         variable.structure = sources.structure(generics.get(0));
-        variables.put(name, variable);
+        context.add(variable);
         // variable.proxy = true
     }
     
@@ -33,14 +32,14 @@ public class MachineProxyStructure implements Structure {
         throw new RuntimeException("Not supported");
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics, String constructorName, List<Argument> arguments, Context context) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> arguments) {
         // init the proxy
         // compiler.proxy(variable.name, null);
         // First generic is the proxied class
         // variable.generics.get(0).declare(compiler, variable, List.of(), null);
     }
     
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String operationName, List<Argument> arguments, Context context) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> arguments) {
         // variable.generics.get(0).invoke(compiler, variable, admin, methodName, arguments);
     }
 

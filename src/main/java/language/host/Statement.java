@@ -5,7 +5,6 @@ import language.core.Compiler;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class Statement {
 
@@ -32,7 +31,6 @@ public class Statement {
     void handle(
             Compiler.MethodCompiler compiler,
             Sources sources,
-            Map<String, Variable> variables,
             Context context
     ) {
         ArrayList<language.core.Argument> args = new ArrayList<>();
@@ -42,11 +40,11 @@ public class Statement {
                 int literal = parseLiteral(arg.literal);
                 args.add(language.core.Argument.of(literal));
             } else if (arg.block != null) {
-                Block b = new Block(arg.block, sources, variables, context);
+                Block b = new Block(arg.block, sources, context);
                 args.add(language.core.Argument.of(b));
             } else if (arg.name != null) {
-                if (variables.containsKey(arg.name)) {
-                    Variable v = variables.get(arg.name);
+                Variable v = context.variable(arg.name);
+                if (v != null) {
                     args.add(language.core.Argument.of(v));
                 } else {
                     args.add(language.core.Argument.of(arg.name));
@@ -70,16 +68,16 @@ public class Statement {
         switch (type) {
             case DECLARE -> {
                 Structure structure = sources.structure(this.structure);
-                structure.declare(compiler, sources, variables, variableName, generics);
+                structure.declare(compiler, sources, context, variableName, generics);
             }
             case CONSTRUCT -> {
                 Structure structure = sources.structure(this.structure);
-                structure.construct(compiler, sources, variables, variableName, generics, methodName, args, context);
+                structure.construct(compiler, sources, context, variableName, generics, methodName, args);
             }
             case INVOKE -> {
-                Variable variable = variables.get(variableName);
+                Variable variable = context.variable(variableName);
                 Structure sc = variable.structure;
-                sc.operate(compiler, sources, variables, variable, methodName, args, context);
+                sc.operate(compiler, sources, context, variable, methodName, args);
             }
         }
     }
@@ -88,24 +86,21 @@ public class Statement {
 
         List<Statement> block;
         Sources sources;
-        Map<String, Variable> variables;
         Context context;
 
         public Block(
                 List<Statement> block,
                 Sources sources,
-                Map<String, Variable> variables,
                 Context context
         ) {
             this.block = block;
             this.sources = sources;
-            this.variables = variables;
             this.context = context;
         }
         
         public void execute(Compiler.MethodCompiler compiler) {
             for (Statement stmt : block) {
-                stmt.handle(compiler, sources, variables, context);
+                stmt.handle(compiler, sources, context);
             }
         }
     }

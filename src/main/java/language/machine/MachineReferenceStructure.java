@@ -33,11 +33,11 @@ public class MachineReferenceStructure implements Structure {
         return -1;
     }
 
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
         Variable variable = new Variable();
         variable.name = name;
         variable.structure = this;
-        variables.put(name, variable);
+        context.add(variable);
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
             switch (generic.type) {
@@ -70,11 +70,11 @@ public class MachineReferenceStructure implements Structure {
         throw new RuntimeException("Not supported");
     }
 
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics, String constructorName, List<Argument> args, Context context) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> args) {
         Variable variable = new Variable();
         variable.name = name;
         variable.structure = this;
-        variables.put(name, variable);
+        context.add(variable);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
@@ -135,7 +135,7 @@ public class MachineReferenceStructure implements Structure {
         variable.methodAllocations.pop();
     }
 
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String operationName, List<Argument> args, Context context) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> args) {
         HashMap<String, Argument> argsByName = new HashMap<>();
 
         // put the name instead of the arguments

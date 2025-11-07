@@ -6,7 +6,6 @@ import language.core.*;
 import language.core.Compiler;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class HostCompilable implements Compilable {
@@ -103,18 +102,17 @@ public class HostCompilable implements Compilable {
             Compiler.MethodCompiler mb = compiler.method();
             Context context = new Context();
             mb.name(m.name);
-            HashMap<String, Variable> variables = new HashMap<>();
 
             // declare the parameters
             for (Parameter p : m.params) {
                 Structure structure = sources.structure(p.structure);
                 mb.parameter(structure.name());
-                structure.declare(mb, sources, variables, p.name, p.generics);
+                structure.declare(mb, sources, context, p.name, p.generics);
             }
 
             // handle each statement in the body
             for (Statement stmt : m.statements) {
-                stmt.handle(mb, sources, variables, context);
+                stmt.handle(mb, sources, context);
             }
         }
     }

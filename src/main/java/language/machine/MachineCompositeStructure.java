@@ -7,7 +7,6 @@ import language.core.Compiler;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class MachineCompositeStructure implements Structure {
 
@@ -42,7 +41,7 @@ public class MachineCompositeStructure implements Structure {
         return total;
     }
 
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
         if (this.generics.size() != generics.size()) {
             throw new RuntimeException();
         }
@@ -50,7 +49,7 @@ public class MachineCompositeStructure implements Structure {
         Variable variable = new Variable();
         variable.name = name;
         variable.structure = this;
-        variables.put(name, variable);
+        context.add(variable);
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
             switch (generic.type) {
@@ -102,11 +101,11 @@ public class MachineCompositeStructure implements Structure {
         }
     }
 
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics, String constructorName, List<Argument> args, Context context) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> args) {
         Variable variable = new Variable();
         variable.name = name;
         variable.structure = this;
-        variables.put(name, variable);
+        context.add(variable);
         // Setup variable
         if (this.generics.size() != generics.size()) throw new RuntimeException();
         for (int i = 0; i < this.generics.size(); i++) {
@@ -166,7 +165,7 @@ public class MachineCompositeStructure implements Structure {
         variable.methodAllocations.pop();
     }
 
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String operationName, List<Argument> args, Context context) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> args) {
         // Find the method
         Operation operation = null;
         for (Operation m : operations) {

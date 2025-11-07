@@ -13,28 +13,26 @@ public interface Structure {
     void declare(
             Compiler.MethodCompiler compiler,
             Sources sources,
-            Map<String, Variable> variables,
+            Context context,
             String name,
             List<String> generics
     );
     void construct(
             Compiler.MethodCompiler compiler,
             Sources sources,
-            Map<String, Variable> variables,
+            Context context,
             String name,
             List<String> generics,
             String constructorName,
-            List<Argument> arguments,
-            Context context
+            List<Argument> arguments
     );
     void operate(
             Compiler.MethodCompiler compiler,
             Sources sources,
-            Map<String, Variable> variables,
+            Context context,
             Variable variable,
             String operationName,
-            List<Argument> arguments,
-            Context context
+            List<Argument> arguments
     );
 
 }

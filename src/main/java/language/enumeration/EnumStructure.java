@@ -34,11 +34,11 @@ public class EnumStructure implements language.core.Structure {
     }
 
     @Override
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
         Variable thisVariable = new Variable();
         thisVariable.name = name;
         thisVariable.structure = this;
-        variables.put(name, thisVariable);
+        context.add(thisVariable);
 
         for (String imprt : this.imports) {
             sources.parse(imprt);
@@ -56,17 +56,17 @@ public class EnumStructure implements language.core.Structure {
             for (Field f : struct.fields) {
                 language.core.Structure u = sources.structure(f.structure);
                 String fieldName = name + "." + struct.name + "." + f.name;
-                u.declare(mc, sources, variables, fieldName, f.generics);
+                u.declare(mc, sources, context, fieldName, f.generics);
             }
         }
     }
 
     @Override
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics, String constructorName, List<Argument> arguments, Context context) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> arguments) {
         Variable thisVariable = new Variable();
         thisVariable.name = name;
         thisVariable.structure = this;
-        variables.put(name, thisVariable);
+        context.add(thisVariable);
 
         for (String imprt : this.imports) {
             sources.parse(imprt);
@@ -115,7 +115,7 @@ public class EnumStructure implements language.core.Structure {
             for (Field f : struct.fields) {
                 language.core.Structure u = sources.structure(f.structure);
                 String fieldName = name + "." + struct.name + "." + f.name;
-                u.declare(mc, sources, variables, fieldName, f.generics);
+                u.declare(mc, sources, context, fieldName, f.generics);
             }
         }
 
@@ -123,13 +123,13 @@ public class EnumStructure implements language.core.Structure {
         mc.parent = compiler;
         mc.location = location;
         for (Statement stmt : method.statements) {
-            stmt.handle(mc, sources, variables, argsByName, name + "." + constructorStructName, context);
+            stmt.handle(mc, sources, argsByName, name + "." + constructorStructName, context);
         }
         thisVariable.methodAllocations.pop();
     }
 
     @Override
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String operationName, List<Argument> arguments, Context context) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> arguments) {
         HashMap<String, Variable.Allocation> methodAllocations = new HashMap<>();
         variable.methodAllocations.add(methodAllocations);
         switch (operationName) {
@@ -215,7 +215,7 @@ public class EnumStructure implements language.core.Structure {
                         for (Parameter p : m.params) {
                             args.put(p.name, arguments.get(argI++));
                         }
-                        stmt.handle(compiler, sources, variables, args, variable.name + "." + s.name, context);
+                        stmt.handle(compiler, sources, args, variable.name + "." + s.name, context);
                     }
                     variable.structure = this;
 

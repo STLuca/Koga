@@ -5,7 +5,6 @@ import language.core.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 class Structure implements language.core.Structure {
 
@@ -34,17 +33,17 @@ class Structure implements language.core.Structure {
     }
 
     @Override
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
 
     }
 
     @Override
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics, String constructorName, List<Argument> arguments, Context context) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> arguments) {
 
     }
 
     @Override
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String operationName, List<Argument> arguments, Context context) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> arguments) {
         Method method = null;
         for (Method m : methods) {
             if (m.name.equals(operationName)) {
@@ -62,7 +61,7 @@ class Structure implements language.core.Structure {
         }
 
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, sources, variables, argsByName, variable.name + "." + name, context);
+            stmt.handle(compiler, sources, argsByName, variable.name + "." + name, context);
         }
     }
 }

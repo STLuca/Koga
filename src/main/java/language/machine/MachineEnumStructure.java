@@ -27,11 +27,11 @@ public class MachineEnumStructure implements Structure {
         return data.size;
     }
     
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
         Variable variable = new Variable();
         variable.name = name;
         variable.structure = this;
-        variables.put(name, variable);
+        context.add(variable);
         int allocation = compiler.data(data.size);
         variable.allocations.put(data.name, new Variable.Allocation(data.size, allocation));
         compiler.debugData(variable.name, data.name, allocation, data.size);
@@ -41,11 +41,11 @@ public class MachineEnumStructure implements Structure {
         throw new RuntimeException("Not supported");
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, String name, List<String> generics, String constructorName, List<Argument> arguments, Context context) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> arguments) {
         Variable variable = new Variable();
         variable.name = name;
         variable.structure = this;
-        variables.put(name, variable);
+        context.add(variable);
         // Read literal from args
         if (arguments.size() != 1) throw new RuntimeException("Only 1 argument allowed for enum constructor");
         if (arguments.get(0).type != Argument.Type.Name) throw new RuntimeException("Argument must be a name");
@@ -73,7 +73,7 @@ public class MachineEnumStructure implements Structure {
         variable.methodAllocations.pop();
     }
     
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Map<String, Variable> variables, Variable variable, String operationName, List<Argument> arguments, Context context) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> arguments) {
         if (!operationName.equals("match")) throw new RuntimeException("expecting method match");
         if (arguments.size() == 0) throw new RuntimeException("expecting arguments");
         if (arguments.size() % 2 != 0) throw new RuntimeException("expecting even number of arguments");

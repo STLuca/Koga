@@ -88,12 +88,12 @@ public class HostedCompilable implements Compilable {
             for (Parameter p : m.params) {
                 Structure structure = sources.structure(p.structure);
                 mb.parameter(structure.name());
-                structure.declare(mb, sources, variables, p.name, p.generics);
+                structure.declare(mb, sources, context, p.name, p.generics);
             }
 
             // handle each statement in the body
             for (Statement stmt : m.statements) {
-                stmt.handle(mb, sources, variables, context);
+                stmt.handle(mb, sources, context);
             }
         }
     }

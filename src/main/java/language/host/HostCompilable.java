@@ -3,7 +3,6 @@ package language.host;
 import core.Document;
 import core.Types;
 import language.core.*;
-import language.core.Compiler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,6 +101,10 @@ public class HostCompilable implements Compilable {
             Compiler.MethodCompiler mb = compiler.method();
             Context context = new Context();
             mb.name(m.name);
+
+            for (Field f : fields) {
+                context.addVariable(f.name);
+            }
 
             // declare the parameters
             for (Parameter p : m.params) {

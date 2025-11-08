@@ -4,7 +4,6 @@ import language.core.*;
 import language.core.Compiler;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -80,7 +79,7 @@ public class MachineEnumStructure implements Structure {
         context.startOperation();
         int endAddr = compiler.address();
         Variable.Allocation allocation = new Variable.Allocation(4, endAddr);
-        context.operationAllocation("end", allocation);
+        context.add("end", allocation);
 
         int i = 0;
         while(i < arguments.size()) {
@@ -107,7 +106,7 @@ public class MachineEnumStructure implements Structure {
             String instruction = "after" + i;
             int addr = compiler.address();
             Variable.Allocation afterAllocation = new Variable.Allocation(4, addr);
-            context.operationAllocation(instruction, afterAllocation);
+            context.add(instruction, afterAllocation);
             new InstructionStatement("cb", "NEQ", "TI", "LDA", "val", "IL", literal, instruction).compile(compiler, sources, variable, Map.of(), context);
             block.execute(compiler);
             new InstructionStatement("j", "REL", "I", "end").compile(compiler, sources, variable, Map.of(), context);

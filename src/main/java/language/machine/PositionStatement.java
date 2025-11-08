@@ -11,15 +11,15 @@ public class PositionStatement implements Statement {
 
     public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
         int addr;
-        if (context.operationAllocation(this.addr) != null) {
-            addr = context.operationAllocation(this.addr).location();
+        if (context.findAllocation(this.addr) != null) {
+            addr = context.findAllocation(this.addr).location();
         } else {
             addr = variable.allocations.get(this.addr).location();
         }
         int prev = compiler.position(addr);
         if (this.prevName != null) {
             Variable.Allocation allocation = new Variable.Allocation(4, prev);
-            context.operationAllocation(prevName, allocation);
+            context.add(prevName, allocation);
         }
     }
 

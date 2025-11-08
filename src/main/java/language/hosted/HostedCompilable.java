@@ -81,8 +81,9 @@ public class HostedCompilable implements Compilable {
             Context context = new Context();
             mb.name(m.name);
 
-
-            HashMap<String, Variable> variables = new HashMap<>();
+            for (Field f : fields) {
+                context.addVariable(f.name);
+            }
 
             // empty construct the parameters
             for (Parameter p : m.params) {

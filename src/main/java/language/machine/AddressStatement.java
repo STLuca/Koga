@@ -9,8 +9,8 @@ public class AddressStatement implements Statement {
     String name;
     
     public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
-        if (context.operationAllocation(name) != null) {
-            compiler.address(context.operationAllocation(name).location());
+        if (context.findAllocation(name) != null) {
+            compiler.address(context.findAllocation(name).location());
             return;
         }
         if (variable.allocations.containsKey(name)) {
@@ -19,7 +19,7 @@ public class AddressStatement implements Statement {
         }
         int address = compiler.address();
         Variable.Allocation allocation = new Variable.Allocation(4, address);
-        context.operationAllocation(name, allocation);
+        context.add(name, allocation);
     }
 
 }

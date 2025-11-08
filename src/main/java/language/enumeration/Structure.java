@@ -61,7 +61,7 @@ class Structure implements language.core.Structure {
         }
 
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, sources, argsByName, variable.name + "." + name, context);
+            stmt.handle(compiler, sources, argsByName, name, context);
         }
     }
 }

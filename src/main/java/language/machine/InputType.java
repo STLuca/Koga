@@ -53,8 +53,8 @@ enum InputType {
             }
             case LDA -> {
                 // Local allocation
-                if (context.operationAllocation(toResolve) != null) {
-                    Variable.Allocation allocation = context.operationAllocation(toResolve);
+                if (context.findAllocation(toResolve) != null) {
+                    Variable.Allocation allocation = context.findAllocation(toResolve);
                     return new Resolved(allocation.size(), allocation.location());
                 }
                 if (variable.allocations.containsKey(toResolve)) {
@@ -87,8 +87,8 @@ enum InputType {
             }
             case LDS -> {
                 // local size
-                if (context.operationAllocation(toResolve) != null) {
-                    return new Resolved(4, context.operationAllocation(toResolve).size());
+                if (context.findAllocation(toResolve) != null) {
+                    return new Resolved(4, context.findAllocation(toResolve).size());
                 }
                 return new Resolved(4, variable.allocations.get(toResolve).size());
             }

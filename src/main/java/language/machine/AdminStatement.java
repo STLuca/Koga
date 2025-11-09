@@ -54,11 +54,11 @@ public class AdminStatement implements Statement {
         int location = compiler.data(4);
         Variable.Allocation allocation = new Variable.Allocation(4, location);
         context.add(methodAddr, allocation);
-        compiler.debugData(variable.name, methodAddr, location, 4);
+        compiler.debugData(context.stateName(variable.name), methodAddr, location, 4);
         location = compiler.data(4);
         allocation = new Variable.Allocation(4, location);
         context.add(frameDataAddr, allocation);
-        compiler.debugData(variable.name, frameDataAddr, location, 4);
+        compiler.debugData(context.stateName(variable.name), frameDataAddr, location, 4);
 
         new InstructionStatement("c", "ADDR", "LI", "LDA", methodAddr, "R", "table", "AL", methodSymbol).compile(compiler, sources, variable, arguments, context);
         new InstructionStatement("i", "ADD", "LI", "LDA", frameDataAddr, "R", "altTask", "IL", "0d0").compile(compiler, sources, variable, arguments, context);

@@ -31,6 +31,7 @@ public class CompositeStructure implements Structure {
     }
     
     public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
+        context.state(name);
         Variable thisVariable = new Variable();
         thisVariable.name = name;
         thisVariable.structure = this;
@@ -70,9 +71,10 @@ public class CompositeStructure implements Structure {
             } else {
                 u = sources.structure(f.structure);
             }
-            String fieldName = name + "." + f.name;
+            String fieldName = f.name;
             u.declare(compiler, sources, context, fieldName, f.generics);
         }
+        context.parentState();
     }
 
     public void proxy(Sources sources, Variable variable, int location) {
@@ -80,6 +82,7 @@ public class CompositeStructure implements Structure {
     }
     
     public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> arguments) {
+        context.state(name);
         Variable thisVariable = new Variable();
         thisVariable.name = name;
         thisVariable.structure = this;
@@ -126,9 +129,11 @@ public class CompositeStructure implements Structure {
         for (Statement stmt : method.statements) {
             stmt.handle(compiler, sources, argsByName, thisVariable.generics, name, context);
         }
+        context.parentState();
     }
     
     public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> arguments) {
+        context.state(name);
         Method method = null;
         for (Method m : methods) {
             if (m.name.equals(operationName)) {
@@ -148,6 +153,6 @@ public class CompositeStructure implements Structure {
         for (Statement stmt : method.statements) {
             stmt.handle(compiler, sources, argsByName, variable.generics, variable.name, context);
         }
-
+        context.parentState();
     }
 }

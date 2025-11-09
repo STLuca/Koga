@@ -35,6 +35,7 @@ public class EnumStructure implements language.core.Structure {
 
     @Override
     public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
+        context.state(name);
         Variable thisVariable = new Variable();
         thisVariable.name = name;
         thisVariable.structure = this;
@@ -47,7 +48,7 @@ public class EnumStructure implements language.core.Structure {
         int maxSize = size(sources);
         int typeLocation = compiler.data(TYPE_SIZE);
         thisVariable.allocations.put("type", new Variable.Allocation(TYPE_SIZE, typeLocation));
-        compiler.debugData(thisVariable.name, "type", typeLocation, TYPE_SIZE);
+        compiler.debugData(context.stateName(thisVariable.name), "type", typeLocation, TYPE_SIZE);
         int location = compiler.data(maxSize);
         for (Structure struct : structures) {
             SharedLocationMethodCompiler mc = new SharedLocationMethodCompiler();
@@ -59,10 +60,12 @@ public class EnumStructure implements language.core.Structure {
                 u.declare(mc, sources, context, fieldName, f.generics);
             }
         }
+        context.parentState();
     }
 
     @Override
     public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> arguments) {
+        context.state(name);
         Variable thisVariable = new Variable();
         thisVariable.name = name;
         thisVariable.structure = this;
@@ -97,7 +100,7 @@ public class EnumStructure implements language.core.Structure {
         int typeLocation = compiler.data(TYPE_SIZE);
         Variable.Allocation typeAllocation = new Variable.Allocation(TYPE_SIZE, typeLocation);
         thisVariable.allocations.put("type", typeAllocation);
-        compiler.debugData(thisVariable.name, "type", typeLocation, TYPE_SIZE);
+        compiler.debugData(context.stateName(thisVariable.name), "type", typeLocation, TYPE_SIZE);
         int location = compiler.data(maxSize);
 
         int index = structures.indexOf(structure);
@@ -123,10 +126,12 @@ public class EnumStructure implements language.core.Structure {
         for (Statement stmt : method.statements) {
             stmt.handle(mc, sources, argsByName, constructorStructName, context);
         }
+        context.parentState();
     }
 
     @Override
     public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> arguments) {
+        context.state(name);
         switch (operationName) {
             case "match" -> {
                 if (arguments.size() % 2 != 0) { throw new RuntimeException("Should be type followed by block for every type"); }
@@ -229,5 +234,6 @@ public class EnumStructure implements language.core.Structure {
                 }
             }
         }
+        context.parentState();
     }
 }

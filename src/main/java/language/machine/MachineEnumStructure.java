@@ -33,7 +33,7 @@ public class MachineEnumStructure implements Structure {
         context.add(variable);
         int allocation = compiler.data(data.size);
         variable.allocations.put(data.name, new Variable.Allocation(data.size, allocation));
-        compiler.debugData(variable.name, data.name, allocation, data.size);
+        compiler.debugData(context.stateName(variable.name), data.name, allocation, data.size);
     }
     
     public void proxy(Sources sources, Variable variable, int location) {
@@ -61,7 +61,7 @@ public class MachineEnumStructure implements Structure {
         // data
         int allocation = compiler.data(data.size);
         variable.allocations.put(data.name, new Variable.Allocation(data.size, allocation));
-        compiler.debugData(variable.name, data.name, allocation, data.size);
+        compiler.debugData(context.stateName(variable.name), data.name, allocation, data.size);
 
         // instructions
         // l(ADD, II, LDA, data.name, IL, 0d0, IL, literal);

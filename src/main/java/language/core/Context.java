@@ -16,6 +16,7 @@ public class Context {
 
     int currOperation = 0;
     int currState = 0;
+    ArrayList<String> currentStateName = new ArrayList<>();
 
     ArrayList<State> state = new ArrayList<>(List.of(new State()));
     ArrayList<Operation> operations = new ArrayList<>(List.of(new Operation()));
@@ -53,11 +54,13 @@ public class Context {
         current.state.putIfAbsent(name, new State());
         state.add(current.state.get(name));
         currState++;
+        currentStateName.add(name);
     }
 
     public void parentState() {
         state.removeLast();
         currState--;
+        currentStateName.removeLast();
     }
 
 
@@ -116,6 +119,15 @@ public class Context {
 
     public void remove(String name) {
         implicits.remove(name);
+    }
+
+    public String stateName(String name) {
+        StringBuilder sb = new StringBuilder();
+        for (String s : currentStateName) {
+            sb.append(s).append(".");
+        }
+        sb.append(name);
+        return sb.toString();
     }
 
 }

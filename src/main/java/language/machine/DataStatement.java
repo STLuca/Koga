@@ -23,7 +23,7 @@ public class DataStatement implements Statement {
         } else {
             context.add(name, new Variable.Allocation(allocateSize, allocated));
         }
-        compiler.debugData(variable.name, name, allocated, allocateSize);
+        compiler.debugData(context.stateName(variable.name), name, allocated, allocateSize);
     }
 
 }

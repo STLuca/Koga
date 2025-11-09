@@ -57,10 +57,7 @@ public class Statement {
                 Block b = new Block(arg.block, sources, argsByName, genericsByName, name, context);
                 args.add(language.core.Argument.of(b));
             } else if (arg.name != null) {
-                Variable variable = context.findVariable(name + "." + arg.name);
-                if (variable == null) {
-                    variable = context.findVariable(arg.name);
-                }
+                Variable variable = context.findVariable(arg.name);
                 if (variable != null) {
                     args.add(language.core.Argument.of(variable));
                 } else {
@@ -111,15 +108,15 @@ public class Statement {
                     structure.declare(compiler, sources, context, variableName, resolvedGenerics);
                 } else {
                     Structure structure = sources.structure(this.structure);
-                    structure.declare(compiler, sources, context, name + "." + variableName, resolvedGenerics);
+                    structure.declare(compiler, sources, context, variableName, resolvedGenerics);
                 }
             }
             case CONSTRUCT -> {
                 Structure structure = sources.structure(this.structure);
-                structure.construct(compiler, sources, context, name + "." + variableName, resolvedGenerics, methodName, args);
+                structure.construct(compiler, sources, context, variableName, resolvedGenerics, methodName, args);
             }
             case INVOKE -> {
-                Variable variable = context.findVariable(name + "." + variableName);
+                Variable variable = context.findVariable(variableName);
                 if (variable == null) {
                     variable = argsByName.get(variableName).variable;
                 }

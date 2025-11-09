@@ -49,7 +49,7 @@ public class MachineReferenceStructure implements Structure {
             if (v.size > 0) {
                 int location = compiler.data(v.size);
                 variable.allocations.put(v.name, new Variable.Allocation(v.size, location));
-                compiler.debugData(variable.name, v.name, location, v.size);
+                compiler.debugData(context.stateName(variable.name), v.name, location, v.size);
             }
         }
     }
@@ -113,7 +113,7 @@ public class MachineReferenceStructure implements Structure {
         for (Data v : this.variables) {
             int location = compiler.data(v.size);
             variable.allocations.put(v.name, new Variable.Allocation(v.size, location));
-            compiler.debugData(variable.name, v.name, location, v.size);
+            compiler.debugData(context.stateName(variable.name), v.name, location, v.size);
         }
 
         context.startOperation();

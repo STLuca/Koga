@@ -30,7 +30,7 @@ collection.ListIterator<Structure T> {
         While (isNotEnd) {
             accessor index (index);
             accessor get (elementPtr);
-            Block b;
+            BLOCK b;
             index + 1;
             isNotEnd = { index != size; };
         };

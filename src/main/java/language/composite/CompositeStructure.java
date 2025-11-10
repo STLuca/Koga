@@ -114,14 +114,18 @@ public class CompositeStructure implements Structure {
         }
         if (method == null) throw new RuntimeException("Method not found");
 
+        Scope operationScope = thisVariable.startOperation(constructorName);
         // Map the args to name using parameters
         HashMap<String, language.core.Argument> argsByName = new HashMap<>();
         int i = 0;
         for (Parameter param : method.params) {
-            argsByName.put(param.name, arguments.get(i++));
+            Argument value = arguments.get(i++);
+            argsByName.put(param.name, value);
+            if (value.type == Argument.Type.Variable) {
+                operationScope.scopes.put(param.name, value.variable);
+            }
         }
 
-        Scope operationScope = thisVariable.startOperation(constructorName);
         for (Statement stmt : method.statements) {
             stmt.handle(compiler, sources, argsByName, thisVariable.generics, name, operationScope);
         }

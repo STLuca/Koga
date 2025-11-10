@@ -268,21 +268,25 @@ public class CompositeParser implements Parser {
         String currS = curr.matched();
 
         // If imports contains the first String, it's a construct statement
-        boolean isBlock = currS.equals("Block");
+        boolean isBlock = currS.equals("BLOCK");
         boolean isGeneric = ctx.generics.contains(currS);
         boolean isStructure = ctx.structures.containsKey(currS);
-        if (isBlock || isStructure || isGeneric) {
-            Statement s = new Statement();
+        if (isBlock) {
+            BlockStatement s = new BlockStatement();
+            curr = scanner.expect(tokens, NAME);
+            s.blockName = curr.matched();
+            statements.add(s);
+            curr = scanner.expect(tokens, SEMI_COLON);
+        } else if (isStructure || isGeneric) {
+            StructureStatement s = new StructureStatement();
             // Construct statement
             // check for generics
             // check if there is a name
             // check if 1 arg constructor
             // should be series of ( and {
             // Can continue into invokes if name before ;
-            s.type = Statement.Type.CONSTRUCT;
-            if (isBlock) {
-                s.structure = "Block";
-            } else if (isGeneric) {
+            s.type = StructureStatement.Type.CONSTRUCT;
+            if (isGeneric) {
                 s.structure = currS;
             } else if (isStructure) {
                 s.structure = ctx.structures.get(currS);
@@ -296,13 +300,13 @@ public class CompositeParser implements Parser {
                 do {
                     curr = scanner.next(tokens);
                     if (curr != NAME) scanner.fail("name");
-                    Statement.GenericArgument g = new Statement.GenericArgument();
+                    StructureStatement.GenericArgument g = new StructureStatement.GenericArgument();
                     String name = curr.matched();
                     if (ctx.generics.contains(name)) {
-                        g.type = Statement.GenericArgument.Type.Generic;
+                        g.type = StructureStatement.GenericArgument.Type.Generic;
                         g.name = name;
                     } else {
-                        g.type = Statement.GenericArgument.Type.Known;
+                        g.type = StructureStatement.GenericArgument.Type.Known;
                         if (ctx.structures.containsKey(curr.matched())) {
                             g.name = ctx.structures.get(curr.matched());
                         } else if (ctx.documents.containsKey(curr.matched())) {
@@ -333,7 +337,7 @@ public class CompositeParser implements Parser {
                 Token peek = scanner.peek(tokens).orElseThrow();
                 if (peek == SEMI_COLON) {
                     // name is a variable name
-                    s.type = Statement.Type.DECLARE;
+                    s.type = StructureStatement.Type.DECLARE;
                     s.variableName = name;
                     s.methodName = "";
                     statements.add(s);
@@ -375,8 +379,8 @@ public class CompositeParser implements Parser {
             curr = scanner.next(methodNameTokens);
         }
         while (curr != SEMI_COLON) {
-            Statement s = new Statement();
-            s.type = Statement.Type.INVOKE;
+            StructureStatement s = new StructureStatement();
+            s.type = StructureStatement.Type.INVOKE;
             s.variableName = currS;
             if (curr == NAME) {
                 s.methodName = curr.matched();
@@ -393,21 +397,21 @@ public class CompositeParser implements Parser {
         }
     }
 
-    private void parseMethodArguments(Scanner scanner, Context ctx, Statement s) {
+    private void parseMethodArguments(Scanner scanner, Context ctx, StructureStatement s) {
         Token curr = scanner.current();
 
         if (curr != OP_PAREN && curr != OP_BRACE) {
             // Single argument only
             if (curr == LITERAL_ARG) {
-                Statement.Argument arg = new Statement.Argument();
+                StructureStatement.Argument arg = new StructureStatement.Argument();
                 arg.literal = curr.matched();
                 s.arguments.add(arg);
             } else if (curr == NAME) {
-                Statement.Argument arg = new Statement.Argument();
+                StructureStatement.Argument arg = new StructureStatement.Argument();
                 arg.name = curr.matched();
                 s.arguments.add(arg);
             } else if (curr == STRING) {
-                Statement.Argument arg = new Statement.Argument();
+                StructureStatement.Argument arg = new StructureStatement.Argument();
                 arg.array = new ArrayList<>();
                 curr.matched().chars().forEach(i -> arg.array.add(String.valueOf(i)));
                 arg.array.remove(0);
@@ -425,7 +429,7 @@ public class CompositeParser implements Parser {
                 // literals or variables
                 curr = scanner.next(tokens);
                 while (curr != CL_PAREN) {
-                    Statement.Argument arg = new Statement.Argument();
+                    StructureStatement.Argument arg = new StructureStatement.Argument();
                     if (curr == LITERAL_ARG) {
                         arg.literal = curr.matched();
                     } else if (curr == NAME) {
@@ -440,7 +444,7 @@ public class CompositeParser implements Parser {
                 }
             } else if (curr == OP_BRACE) {
                 // block argument
-                Statement.Argument arg = new Statement.Argument();
+                StructureStatement.Argument arg = new StructureStatement.Argument();
                 arg.block = new ArrayList<>();
                 curr = scanner.next(tokens);
                 while (curr != CL_BRACE) {

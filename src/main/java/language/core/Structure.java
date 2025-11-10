@@ -6,18 +6,18 @@ public interface Structure {
 
     String name();
     int size(Sources sources);
-    void proxy(Sources sources, Context.Scope variable, int location);
+    void proxy(Sources sources, Scope variable, int location);
     void declare(
             Compiler.MethodCompiler compiler,
             Sources sources,
-            Context context,
+            Scope scope,
             String name,
             List<String> generics
     );
     void construct(
             Compiler.MethodCompiler compiler,
             Sources sources,
-            Context context,
+            Scope scope,
             String name,
             List<String> generics,
             String constructorName,
@@ -26,8 +26,8 @@ public interface Structure {
     void operate(
             Compiler.MethodCompiler compiler,
             Sources sources,
-            Context context,
-            Context.Scope variable,
+            Scope scope,
+            Scope variable,
             String operationName,
             List<Argument> arguments
     );

@@ -13,50 +13,47 @@ public class BlockStatement implements Statement {
     boolean isContextPush;
     ArrayList<Statement> block = new ArrayList<>();
     
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Map<String, Argument> arguments, Scope scope) {
         if (isContextPush) {
-            context.add(name, Argument.of(new MachineBlock(this.block, sources, variable, arguments, context, context.state())));
+            scope.add(name, Argument.of(new MachineBlock(this.block, sources, variable, arguments, scope, scope.state())));
             return;
         }
         Argument obj = null;
         if (arguments.containsKey(this.name)) { obj = arguments.get(this.name); }
-        else if (context.get(name).isPresent()) { obj = context.get(name).get(); }
+        else if (scope.get(name).isPresent()) { obj = scope.get(name).get(); }
         if (obj == null) {
             if (block == null) throw new RuntimeException("Block doesn't exist");
             for (Statement statement : block) {
-                statement.compile(compiler, sources, variable, arguments, context);
+                statement.compile(compiler, sources, variable, arguments, scope);
             }
             return;
         }
         Block bm = obj.block;
-        bm.execute(compiler);
+        bm.execute(compiler, scope);
     }
 
     static class MachineBlock implements language.core.Block {
 
         List<Statement> statements;
         Sources sources;
-        Context.Scope variable;
+        Scope variable;
         Map<String, Argument> arguments;
-        Context context;
-        Context.Scope state;
+        Scope scope;
+        Scope state;
 
-        public MachineBlock(List<Statement> statements, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context, Context.Scope state) {
+        public MachineBlock(List<Statement> statements, Sources sources, Scope variable, Map<String, Argument> arguments, Scope scope, Scope state) {
             this.statements = statements;
             this.sources = sources;
             this.variable = variable;
             this.arguments = arguments;
-            this.context = context;
+            this.scope = scope;
             this.state = state;
         }
         
-        public void execute(Compiler.MethodCompiler compiler) {
-            Context.Scope current = context.state();
-            context.setState(this.state);
+        public void execute(Compiler.MethodCompiler compiler, Scope scope) {
             for (Statement s : statements) {
-                s.compile(compiler, sources, variable, arguments, context);
+                s.compile(compiler, sources, variable, arguments, this.state);
             }
-            context.setState(current);
         }
     }
 

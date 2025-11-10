@@ -10,20 +10,20 @@ public class DataStatement implements Statement {
     String name;
     ArrayList<String> sizes = new ArrayList<>();
     
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Map<String, Argument> arguments, Scope scope) {
         int allocateSize = 1;
         for (int i = 0; i < sizes.size(); i+= 2) {
             InputType inputType = InputType.valueOf(sizes.get(i));
-            int size = inputType.resolve(sizes.get(i + 1), variable, arguments, context).value();
+            int size = inputType.resolve(sizes.get(i + 1), variable, arguments, scope).value();
             allocateSize *= size;
         }
         int allocated = compiler.data(allocateSize);
         if (variable.allocations.containsKey(name)) {
-            variable.allocations.put(name, new Context.Allocation(allocateSize, allocated));
+            variable.allocations.put(name, new Scope.Allocation(allocateSize, allocated));
         } else {
-            context.add(name, new Context.Allocation(allocateSize, allocated));
+            scope.add(name, new Scope.Allocation(allocateSize, allocated));
         }
-        compiler.debugData(context.stateName(name), name, allocated, allocateSize);
+        compiler.debugData(scope.stateName(name), name, allocated, allocateSize);
     }
 
 }

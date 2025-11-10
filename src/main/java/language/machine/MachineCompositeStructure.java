@@ -29,12 +29,12 @@ public class MachineCompositeStructure implements Structure {
         return total;
     }
 
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics) {
         if (this.generics.size() != generics.size()) {
             throw new RuntimeException();
         }
         // Setup variable
-        Context.Scope variable = context.add(name);
+        Scope variable = scope.add(name);
         variable.name = name;
         variable.structure = this;
 
@@ -43,15 +43,15 @@ public class MachineCompositeStructure implements Structure {
             switch (generic.type) {
                 case Structure -> {
                     Structure value = sources.structure(generics.get(i));
-                    Context.Generic g = new Context.Generic();
-                    g.type = Context.Generic.Type.Structure;
+                    Scope.Generic g = new Scope.Generic();
+                    g.type = Scope.Generic.Type.Structure;
                     g.structure = value;
                     variable.generics.put(generic.name, g);
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
-                    Context.Generic g = new Context.Generic();
-                    g.type = Context.Generic.Type.Document;
+                    Scope.Generic g = new Scope.Generic();
+                    g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                     variable.generics.put(generic.name, g);
                 }
@@ -60,19 +60,18 @@ public class MachineCompositeStructure implements Structure {
         // setup data and addresses
         for (String address : addresses) {
             int addr = compiler.address();
-            variable.allocations.put(address, new Context.Allocation(4, addr));
+            variable.allocations.put(address, new Scope.Allocation(4, addr));
         }
         for (Data v : this.variables) {
             if (v.size > 0) {
                 int location = compiler.data(v.size);
-                variable.allocations.put(v.name, new Context.Allocation(v.size, location));
-                compiler.debugData(context.stateName(v.name), v.name, location, v.size);
+                variable.allocations.put(v.name, new Scope.Allocation(v.size, location));
+                compiler.debugData(variable.stateName(v.name), v.name, location, v.size);
             }
         }
-        context.parentState();
     }
     
-    public void proxy(Sources sources, Context.Scope variable, int location) {
+    public void proxy(Sources sources, Scope variable, int location) {
         // Setup variable
         variable.structure = this;
         // generics
@@ -84,14 +83,14 @@ public class MachineCompositeStructure implements Structure {
 //        }
         for (Data v : this.variables) {
             if (v.size > 0) {
-                variable.allocations.put(v.name, new Context.Allocation(v.size, location));
+                variable.allocations.put(v.name, new Scope.Allocation(v.size, location));
                 location += v.size;
             }
         }
     }
 
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> args) {
-        Context.Scope variable = context.add(name);
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, String constructorName, List<Argument> args) {
+        Scope variable = scope.add(name);
         variable.name = name;
         variable.structure = this;
 
@@ -102,15 +101,15 @@ public class MachineCompositeStructure implements Structure {
             switch (generic.type) {
                 case Structure -> {
                     Structure value = sources.structure(generics.get(i));
-                    Context.Generic g = new Context.Generic();
-                    g.type = Context.Generic.Type.Structure;
+                    Scope.Generic g = new Scope.Generic();
+                    g.type = Scope.Generic.Type.Structure;
                     g.structure = value;
                     variable.generics.put(generic.name, g);
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
-                    Context.Generic g = new Context.Generic();
-                    g.type = Context.Generic.Type.Document;
+                    Scope.Generic g = new Scope.Generic();
+                    g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                     variable.generics.put(generic.name, g);
                 }
@@ -139,23 +138,21 @@ public class MachineCompositeStructure implements Structure {
 
         for (String address : addresses) {
             int addr = compiler.address();
-            variable.allocations.put(address, new Context.Allocation(4, addr));
+            variable.allocations.put(address, new Scope.Allocation(4, addr));
         }
         for (Data v : this.variables) {
             int location = compiler.data(v.size);
-            variable.allocations.put(v.name, new Context.Allocation(v.size, location));
-            compiler.debugData(context.stateName(v.name), v.name, location, v.size);
+            variable.allocations.put(v.name, new Scope.Allocation(v.size, location));
+            compiler.debugData(variable.stateName(v.name), v.name, location, v.size);
         }
 
-        context.startOperation();
+        Scope operationScope = variable.startOperation();
         for (Statement s : c.body) {
-            s.compile(compiler, sources, variable, argsByName, context);
+            s.compile(compiler, sources, variable, argsByName, operationScope);
         }
-        context.stopOperation();
-        context.parentState();
     }
 
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Context.Scope variable, String operationName, List<Argument> args) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<Argument> args) {
         // Find the method
         Operation operation = null;
         for (Operation m : operations) {
@@ -175,11 +172,10 @@ public class MachineCompositeStructure implements Structure {
             argsByName.put(param.name, args.get(i++));
         }
 
-        context.startOperation();
+        Scope operationScope = variable.startOperation();
         for (Statement s : operation.body) {
-            s.compile(compiler, sources, variable, argsByName, context);
+            s.compile(compiler, sources, variable, argsByName, operationScope);
         }
-        context.stopOperation();
     }
 
 }

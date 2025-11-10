@@ -4,7 +4,12 @@ import core.Document;
 
 import java.util.*;
 
-public class Context {
+public class Scope {
+
+    public enum Type {
+        Variable,
+        Operation
+    }
 
     public record Allocation(int size, int location) {}
 
@@ -15,42 +20,39 @@ public class Context {
         public Document document;
     }
 
-    public static class Scope {
+    public Scope parent;
+    public Type type;
+    public String name;
+    public Structure structure;
+    public HashMap<String, Scope> scopes = new HashMap<>();
+    public LinkedHashMap<String, Generic> generics = new LinkedHashMap<>();
+    public HashMap<String, Allocation> allocations = new HashMap<>();
+    public HashMap<String, Scope> implicit = new HashMap<>();
 
-        public enum Type {
-            Variable,
-            Operation
-        }
+    static ArrayList<Argument> defaultArgs = new ArrayList<>();
+    static HashMap<String, Argument> implicits = new HashMap<>();
 
-        public Scope parent;
-        public Type type;
-        public String name;
-        public Structure structure;
-        public HashMap<String, Scope> scopes = new HashMap<>();
-        public LinkedHashMap<String, Generic> generics = new LinkedHashMap<>();
-        public HashMap<String, Allocation> allocations = new HashMap<>();
+    public static Scope reset() {
+        defaultArgs = new ArrayList<>();
+        implicits = new HashMap<>();
+        return new Scope();
     }
-
-    Scope curr = new Scope();
-    ArrayList<Argument> defaultArgs = new ArrayList<>();
-    HashMap<String, Argument> implicits = new HashMap<>();
 
     public Scope add(String name) {
         Scope newScope = new Scope();
         newScope.type = Scope.Type.Variable;
-        newScope.parent = curr;
+        newScope.parent = this;
         newScope.name = name;
-        curr.scopes.put(name, newScope);
-        curr = newScope;
-        return curr;
+        this.scopes.put(name, newScope);
+        return newScope;
     }
 
     public void addVariable(String name) {
-        curr.scopes.put(name, null);
+        scopes.put(name, null);
     }
 
     public Scope findVariable(String name) {
-        Scope curr = this.curr;
+        Scope curr = this;
         while (curr != null) {
             if (curr.scopes.containsKey(name)) {
                 return curr.scopes.get(name);
@@ -61,52 +63,45 @@ public class Context {
     }
 
     public Scope state(String name) {
-        if (curr.scopes.containsKey(name)) {
-            curr = curr.scopes.get(name);
+        if (scopes.containsKey(name)) {
+            return scopes.get(name);
         } else {
             Scope newScope = new Scope();
             newScope.type = Scope.Type.Variable;
-            newScope.parent = curr;
+            newScope.parent = this;
             newScope.name = name;
-            curr.scopes.put(name, newScope);
-            curr = newScope;
+            scopes.put(name, newScope);
+            return newScope;
         }
-        return curr;
     }
 
-    public void parentState() {
-        curr = curr.parent;
+    public Scope parentState() {
+        return parent;
     }
 
-    public void startOperation() {
+    public Scope startOperation() {
         Scope newScope = new Scope();
         newScope.type = Scope.Type.Operation;
-        newScope.parent = curr;
-        curr.scopes.put(UUID.randomUUID().toString(), newScope);
-        curr = newScope;
+        newScope.parent = this;
+        this.scopes.put(UUID.randomUUID().toString(), newScope);
+        return newScope;
     }
 
-    public void stopOperation() {
-        curr = curr.parent;
+    public Scope stopOperation() {
+        return parent;
     }
 
     public Allocation findAllocation(String name) {
-        return curr.allocations.get(name);
+        return allocations.get(name);
     }
 
     public void add(String name, Allocation allocation) {
-        curr.allocations.put(name, allocation);
+        allocations.put(name, allocation);
     }
-
 
     public Scope state() {
-        return curr;
+        return this;
     }
-
-    public void setState(Scope s) {
-        curr = s;
-    }
-
 
     public void add(Argument arg) {
         defaultArgs.add(arg);
@@ -134,7 +129,7 @@ public class Context {
 
     public String stateName(String name) {
         StringBuilder sb = new StringBuilder();
-        Scope curr = this.curr;
+        Scope curr = this;
         while (curr.parent != null) {
             if (curr.name != null) {
                 sb.insert(0, curr.name)
@@ -144,7 +139,6 @@ public class Context {
         }
         sb.append(name);
         return sb.toString();
-
     }
 
 }

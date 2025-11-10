@@ -19,7 +19,7 @@ public class AdminStatement implements Statement {
 
     ArrayList<String> arguments = new ArrayList<>();
     
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Map<String, Argument> arguments, Scope scope) {
         String methodAddr = "adminMethodAddr";
         String frameDataAddr = "frameDataAddr";
         String methodSymbol = "adminMethodSymbol";
@@ -52,24 +52,24 @@ public class AdminStatement implements Statement {
         arguments.put(methodSymbol, arg);
 
         int location = compiler.data(4);
-        Context.Allocation allocation = new Context.Allocation(4, location);
-        context.add(methodAddr, allocation);
-        compiler.debugData(context.stateName(variable.name), methodAddr, location, 4);
+        Scope.Allocation allocation = new Scope.Allocation(4, location);
+        scope.add(methodAddr, allocation);
+        compiler.debugData(scope.stateName(variable.name), methodAddr, location, 4);
         location = compiler.data(4);
-        allocation = new Context.Allocation(4, location);
-        context.add(frameDataAddr, allocation);
-        compiler.debugData(context.stateName(variable.name), frameDataAddr, location, 4);
+        allocation = new Scope.Allocation(4, location);
+        scope.add(frameDataAddr, allocation);
+        compiler.debugData(scope.stateName(variable.name), frameDataAddr, location, 4);
 
-        new InstructionStatement("c", "ADDR", "LI", "LDA", methodAddr, "R", "table", "AL", methodSymbol).compile(compiler, sources, variable, arguments, context);
-        new InstructionStatement("i", "ADD", "LI", "LDA", frameDataAddr, "R", "altTask", "IL", "0d0").compile(compiler, sources, variable, arguments, context);
+        new InstructionStatement("c", "ADDR", "LI", "LDA", methodAddr, "R", "table", "AL", methodSymbol).compile(compiler, sources, variable, arguments, scope);
+        new InstructionStatement("i", "ADD", "LI", "LDA", frameDataAddr, "R", "altTask", "IL", "0d0").compile(compiler, sources, variable, arguments, scope);
 
         for (int i = 1; i < this.arguments.size(); i++) {
-            new InstructionStatement("m", "COPY", "TII", "LDA", frameDataAddr, "LDA", this.arguments.get(i), "IL", "0d4").compile(compiler, sources, variable, arguments, context);
+            new InstructionStatement("m", "COPY", "TII", "LDA", frameDataAddr, "LDA", this.arguments.get(i), "IL", "0d4").compile(compiler, sources, variable, arguments, scope);
             if (i == this.arguments.size() - 1) continue;
-            new InstructionStatement("i","ADD", "TI", "LDA", frameDataAddr, "LDA", frameDataAddr, "IL", "0d4").compile(compiler, sources, variable, arguments, context);
+            new InstructionStatement("i","ADD", "TI", "LDA", frameDataAddr, "LDA", frameDataAddr, "IL", "0d4").compile(compiler, sources, variable, arguments, scope);
         }
 
-        new InstructionStatement("logician", "START_ADMIN", "T", "LDA", methodAddr).compile(compiler, sources, variable, arguments, context);
+        new InstructionStatement("logician", "START_ADMIN", "T", "LDA", methodAddr).compile(compiler, sources, variable, arguments, scope);
     }
 
 }

@@ -30,23 +30,23 @@ public class CompositeStructure implements Structure {
         return size;
     }
     
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
-        Context.Scope thisVariable = context.state(name);
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics) {
+        Scope thisVariable = scope.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            Context.Generic g = new Context.Generic();
+            Scope.Generic g = new Scope.Generic();
             switch (generic.type) {
                 case Structure -> {
                     Structure value = sources.structure(generics.get(i));
-                    g.type = Context.Generic.Type.Structure;
+                    g.type = Scope.Generic.Type.Structure;
                     g.structure = value;
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
-                    g.type = Context.Generic.Type.Document;
+                    g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                 }
             }
@@ -70,32 +70,31 @@ public class CompositeStructure implements Structure {
                 u = sources.structure(f.structure);
             }
             String fieldName = f.name;
-            u.declare(compiler, sources, context, fieldName, f.generics);
+            u.declare(compiler, sources, thisVariable, fieldName, f.generics);
         }
-        context.parentState();
     }
 
-    public void proxy(Sources sources, Context.Scope variable, int location) {
+    public void proxy(Sources sources, Scope variable, int location) {
 
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> arguments) {
-        Context.Scope thisVariable = context.state(name);
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, String constructorName, List<Argument> arguments) {
+        Scope thisVariable = scope.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            Context.Generic g = new Context.Generic();
+            Scope.Generic g = new Scope.Generic();
             switch (generic.type) {
                 case Structure -> {
                     Structure value = sources.structure(generics.get(i));
-                    g.type = Context.Generic.Type.Structure;
+                    g.type = Scope.Generic.Type.Structure;
                     g.structure = value;
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
-                    g.type = Context.Generic.Type.Document;
+                    g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                 }
             }
@@ -122,16 +121,13 @@ public class CompositeStructure implements Structure {
             argsByName.put(param.name, arguments.get(i++));
         }
 
-        context.startOperation();
+        Scope operationScope = thisVariable.startOperation();
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, sources, argsByName, thisVariable.generics, name, context);
+            stmt.handle(compiler, sources, argsByName, thisVariable.generics, name, operationScope);
         }
-        context.stopOperation();
-        context.parentState();
     }
     
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Context.Scope variable, String operationName, List<Argument> arguments) {
-        context.state(variable.name);
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<Argument> arguments) {
         Method method = null;
         for (Method m : methods) {
             if (m.name.equals(operationName)) {
@@ -148,11 +144,9 @@ public class CompositeStructure implements Structure {
             argsByName.put(param.name, arguments.get(i++));
         }
 
-        context.startOperation();
+        Scope operationScope = variable.startOperation();
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, sources, argsByName, variable.generics, variable.name, context);
+            stmt.handle(compiler, sources, argsByName, variable.generics, variable.name, operationScope);
         }
-        context.stopOperation();
-        context.parentState();
     }
 }

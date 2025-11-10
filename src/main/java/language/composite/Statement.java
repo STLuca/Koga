@@ -41,9 +41,9 @@ public class Statement {
             Compiler.MethodCompiler compiler,
             Sources sources,
             Map<String, language.core.Argument> argsByName,
-            Map<String, Context.Generic> genericsByName,
+            Map<String, Scope.Generic> genericsByName,
             String name,
-            Context context
+            Scope scope
     ) {
         ArrayList<language.core.Argument> args = new ArrayList<>();
 
@@ -54,10 +54,10 @@ public class Statement {
                 int literal = parseLiteral(arg.literal);
                 args.add(language.core.Argument.of(literal));
             } else if (arg.block != null) {
-                Block b = new Block(arg.block, sources, argsByName, genericsByName, name, context);
+                Block b = new Block(arg.block, sources, argsByName, genericsByName, name, scope);
                 args.add(language.core.Argument.of(b));
             } else if (arg.name != null) {
-                Context.Scope variable = context.findVariable(arg.name);
+                Scope variable = scope.findVariable(arg.name);
                 if (variable != null) {
                     args.add(language.core.Argument.of(variable));
                 } else {
@@ -75,8 +75,8 @@ public class Statement {
             }
         }
 
-        if (!context.defaults().isEmpty()) {
-            args.addAll(context.defaults());
+        if (!scope.defaults().isEmpty()) {
+            args.addAll(scope.defaults());
         }
 
         ArrayList<String> resolvedGenerics = new ArrayList<>();
@@ -102,26 +102,28 @@ public class Statement {
                     if (arg.type != language.core.Argument.Type.Block) {
                         throw new RuntimeException();
                     }
-                    arg.block.execute(compiler);
+                    arg.block.execute(compiler, scope);
                 } else if (genericsByName.containsKey(this.structure)) {
                     Structure structure = genericsByName.get(this.structure).structure;
-                    structure.declare(compiler, sources, context, variableName, resolvedGenerics);
+                    structure.declare(compiler, sources, scope, variableName, resolvedGenerics);
+                    Scope declared = scope.findVariable(variableName);
+                    scope.implicit.put(variableName, declared);
                 } else {
                     Structure structure = sources.structure(this.structure);
-                    structure.declare(compiler, sources, context, variableName, resolvedGenerics);
+                    structure.declare(compiler, sources, scope, variableName, resolvedGenerics);
                 }
             }
             case CONSTRUCT -> {
                 Structure structure = sources.structure(this.structure);
-                structure.construct(compiler, sources, context, variableName, resolvedGenerics, methodName, args);
+                structure.construct(compiler, sources, scope, variableName, resolvedGenerics, methodName, args);
             }
             case INVOKE -> {
-                Context.Scope variable = context.findVariable(variableName);
+                Scope variable = scope.findVariable(variableName);
                 if (variable == null) {
                     variable = argsByName.get(variableName).variable;
                 }
                 Structure sc = variable.structure;
-                sc.operate(compiler, sources, context, variable, methodName, args);
+                sc.operate(compiler, sources, scope, variable, methodName, args);
             }
         }
     }
@@ -131,29 +133,33 @@ public class Statement {
         List<Statement> block;
         Sources sources;
         Map<String, language.core.Argument> argsByName;
-        Map<String, Context.Generic> genericsByName;
+        Map<String, Scope.Generic> genericsByName;
         String name;
-        Context context;
+        Scope scope;
 
         public Block(
                 List<Statement> block,
                 Sources sources,
                 Map<String, language.core.Argument> argsByName,
-                Map<String, Context.Generic> genericsByName,
+                Map<String, Scope.Generic> genericsByName,
                 String name,
-                Context context
+                Scope scope
         ) {
             this.block = block;
             this.sources = sources;
             this.argsByName = argsByName;
             this.genericsByName = genericsByName;
             this.name = name;
-            this.context = context;
+            this.scope = scope;
         }
         
-        public void execute(Compiler.MethodCompiler compiler) {
+        public void execute(Compiler.MethodCompiler compiler, Scope scope) {
+            this.scope.scopes.putAll(scope.implicit);
             for (Statement stmt : block) {
-                stmt.handle(compiler, sources, argsByName, genericsByName, name, context);
+                stmt.handle(compiler, sources, argsByName, genericsByName, name, this.scope);
+            }
+            for (String key : scope.implicit.keySet()) {
+                this.scope.scopes.remove(key);
             }
         }
     }

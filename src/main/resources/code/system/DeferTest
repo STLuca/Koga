@@ -26,18 +26,18 @@ test.DeferTest {
         Exit;
     }
 
-    ~ main() {
-    ~     Deferrer d ();
-    ~     Int x 0;
-    ~     d defer {
-    ~         x + 10;
-    ~     };
-    ~     Boolean b { x > 5; };
-    ~     If (b) {
-    ~         x + 25;
-    ~     };
-    ~     d close();
-    ~     Exit;
-    ~ }
+}
 
+main() {
+    Deferrer d ();
+    Int x 0;
+    d defer {
+        x + 10;
+    };
+    Boolean b { x > 5; };
+    If (b) {
+        x + 25;
+    };
+    d close();
+    Exit;
 }

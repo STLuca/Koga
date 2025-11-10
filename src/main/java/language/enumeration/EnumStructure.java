@@ -29,13 +29,13 @@ public class EnumStructure implements language.core.Structure {
     }
 
     @Override
-    public void proxy(Sources sources, Context.Scope variable, int location) {
+    public void proxy(Sources sources, Scope variable, int location) {
 
     }
 
     @Override
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
-        Context.Scope thisVariable = context.state(name);
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics) {
+        Scope thisVariable = scope.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
 
@@ -45,25 +45,24 @@ public class EnumStructure implements language.core.Structure {
 
         int maxSize = size(sources);
         int typeLocation = compiler.data(TYPE_SIZE);
-        thisVariable.allocations.put("type", new Context.Allocation(TYPE_SIZE, typeLocation));
-        compiler.debugData(context.stateName(thisVariable.name), "type", typeLocation, TYPE_SIZE);
+        thisVariable.allocations.put("type", new Scope.Allocation(TYPE_SIZE, typeLocation));
+        compiler.debugData(thisVariable.stateName(thisVariable.name), "type", typeLocation, TYPE_SIZE);
         int location = compiler.data(maxSize);
         for (Structure struct : structures) {
             SharedLocationMethodCompiler mc = new SharedLocationMethodCompiler();
+            Scope structScope = thisVariable.state(struct.name);
             mc.parent = compiler;
             mc.location = location;
             for (Field f : struct.fields) {
                 language.core.Structure u = sources.structure(f.structure);
-                String fieldName = struct.name + "." + f.name;
-                u.declare(mc, sources, context, fieldName, f.generics);
+                u.declare(mc, sources, structScope, f.name, f.generics);
             }
         }
-        context.parentState();
     }
 
     @Override
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> arguments) {
-        Context.Scope thisVariable = context.state(name);
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, String constructorName, List<Argument> arguments) {
+        Scope thisVariable = scope.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
 
@@ -94,43 +93,41 @@ public class EnumStructure implements language.core.Structure {
         String constructorStructName = "";
         int maxSize = size(sources);
         int typeLocation = compiler.data(TYPE_SIZE);
-        Context.Allocation typeAllocation = new Context.Allocation(TYPE_SIZE, typeLocation);
+        Scope.Allocation typeAllocation = new Scope.Allocation(TYPE_SIZE, typeLocation);
         thisVariable.allocations.put("type", typeAllocation);
-        compiler.debugData(context.stateName(thisVariable.name), "type", typeLocation, TYPE_SIZE);
+        compiler.debugData(thisVariable.stateName(thisVariable.name), "type", typeLocation, TYPE_SIZE);
         int location = compiler.data(maxSize);
-
         int index = structures.indexOf(structure);
-        new InstructionStatement("i", "ADD", "II", "LDA", "type", "IL", "0d0", "IL", "0d" + (index + 1))
-                .compile(compiler, sources, thisVariable, Map.of(), context);
         for (Structure struct : structures) {
             if (struct == structure) {
-             constructorStructName = struct.name;
+                constructorStructName = struct.name;
             }
             SharedLocationMethodCompiler mc = new SharedLocationMethodCompiler();
             mc.parent = compiler;
             mc.location = location;
+            Scope structureScope = thisVariable.state(struct.name);
             for (Field f : struct.fields) {
                 language.core.Structure u = sources.structure(f.structure);
-                String fieldName = struct.name + "." + f.name;
-                u.declare(mc, sources, context, fieldName, f.generics);
+                u.declare(mc, sources, structureScope, f.name, f.generics);
             }
         }
 
+        Scope operationScope = thisVariable.startOperation();
         SharedLocationMethodCompiler mc = new SharedLocationMethodCompiler();
         mc.parent = compiler;
         mc.location = location;
-        context.startOperation();
+        new InstructionStatement("i", "ADD", "II", "LDA", "type", "IL", "0d0", "IL", "0d" + (index + 1))
+                .compile(compiler, sources, thisVariable, Map.of(), operationScope);
+        Scope structureScope = thisVariable.state(constructorStructName);
         for (Statement stmt : method.statements) {
-            stmt.handle(mc, sources, argsByName, constructorStructName, context);
+            stmt.handle(mc, sources, argsByName, structureScope);
         }
-        context.stopOperation();
-        context.parentState();
     }
 
     @Override
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Context.Scope variable, String operationName, List<Argument> arguments) {
-        context.state(variable.name);
-        context.startOperation();
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<Argument> arguments) {
+
+        Scope operationScope = variable.startOperation();
         switch (operationName) {
             case "match" -> {
                 if (arguments.size() % 2 != 0) { throw new RuntimeException("Should be type followed by block for every type"); }
@@ -142,32 +139,34 @@ public class EnumStructure implements language.core.Structure {
                 // add all names to types
                 int[] blockPositions = new int[arguments.size() / 2];
 
-                new InstructionStatement("j", "REL", "T", "LDA", "type").compile(compiler, sources, variable, Map.of(), context);
+                new InstructionStatement("j", "REL", "T", "LDA", "type").compile(compiler, sources, variable, Map.of(), operationScope);
                 int jumps = compiler.address();
-                Context.Allocation allocation = new Context.Allocation(4, jumps);
-                context.add("jumps", allocation);
+                Scope.Allocation allocation = new Scope.Allocation(4, jumps);
+                operationScope.add("jumps", allocation);
                 int cases = compiler.address();
-                allocation = new Context.Allocation(4, cases);
-                context.add("cases", allocation);
+                allocation = new Scope.Allocation(4, cases);
+                operationScope.add("cases", allocation);
                 int end = compiler.address();
-                allocation = new Context.Allocation(4, end);
-                context.add("end", allocation);
+                allocation = new Scope.Allocation(4, end);
+                operationScope.add("end", allocation);
                 for (int i = 0; i < arguments.size(); i+=2) {
                     int caseAddr = compiler.address();
-                    allocation = new Context.Allocation(4, caseAddr);
-                    context.add("case", allocation);
+                    allocation = new Scope.Allocation(4, caseAddr);
+                    operationScope.add("case", allocation);
                     int prev = compiler.position(jumps);
-                    new InstructionStatement("j", "REL", "I", "case").compile(compiler, sources, variable, Map.of(), context);
+                    new InstructionStatement("j", "REL", "I", "case").compile(compiler, sources, variable, Map.of(), operationScope);
                     compiler.position(cases);
                     compiler.address(caseAddr);
 
                     // execute block
-                    variable.structure = structures.get(i / 2);
-                    arguments.get(i + 1).block.execute(compiler);
-                    variable.structure = this;
+                    Structure structure = structures.get(i / 2);
+                    Scope structScope = variable.state(structure.name);
+                    structScope.structure = structure;
+                    structScope.implicit.put(structure.name, structScope);
+                    arguments.get(i + 1).block.execute(compiler, structScope);
+                    structScope.implicit.remove(structure.name);
 
-
-                    new InstructionStatement("j", "REL", "I", "end").compile(compiler, sources, variable, Map.of(), context);
+                    new InstructionStatement("j", "REL", "I", "end").compile(compiler, sources, variable, Map.of(), operationScope);
                     compiler.address(end);
                     compiler.position(prev);
                 }
@@ -193,28 +192,30 @@ public class EnumStructure implements language.core.Structure {
                     throw new RuntimeException("Unexpected union method");
                 }
 
-                new InstructionStatement("j", "REL", "T", "LDA", "type").compile(compiler, sources, variable, Map.of(), context);
+                new InstructionStatement("j", "REL", "T", "LDA", "type").compile(compiler, sources, variable, Map.of(), operationScope);
                 int jumps = compiler.address();
-                Context.Allocation allocation = new Context.Allocation(4, jumps);
-                context.add("jumps", allocation);
+                Scope.Allocation allocation = new Scope.Allocation(4, jumps);
+                operationScope.add("jumps", allocation);
                 int cases = compiler.address();
-                allocation = new Context.Allocation(4, cases);
-                context.add("cases", allocation);
+                allocation = new Scope.Allocation(4, cases);
+                operationScope.add("cases", allocation);
                 int end = compiler.address();
-                allocation = new Context.Allocation(4, end);
-                context.add("end", allocation);
+                allocation = new Scope.Allocation(4, end);
+                operationScope.add("end", allocation);
                 int i = 0;
                 for (Structure s : structures) {
                     int caseAddr = compiler.address();
-                    allocation = new Context.Allocation(4, caseAddr);
-                    context.add("case", allocation);
+                    allocation = new Scope.Allocation(4, caseAddr);
+                    operationScope.add("case", allocation);
                     int prev = compiler.position(jumps);
-                    new InstructionStatement("j", "REL", "I", "case").compile(compiler, sources, variable, Map.of(), context);
+                    new InstructionStatement("j", "REL", "I", "case").compile(compiler, sources, variable, Map.of(), operationScope);
                     compiler.position(cases);
                     compiler.address(caseAddr);
 
                     // execute block
-                    variable.structure = structures.get(i / 2);
+                    Scope structScope = variable.state(s.name);
+                    structScope.structure = s;
+                    Scope methodScope = structScope.startOperation();
                     Method m = methods.get(i);
                     for (Statement stmt : m.statements) {
                         HashMap<String, Argument> args = new HashMap<>();
@@ -222,18 +223,15 @@ public class EnumStructure implements language.core.Structure {
                         for (Parameter p : m.params) {
                             args.put(p.name, arguments.get(argI++));
                         }
-                        stmt.handle(compiler, sources, args, s.name, context);
+                        stmt.handle(compiler, sources, args, methodScope);
                     }
-                    variable.structure = this;
 
-                    new InstructionStatement("j", "REL", "I", "end").compile(compiler, sources, variable, Map.of(), context);
+                    new InstructionStatement("j", "REL", "I", "end").compile(compiler, sources, variable, Map.of(), operationScope);
                     compiler.address(end);
                     compiler.position(prev);
                     i++;
                 }
             }
         }
-        context.parentState();
-        context.parentState();
     }
 }

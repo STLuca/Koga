@@ -26,23 +26,22 @@ public class MachineEnumStructure implements Structure {
         return data.size;
     }
     
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
-        Context.Scope variable = context.add(name);
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics) {
+        Scope variable = scope.add(name);
         variable.name = name;
         variable.structure = this;
 
         int allocation = compiler.data(data.size);
-        variable.allocations.put(data.name, new Context.Allocation(data.size, allocation));
-        compiler.debugData(context.stateName(data.name), data.name, allocation, data.size);
-        context.parentState();
+        variable.allocations.put(data.name, new Scope.Allocation(data.size, allocation));
+        compiler.debugData(variable.stateName(data.name), data.name, allocation, data.size);
     }
     
-    public void proxy(Sources sources, Context.Scope variable, int location) {
+    public void proxy(Sources sources, Scope variable, int location) {
         throw new RuntimeException("Not supported");
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> arguments) {
-        Context.Scope variable = context.add(name);
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, String constructorName, List<Argument> arguments) {
+        Scope variable = scope.add(name);
         variable.name = name;
         variable.structure = this;
 
@@ -61,27 +60,25 @@ public class MachineEnumStructure implements Structure {
 
         // data
         int allocation = compiler.data(data.size);
-        variable.allocations.put(data.name, new Context.Allocation(data.size, allocation));
-        compiler.debugData(context.stateName(data.name), data.name, allocation, data.size);
+        variable.allocations.put(data.name, new Scope.Allocation(data.size, allocation));
+        compiler.debugData(variable.stateName(data.name), data.name, allocation, data.size);
 
         // instructions
         // l(ADD, II, LDA, data.name, IL, 0d0, IL, literal);
         // compiler.instruction("l", "ADD", "II", "LDA", data.name, "IL", "0d0", "IL", literal);
-        context.startOperation();
-        new InstructionStatement("i", "ADD", "II", "LDA", data.name, "IL", "0d0", "IL", literal).compile(compiler, sources, variable, Map.of(), context);
-        context.stopOperation();
-        context.parentState();
+        Scope operationScope = variable.startOperation();
+        new InstructionStatement("i", "ADD", "II", "LDA", data.name, "IL", "0d0", "IL", literal).compile(compiler, sources, variable, Map.of(), operationScope);
     }
     
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Context.Scope variable, String operationName, List<Argument> arguments) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<Argument> arguments) {
         if (!operationName.equals("match")) throw new RuntimeException("expecting method match");
         if (arguments.size() == 0) throw new RuntimeException("expecting arguments");
         if (arguments.size() % 2 != 0) throw new RuntimeException("expecting even number of arguments");
 
-        context.startOperation();
+        Scope operationScope = variable.startOperation();
         int endAddr = compiler.address();
-        Context.Allocation allocation = new Context.Allocation(4, endAddr);
-        context.add("end", allocation);
+        Scope.Allocation allocation = new Scope.Allocation(4, endAddr);
+        operationScope.add("end", allocation);
 
         int i = 0;
         while(i < arguments.size()) {
@@ -107,18 +104,17 @@ public class MachineEnumStructure implements Structure {
             // Addr instruction;
             String instruction = "after" + i;
             int addr = compiler.address();
-            Context.Allocation afterAllocation = new Context.Allocation(4, addr);
-            context.add(instruction, afterAllocation);
-            new InstructionStatement("cb", "NEQ", "TI", "LDA", "val", "IL", literal, instruction).compile(compiler, sources, variable, Map.of(), context);
-            block.execute(compiler);
-            new InstructionStatement("j", "REL", "I", "end").compile(compiler, sources, variable, Map.of(), context);
+            Scope.Allocation afterAllocation = new Scope.Allocation(4, addr);
+            operationScope.add(instruction, afterAllocation);
+            new InstructionStatement("cb", "NEQ", "TI", "LDA", "val", "IL", literal, instruction).compile(compiler, sources, variable, Map.of(), operationScope);
+            block.execute(compiler, operationScope);
+            new InstructionStatement("j", "REL", "I", "end").compile(compiler, sources, variable, Map.of(), operationScope);
 
             compiler.address(addr);
 
             i += 2;
         }
         compiler.address(endAddr);
-        context.stopOperation();
     }
 
 }

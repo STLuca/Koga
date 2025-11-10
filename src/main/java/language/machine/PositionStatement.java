@@ -9,17 +9,17 @@ public class PositionStatement implements Statement {
     String addr;
     String prevName;
 
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Map<String, Argument> arguments, Scope scope) {
         int addr;
-        if (context.findAllocation(this.addr) != null) {
-            addr = context.findAllocation(this.addr).location();
+        if (scope.findAllocation(this.addr) != null) {
+            addr = scope.findAllocation(this.addr).location();
         } else {
             addr = variable.allocations.get(this.addr).location();
         }
         int prev = compiler.position(addr);
         if (this.prevName != null) {
-            Context.Allocation allocation = new Context.Allocation(4, prev);
-            context.add(prevName, allocation);
+            Scope.Allocation allocation = new Scope.Allocation(4, prev);
+            scope.add(prevName, allocation);
         }
     }
 

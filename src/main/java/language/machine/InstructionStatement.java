@@ -36,7 +36,7 @@ public class InstructionStatement implements Statement {
         this.arguments = new ArrayList<>(Arrays.asList(arguments));
     }
 
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Map<String, Argument> arguments, Scope scope) {
         switch (instructionType) {
             case I, INTEGER -> {
                 Compiler.InstructionCompiler ic = compiler.instruction();
@@ -72,9 +72,9 @@ public class InstructionStatement implements Statement {
                     }
                     default -> throw new IllegalArgumentException();
                 }
-                Resolved rDest = destType.resolve(dest, variable, arguments, context);
-                Resolved rSrc1 = src1Type.resolve(src1, variable, arguments, context);
-                Resolved rSrc2 = src2Type.resolve(src2, variable, arguments, context);
+                Resolved rDest = destType.resolve(dest, variable, arguments, scope);
+                Resolved rSrc1 = src1Type.resolve(src1, variable, arguments, scope);
+                Resolved rSrc2 = src2Type.resolve(src2, variable, arguments, scope);
                 ic.src(rDest.value(), rDest.size());
                 ic.src(rSrc1.value(), rSrc1.size());
                 ic.src(rSrc2.value(), rSrc2.size());
@@ -113,9 +113,9 @@ public class InstructionStatement implements Statement {
                     }
                     default -> throw new IllegalArgumentException();
                 }
-                Resolved rDest = destType.resolve(dest, variable, arguments, context);
-                Resolved rSrc1 = src1Type.resolve(src1, variable, arguments, context);
-                Resolved rSrc2 = src2Type.resolve(src2, variable, arguments, context);
+                Resolved rDest = destType.resolve(dest, variable, arguments, scope);
+                Resolved rSrc1 = src1Type.resolve(src1, variable, arguments, scope);
+                Resolved rSrc2 = src2Type.resolve(src2, variable, arguments, scope);
                 ic.src(rDest.value(), rDest.size());
                 ic.src(rSrc1.value(), rSrc1.size());
                 ic.src(rSrc2.value(), rSrc2.size());
@@ -143,7 +143,7 @@ public class InstructionStatement implements Statement {
                     default -> throw new RuntimeException();
                 }
 
-                Resolved address = addrType.resolve(addr, variable, arguments, context);
+                Resolved address = addrType.resolve(addr, variable, arguments, scope);
                 switch (inType) {
                     case T -> {
                         ic.src(address.value(), address.size());
@@ -186,14 +186,14 @@ public class InstructionStatement implements Statement {
                     }
                     default -> throw new RuntimeException("Bad number of values");
                 }
-                Resolved resolvedSrc1 = src1Type.resolve(src1, variable, arguments, context);
-                Resolved resolvedSrc2 = src2Type.resolve(src2, variable, arguments, context);
-                Resolved resolvedAddr = InputType.LDA.resolve(addr, variable, arguments, context);
+                Resolved resolvedSrc1 = src1Type.resolve(src1, variable, arguments, scope);
+                Resolved resolvedSrc2 = src2Type.resolve(src2, variable, arguments, scope);
+                Resolved resolvedAddr = InputType.LDA.resolve(addr, variable, arguments, scope);
                 if (resolvedAddr.value() == -1) {
                     // Put a placeholder address. Things will probably not work if the addr isn't then updated
                     int address = compiler.address();
-                    Context.Allocation addrAllocation = new Context.Allocation(4, address);
-                    context.add(addr, addrAllocation);
+                    Scope.Allocation addrAllocation = new Scope.Allocation(4, address);
+                    scope.add(addr, addrAllocation);
                     resolvedAddr = new Resolved(addrAllocation.size(), addrAllocation.location());
                 }
                 ic.inputType(inType);
@@ -233,12 +233,12 @@ public class InstructionStatement implements Statement {
                     default -> throw new RuntimeException();
                 }
 
-                Resolved resolvedDest = destType.resolve(dest, variable, arguments, context);
-                Resolved resolvedTable = src1Type.resolve(src1, variable, arguments, context);
+                Resolved resolvedDest = destType.resolve(dest, variable, arguments, scope);
+                Resolved resolvedTable = src1Type.resolve(src1, variable, arguments, scope);
                 ic.src(resolvedDest.value(), resolvedDest.size());
                 ic.src(resolvedTable.value(), resolvedTable.size());
                 if (src2 != null) {
-                    Resolved resolvedSymbol = src2Type.resolve(src2, variable, arguments, context);
+                    Resolved resolvedSymbol = src2Type.resolve(src2, variable, arguments, scope);
                     ic.src(resolvedSymbol.value(), resolvedSymbol.size());
                 }
             }
@@ -255,9 +255,9 @@ public class InstructionStatement implements Statement {
                 InputType sizeType = InputType.valueOf(values.get(6));
                 String size = values.get(7);
 
-                Resolved resolvedDest = destType.resolve(dest, variable, arguments, context);
-                Resolved resolvedSrc = srcType.resolve(src, variable, arguments, context);
-                Resolved resolvedSize = sizeType.resolve(size, variable, arguments, context);
+                Resolved resolvedDest = destType.resolve(dest, variable, arguments, scope);
+                Resolved resolvedSrc = srcType.resolve(src, variable, arguments, scope);
+                Resolved resolvedSize = sizeType.resolve(size, variable, arguments, scope);
                 ic.src(resolvedDest.value(), resolvedDest.size());
                 ic.src(resolvedSrc.value(), resolvedSrc.size());
                 ic.src(resolvedSize.value(), resolvedSize.size());
@@ -269,8 +269,8 @@ public class InstructionStatement implements Statement {
                 ic.subType(Types.DebugType.valueOf(values.get(0)));
                 String src = values.get(1);
                 String size = values.get(2);
-                Resolved resolvedSrc = InputType.ADA.resolve(src, variable, arguments, context);
-                Resolved resolvedSize = InputType.ADA.resolve(size, variable, arguments, context);
+                Resolved resolvedSrc = InputType.ADA.resolve(src, variable, arguments, scope);
+                Resolved resolvedSize = InputType.ADA.resolve(size, variable, arguments, scope);
                 ic.src(0, 0);
                 ic.src(resolvedSrc.value(), resolvedSrc.size());
                 ic.src(resolvedSize.value(), resolvedSize.size());
@@ -286,16 +286,16 @@ public class InstructionStatement implements Statement {
                     case SET_OBJECT, SET_TABLE, START_ADMIN, SET_ALT_TASK, SET_ALT_OBJECT, SET_ALT_TABLE -> {
                         ic.inputType(Types.InputType.valueOf(values.get(1)));
                         InputType srcType = InputType.valueOf(values.get(2));
-                        Resolved resolvedSrc = srcType.resolve(values.get(3), variable, arguments, context);
+                        Resolved resolvedSrc = srcType.resolve(values.get(3), variable, arguments, scope);
 
                         ic.src(resolvedSrc.value(), resolvedSrc.size());
                     }
                     case SET, SET_METHOD_AND_TASK -> {
                         ic.inputType(Types.InputType.valueOf(values.get(1)));
                         InputType src1Type = InputType.valueOf(values.get(2));
-                        Resolved resolvedSrc1 = src1Type.resolve(values.get(3), variable, arguments, context);
+                        Resolved resolvedSrc1 = src1Type.resolve(values.get(3), variable, arguments, scope);
                         InputType src2Type = InputType.valueOf(values.get(4));
-                        Resolved resolvedSrc2 = src2Type.resolve(values.get(5), variable, arguments, context);
+                        Resolved resolvedSrc2 = src2Type.resolve(values.get(5), variable, arguments, scope);
                         ic.src(resolvedSrc1.value(), resolvedSrc1.size());
                         ic.src(resolvedSrc2.value(), resolvedSrc2.size());
                     }
@@ -303,7 +303,7 @@ public class InstructionStatement implements Statement {
                     case NOTIFY_SUPERVISOR -> {
                         ic.inputType(Types.InputType.valueOf(values.get(1)));
                         String src = values.get(2);
-                        Resolved resolvedSrc = InputType.LDA.resolve(src, variable, arguments, context);
+                        Resolved resolvedSrc = InputType.LDA.resolve(src, variable, arguments, scope);
                         ic.src(resolvedSrc.value(), resolvedSrc.size());
                     }
                     default -> throw new RuntimeException();

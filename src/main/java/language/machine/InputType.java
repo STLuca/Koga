@@ -1,7 +1,7 @@
 package language.machine;
 
 import language.core.Argument;
-import language.core.Context;
+import language.core.Scope;
 import language.core.Structure;
 
 import java.util.Map;
@@ -20,7 +20,7 @@ enum InputType {
     ;
 
     record Resolved(int size, int value) {}
-    Resolved resolve(String toResolve, Context.Scope variable, Map<String, Argument> arguments, Context context) {
+    Resolved resolve(String toResolve, Scope variable, Map<String, Argument> arguments, Scope scope) {
         switch (this) {
             case R -> {
                 int index = switch (toResolve) {
@@ -46,18 +46,18 @@ enum InputType {
                 return new Resolved(4, arg.val);
             }
             case CL -> {
-                Argument arg = context.get(toResolve).orElseThrow();
+                Argument arg = scope.get(toResolve).orElseThrow();
                 if (arg.type != Argument.Type.Literal) throw new RuntimeException();
                 return new Resolved(4, arg.val);
             }
             case LDA -> {
                 // Local allocation
-                if (context.findAllocation(toResolve) != null) {
-                    Context.Allocation allocation = context.findAllocation(toResolve);
+                if (scope.findAllocation(toResolve) != null) {
+                    Scope.Allocation allocation = scope.findAllocation(toResolve);
                     return new Resolved(allocation.size(), allocation.location());
                 }
                 if (variable.allocations.containsKey(toResolve)) {
-                    Context.Allocation allocation = variable.allocations.get(toResolve);
+                    Scope.Allocation allocation = variable.allocations.get(toResolve);
                     return new Resolved(allocation.size(), allocation.location());
                 }
                 return new Resolved(4, -1);
@@ -69,13 +69,13 @@ enum InputType {
                 if (arg.type != Argument.Type.Variable) throw new RuntimeException();
                 if (split.length == 2) {
                     // we just want an allocation
-                    Context.Allocation allocation = arg.variable.allocations.get(split[1]);
+                    Scope.Allocation allocation = arg.variable.allocations.get(split[1]);
                     return new Resolved(allocation.size(), allocation.location());
                 }
                 // we want the variable
                 int start = Integer.MAX_VALUE;
                 int size = 0;
-                for (Context.Allocation a : arg.variable.allocations.values()) {
+                for (Scope.Allocation a : arg.variable.allocations.values()) {
                     if (a.location() < start) start = a.location();
                     size += a.size();
                 }
@@ -86,8 +86,8 @@ enum InputType {
             }
             case LDS -> {
                 // local size
-                if (context.findAllocation(toResolve) != null) {
-                    return new Resolved(4, context.findAllocation(toResolve).size());
+                if (scope.findAllocation(toResolve) != null) {
+                    return new Resolved(4, scope.findAllocation(toResolve).size());
                 }
                 return new Resolved(4, variable.allocations.get(toResolve).size());
             }
@@ -101,7 +101,7 @@ enum InputType {
                 }
                 // we want the variable
                 int size = 0;
-                for (Context.Allocation a : arg.variable.allocations.values()) {
+                for (Scope.Allocation a : arg.variable.allocations.values()) {
                     size += a.size();
                 }
                 return new Resolved(4, size);
@@ -112,7 +112,7 @@ enum InputType {
             }
             case AG -> {
                 String[] split = toResolve.split("\\.");
-                Context.Scope var = arguments.get(split[0]).variable;
+                Scope var = arguments.get(split[0]).variable;
 
                 Structure u = var.generics.get(toResolve).structure;
                 return new Resolved(4, u.size(null));

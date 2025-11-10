@@ -6,6 +6,6 @@ import java.util.Map;
 
 public interface Statement {
 
-    void compile(Compiler.MethodCompiler compiler, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context);
+    void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Map<String, Argument> arguments, Scope scope);
 
 }

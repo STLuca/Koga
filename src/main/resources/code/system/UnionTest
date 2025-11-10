@@ -17,10 +17,10 @@ test.UnionTest {
         ParserContext pcNum aNumber();
         pcNum match
             (Number) {
-                pcNum addToFromNumber(x);
+                Number addToFromNumber(x);
             }
             (Letter) {
-                pcNum addToFromLetter(x);
+                Letter addToFromLetter(x);
             };
         ParserContext pcLet aLetter();
         pcLet addTo(x);

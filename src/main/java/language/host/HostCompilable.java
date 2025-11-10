@@ -99,23 +99,23 @@ public class HostCompilable implements Compilable {
 
         for (Method m : methods) {
             Compiler.MethodCompiler mb = compiler.method();
-            Context context = new Context();
+            Scope scope = Scope.reset();
             mb.name(m.name);
 
             for (Field f : fields) {
-                context.addVariable(f.name);
+                scope.addVariable(f.name);
             }
 
             // declare the parameters
             for (Parameter p : m.params) {
                 Structure structure = sources.structure(p.structure);
                 mb.parameter(structure.name());
-                structure.declare(mb, sources, context, p.name, p.generics);
+                structure.declare(mb, sources, scope, p.name, p.generics);
             }
 
             // handle each statement in the body
             for (Statement stmt : m.statements) {
-                stmt.handle(mb, sources, context);
+                stmt.handle(mb, sources, scope);
             }
         }
     }

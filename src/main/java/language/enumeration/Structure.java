@@ -28,22 +28,23 @@ class Structure implements language.core.Structure {
     }
 
     @Override
-    public void proxy(Sources sources, Context.Scope variable, int location) {
+    public void proxy(Sources sources, Scope variable, int location) {
 
     }
 
     @Override
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics) {
 
     }
 
     @Override
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> arguments) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, String constructorName, List<Argument> arguments) {
 
     }
 
     @Override
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Context.Scope variable, String operationName, List<Argument> arguments) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<Argument> arguments) {
+        Scope operationScope = variable.startOperation();
         Method method = null;
         for (Method m : methods) {
             if (m.name.equals(operationName)) {
@@ -61,7 +62,7 @@ class Structure implements language.core.Structure {
         }
 
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, sources, argsByName, name, context);
+            stmt.handle(compiler, sources, argsByName, operationScope);
         }
     }
 }

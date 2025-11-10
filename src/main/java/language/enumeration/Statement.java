@@ -33,8 +33,7 @@ public class Statement {
             Compiler.MethodCompiler compiler,
             Sources sources,
             Map<String, language.core.Argument> argsByName,
-            String name,
-            Context context
+            Scope scope
     ) {
         ArrayList<language.core.Argument> args = new ArrayList<>();
 
@@ -45,12 +44,12 @@ public class Statement {
                 int literal = parseLiteral(arg.literal);
                 args.add(language.core.Argument.of(literal));
             } else if (arg.block != null) {
-                Block b = new Block(arg.block, sources, argsByName, name, context);
+                Block b = new Block(arg.block, sources, argsByName, scope);
                 args.add(language.core.Argument.of(b));
             } else if (arg.name != null) {
-                Context.Scope variable = context.findVariable(name + "." + arg.name);
+                Scope variable = scope.findVariable(arg.name);
                 if (variable == null) {
-                    variable = context.findVariable(arg.name);
+                    variable = scope.findVariable(arg.name);
                 }
                 if (variable != null) {
                     args.add(language.core.Argument.of(variable));
@@ -69,26 +68,26 @@ public class Statement {
             }
         }
 
-        if (!context.defaults().isEmpty()) {
-            args.addAll(context.defaults());
+        if (!scope.defaults().isEmpty()) {
+            args.addAll(scope.defaults());
         }
 
         switch (type) {
             case DECLARE -> {
                 Structure structure = sources.structure(this.structure);
-                structure.declare(compiler, sources, context, name + "." + variableName, generics);
+                structure.declare(compiler, sources, scope, variableName, generics);
             }
             case CONSTRUCT -> {
                 Structure structure = sources.structure(this.structure);
-                structure.construct(compiler, sources, context, name + "." + variableName, generics, methodName, args);
+                structure.construct(compiler, sources, scope, variableName, generics, methodName, args);
             }
             case INVOKE -> {
-                Context.Scope variable = context.findVariable(name + "." + variableName);
+                Scope variable = scope.findVariable(variableName);
                 if (variable == null) {
                     variable = argsByName.get(variableName).variable;
                 }
                 Structure sc = variable.structure;
-                sc.operate(compiler, sources, context, variable, methodName, args);
+                sc.operate(compiler, sources, scope, variable, methodName, args);
             }
         }
     }
@@ -98,26 +97,23 @@ public class Statement {
         List<Statement> block;
         Sources sources;
         Map<String, language.core.Argument> argsByName;
-        String name;
-        Context context;
+        Scope scope;
 
         public Block(
                 List<Statement> block,
                 Sources sources,
                 Map<String, language.core.Argument> argsByName,
-                String name,
-                Context context
+                Scope scope
         ) {
             this.block = block;
             this.sources = sources;
             this.argsByName = argsByName;
-            this.name = name;
-            this.context = context;
+            this.scope = scope;
         }
         
-        public void execute(Compiler.MethodCompiler compiler) {
+        public void execute(Compiler.MethodCompiler compiler, Scope scope) {
             for (Statement stmt : block) {
-                stmt.handle(compiler, sources, argsByName, name, context);
+                stmt.handle(compiler, sources, argsByName, this.scope);
             }
         }
     }

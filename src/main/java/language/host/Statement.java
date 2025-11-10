@@ -31,7 +31,7 @@ public class Statement {
     void handle(
             Compiler.MethodCompiler compiler,
             Sources sources,
-            Context context
+            Scope scope
     ) {
         ArrayList<language.core.Argument> args = new ArrayList<>();
 
@@ -40,10 +40,10 @@ public class Statement {
                 int literal = parseLiteral(arg.literal);
                 args.add(language.core.Argument.of(literal));
             } else if (arg.block != null) {
-                Block b = new Block(arg.block, sources, context);
+                Block b = new Block(arg.block, sources, scope);
                 args.add(language.core.Argument.of(b));
             } else if (arg.name != null) {
-                Context.Scope v = context.findVariable(arg.name);
+                Scope v = scope.findVariable(arg.name);
                 if (v != null) {
                     args.add(language.core.Argument.of(v));
                 } else {
@@ -61,23 +61,23 @@ public class Statement {
             }
         }
 
-        if (!context.defaults().isEmpty()) {
-            args.addAll(context.defaults());
+        if (!scope.defaults().isEmpty()) {
+            args.addAll(scope.defaults());
         }
 
         switch (type) {
             case DECLARE -> {
                 Structure structure = sources.structure(this.structure);
-                structure.declare(compiler, sources, context, variableName, generics);
+                structure.declare(compiler, sources, scope, variableName, generics);
             }
             case CONSTRUCT -> {
                 Structure structure = sources.structure(this.structure);
-                structure.construct(compiler, sources, context, variableName, generics, methodName, args);
+                structure.construct(compiler, sources, scope, variableName, generics, methodName, args);
             }
             case INVOKE -> {
-                Context.Scope variable = context.findVariable(variableName);
+                Scope variable = scope.findVariable(variableName);
                 Structure sc = variable.structure;
-                sc.operate(compiler, sources, context, variable, methodName, args);
+                sc.operate(compiler, sources, scope, variable, methodName, args);
             }
         }
     }
@@ -86,21 +86,25 @@ public class Statement {
 
         List<Statement> block;
         Sources sources;
-        Context context;
+        Scope scope;
 
         public Block(
                 List<Statement> block,
                 Sources sources,
-                Context context
+                Scope scope
         ) {
             this.block = block;
             this.sources = sources;
-            this.context = context;
+            this.scope = scope;
         }
         
-        public void execute(Compiler.MethodCompiler compiler) {
+        public void execute(Compiler.MethodCompiler compiler, Scope scope) {
+            this.scope.scopes.putAll(scope.implicit);
             for (Statement stmt : block) {
-                stmt.handle(compiler, sources, context);
+                stmt.handle(compiler, sources, this.scope);
+            }
+            for (String key : scope.implicit.keySet()) {
+                this.scope.scopes.remove(key);
             }
         }
     }

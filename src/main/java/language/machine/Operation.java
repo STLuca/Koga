@@ -1,7 +1,7 @@
 package language.machine;
 
 import language.core.Argument;
-import language.core.Context;
+import language.core.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ public class Operation {
         String name;
         ArrayList<VariableMatcher> subMatchers;
 
-        boolean match(Context.Scope variable, Argument arg) {
+        boolean match(Scope variable, Argument arg) {
             boolean matches;
             if (isGeneric) {
                 if (!variable.generics.containsKey(name)) return false;
@@ -32,10 +32,10 @@ public class Operation {
                 return false;
             }
             boolean allMatch = true;
-            List<Context.Generic> orderedGenerics = arg.variable.generics.sequencedValues().stream().toList();
+            List<Scope.Generic> orderedGenerics = arg.variable.generics.sequencedValues().stream().toList();
             for (int i = 0; i < subMatchers.size(); i++) {
                 VariableMatcher m = subMatchers.get(i);
-                Context.Generic g = orderedGenerics.get(i);
+                Scope.Generic g = orderedGenerics.get(i);
                 if (!m.name.equals(g.structure.name())) {
                     allMatch = false;
                 }
@@ -56,7 +56,7 @@ public class Operation {
     ArrayList<Parameter> parameters = new ArrayList<>();
     ArrayList<Statement> body = new ArrayList<>();
 
-    boolean matches(Context.Scope variable, String name, List<Argument> args) {
+    boolean matches(Scope variable, String name, List<Argument> args) {
         if (!name.equals(this.name)) return false;
         if (args.size() != parameters.size()) return false;
         for (int i = 0; i < args.size(); i++) {

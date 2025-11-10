@@ -31,10 +31,11 @@ public class CompositeStructure implements Structure {
     }
     
     public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
-        context.state(name);
         Variable thisVariable = new Variable();
         thisVariable.name = name;
         thisVariable.structure = this;
+        context.add(thisVariable);
+        context.state(name);
         context.add(thisVariable);
 
         for (int i = 0; i < this.generics.size(); i++) {
@@ -82,10 +83,11 @@ public class CompositeStructure implements Structure {
     }
     
     public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> arguments) {
-        context.state(name);
         Variable thisVariable = new Variable();
         thisVariable.name = name;
         thisVariable.structure = this;
+        context.add(thisVariable);
+        context.state(name);
         context.add(thisVariable);
 
         for (int i = 0; i < this.generics.size(); i++) {
@@ -133,7 +135,7 @@ public class CompositeStructure implements Structure {
     }
     
     public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> arguments) {
-        context.state(name);
+        context.state(variable.name);
         Method method = null;
         for (Method m : methods) {
             if (m.name.equals(operationName)) {

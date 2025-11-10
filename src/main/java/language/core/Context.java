@@ -4,95 +4,96 @@ import java.util.*;
 
 public class Context {
 
-    static class State {
-        HashMap<String, State> state = new HashMap<>();
-        HashMap<String, Variable> variables = new HashMap<>();
-    }
+    public static class Scope {
 
-    static class Operation {
+        enum Type {
+            Variable,
+            Operation
+        }
+
+        Scope parent;
+        Type type;
+        String name;
+        Structure structure;
+        HashMap<String, Variable> variables = new HashMap<>();
+        HashMap<String, Scope> scopes = new HashMap<>();
+        LinkedHashMap<String, Variable.Generic> generics = new LinkedHashMap<>();
         HashMap<String, Variable.Allocation> allocations = new HashMap<>();
-        HashMap<String, Variable> variables = new HashMap<>();
     }
 
-    int currOperation = 0;
-    int currState = 0;
-    ArrayList<String> currentStateName = new ArrayList<>();
-
-    ArrayList<State> state = new ArrayList<>(List.of(new State()));
-    ArrayList<Operation> operations = new ArrayList<>(List.of(new Operation()));
+    Scope curr = new Scope();
     ArrayList<Argument> defaultArgs = new ArrayList<>();
     HashMap<String, Argument> implicits = new HashMap<>();
 
     public void add(Variable variable) {
-        if (state.get(currState).variables.containsKey(variable.name)) {
-            state.get(currState).variables.put(variable.name, variable);
+        if (curr.parent != null && curr.parent.variables.containsKey(variable.name)) {
+            curr.parent.variables.put(variable.name, variable);
+        } else {
+            curr.variables.put(variable.name, variable);
         }
-        operations.get(currOperation).variables.put(variable.name, variable);
     }
 
     public void addVariable(String name) {
-        state.get(currState).variables.put(name, null);
+        curr.variables.put(name, null);
     }
 
     public Variable findVariable(String name) {
-        if (state.get(currState).variables.containsKey(name)) {
-            return state.get(currState).variables.get(name);
-        }
-        int operation = currOperation;
-        while (operation >= 0) {
-            if (operations.get(operation).variables.containsKey(name)) {
-                return operations.get(operation).variables.get(name);
+        Scope curr = this.curr;
+        while (curr != null) {
+            if (curr.variables.containsKey(name)) {
+                return curr.variables.get(name);
             }
-            operation--;
+            curr = curr.parent;
         }
         return null;
     }
 
 
     public void state(String name) {
-        State current = state.get(currState);
-        current.state.putIfAbsent(name, new State());
-        state.add(current.state.get(name));
-        currState++;
-        currentStateName.add(name);
+        if (curr.scopes.containsKey(name)) {
+            curr = curr.scopes.get(name);
+        } else {
+            Scope newScope = new Scope();
+            newScope.type = Scope.Type.Variable;
+            newScope.parent = curr;
+            newScope.name = name;
+            curr.scopes.put(name, newScope);
+            curr = newScope;
+        }
     }
 
     public void parentState() {
-        state.removeLast();
-        currState--;
-        currentStateName.removeLast();
+        curr = curr.parent;
     }
 
 
     public void startOperation() {
-        operations.addLast(new Operation());
-        currOperation++;
+        Scope newScope = new Scope();
+        newScope.type = Scope.Type.Operation;
+        newScope.parent = curr;
+        curr.scopes.put(UUID.randomUUID().toString(), newScope);
+        curr = newScope;
     }
 
     public void stopOperation() {
-        operations.removeLast();
-        currOperation--;
+        curr = curr.parent;
     }
 
     public Variable.Allocation findAllocation(String name) {
-        return operations.get(currOperation).allocations.get(name);
+        return curr.allocations.get(name);
     }
 
     public void add(String name, Variable.Allocation allocation) {
-        operations.get(currOperation).allocations.put(name, allocation);
-    }
-
-    public Variable operationVariable(String name) {
-        return operations.get(currOperation).variables.get(name);
+        curr.allocations.put(name, allocation);
     }
 
 
-    public int state() {
-        return currOperation;
+    public Scope state() {
+        return curr;
     }
 
-    public void setState(int newState) {
-        currOperation = newState;
+    public void setState(Scope s) {
+        curr = s;
     }
 
 
@@ -108,7 +109,6 @@ public class Context {
         return defaultArgs;
     }
 
-
     public void add(String name, Argument arg) {
         implicits.put(name, arg);
     }
@@ -123,11 +123,18 @@ public class Context {
 
     public String stateName(String name) {
         StringBuilder sb = new StringBuilder();
-        for (String s : currentStateName) {
-            sb.append(s).append(".");
+        Scope curr = this.curr;
+        while (curr.parent != null) {
+            if (curr.name != null) {
+                sb.insert(0, curr.name)
+                        .insert(curr.name.length(), ".");
+            }
+            curr = curr.parent;
         }
         sb.append(name);
         return sb.toString();
+
     }
+
 
 }

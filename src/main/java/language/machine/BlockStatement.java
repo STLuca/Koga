@@ -39,9 +39,9 @@ public class BlockStatement implements Statement {
         Variable variable;
         Map<String, Argument> arguments;
         Context context;
-        int state;
+        Context.Scope state;
 
-        public MachineBlock(List<Statement> statements, Sources sources, Variable variable, Map<String, Argument> arguments, Context context, int state) {
+        public MachineBlock(List<Statement> statements, Sources sources, Variable variable, Map<String, Argument> arguments, Context context, Context.Scope state) {
             this.statements = statements;
             this.sources = sources;
             this.variable = variable;
@@ -51,7 +51,7 @@ public class BlockStatement implements Statement {
         }
         
         public void execute(Compiler.MethodCompiler compiler) {
-            int current = context.state();
+            Context.Scope current = context.state();
             context.setState(this.state);
             for (Statement s : statements) {
                 s.compile(compiler, sources, variable, arguments, context);

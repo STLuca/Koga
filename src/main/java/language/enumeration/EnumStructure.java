@@ -35,10 +35,11 @@ public class EnumStructure implements language.core.Structure {
 
     @Override
     public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
-        context.state(name);
         Variable thisVariable = new Variable();
         thisVariable.name = name;
         thisVariable.structure = this;
+        context.add(thisVariable);
+        context.state(name);
         context.add(thisVariable);
 
         for (String imprt : this.imports) {
@@ -65,10 +66,11 @@ public class EnumStructure implements language.core.Structure {
 
     @Override
     public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> arguments) {
-        context.state(name);
         Variable thisVariable = new Variable();
         thisVariable.name = name;
         thisVariable.structure = this;
+        context.add(thisVariable);
+        context.state(name);
         context.add(thisVariable);
 
         for (String imprt : this.imports) {
@@ -131,7 +133,7 @@ public class EnumStructure implements language.core.Structure {
 
     @Override
     public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> arguments) {
-        context.state(name);
+        context.state(variable.name);
         switch (operationName) {
             case "match" -> {
                 if (arguments.size() % 2 != 0) { throw new RuntimeException("Should be type followed by block for every type"); }

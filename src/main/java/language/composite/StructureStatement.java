@@ -100,8 +100,6 @@ public class StructureStatement implements Statement {
                 if (genericsByName.containsKey(this.structure)) {
                     Structure structure = genericsByName.get(this.structure).structure;
                     structure.declare(compiler, sources, scope, variableName, resolvedGenerics);
-                    Scope declared = scope.findVariable(variableName);
-                    scope.implicit.put(variableName, declared);
                 } else {
                     Structure structure = sources.structure(this.structure);
                     structure.declare(compiler, sources, scope, variableName, resolvedGenerics);

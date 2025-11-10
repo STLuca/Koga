@@ -24,6 +24,8 @@ collection.ListIterator<Structure T> {
         Pointer<T> elementPtr (element);
         Int size;
         Pointer<Int> sizePtr (size);
+        SCOPE(Implicit, element);
+        SCOPE(Implicit, size);
         accessor size (sizePtr);
         Int index 0;
         Boolean isNotEnd { index != size; };

@@ -269,12 +269,24 @@ public class CompositeParser implements Parser {
 
         // If imports contains the first String, it's a construct statement
         boolean isBlock = currS.equals("BLOCK");
+        boolean isScope = currS.endsWith("SCOPE");
         boolean isGeneric = ctx.generics.contains(currS);
         boolean isStructure = ctx.structures.containsKey(currS);
         if (isBlock) {
             BlockStatement s = new BlockStatement();
             curr = scanner.expect(tokens, NAME);
             s.blockName = curr.matched();
+            statements.add(s);
+            curr = scanner.expect(tokens, SEMI_COLON);
+        } else if (isScope) {
+            ScopeStatement s = new ScopeStatement();
+            scanner.expect(tokens, OP_PAREN);
+            curr = scanner.expect(tokens, NAME);
+            s.type = ScopeStatement.Type.valueOf(curr.matched());
+            scanner.expect(tokens, COMMA);
+            curr = scanner.expect(tokens, NAME);
+            s.name = curr.matched();
+            scanner.expect(tokens, CL_PAREN);
             statements.add(s);
             curr = scanner.expect(tokens, SEMI_COLON);
         } else if (isStructure || isGeneric) {

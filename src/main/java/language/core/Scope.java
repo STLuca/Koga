@@ -6,11 +6,6 @@ import java.util.*;
 
 public class Scope {
 
-    public enum Type {
-        Variable,
-        Operation
-    }
-
     public record Allocation(int size, int location) {}
 
     public static class Generic {
@@ -21,7 +16,6 @@ public class Scope {
     }
 
     public Scope parent;
-    public Type type;
     public String name;
     public Structure structure;
     public HashMap<String, Scope> scopes = new HashMap<>();
@@ -40,7 +34,6 @@ public class Scope {
 
     public Scope add(String name) {
         Scope newScope = new Scope();
-        newScope.type = Scope.Type.Variable;
         newScope.parent = this;
         newScope.name = name;
         this.scopes.put(name, newScope);
@@ -67,7 +60,6 @@ public class Scope {
             return scopes.get(name);
         } else {
             Scope newScope = new Scope();
-            newScope.type = Scope.Type.Variable;
             newScope.parent = this;
             newScope.name = name;
             scopes.put(name, newScope);
@@ -75,20 +67,11 @@ public class Scope {
         }
     }
 
-    public Scope parentState() {
-        return parent;
-    }
-
     public Scope startOperation() {
         Scope newScope = new Scope();
-        newScope.type = Scope.Type.Operation;
         newScope.parent = this;
         this.scopes.put(UUID.randomUUID().toString(), newScope);
         return newScope;
-    }
-
-    public Scope stopOperation() {
-        return parent;
     }
 
     public Allocation findAllocation(String name) {

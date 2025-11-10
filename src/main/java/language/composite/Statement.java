@@ -41,7 +41,7 @@ public class Statement {
             Compiler.MethodCompiler compiler,
             Sources sources,
             Map<String, language.core.Argument> argsByName,
-            Map<String, Variable.Generic> genericsByName,
+            Map<String, Context.Generic> genericsByName,
             String name,
             Context context
     ) {
@@ -131,7 +131,7 @@ public class Statement {
         List<Statement> block;
         Sources sources;
         Map<String, language.core.Argument> argsByName;
-        Map<String, Variable.Generic> genericsByName;
+        Map<String, Context.Generic> genericsByName;
         String name;
         Context context;
 
@@ -139,7 +139,7 @@ public class Statement {
                 List<Statement> block,
                 Sources sources,
                 Map<String, language.core.Argument> argsByName,
-                Map<String, Variable.Generic> genericsByName,
+                Map<String, Context.Generic> genericsByName,
                 String name,
                 Context context
         ) {

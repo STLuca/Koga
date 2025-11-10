@@ -1,6 +1,7 @@
 package language.machine;
 
 import language.core.Argument;
+import language.core.Context;
 import language.core.Variable;
 
 import java.util.ArrayList;
@@ -32,10 +33,10 @@ public class Operation {
                 return false;
             }
             boolean allMatch = true;
-            List<Variable.Generic> orderedGenerics = arg.variable.generics.sequencedValues().stream().toList();
+            List<Context.Generic> orderedGenerics = arg.variable.generics.sequencedValues().stream().toList();
             for (int i = 0; i < subMatchers.size(); i++) {
                 VariableMatcher m = subMatchers.get(i);
-                Variable.Generic g = orderedGenerics.get(i);
+                Context.Generic g = orderedGenerics.get(i);
                 if (!m.name.equals(g.structure.name())) {
                     allMatch = false;
                 }

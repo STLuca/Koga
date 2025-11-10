@@ -19,9 +19,9 @@ public class DataStatement implements Statement {
         }
         int allocated = compiler.data(allocateSize);
         if (variable.allocations.containsKey(name)) {
-            variable.allocations.put(name, new Variable.Allocation(allocateSize, allocated));
+            variable.allocations.put(name, new Context.Allocation(allocateSize, allocated));
         } else {
-            context.add(name, new Variable.Allocation(allocateSize, allocated));
+            context.add(name, new Context.Allocation(allocateSize, allocated));
         }
         compiler.debugData(context.stateName(variable.name), name, allocated, allocateSize);
     }

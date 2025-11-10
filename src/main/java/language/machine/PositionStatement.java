@@ -18,7 +18,7 @@ public class PositionStatement implements Statement {
         }
         int prev = compiler.position(addr);
         if (this.prevName != null) {
-            Variable.Allocation allocation = new Variable.Allocation(4, prev);
+            Context.Allocation allocation = new Context.Allocation(4, prev);
             context.add(prevName, allocation);
         }
     }

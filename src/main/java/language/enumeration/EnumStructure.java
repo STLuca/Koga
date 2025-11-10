@@ -48,7 +48,7 @@ public class EnumStructure implements language.core.Structure {
 
         int maxSize = size(sources);
         int typeLocation = compiler.data(TYPE_SIZE);
-        thisVariable.allocations.put("type", new Variable.Allocation(TYPE_SIZE, typeLocation));
+        thisVariable.allocations.put("type", new Context.Allocation(TYPE_SIZE, typeLocation));
         compiler.debugData(context.stateName(thisVariable.name), "type", typeLocation, TYPE_SIZE);
         int location = compiler.data(maxSize);
         for (Structure struct : structures) {
@@ -100,7 +100,7 @@ public class EnumStructure implements language.core.Structure {
         String constructorStructName = "";
         int maxSize = size(sources);
         int typeLocation = compiler.data(TYPE_SIZE);
-        Variable.Allocation typeAllocation = new Variable.Allocation(TYPE_SIZE, typeLocation);
+        Context.Allocation typeAllocation = new Context.Allocation(TYPE_SIZE, typeLocation);
         thisVariable.allocations.put("type", typeAllocation);
         compiler.debugData(context.stateName(thisVariable.name), "type", typeLocation, TYPE_SIZE);
         int location = compiler.data(maxSize);
@@ -147,17 +147,17 @@ public class EnumStructure implements language.core.Structure {
 
                 new InstructionStatement("j", "REL", "T", "LDA", "type").compile(compiler, sources, variable, Map.of(), context);
                 int jumps = compiler.address();
-                Variable.Allocation allocation = new Variable.Allocation(4, jumps);
+                Context.Allocation allocation = new Context.Allocation(4, jumps);
                 context.add("jumps", allocation);
                 int cases = compiler.address();
-                allocation = new Variable.Allocation(4, cases);
+                allocation = new Context.Allocation(4, cases);
                 context.add("cases", allocation);
                 int end = compiler.address();
-                allocation = new Variable.Allocation(4, end);
+                allocation = new Context.Allocation(4, end);
                 context.add("end", allocation);
                 for (int i = 0; i < arguments.size(); i+=2) {
                     int caseAddr = compiler.address();
-                    allocation = new Variable.Allocation(4, caseAddr);
+                    allocation = new Context.Allocation(4, caseAddr);
                     context.add("case", allocation);
                     int prev = compiler.position(jumps);
                     new InstructionStatement("j", "REL", "I", "case").compile(compiler, sources, variable, Map.of(), context);
@@ -198,18 +198,18 @@ public class EnumStructure implements language.core.Structure {
 
                 new InstructionStatement("j", "REL", "T", "LDA", "type").compile(compiler, sources, variable, Map.of(), context);
                 int jumps = compiler.address();
-                Variable.Allocation allocation = new Variable.Allocation(4, jumps);
+                Context.Allocation allocation = new Context.Allocation(4, jumps);
                 context.add("jumps", allocation);
                 int cases = compiler.address();
-                allocation = new Variable.Allocation(4, cases);
+                allocation = new Context.Allocation(4, cases);
                 context.add("cases", allocation);
                 int end = compiler.address();
-                allocation = new Variable.Allocation(4, end);
+                allocation = new Context.Allocation(4, end);
                 context.add("end", allocation);
                 int i = 0;
                 for (Structure s : structures) {
                     int caseAddr = compiler.address();
-                    allocation = new Variable.Allocation(4, caseAddr);
+                    allocation = new Context.Allocation(4, caseAddr);
                     context.add("case", allocation);
                     int prev = compiler.position(jumps);
                     new InstructionStatement("j", "REL", "I", "case").compile(compiler, sources, variable, Map.of(), context);

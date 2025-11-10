@@ -1,8 +1,19 @@
 package language.core;
 
+import core.Document;
+
 import java.util.*;
 
 public class Context {
+
+    public record Allocation(int size, int location) {}
+
+    public static class Generic {
+        public enum Type { Structure, Document }
+        public Type type;
+        public Structure structure;
+        public Document document;
+    }
 
     public static class Scope {
 
@@ -17,8 +28,8 @@ public class Context {
         Structure structure;
         HashMap<String, Variable> variables = new HashMap<>();
         HashMap<String, Scope> scopes = new HashMap<>();
-        LinkedHashMap<String, Variable.Generic> generics = new LinkedHashMap<>();
-        HashMap<String, Variable.Allocation> allocations = new HashMap<>();
+        LinkedHashMap<String, Generic> generics = new LinkedHashMap<>();
+        HashMap<String, Allocation> allocations = new HashMap<>();
     }
 
     Scope curr = new Scope();
@@ -47,7 +58,6 @@ public class Context {
         }
         return null;
     }
-
 
     public void state(String name) {
         if (curr.scopes.containsKey(name)) {
@@ -79,11 +89,11 @@ public class Context {
         curr = curr.parent;
     }
 
-    public Variable.Allocation findAllocation(String name) {
+    public Allocation findAllocation(String name) {
         return curr.allocations.get(name);
     }
 
-    public void add(String name, Variable.Allocation allocation) {
+    public void add(String name, Allocation allocation) {
         curr.allocations.put(name, allocation);
     }
 
@@ -135,6 +145,5 @@ public class Context {
         return sb.toString();
 
     }
-
 
 }

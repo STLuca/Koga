@@ -18,7 +18,7 @@ public class AddressStatement implements Statement {
             return;
         }
         int address = compiler.address();
-        Variable.Allocation allocation = new Variable.Allocation(4, address);
+        Context.Allocation allocation = new Context.Allocation(4, address);
         context.add(name, allocation);
     }
 

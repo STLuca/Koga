@@ -32,7 +32,7 @@ public class MachineEnumStructure implements Structure {
         variable.structure = this;
         context.add(variable);
         int allocation = compiler.data(data.size);
-        variable.allocations.put(data.name, new Variable.Allocation(data.size, allocation));
+        variable.allocations.put(data.name, new Context.Allocation(data.size, allocation));
         compiler.debugData(context.stateName(variable.name), data.name, allocation, data.size);
     }
     
@@ -60,7 +60,7 @@ public class MachineEnumStructure implements Structure {
 
         // data
         int allocation = compiler.data(data.size);
-        variable.allocations.put(data.name, new Variable.Allocation(data.size, allocation));
+        variable.allocations.put(data.name, new Context.Allocation(data.size, allocation));
         compiler.debugData(context.stateName(variable.name), data.name, allocation, data.size);
 
         // instructions
@@ -78,7 +78,7 @@ public class MachineEnumStructure implements Structure {
 
         context.startOperation();
         int endAddr = compiler.address();
-        Variable.Allocation allocation = new Variable.Allocation(4, endAddr);
+        Context.Allocation allocation = new Context.Allocation(4, endAddr);
         context.add("end", allocation);
 
         int i = 0;
@@ -105,7 +105,7 @@ public class MachineEnumStructure implements Structure {
             // Addr instruction;
             String instruction = "after" + i;
             int addr = compiler.address();
-            Variable.Allocation afterAllocation = new Variable.Allocation(4, addr);
+            Context.Allocation afterAllocation = new Context.Allocation(4, addr);
             context.add(instruction, afterAllocation);
             new InstructionStatement("cb", "NEQ", "TI", "LDA", "val", "IL", literal, instruction).compile(compiler, sources, variable, Map.of(), context);
             block.execute(compiler);

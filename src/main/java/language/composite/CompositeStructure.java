@@ -40,16 +40,16 @@ public class CompositeStructure implements Structure {
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            Variable.Generic g = new Variable.Generic();
+            Context.Generic g = new Context.Generic();
             switch (generic.type) {
                 case Structure -> {
                     Structure value = sources.structure(generics.get(i));
-                    g.type = Variable.Generic.Type.Structure;
+                    g.type = Context.Generic.Type.Structure;
                     g.structure = value;
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
-                    g.type = Variable.Generic.Type.Document;
+                    g.type = Context.Generic.Type.Document;
                     g.document = doc;
                 }
             }
@@ -92,16 +92,16 @@ public class CompositeStructure implements Structure {
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            Variable.Generic g = new Variable.Generic();
+            Context.Generic g = new Context.Generic();
             switch (generic.type) {
                 case Structure -> {
                     Structure value = sources.structure(generics.get(i));
-                    g.type = Variable.Generic.Type.Structure;
+                    g.type = Context.Generic.Type.Structure;
                     g.structure = value;
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
-                    g.type = Variable.Generic.Type.Document;
+                    g.type = Context.Generic.Type.Document;
                     g.document = doc;
                 }
             }

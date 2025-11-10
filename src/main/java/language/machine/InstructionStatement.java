@@ -192,7 +192,7 @@ public class InstructionStatement implements Statement {
                 if (resolvedAddr.value() == -1) {
                     // Put a placeholder address. Things will probably not work if the addr isn't then updated
                     int address = compiler.address();
-                    Variable.Allocation addrAllocation = new Variable.Allocation(4, address);
+                    Context.Allocation addrAllocation = new Context.Allocation(4, address);
                     context.add(addr, addrAllocation);
                     resolvedAddr = new Resolved(addrAllocation.size(), addrAllocation.location());
                 }

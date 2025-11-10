@@ -43,15 +43,15 @@ public class MachineCompositeStructure implements Structure {
             switch (generic.type) {
                 case Structure -> {
                     Structure value = sources.structure(generics.get(i));
-                    Variable.Generic g = new Variable.Generic();
-                    g.type = Variable.Generic.Type.Structure;
+                    Context.Generic g = new Context.Generic();
+                    g.type = Context.Generic.Type.Structure;
                     g.structure = value;
                     variable.generics.put(generic.name, g);
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
-                    Variable.Generic g = new Variable.Generic();
-                    g.type = Variable.Generic.Type.Document;
+                    Context.Generic g = new Context.Generic();
+                    g.type = Context.Generic.Type.Document;
                     g.document = doc;
                     variable.generics.put(generic.name, g);
                 }
@@ -60,12 +60,12 @@ public class MachineCompositeStructure implements Structure {
         // setup data and addresses
         for (String address : addresses) {
             int addr = compiler.address();
-            variable.allocations.put(address, new Variable.Allocation(4, addr));
+            variable.allocations.put(address, new Context.Allocation(4, addr));
         }
         for (Data v : this.variables) {
             if (v.size > 0) {
                 int location = compiler.data(v.size);
-                variable.allocations.put(v.name, new Variable.Allocation(v.size, location));
+                variable.allocations.put(v.name, new Context.Allocation(v.size, location));
                 compiler.debugData(context.stateName(variable.name), v.name, location, v.size);
             }
         }
@@ -83,7 +83,7 @@ public class MachineCompositeStructure implements Structure {
 //        }
         for (Data v : this.variables) {
             if (v.size > 0) {
-                variable.allocations.put(v.name, new Variable.Allocation(v.size, location));
+                variable.allocations.put(v.name, new Context.Allocation(v.size, location));
                 location += v.size;
             }
         }
@@ -101,15 +101,15 @@ public class MachineCompositeStructure implements Structure {
             switch (generic.type) {
                 case Structure -> {
                     Structure value = sources.structure(generics.get(i));
-                    Variable.Generic g = new Variable.Generic();
-                    g.type = Variable.Generic.Type.Structure;
+                    Context.Generic g = new Context.Generic();
+                    g.type = Context.Generic.Type.Structure;
                     g.structure = value;
                     variable.generics.put(generic.name, g);
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
-                    Variable.Generic g = new Variable.Generic();
-                    g.type = Variable.Generic.Type.Document;
+                    Context.Generic g = new Context.Generic();
+                    g.type = Context.Generic.Type.Document;
                     g.document = doc;
                     variable.generics.put(generic.name, g);
                 }
@@ -138,11 +138,11 @@ public class MachineCompositeStructure implements Structure {
 
         for (String address : addresses) {
             int addr = compiler.address();
-            variable.allocations.put(address, new Variable.Allocation(4, addr));
+            variable.allocations.put(address, new Context.Allocation(4, addr));
         }
         for (Data v : this.variables) {
             int location = compiler.data(v.size);
-            variable.allocations.put(v.name, new Variable.Allocation(v.size, location));
+            variable.allocations.put(v.name, new Context.Allocation(v.size, location));
             compiler.debugData(context.stateName(variable.name), v.name, location, v.size);
         }
 

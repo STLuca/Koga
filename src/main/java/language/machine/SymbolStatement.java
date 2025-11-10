@@ -43,13 +43,13 @@ public class SymbolStatement implements Statement {
                     yield name;
                 }
                 case LG -> {
-                    Variable.Generic g = variable.generics.get(input);
+                    Context.Generic g = variable.generics.get(input);
                     yield g.document.name;
                 }
                 case AG -> {
                     String[] split = input.split("\\.");
                     Variable var = arguments.get(split[0]).variable;
-                    Variable.Generic g = var.generics.get(split[1]);
+                    Context.Generic g = var.generics.get(split[1]);
                     yield g.document.name;
                 }
                 default -> throw new RuntimeException();

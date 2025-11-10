@@ -54,11 +54,11 @@ enum InputType {
             case LDA -> {
                 // Local allocation
                 if (context.findAllocation(toResolve) != null) {
-                    Variable.Allocation allocation = context.findAllocation(toResolve);
+                    Context.Allocation allocation = context.findAllocation(toResolve);
                     return new Resolved(allocation.size(), allocation.location());
                 }
                 if (variable.allocations.containsKey(toResolve)) {
-                    Variable.Allocation allocation = variable.allocations.get(toResolve);
+                    Context.Allocation allocation = variable.allocations.get(toResolve);
                     return new Resolved(allocation.size(), allocation.location());
                 }
                 return new Resolved(4, -1);
@@ -70,13 +70,13 @@ enum InputType {
                 if (arg.type != Argument.Type.Variable) throw new RuntimeException();
                 if (split.length == 2) {
                     // we just want an allocation
-                    Variable.Allocation allocation = arg.variable.allocations.get(split[1]);
+                    Context.Allocation allocation = arg.variable.allocations.get(split[1]);
                     return new Resolved(allocation.size(), allocation.location());
                 }
                 // we want the variable
                 int start = Integer.MAX_VALUE;
                 int size = 0;
-                for (Variable.Allocation a : arg.variable.allocations.values()) {
+                for (Context.Allocation a : arg.variable.allocations.values()) {
                     if (a.location() < start) start = a.location();
                     size += a.size();
                 }
@@ -102,7 +102,7 @@ enum InputType {
                 }
                 // we want the variable
                 int size = 0;
-                for (Variable.Allocation a : arg.variable.allocations.values()) {
+                for (Context.Allocation a : arg.variable.allocations.values()) {
                     size += a.size();
                 }
                 return new Resolved(4, size);

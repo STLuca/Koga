@@ -112,7 +112,7 @@ public class EnumStructure implements language.core.Structure {
             }
         }
 
-        Scope operationScope = thisVariable.startOperation();
+        Scope operationScope = thisVariable.startOperation(constructorStructName);
         SharedLocationMethodCompiler mc = new SharedLocationMethodCompiler();
         mc.parent = compiler;
         mc.location = location;
@@ -126,8 +126,7 @@ public class EnumStructure implements language.core.Structure {
 
     @Override
     public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<Argument> arguments) {
-
-        Scope operationScope = variable.startOperation();
+        Scope operationScope = variable.startOperation(operationName);
         switch (operationName) {
             case "match" -> {
                 if (arguments.size() % 2 != 0) { throw new RuntimeException("Should be type followed by block for every type"); }
@@ -215,7 +214,7 @@ public class EnumStructure implements language.core.Structure {
                     // execute block
                     Scope structScope = variable.state(s.name);
                     structScope.structure = s;
-                    Scope methodScope = structScope.startOperation();
+                    Scope methodScope = structScope.startOperation(operationName);
                     Method m = methods.get(i);
                     for (Statement stmt : m.statements) {
                         HashMap<String, Argument> args = new HashMap<>();

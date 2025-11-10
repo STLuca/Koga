@@ -146,7 +146,7 @@ public class MachineCompositeStructure implements Structure {
             compiler.debugData(variable.stateName(v.name), v.name, location, v.size);
         }
 
-        Scope operationScope = variable.startOperation();
+        Scope operationScope = variable.startOperation(constructorName);
         for (Statement s : c.body) {
             s.compile(compiler, sources, variable, argsByName, operationScope);
         }
@@ -172,7 +172,7 @@ public class MachineCompositeStructure implements Structure {
             argsByName.put(param.name, args.get(i++));
         }
 
-        Scope operationScope = variable.startOperation();
+        Scope operationScope = variable.startOperation(operationName);
         for (Statement s : operation.body) {
             s.compile(compiler, sources, variable, argsByName, operationScope);
         }

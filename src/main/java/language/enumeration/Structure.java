@@ -44,7 +44,7 @@ class Structure implements language.core.Structure {
 
     @Override
     public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<Argument> arguments) {
-        Scope operationScope = variable.startOperation();
+        Scope operationScope = variable.startOperation(operationName);
         Method method = null;
         for (Method m : methods) {
             if (m.name.equals(operationName)) {

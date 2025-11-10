@@ -66,7 +66,7 @@ public class MachineEnumStructure implements Structure {
         // instructions
         // l(ADD, II, LDA, data.name, IL, 0d0, IL, literal);
         // compiler.instruction("l", "ADD", "II", "LDA", data.name, "IL", "0d0", "IL", literal);
-        Scope operationScope = variable.startOperation();
+        Scope operationScope = variable.startOperation(constructorName);
         new InstructionStatement("i", "ADD", "II", "LDA", data.name, "IL", "0d0", "IL", literal).compile(compiler, sources, variable, Map.of(), operationScope);
     }
     
@@ -75,7 +75,7 @@ public class MachineEnumStructure implements Structure {
         if (arguments.size() == 0) throw new RuntimeException("expecting arguments");
         if (arguments.size() % 2 != 0) throw new RuntimeException("expecting even number of arguments");
 
-        Scope operationScope = variable.startOperation();
+        Scope operationScope = variable.startOperation(operationName);
         int endAddr = compiler.address();
         Scope.Allocation allocation = new Scope.Allocation(4, endAddr);
         operationScope.add("end", allocation);

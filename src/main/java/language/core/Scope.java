@@ -15,6 +15,7 @@ public class Scope {
         public Document document;
     }
 
+    int operationCount = 0;
     public Scope parent;
     public String name;
     public Structure structure;
@@ -67,10 +68,10 @@ public class Scope {
         }
     }
 
-    public Scope startOperation() {
+    public Scope startOperation(String name) {
         Scope newScope = new Scope();
         newScope.parent = this;
-        this.scopes.put(UUID.randomUUID().toString(), newScope);
+        this.scopes.put(structure.name() + "." + name + "#" + operationCount++, newScope);
         return newScope;
     }
 

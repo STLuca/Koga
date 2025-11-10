@@ -121,7 +121,7 @@ public class CompositeStructure implements Structure {
             argsByName.put(param.name, arguments.get(i++));
         }
 
-        Scope operationScope = thisVariable.startOperation();
+        Scope operationScope = thisVariable.startOperation(constructorName);
         for (Statement stmt : method.statements) {
             stmt.handle(compiler, sources, argsByName, thisVariable.generics, name, operationScope);
         }
@@ -144,7 +144,7 @@ public class CompositeStructure implements Structure {
             argsByName.put(param.name, arguments.get(i++));
         }
 
-        Scope operationScope = variable.startOperation();
+        Scope operationScope = variable.startOperation(operationName);
         for (Statement stmt : method.statements) {
             stmt.handle(compiler, sources, argsByName, variable.generics, variable.name, operationScope);
         }

@@ -115,7 +115,7 @@ public class MachineReferenceStructure implements Structure {
             compiler.debugData(variable.stateName(v.name), v.name, location, v.size);
         }
 
-        Scope operationScope = variable.startOperation();
+        Scope operationScope = variable.startOperation(constructorName);
         for (Statement s : c.body) {
             s.compile(compiler, sources, variable, argsByName, operationScope);
         }
@@ -128,7 +128,7 @@ public class MachineReferenceStructure implements Structure {
         Argument methodNameArg = Argument.of(operationName);
         argsByName.put("methodName", methodNameArg);
 
-        Scope operationScope = variable.startOperation();
+        Scope operationScope = variable.startOperation(operationName);
 
         for (Statement s : invokeOperation.body) {
             if (argStatement != s) {

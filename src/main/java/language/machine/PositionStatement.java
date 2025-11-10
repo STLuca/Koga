@@ -9,7 +9,7 @@ public class PositionStatement implements Statement {
     String addr;
     String prevName;
 
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context) {
         int addr;
         if (context.findAllocation(this.addr) != null) {
             addr = context.findAllocation(this.addr).location();

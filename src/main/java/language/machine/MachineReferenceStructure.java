@@ -22,10 +22,10 @@ public class MachineReferenceStructure implements Structure {
     }
 
     public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
-        Variable variable = new Variable();
+        Context.Scope variable = context.add(name);
         variable.name = name;
         variable.structure = this;
-        context.add(variable);
+
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
             switch (generic.type) {
@@ -49,20 +49,20 @@ public class MachineReferenceStructure implements Structure {
             if (v.size > 0) {
                 int location = compiler.data(v.size);
                 variable.allocations.put(v.name, new Context.Allocation(v.size, location));
-                compiler.debugData(context.stateName(variable.name), v.name, location, v.size);
+                compiler.debugData(context.stateName(v.name), v.name, location, v.size);
             }
         }
+        context.parentState();
     }
 
-    public void proxy(Sources sources, Variable variable, int location) {
+    public void proxy(Sources sources, Context.Scope variable, int location) {
         throw new RuntimeException("Not supported");
     }
 
     public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> args) {
-        Variable variable = new Variable();
+        Context.Scope variable = context.add(name);
         variable.name = name;
         variable.structure = this;
-        context.add(variable);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
@@ -113,7 +113,7 @@ public class MachineReferenceStructure implements Structure {
         for (Data v : this.variables) {
             int location = compiler.data(v.size);
             variable.allocations.put(v.name, new Context.Allocation(v.size, location));
-            compiler.debugData(context.stateName(variable.name), v.name, location, v.size);
+            compiler.debugData(context.stateName(v.name), v.name, location, v.size);
         }
 
         context.startOperation();
@@ -121,9 +121,10 @@ public class MachineReferenceStructure implements Structure {
             s.compile(compiler, sources, variable, argsByName, context);
         }
         context.stopOperation();
+        context.parentState();
     }
 
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> args) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Context.Scope variable, String operationName, List<Argument> args) {
         HashMap<String, Argument> argsByName = new HashMap<>();
 
         // put the name instead of the arguments
@@ -162,7 +163,7 @@ public class MachineReferenceStructure implements Structure {
 
     public static class ArgsStatement implements Statement {
 
-        public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {}
+        public void compile(Compiler.MethodCompiler compiler, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context) {}
 
     }
 
@@ -170,7 +171,7 @@ public class MachineReferenceStructure implements Structure {
 
         ArrayList<String> arguments = new ArrayList<>();
 
-        public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
+        public void compile(Compiler.MethodCompiler compiler, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context) {
             Document d;
             String methodName;
 
@@ -183,7 +184,7 @@ public class MachineReferenceStructure implements Structure {
                 }
                 case AG -> {
                     String[] split = input.split("\\.");
-                    Variable var = arguments.get(split[0]).variable;
+                    Context.Scope var = arguments.get(split[0]).variable;
                     Context.Generic g = var.generics.get(split[1]);
                     yield g.document;
                 }
@@ -201,7 +202,7 @@ public class MachineReferenceStructure implements Structure {
             InputType inputType = InputType.valueOf(this.arguments.get(4).toUpperCase());
             int index = inputType.resolve(this.arguments.get(5), variable, arguments, context).value();
 
-            Variable argVariable = arguments.get(this.arguments.get(7)).variable;
+            Context.Scope argVariable = arguments.get(this.arguments.get(7)).variable;
 
             inputType = InputType.valueOf(this.arguments.get(8).toUpperCase());
             int addr = inputType.resolve(this.arguments.get(9), variable, arguments, context).value();

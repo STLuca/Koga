@@ -10,7 +10,7 @@ public class DataStatement implements Statement {
     String name;
     ArrayList<String> sizes = new ArrayList<>();
     
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context) {
         int allocateSize = 1;
         for (int i = 0; i < sizes.size(); i+= 2) {
             InputType inputType = InputType.valueOf(sizes.get(i));
@@ -23,7 +23,7 @@ public class DataStatement implements Statement {
         } else {
             context.add(name, new Context.Allocation(allocateSize, allocated));
         }
-        compiler.debugData(context.stateName(variable.name), name, allocated, allocateSize);
+        compiler.debugData(context.stateName(name), name, allocated, allocateSize);
     }
 
 }

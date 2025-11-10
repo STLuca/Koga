@@ -3,7 +3,6 @@ package language.machine;
 import language.core.Argument;
 import language.core.Context;
 import language.core.Structure;
-import language.core.Variable;
 
 import java.util.Map;
 
@@ -21,7 +20,7 @@ enum InputType {
     ;
 
     record Resolved(int size, int value) {}
-    Resolved resolve(String toResolve, Variable variable, Map<String, Argument> arguments, Context context) {
+    Resolved resolve(String toResolve, Context.Scope variable, Map<String, Argument> arguments, Context context) {
         switch (this) {
             case R -> {
                 int index = switch (toResolve) {
@@ -113,7 +112,7 @@ enum InputType {
             }
             case AG -> {
                 String[] split = toResolve.split("\\.");
-                Variable var = arguments.get(split[0]).variable;
+                Context.Scope var = arguments.get(split[0]).variable;
 
                 Structure u = var.generics.get(toResolve).structure;
                 return new Resolved(4, u.size(null));

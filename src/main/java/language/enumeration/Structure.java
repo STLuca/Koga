@@ -28,7 +28,7 @@ class Structure implements language.core.Structure {
     }
 
     @Override
-    public void proxy(Sources sources, Variable variable, int location) {
+    public void proxy(Sources sources, Context.Scope variable, int location) {
 
     }
 
@@ -43,7 +43,7 @@ class Structure implements language.core.Structure {
     }
 
     @Override
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> arguments) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Context.Scope variable, String operationName, List<Argument> arguments) {
         Method method = null;
         for (Method m : methods) {
             if (m.name.equals(operationName)) {

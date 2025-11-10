@@ -7,7 +7,7 @@ public class Argument {
     public int val;
     public String name;
     public Block block;
-    public Variable variable;
+    public Context.Scope variable;
 
     public static Argument of(int val) {
         Argument arg = new Argument();
@@ -23,7 +23,7 @@ public class Argument {
         return arg;
     }
 
-    public static Argument of(Variable variable) {
+    public static Argument of(Context.Scope variable) {
         Argument arg = new Argument();
         arg.type = Type.Variable;
         arg.variable = variable;

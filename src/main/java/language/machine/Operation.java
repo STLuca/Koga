@@ -2,7 +2,6 @@ package language.machine;
 
 import language.core.Argument;
 import language.core.Context;
-import language.core.Variable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,7 @@ public class Operation {
         String name;
         ArrayList<VariableMatcher> subMatchers;
 
-        boolean match(Variable variable, Argument arg) {
+        boolean match(Context.Scope variable, Argument arg) {
             boolean matches;
             if (isGeneric) {
                 if (!variable.generics.containsKey(name)) return false;
@@ -57,7 +56,7 @@ public class Operation {
     ArrayList<Parameter> parameters = new ArrayList<>();
     ArrayList<Statement> body = new ArrayList<>();
 
-    boolean matches(Variable variable, String name, List<Argument> args) {
+    boolean matches(Context.Scope variable, String name, List<Argument> args) {
         if (!name.equals(this.name)) return false;
         if (args.size() != parameters.size()) return false;
         for (int i = 0; i < args.size(); i++) {

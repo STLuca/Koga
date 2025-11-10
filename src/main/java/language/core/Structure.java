@@ -6,7 +6,7 @@ public interface Structure {
 
     String name();
     int size(Sources sources);
-    void proxy(Sources sources, Variable variable, int location);
+    void proxy(Sources sources, Context.Scope variable, int location);
     void declare(
             Compiler.MethodCompiler compiler,
             Sources sources,
@@ -27,7 +27,7 @@ public interface Structure {
             Compiler.MethodCompiler compiler,
             Sources sources,
             Context context,
-            Variable variable,
+            Context.Scope variable,
             String operationName,
             List<Argument> arguments
     );

@@ -43,7 +43,7 @@ public class Statement {
                 Block b = new Block(arg.block, sources, context);
                 args.add(language.core.Argument.of(b));
             } else if (arg.name != null) {
-                Variable v = context.findVariable(arg.name);
+                Context.Scope v = context.findVariable(arg.name);
                 if (v != null) {
                     args.add(language.core.Argument.of(v));
                 } else {
@@ -75,7 +75,7 @@ public class Statement {
                 structure.construct(compiler, sources, context, variableName, generics, methodName, args);
             }
             case INVOKE -> {
-                Variable variable = context.findVariable(variableName);
+                Context.Scope variable = context.findVariable(variableName);
                 Structure sc = variable.structure;
                 sc.operate(compiler, sources, context, variable, methodName, args);
             }

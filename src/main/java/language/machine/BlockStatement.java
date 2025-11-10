@@ -13,7 +13,7 @@ public class BlockStatement implements Statement {
     boolean isContextPush;
     ArrayList<Statement> block = new ArrayList<>();
     
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context) {
         if (isContextPush) {
             context.add(name, Argument.of(new MachineBlock(this.block, sources, variable, arguments, context, context.state())));
             return;
@@ -36,12 +36,12 @@ public class BlockStatement implements Statement {
 
         List<Statement> statements;
         Sources sources;
-        Variable variable;
+        Context.Scope variable;
         Map<String, Argument> arguments;
         Context context;
         Context.Scope state;
 
-        public MachineBlock(List<Statement> statements, Sources sources, Variable variable, Map<String, Argument> arguments, Context context, Context.Scope state) {
+        public MachineBlock(List<Statement> statements, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context, Context.Scope state) {
             this.statements = statements;
             this.sources = sources;
             this.variable = variable;

@@ -12,7 +12,7 @@ public class SymbolStatement implements Statement {
 
     // Logic here is annoying, if document type then you need to lookup the global document name
     // generics already have the global document name
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context) {
         Types.Symbol type = Types.Symbol.valueOf(this.arguments.getFirst().toUpperCase());
         int nameLength = (this.arguments.size() - 2) / 2;
         if (nameLength != 1 && nameLength != 2) {
@@ -48,7 +48,7 @@ public class SymbolStatement implements Statement {
                 }
                 case AG -> {
                     String[] split = input.split("\\.");
-                    Variable var = arguments.get(split[0]).variable;
+                    Context.Scope var = arguments.get(split[0]).variable;
                     Context.Generic g = var.generics.get(split[1]);
                     yield g.document.name;
                 }

@@ -19,7 +19,7 @@ public class AdminStatement implements Statement {
 
     ArrayList<String> arguments = new ArrayList<>();
     
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context) {
         String methodAddr = "adminMethodAddr";
         String frameDataAddr = "frameDataAddr";
         String methodSymbol = "adminMethodSymbol";

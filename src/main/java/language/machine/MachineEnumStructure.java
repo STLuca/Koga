@@ -27,24 +27,25 @@ public class MachineEnumStructure implements Structure {
     }
     
     public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
-        Variable variable = new Variable();
+        Context.Scope variable = context.add(name);
         variable.name = name;
         variable.structure = this;
-        context.add(variable);
+
         int allocation = compiler.data(data.size);
         variable.allocations.put(data.name, new Context.Allocation(data.size, allocation));
-        compiler.debugData(context.stateName(variable.name), data.name, allocation, data.size);
+        compiler.debugData(context.stateName(data.name), data.name, allocation, data.size);
+        context.parentState();
     }
     
-    public void proxy(Sources sources, Variable variable, int location) {
+    public void proxy(Sources sources, Context.Scope variable, int location) {
         throw new RuntimeException("Not supported");
     }
     
     public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> arguments) {
-        Variable variable = new Variable();
+        Context.Scope variable = context.add(name);
         variable.name = name;
         variable.structure = this;
-        context.add(variable);
+
         // Read literal from args
         if (arguments.size() != 1) throw new RuntimeException("Only 1 argument allowed for enum constructor");
         if (arguments.get(0).type != Argument.Type.Name) throw new RuntimeException("Argument must be a name");
@@ -61,7 +62,7 @@ public class MachineEnumStructure implements Structure {
         // data
         int allocation = compiler.data(data.size);
         variable.allocations.put(data.name, new Context.Allocation(data.size, allocation));
-        compiler.debugData(context.stateName(variable.name), data.name, allocation, data.size);
+        compiler.debugData(context.stateName(data.name), data.name, allocation, data.size);
 
         // instructions
         // l(ADD, II, LDA, data.name, IL, 0d0, IL, literal);
@@ -69,9 +70,10 @@ public class MachineEnumStructure implements Structure {
         context.startOperation();
         new InstructionStatement("i", "ADD", "II", "LDA", data.name, "IL", "0d0", "IL", literal).compile(compiler, sources, variable, Map.of(), context);
         context.stopOperation();
+        context.parentState();
     }
     
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> arguments) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Context.Scope variable, String operationName, List<Argument> arguments) {
         if (!operationName.equals("match")) throw new RuntimeException("expecting method match");
         if (arguments.size() == 0) throw new RuntimeException("expecting arguments");
         if (arguments.size() % 2 != 0) throw new RuntimeException("expecting even number of arguments");

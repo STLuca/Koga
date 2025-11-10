@@ -462,7 +462,7 @@ public class VirtualMachineTest {
     void deferWorks() {
         Inspector i = run("test.DeferTest");
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("x").get("val");
+        int xVal = t.altData.get("d").get("x");
         assertThat(xVal).isEqualTo(10);
     }
 

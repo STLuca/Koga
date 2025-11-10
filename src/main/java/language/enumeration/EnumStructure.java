@@ -29,18 +29,15 @@ public class EnumStructure implements language.core.Structure {
     }
 
     @Override
-    public void proxy(Sources sources, Variable variable, int location) {
+    public void proxy(Sources sources, Context.Scope variable, int location) {
 
     }
 
     @Override
     public void declare(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics) {
-        Variable thisVariable = new Variable();
+        Context.Scope thisVariable = context.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
-        context.add(thisVariable);
-        context.state(name);
-        context.add(thisVariable);
 
         for (String imprt : this.imports) {
             sources.parse(imprt);
@@ -66,12 +63,9 @@ public class EnumStructure implements language.core.Structure {
 
     @Override
     public void construct(Compiler.MethodCompiler compiler, Sources sources, Context context, String name, List<String> generics, String constructorName, List<Argument> arguments) {
-        Variable thisVariable = new Variable();
+        Context.Scope thisVariable = context.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
-        context.add(thisVariable);
-        context.state(name);
-        context.add(thisVariable);
 
         for (String imprt : this.imports) {
             sources.parse(imprt);
@@ -125,15 +119,18 @@ public class EnumStructure implements language.core.Structure {
         SharedLocationMethodCompiler mc = new SharedLocationMethodCompiler();
         mc.parent = compiler;
         mc.location = location;
+        context.startOperation();
         for (Statement stmt : method.statements) {
             stmt.handle(mc, sources, argsByName, constructorStructName, context);
         }
+        context.stopOperation();
         context.parentState();
     }
 
     @Override
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Variable variable, String operationName, List<Argument> arguments) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Context context, Context.Scope variable, String operationName, List<Argument> arguments) {
         context.state(variable.name);
+        context.startOperation();
         switch (operationName) {
             case "match" -> {
                 if (arguments.size() % 2 != 0) { throw new RuntimeException("Should be type followed by block for every type"); }
@@ -236,6 +233,7 @@ public class EnumStructure implements language.core.Structure {
                 }
             }
         }
+        context.parentState();
         context.parentState();
     }
 }

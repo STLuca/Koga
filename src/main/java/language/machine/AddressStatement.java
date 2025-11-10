@@ -8,7 +8,7 @@ public class AddressStatement implements Statement {
 
     String name;
     
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context) {
         if (context.findAllocation(name) != null) {
             compiler.address(context.findAllocation(name).location());
             return;

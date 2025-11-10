@@ -17,49 +17,50 @@ public class Context {
 
     public static class Scope {
 
-        enum Type {
+        public enum Type {
             Variable,
             Operation
         }
 
-        Scope parent;
-        Type type;
-        String name;
-        Structure structure;
-        HashMap<String, Variable> variables = new HashMap<>();
-        HashMap<String, Scope> scopes = new HashMap<>();
-        LinkedHashMap<String, Generic> generics = new LinkedHashMap<>();
-        HashMap<String, Allocation> allocations = new HashMap<>();
+        public Scope parent;
+        public Type type;
+        public String name;
+        public Structure structure;
+        public HashMap<String, Scope> scopes = new HashMap<>();
+        public LinkedHashMap<String, Generic> generics = new LinkedHashMap<>();
+        public HashMap<String, Allocation> allocations = new HashMap<>();
     }
 
     Scope curr = new Scope();
     ArrayList<Argument> defaultArgs = new ArrayList<>();
     HashMap<String, Argument> implicits = new HashMap<>();
 
-    public void add(Variable variable) {
-        if (curr.parent != null && curr.parent.variables.containsKey(variable.name)) {
-            curr.parent.variables.put(variable.name, variable);
-        } else {
-            curr.variables.put(variable.name, variable);
-        }
+    public Scope add(String name) {
+        Scope newScope = new Scope();
+        newScope.type = Scope.Type.Variable;
+        newScope.parent = curr;
+        newScope.name = name;
+        curr.scopes.put(name, newScope);
+        curr = newScope;
+        return curr;
     }
 
     public void addVariable(String name) {
-        curr.variables.put(name, null);
+        curr.scopes.put(name, null);
     }
 
-    public Variable findVariable(String name) {
+    public Scope findVariable(String name) {
         Scope curr = this.curr;
         while (curr != null) {
-            if (curr.variables.containsKey(name)) {
-                return curr.variables.get(name);
+            if (curr.scopes.containsKey(name)) {
+                return curr.scopes.get(name);
             }
             curr = curr.parent;
         }
         return null;
     }
 
-    public void state(String name) {
+    public Scope state(String name) {
         if (curr.scopes.containsKey(name)) {
             curr = curr.scopes.get(name);
         } else {
@@ -70,12 +71,12 @@ public class Context {
             curr.scopes.put(name, newScope);
             curr = newScope;
         }
+        return curr;
     }
 
     public void parentState() {
         curr = curr.parent;
     }
-
 
     public void startOperation() {
         Scope newScope = new Scope();

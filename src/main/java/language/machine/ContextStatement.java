@@ -17,7 +17,7 @@ public class ContextStatement implements Statement {
     
     ArrayList<String> arguments = new ArrayList<>();
     
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Variable variable, Map<String, Argument> arguments, Context context) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Context.Scope variable, Map<String, Argument> arguments, Context context) {
         ContextType type = ContextType.valueOf(this.arguments.get(0));
         switch (type) {
             case PUSH -> context.add(Argument.of(variable));

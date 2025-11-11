@@ -67,10 +67,6 @@ public class FileClassParser implements Sources {
         return true;
     }
 
-    public Sources root() {
-        return this;
-    }
-
     public void add(Structure c) {
         compilerClasses.put(c.name(), c);
     }

@@ -1,8 +1,8 @@
 package language.composite;
 
 import language.core.Argument;
-import language.core.Sources;
 import language.core.Parser;
+import language.core.Structure;
 import language.scanning.Scanner;
 import language.scanning.Token;
 import language.scanning.Tokens;
@@ -96,7 +96,7 @@ public class CompositeParser implements Parser {
         return "composite";
     }
 
-    public void parse(Sources sources, String input) {
+    public Output parse(String input) {
         Scanner scanner = new Scanner(input);
         CompositeStructure c = new CompositeStructure();
         Context ctx = new Context();
@@ -194,7 +194,9 @@ public class CompositeParser implements Parser {
             }
             curr = scanner.next(tokens);
         }
-        sources.add(c);
+        Output out = new Output();
+        out.structures = new Structure[] { c };
+        return out;
     }
 
     private void parseMethod(Scanner scanner, Context ctx, String name, boolean isConstructor) {

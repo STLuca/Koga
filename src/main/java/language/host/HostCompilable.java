@@ -35,7 +35,7 @@ public class HostCompilable implements Compilable {
         compiler.type(Types.Document.Host);
 
         for (String imprt : this.imports) {
-            sources.parse(imprt);
+            sources.structure(imprt);
         }
 
         if (level == Level.Head) {
@@ -61,7 +61,6 @@ public class HostCompilable implements Compilable {
 
         String administrator = null;
         for (String dependency : dependencies) {
-            sources.parse(dependency);
             Document document = sources.document(dependency, Level.Head);
 
             compiler.dependency(dependency);

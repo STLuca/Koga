@@ -1,7 +1,6 @@
 package language.enumeration;
 
 import language.core.Parser;
-import language.core.Sources;
 import language.scanning.Scanner;
 import language.scanning.Token;
 import language.scanning.Tokens;
@@ -88,7 +87,7 @@ public class EnumParser implements Parser {
     }
 
     @Override
-    public void parse(Sources sources, String input) {
+    public Output parse(String input) {
         Scanner scanner = new Scanner(input);
         EnumStructure u = new EnumStructure();
         Context ctx = new Context();
@@ -148,7 +147,9 @@ public class EnumParser implements Parser {
                 curr = scanner.next(tokens);
             }
         }
-        sources.add(u);
+        Output out = new Output();
+        out.structures = new language.core.Structure[] { u };
+        return out;
     }
     
     void parseStructure(Scanner scanner, Context ctx) {

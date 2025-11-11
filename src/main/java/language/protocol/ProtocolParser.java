@@ -1,6 +1,6 @@
 package language.protocol;
 
-import language.core.Sources;
+import language.core.Compilable;
 import language.core.Parser;
 import language.scanning.Scanner;
 import language.scanning.Token;
@@ -32,7 +32,7 @@ public class ProtocolParser implements Parser {
         return "protocol";
     }
 
-    public void parse(Sources sources, String input) {
+    public Output parse(String input) {
         Scanner scanner = new Scanner(input);
         Protocol pc = new Protocol();
 
@@ -51,7 +51,9 @@ public class ProtocolParser implements Parser {
             curr = scanner.next(tokens);
         }
 
-        sources.add(pc);
+        Output out = new Output();
+        out.compilables = new Compilable[] { pc };
+        return out;
     }
 
     void parseMethod(Scanner scanner, Protocol pc) {

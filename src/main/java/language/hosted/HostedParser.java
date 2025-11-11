@@ -1,6 +1,6 @@
 package language.hosted;
 
-import language.core.Sources;
+import language.core.Compilable;
 import language.core.Parser;
 import language.scanning.Scanner;
 import language.scanning.Token;
@@ -93,7 +93,7 @@ public class HostedParser implements Parser {
         return "hosted";
     }
 
-    public void parse(Sources sources, String input) {
+    public Output parse(String input) {
         Scanner scanner = new Scanner(input);
         HostedCompilable c = new HostedCompilable();
         Context ctx = new Context();
@@ -171,7 +171,10 @@ public class HostedParser implements Parser {
             }
             curr = scanner.next(tokens);
         }
-        sources.add(c);
+
+        Output out = new Output();
+        out.compilables = new Compilable[] { c };
+        return out;
     }
 
     private void parseMethod(Scanner scanner, Context ctx) {

@@ -1,6 +1,6 @@
 package language.interfaces;
 
-import language.core.Sources;
+import language.core.Compilable;
 import language.core.Parser;
 import language.scanning.Scanner;
 import language.scanning.Token;
@@ -43,7 +43,7 @@ public class InterfaceParser implements Parser {
         return "interface";
     }
     
-    public void parse(Sources sources, String input) {
+    public Output parse(String input) {
         Scanner scanner = new Scanner(input);
         InterfaceCompilable ic = new InterfaceCompilable();
 
@@ -81,7 +81,10 @@ public class InterfaceParser implements Parser {
             parseMethod(scanner, ic);
             curr = scanner.next(tokens);
         }
-        sources.add(ic);
+
+        Output out = new Output();
+        out.compilables = new Compilable[] { ic };
+        return out;
     }
 
     private void parseMethod(Scanner scanner, InterfaceCompilable ic) {

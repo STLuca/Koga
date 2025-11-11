@@ -1,7 +1,7 @@
 package language.machine;
 
-import language.core.Sources;
 import language.core.Parser;
+import language.core.Structure;
 import language.scanning.Scanner;
 import language.scanning.Token;
 import language.scanning.Tokens;
@@ -40,7 +40,7 @@ public class MachineEnumParser implements Parser {
     }
 
     
-    public void parse(Sources sources, String input) {
+    public Output parse(String input) {
         Scanner scanner = new Scanner(input);
         MachineEnumStructure mec = new MachineEnumStructure();
 
@@ -66,6 +66,9 @@ public class MachineEnumParser implements Parser {
         d.name = "val";
         mec.data = d;
 
-        sources.add(mec);
+
+        Output out = new Output();
+        out.structures = new Structure[] { mec };
+        return out;
     }
 }

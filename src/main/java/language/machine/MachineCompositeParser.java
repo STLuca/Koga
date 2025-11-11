@@ -1,8 +1,8 @@
 package language.machine;
 
 import language.core.Argument;
-import language.core.Sources;
 import language.core.Parser;
+import language.core.Structure;
 import language.scanning.SingleLineScanner;
 import language.scanning.Token;
 import language.scanning.Tokens;
@@ -64,7 +64,7 @@ public class MachineCompositeParser implements Parser {
         return "machineComposite";
     }
     
-    public void parse(Sources sources, String input) {
+    public Output parse(String input) {
         HashMap<String, String> structures = new HashMap<>();
         SingleLineScanner scanner = new SingleLineScanner(input);
         MachineCompositeStructure mc = new MachineCompositeStructure();
@@ -128,8 +128,10 @@ public class MachineCompositeParser implements Parser {
             }
             curr = scanner.next(tokens);
         }
-        sources.add(mc);
 
+        Output out = new Output();
+        out.structures = new Structure[] { mc };
+        return out;
     }
 
     private void parseAddress(SingleLineScanner scanner, MachineCompositeStructure mc) {

@@ -60,26 +60,30 @@ public class FileClassParser implements Sources {
 
         if (!parsers.containsKey(parserName)) return false;
         Parser parser = parsers.get(parserName);
-        parser.parse(this, input);
+        Parser.Output output = parser.parse(input);
+        if (output.structures != null) {
+            for (Structure structure : output.structures) {
+                compilerClasses.put(structure.name(), structure);
+            }
+        }
+        if (output.compilables != null) {
+            for (Compilable compilable : output.compilables) {
+                compilableClasses.put(compilable.name(), compilable);
+            }
+        }
 
         // File has been parsed
         parsed.add(name);
         return true;
     }
 
-    public void add(Structure c) {
-        compilerClasses.put(c.name(), c);
-    }
-    
-    public void add(Compilable c) {
-        compilableClasses.put(c.name(), c);
-    }
-
     public Structure structure(String name) {
+        parse(name);
         return compilerClasses.get(name);
     }
 
     public Document document(String name, Compilable.Level level) {
+        parse(name);
         switch (level) {
             case Head -> {
                 if (headDocuments.containsKey(name)) {

@@ -40,7 +40,7 @@ public class EnumStructure implements language.core.Structure {
         thisVariable.structure = this;
 
         for (String imprt : this.imports) {
-            sources.parse(imprt);
+            sources.structure(imprt);
         }
 
         int maxSize = size(sources);
@@ -67,7 +67,7 @@ public class EnumStructure implements language.core.Structure {
         thisVariable.structure = this;
 
         for (String imprt : this.imports) {
-            sources.parse(imprt);
+            sources.structure(imprt);
         }
 
         Structure structure = null;

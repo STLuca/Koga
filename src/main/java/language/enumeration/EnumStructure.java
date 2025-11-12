@@ -34,7 +34,7 @@ public class EnumStructure implements language.core.Structure {
     }
 
     @Override
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics) {
         Scope thisVariable = scope.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
@@ -55,13 +55,13 @@ public class EnumStructure implements language.core.Structure {
             mc.location = location;
             for (Field f : struct.fields) {
                 language.core.Structure u = sources.structure(f.structure);
-                u.declare(mc, sources, structScope, f.name, f.generics);
+                u.declare(mc, sources, structScope, f.name, f.generics, null);
             }
         }
     }
 
     @Override
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, String constructorName, List<Argument> arguments) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<Argument> arguments) {
         Scope thisVariable = scope.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
@@ -108,7 +108,7 @@ public class EnumStructure implements language.core.Structure {
             Scope structureScope = thisVariable.state(struct.name);
             for (Field f : struct.fields) {
                 language.core.Structure u = sources.structure(f.structure);
-                u.declare(mc, sources, structureScope, f.name, f.generics);
+                u.declare(mc, sources, structureScope, f.name, f.generics, null);
             }
         }
 

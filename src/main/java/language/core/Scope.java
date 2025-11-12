@@ -11,8 +11,11 @@ public class Scope {
     public static class Generic {
         public enum Type { Structure, Document }
         public Type type;
+        public boolean known;
+        public String name;
         public Structure structure;
         public Document document;
+        public ArrayList<Generic> generics = new ArrayList<>();
     }
 
     int operationCount = 0;

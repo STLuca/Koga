@@ -13,6 +13,7 @@ public class HostedCompilable implements Compilable {
     String name;
     ArrayList<String> imports = new ArrayList<>();
     ArrayList<String> dependencies = new ArrayList<>();
+    ArrayList<Generic> generics = new ArrayList<>();
     ArrayList<String> interfaces = new ArrayList<>();
     ArrayList<Field> fields = new ArrayList<>();
     ArrayList<Method> methods = new ArrayList<>();
@@ -77,6 +78,21 @@ public class HostedCompilable implements Compilable {
         for (Method m : methods) {
             Compiler.MethodCompiler mb = compiler.method();
             Scope scope = Scope.reset();
+            for (Generic g : generics) {
+                Scope.Generic generic = new Scope.Generic();
+                switch (g.type) {
+                    case Structure -> {
+                        generic.type = Scope.Generic.Type.Structure;
+                    }
+                    case Document -> {
+                        generic.type = Scope.Generic.Type.Document;
+                    }
+                    case null, default -> throw new RuntimeException();
+                }
+                generic.known = false;
+                generic.name = g.name;
+                scope.generics.put(g.name, generic);
+            }
             mb.name(m.name);
 
             for (Field f : fields) {
@@ -84,10 +100,16 @@ public class HostedCompilable implements Compilable {
             }
 
             // empty construct the parameters
+
             for (Parameter p : m.params) {
+                ArrayList<String> generics = new ArrayList<>();
+                for (Structure.GenericArgument g : p.generics) {
+                    generics.add(g.name);
+                }
+
                 Structure structure = sources.structure(p.structure);
                 mb.parameter(structure.name());
-                structure.declare(mb, sources, scope, p.name, p.generics);
+                structure.declare(mb, sources, scope, p.name, generics, null);
             }
 
             // handle each statement in the body

@@ -33,12 +33,12 @@ class Structure implements language.core.Structure {
     }
 
     @Override
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics) {
 
     }
 
     @Override
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, String constructorName, List<Argument> arguments) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<Argument> arguments) {
 
     }
 

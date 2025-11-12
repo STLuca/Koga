@@ -16,28 +16,28 @@ documents {
     collection.StaticListAccessor;
 }
 
-collection.StaticList implements List {
+collection.StaticList<Structure T> implements List {
 
     Int size;
-    Array items;
+    Array<T> items;
 
-    init(Structure<Int> struct, Int sizeIn) {
+    init(Structure<T> struct, Int sizeIn) {
         ~ Init size
         Pointer<Int> thisSize this(size);
         Int startSize 0;
         thisSize <- startSize;
 
         ~ Init items
-        Pointer<Array> thisItems this(items);
-        Array<Int> newItems dynamic(struct sizeIn);
+        Pointer<Array<T>> thisItems this(items);
+        Array<T> newItems dynamic(struct sizeIn);
         thisItems <- newItems;
 
         Task t complete();
     }
 
-    accessor(Pointer<IRef> accessorOut) {
-        Reference<StaticListAccessor> accessor new();
-        Reference<StaticList> this this();
+    accessor(Pointer<IRef<ListAccessor>> accessorOut) {
+        Reference<StaticList<T>> this this();
+        Reference<StaticListAccessor<T>> accessor new();
         accessor init(this);
         IRef<ListAccessor> listAccessor (accessor);
         accessorOut <- listAccessor;

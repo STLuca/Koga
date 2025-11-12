@@ -68,11 +68,11 @@ public class Statement {
         switch (type) {
             case DECLARE -> {
                 Structure structure = sources.structure(this.structure);
-                structure.declare(compiler, sources, scope, variableName, generics);
+                structure.declare(compiler, sources, scope, variableName, generics, null);
             }
             case CONSTRUCT -> {
                 Structure structure = sources.structure(this.structure);
-                structure.construct(compiler, sources, scope, variableName, generics, methodName, args);
+                structure.construct(compiler, sources, scope, variableName, generics, null, methodName, args);
             }
             case INVOKE -> {
                 Scope variable = scope.findVariable(variableName);

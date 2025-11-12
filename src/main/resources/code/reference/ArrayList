@@ -15,7 +15,7 @@ documents {
     collection.SimpleList List;
 }
 
-collection.ArrayList implements List {
+collection.ArrayList<Structure T> implements List {
 
     Array items;
 

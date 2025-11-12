@@ -99,15 +99,15 @@ public class StructureStatement implements Statement {
             case DECLARE -> {
                 if (genericsByName.containsKey(this.structure)) {
                     Structure structure = genericsByName.get(this.structure).structure;
-                    structure.declare(compiler, sources, scope, variableName, resolvedGenerics);
+                    structure.declare(compiler, sources, scope, variableName, resolvedGenerics, null);
                 } else {
                     Structure structure = sources.structure(this.structure);
-                    structure.declare(compiler, sources, scope, variableName, resolvedGenerics);
+                    structure.declare(compiler, sources, scope, variableName, resolvedGenerics, null);
                 }
             }
             case CONSTRUCT -> {
                 Structure structure = sources.structure(this.structure);
-                structure.construct(compiler, sources, scope, variableName, resolvedGenerics, methodName, args);
+                structure.construct(compiler, sources, scope, variableName, resolvedGenerics, null, methodName, args);
             }
             case INVOKE -> {
                 Scope variable = scope.findVariable(variableName);

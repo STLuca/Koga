@@ -109,7 +109,7 @@ public class HostCompilable implements Compilable {
             for (Parameter p : m.params) {
                 Structure structure = sources.structure(p.structure);
                 mb.parameter(structure.name());
-                structure.declare(mb, sources, scope, p.name, p.generics);
+                structure.declare(mb, sources, scope, p.name, p.generics, null);
             }
 
             // handle each statement in the body

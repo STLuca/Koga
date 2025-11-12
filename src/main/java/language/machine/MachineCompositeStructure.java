@@ -29,7 +29,7 @@ public class MachineCompositeStructure implements Structure {
         return total;
     }
 
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics) {
         if (this.generics.size() != generics.size()) {
             throw new RuntimeException();
         }
@@ -40,17 +40,23 @@ public class MachineCompositeStructure implements Structure {
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
+            String genericName = generics.get(i);
+            if (scope.generics.containsKey(genericName)) {
+                variable.generics.put(generic.name, scope.generics.get(genericName));
+                continue;
+            }
+            Scope.Generic g = new Scope.Generic();
+            g.name = generic.name;
+            g.known = true;
             switch (generic.type) {
                 case Structure -> {
                     Structure value = sources.structure(generics.get(i));
-                    Scope.Generic g = new Scope.Generic();
                     g.type = Scope.Generic.Type.Structure;
                     g.structure = value;
                     variable.generics.put(generic.name, g);
                 }
                 case Document -> {
                     Document doc = sources.document(generics.get(i), Compilable.Level.Head);
-                    Scope.Generic g = new Scope.Generic();
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                     variable.generics.put(generic.name, g);
@@ -89,27 +95,35 @@ public class MachineCompositeStructure implements Structure {
         }
     }
 
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, String constructorName, List<Argument> args) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<Argument> args) {
         Scope variable = scope.add(name);
         variable.name = name;
         variable.structure = this;
 
         // Setup variable
-        if (this.generics.size() != generics.size()) throw new RuntimeException();
+        if (this.generics.size() != generics.size()) {
+            throw new RuntimeException();
+        }
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
+            String genericName = generics.get(i);
+            if (scope.generics.containsKey(genericName)) {
+                variable.generics.put(generic.name, scope.generics.get(genericName));
+                continue;
+            }
+            Scope.Generic g = new Scope.Generic();
+            g.name = generic.name;
+            g.known = true;
             switch (generic.type) {
                 case Structure -> {
-                    Structure value = sources.structure(generics.get(i));
-                    Scope.Generic g = new Scope.Generic();
                     g.type = Scope.Generic.Type.Structure;
+                    Structure value = sources.structure(genericName);
                     g.structure = value;
                     variable.generics.put(generic.name, g);
                 }
                 case Document -> {
-                    Document doc = sources.document(generics.get(i), Compilable.Level.Head);
-                    Scope.Generic g = new Scope.Generic();
                     g.type = Scope.Generic.Type.Document;
+                    Document doc = sources.document(genericName, Compilable.Level.Head);
                     g.document = doc;
                     variable.generics.put(generic.name, g);
                 }

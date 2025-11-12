@@ -2,10 +2,12 @@ package language.hosted;
 
 import language.core.Compilable;
 import language.core.Parser;
+import language.core.Structure;
 import language.scanning.Scanner;
 import language.scanning.Token;
 import language.scanning.Tokens;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +18,7 @@ public class HostedParser implements Parser {
         HostedCompilable c;
         HashMap<String, String> structures = new HashMap<>();
         HashMap<String, String> documents = new HashMap<>();
+        ArrayList<String> generics = new ArrayList<>();
     }
 
     Token   DEPENDENCIES, CONSTANTS, IMPORTS, IMPLEMENTS,
@@ -57,6 +60,8 @@ public class HostedParser implements Parser {
             metaTokens.add(SEMI_COLON);
             metaTokens.add(OP_BRACE);
             metaTokens.add(CL_BRACE);
+            metaTokens.add(OP_PT_BRACE);
+            metaTokens.add(CL_PT_BRACE);
         }
 
         {
@@ -151,6 +156,24 @@ public class HostedParser implements Parser {
         c.dependencies.add(c.name);
 
         curr = scanner.next(metaTokens);
+
+        if (curr == OP_PT_BRACE) {
+            do {
+                curr = scanner.expect(metaTokens, NAME);
+                String type = curr.matched();
+                curr = scanner.expect(metaTokens, NAME);
+                String name = curr.matched();
+                Generic g = new Generic();
+                g.type = Generic.Type.valueOf(type);
+                g.name = name;
+                c.generics.add(g);
+                ctx.generics.add(name);
+                curr = scanner.next(metaTokens);
+            } while (curr == COMMA);
+            if (curr != CL_PT_BRACE) scanner.fail(">");
+            curr = scanner.next(metaTokens);
+        }
+
         if (curr == IMPLEMENTS) {
             while (curr != OP_BRACE) {
                 curr = scanner.expect(tokens, NAME);
@@ -162,10 +185,10 @@ public class HostedParser implements Parser {
         curr = scanner.next(tokens);
         while (curr != CL_BRACE) {
             Token peek = scanner.peek(tokens).orElseThrow();
-            if (curr == NAME && peek == NAME) {
-                parseField(scanner, ctx);
-            } else if (curr == NAME) {
+            if (curr == NAME && peek == OP_PAREN) {
                 parseMethod(scanner, ctx);
+            } else if (curr == NAME) {
+                parseField(scanner, ctx);
             } else if (curr == TILDA) {
                 scanner.takeUntilNewLine();
             }
@@ -187,26 +210,48 @@ public class HostedParser implements Parser {
             if (curr != NAME) scanner.fail("name");
             Parameter p = new Parameter();
             p.structure = ctx.structures.get(curr.matched());
-            curr = scanner.next(tokens);
+            Token next = scanner.peek(tokens).orElse(null);
 
-            if (curr == OP_PT_BRACE) {
-                curr = scanner.next(tokens);
-                while (curr != CL_PT_BRACE) {
-                    if (curr != NAME) scanner.fail("name");
-                    if (ctx.structures.containsKey(curr.matched())) {
-                        p.generics.add(ctx.structures.get(curr.matched()));
-                    } else if (ctx.documents.containsKey(curr.matched())) {
-                        p.generics.add(ctx.documents.get(curr.matched()));
-                    } else {
-                        p.generics.add(curr.matched());
-                    }
+            if (next == OP_PT_BRACE) {
+                ArrayDeque<Structure.GenericArgument> stack = new ArrayDeque<>();
+                while (!stack.isEmpty() || curr != CL_PT_BRACE) {
                     curr = scanner.next(tokens);
-                    if (curr == COMMA) curr = scanner.next(tokens);
+                    if (curr == OP_PT_BRACE) {
+                        stack.push(new Structure.GenericArgument());
+                    } else if (curr == CL_PT_BRACE) {
+                        Structure.GenericArgument popped = stack.pop();
+                        if (stack.isEmpty()) {
+                            p.generics.add(popped);
+                        } else {
+                            stack.peek().generics.add(popped);
+                        }
+                    } else if (curr == COMMA) {
+                        Structure.GenericArgument pop = stack.pop();
+                        Structure.GenericArgument peek = stack.peek();
+                        if (peek == null) {
+                            p.generics.add(pop);
+                        } else {
+                            pop.generics.add(peek);
+                        }
+                        stack.push(new Structure.GenericArgument());
+                    } else if (curr == NAME) {
+                        Structure.GenericArgument peek = stack.peek();
+                        if (ctx.structures.containsKey(curr.matched())) {
+                            peek.name = ctx.structures.get(curr.matched());
+                        } else if (ctx.documents.containsKey(curr.matched())) {
+                            peek.name = ctx.documents.get(curr.matched());
+                        } else if (ctx.generics.contains(curr.matched())) {
+                            peek.name = curr.matched();
+                        } else {
+                            scanner.fail("");
+                        }
+                    } else {
+                        scanner.fail("");
+                    }
                 }
-                curr = scanner.next(tokens);
             }
 
-            if (curr != NAME) scanner.fail("name");
+            curr = scanner.expect(tokens, NAME);
             p.name = curr.matched();
 
             curr = scanner.next(tokens);
@@ -250,18 +295,42 @@ public class HostedParser implements Parser {
 
             // generics
             if (scanner.peek(tokens).orElse(null) == OP_PT_BRACE) {
-                curr = scanner.next(tokens);
-                do {
+                ArrayDeque<Structure.GenericArgument> stack = new ArrayDeque<>();
+                while (!stack.isEmpty() || curr != CL_PT_BRACE) {
                     curr = scanner.next(tokens);
-                    if (curr != NAME) scanner.fail("name");
-                    if (ctx.structures.containsKey(curr.matched())) {
-                        s.generics.add(ctx.structures.get(curr.matched()));
-                    } else if (ctx.documents.containsKey(curr.matched())) {
-                        s.generics.add(ctx.documents.get(curr.matched()));
+                    if (curr == OP_PT_BRACE) {
+                        stack.push(new Structure.GenericArgument());
+                    } else if (curr == CL_PT_BRACE) {
+                        Structure.GenericArgument popped = stack.pop();
+                        if (stack.isEmpty()) {
+                            s.generics.add(popped);
+                        } else {
+                            stack.peek().generics.add(popped);
+                        }
+                    } else if (curr == COMMA) {
+                        Structure.GenericArgument pop = stack.pop();
+                        Structure.GenericArgument peek = stack.peek();
+                        if (peek == null) {
+                            s.generics.add(pop);
+                        } else {
+                            pop.generics.add(peek);
+                        }
+                        stack.push(new Structure.GenericArgument());
+                    } else if (curr == NAME) {
+                        Structure.GenericArgument peek = stack.peek();
+                        if (ctx.structures.containsKey(curr.matched())) {
+                            peek.name = ctx.structures.get(curr.matched());
+                        } else if (ctx.documents.containsKey(curr.matched())) {
+                            peek.name = ctx.documents.get(curr.matched());
+                        } else if (ctx.generics.contains(curr.matched())) {
+                            peek.name = curr.matched();
+                        } else {
+                            scanner.fail("");
+                        }
+                    } else {
+                        scanner.fail("");
                     }
-                    curr = scanner.next(tokens);
-                } while (curr == COMMA);
-                if (curr != CL_PT_BRACE) scanner.fail(">");
+                }
             }
 
             curr = scanner.next(tokens);
@@ -413,21 +482,46 @@ public class HostedParser implements Parser {
         Field f = new Field();
         Token curr = scanner.current();
         f.structure = ctx.structures.get(curr.matched());
-        curr = scanner.next(tokens);
-        if (curr == OP_PT_BRACE) {
-            do {
-                curr = scanner.expect(tokens, NAME);
-                if (ctx.structures.containsKey(curr.matched())) {
-                    f.generics.add(ctx.structures.get(curr.matched()));
-                } else if (ctx.documents.containsKey(curr.matched())) {
-                    f.generics.add(ctx.documents.get(curr.matched()));
-                }
+        Token next = scanner.peek(tokens).orElse(null);
+        if (next == OP_PT_BRACE) {
+            ArrayDeque<Structure.GenericArgument> stack = new ArrayDeque<>();
+            while (!stack.isEmpty() || curr != CL_PT_BRACE) {
                 curr = scanner.next(tokens);
-            } while (curr == COMMA);
-            if (curr != CL_PT_BRACE) scanner.fail(">");
-            curr = scanner.next(tokens);
+                if (curr == OP_PT_BRACE) {
+                    stack.push(new Structure.GenericArgument());
+                } else if (curr == CL_PT_BRACE) {
+                    Structure.GenericArgument popped = stack.pop();
+                    if (stack.isEmpty()) {
+                        f.generics.add(popped);
+                    } else {
+                        stack.peek().generics.add(popped);
+                    }
+                } else if (curr == COMMA) {
+                    Structure.GenericArgument pop = stack.pop();
+                    Structure.GenericArgument peek = stack.peek();
+                    if (peek == null) {
+                        f.generics.add(pop);
+                    } else {
+                        pop.generics.add(peek);
+                    }
+                    stack.push(new Structure.GenericArgument());
+                } else if (curr == NAME) {
+                    Structure.GenericArgument peek = stack.peek();
+                    if (ctx.structures.containsKey(curr.matched())) {
+                        peek.name = ctx.structures.get(curr.matched());
+                    } else if (ctx.documents.containsKey(curr.matched())) {
+                        peek.name = ctx.documents.get(curr.matched());
+                    } else if (ctx.generics.contains(curr.matched())) {
+                        peek.name = curr.matched();
+                    } else {
+                        scanner.fail("");
+                    }
+                } else {
+                    scanner.fail("");
+                }
+            }
         }
-        if (curr != NAME) scanner.fail("field name");
+        curr = scanner.expect(tokens, NAME);
         f.name = curr.matched();
         scanner.expect(tokens, SEMI_COLON);
         ctx.c.fields.add(f);

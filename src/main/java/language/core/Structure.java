@@ -4,6 +4,11 @@ import java.util.*;
 
 public interface Structure {
 
+    class GenericArgument {
+        public String name;
+        public ArrayList<GenericArgument> generics = new ArrayList<>();
+    }
+
     String name();
     int size(Sources sources);
     void proxy(Sources sources, Scope variable, int location);
@@ -12,7 +17,8 @@ public interface Structure {
             Sources sources,
             Scope scope,
             String name,
-            List<String> generics
+            List<String> generics,
+            List<GenericArgument> nestedGenerics
     );
     void construct(
             Compiler.MethodCompiler compiler,
@@ -20,6 +26,7 @@ public interface Structure {
             Scope scope,
             String name,
             List<String> generics,
+            List<GenericArgument> nestedGenerics,
             String constructorName,
             List<Argument> arguments
     );

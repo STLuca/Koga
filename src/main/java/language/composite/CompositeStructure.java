@@ -30,7 +30,7 @@ public class CompositeStructure implements Structure {
         return size;
     }
     
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics) {
         Scope thisVariable = scope.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
@@ -38,6 +38,8 @@ public class CompositeStructure implements Structure {
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
             Scope.Generic g = new Scope.Generic();
+            g.name = generic.name;
+            g.known = true;
             switch (generic.type) {
                 case Structure -> {
                     Structure value = sources.structure(generics.get(i));
@@ -69,7 +71,7 @@ public class CompositeStructure implements Structure {
                 u = sources.structure(f.structure);
             }
             String fieldName = f.name;
-            u.declare(compiler, sources, thisVariable, fieldName, f.generics);
+            u.declare(compiler, sources, thisVariable, fieldName, f.generics, null);
         }
     }
 
@@ -77,7 +79,7 @@ public class CompositeStructure implements Structure {
 
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, String constructorName, List<Argument> arguments) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<Argument> arguments) {
         Scope thisVariable = scope.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
@@ -85,6 +87,8 @@ public class CompositeStructure implements Structure {
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
             Scope.Generic g = new Scope.Generic();
+            g.name = generic.name;
+            g.known = true;
             switch (generic.type) {
                 case Structure -> {
                     Structure value = sources.structure(generics.get(i));

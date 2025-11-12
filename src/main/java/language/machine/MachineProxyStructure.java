@@ -20,7 +20,7 @@ public class MachineProxyStructure implements Structure {
         return 0;
     }
     
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics) {
         Scope variable = scope.add(name);
         variable.name = name;
         variable.structure = sources.structure(generics.get(0));
@@ -31,7 +31,7 @@ public class MachineProxyStructure implements Structure {
         throw new RuntimeException("Not supported");
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, String constructorName, List<Argument> arguments) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<Argument> arguments) {
         // init the proxy
         // compiler.proxy(variable.name, null);
         // First generic is the proxied class

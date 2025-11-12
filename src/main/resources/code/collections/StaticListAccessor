@@ -14,24 +14,21 @@ documents {
     collection.ListAccessor;
 }
 
-collection.StaticListAccessor implements ListAccessor {
+collection.StaticListAccessor<Structure T> implements ListAccessor {
 
-    Reference list;
-    ArrayAccessor accessor;
-    ~ TODO
-    ~ Reference<StaticList>
-    ~ ArrayAccessor<T>
+    Reference<StaticList<T>> list;
+    ArrayAccessor<T> accessor;
 
-    init(Reference<StaticList> listIn) {
+    init(Reference<StaticList<T>> listIn) {
         ~ Create the ArrayAccessor
-        Pointer<Array> listItemsPtr (listIn items);
-        Array<Int> listItems;
+        Pointer<Array<T>> listItemsPtr (listIn items);
+        Array<T> listItems;
         listItemsPtr -> listItems;
-        ArrayAccessor<Int> initAccessor (listItems);
+        ArrayAccessor<T> initAccessor (listItems);
 
         ~ write initialised values to this
-        Pointer<Reference> thisList this(list);
-        Pointer<ArrayAccessor> thisAccessor this(accessor);
+        Pointer<Reference<StaticList<T>>> thisList this(list);
+        Pointer<ArrayAccessor<T>> thisAccessor this(accessor);
         thisList <- listIn;
         thisAccessor <- initAccessor;
 
@@ -54,8 +51,8 @@ collection.StaticListAccessor implements ListAccessor {
 
     index(Int index) {
         ~ Load accessor
-        Pointer<ArrayAccessor> thisAccessorPtr this(accessor);
-        ArrayAccessor<Int> thisAccessor;
+        Pointer<ArrayAccessor<T>> thisAccessorPtr this(accessor);
+        ArrayAccessor<T> thisAccessor;
         thisAccessorPtr -> thisAccessor;
 
         ~ index and store the accessor
@@ -65,10 +62,10 @@ collection.StaticListAccessor implements ListAccessor {
         Task t complete();
     }
 
-    add(Pointer<Int> structIn) {
+    add(Pointer<T> structIn) {
         ~ Load accessor
-        Pointer<ArrayAccessor> thisAccessorPtr this(accessor);
-        ArrayAccessor<Int> thisAccessor;
+        Pointer<ArrayAccessor<T>> thisAccessorPtr this(accessor);
+        ArrayAccessor<T> thisAccessor;
         thisAccessorPtr -> thisAccessor;
 
         ~ Store the structIn
@@ -85,10 +82,10 @@ collection.StaticListAccessor implements ListAccessor {
         Task t complete();
     }
 
-    get(Pointer<Int> structOut) {
+    get(Pointer<T> structOut) {
         ~ Load accessor
-        Pointer<ArrayAccessor> thisAccessorPtr this(accessor);
-        ArrayAccessor<Int> thisAccessor;
+        Pointer<ArrayAccessor<T>> thisAccessorPtr this(accessor);
+        ArrayAccessor<T> thisAccessor;
         thisAccessorPtr -> thisAccessor;
 
         ~ Load the struct

@@ -26,7 +26,7 @@ public class MachineEnumStructure implements Structure {
         return data.size;
     }
     
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics) {
         Scope variable = scope.add(name);
         variable.name = name;
         variable.structure = this;
@@ -40,7 +40,7 @@ public class MachineEnumStructure implements Structure {
         throw new RuntimeException("Not supported");
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, String constructorName, List<Argument> arguments) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<Argument> arguments) {
         Scope variable = scope.add(name);
         variable.name = name;
         variable.structure = this;

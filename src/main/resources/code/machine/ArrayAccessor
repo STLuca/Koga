@@ -14,7 +14,7 @@ core.ArrayAccessor<Structure T> {
     Byte[4] step;
     Byte[4] addr;
 
-    constructor(Array arr) {
+    constructor(Array<T> arr) {
         i(ADD, TI, LDA, start, ADA, arr.start, IL, 0d0);
         i(ADD, TI, LDA, size, ADA, arr.size, IL, 0d0);
         i(ADD, TI, LDA, step, ADA, arr.step, IL, 0d0);
@@ -54,11 +54,11 @@ core.ArrayAccessor<Structure T> {
         i(ADD, TT, LDA, addr, LDA, addr, LDA, step);
     }
 
-    copyTo(Pointer valPtr) {
+    copyTo(Pointer<T> valPtr) {
         m(COPY, TTT, ADA, valPtr.addr, LDA, addr, LDA, step);
     }
 
-    copyFrom(Pointer valPtr) {
+    copyFrom(Pointer<T> valPtr) {
         m(COPY, TTT, LDA, addr, ADA, valPtr.addr, LDA, step);
     }
 

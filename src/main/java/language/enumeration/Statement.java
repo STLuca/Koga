@@ -5,7 +5,7 @@ import language.core.Structure;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
 public class Statement {
 
@@ -32,30 +32,30 @@ public class Statement {
     void handle(
             Compiler.MethodCompiler compiler,
             Sources sources,
-            Map<String, language.core.Argument> argsByName,
             Scope scope
     ) {
-        ArrayList<language.core.Argument> args = new ArrayList<>();
+        ArrayList<String> argNames = new ArrayList<>();
 
         for (Argument arg : arguments) {
-            if (argsByName.containsKey(arg.name)) {
-                args.add(argsByName.get(arg.name));
-            } else if (arg.literal != null) {
+            if (arg.literal != null) {
                 int literal = parseLiteral(arg.literal);
-                args.add(language.core.Argument.of(literal));
+                String anonName = UUID.randomUUID().toString();
+
+                scope.literals.put(anonName, literal);
+                argNames.add(anonName);
             } else if (arg.block != null) {
-                Block b = new Block(arg.block, sources, argsByName, scope);
-                args.add(language.core.Argument.of(b));
+                Block b = new Block(arg.block, sources, scope);
+                String anonName = UUID.randomUUID().toString();
+
+                scope.blocks.put(anonName, b);
+                argNames.add(anonName);
             } else if (arg.name != null) {
                 Scope variable = scope.findVariable(arg.name);
                 if (variable == null) {
                     variable = scope.findVariable(arg.name);
                 }
-                if (variable != null) {
-                    args.add(language.core.Argument.of(variable));
-                } else {
-                    args.add(language.core.Argument.of(arg.name));
-                }
+
+                argNames.add(arg.name);
             } else if (arg.array != null) {
                 byte[] bytes = new byte[arg.array.size()];
                 int i = 0;
@@ -64,12 +64,15 @@ public class Statement {
                     i++;
                 }
                 int symbol = compiler.constant(bytes);
-                args.add(language.core.Argument.of(symbol));
+                String anonName = UUID.randomUUID().toString();
+
+                scope.literals.put(anonName, symbol);
+                argNames.add(anonName);
             }
         }
 
         if (!scope.defaults().isEmpty()) {
-            args.addAll(scope.defaults());
+            argNames.addAll(scope.defaults());
         }
 
         switch (type) {
@@ -79,15 +82,12 @@ public class Statement {
             }
             case CONSTRUCT -> {
                 Structure structure = sources.structure(this.structure);
-                structure.construct(compiler, sources, scope, variableName, generics, null, methodName, args);
+                structure.construct(compiler, sources, scope, variableName, generics, null, methodName, argNames);
             }
             case INVOKE -> {
                 Scope variable = scope.findVariable(variableName);
-                if (variable == null) {
-                    variable = argsByName.get(variableName).variable;
-                }
                 Structure sc = variable.structure;
-                sc.operate(compiler, sources, scope, variable, methodName, args);
+                sc.operate(compiler, sources, scope, variable, methodName, argNames);
             }
         }
     }
@@ -96,24 +96,21 @@ public class Statement {
 
         List<Statement> block;
         Sources sources;
-        Map<String, language.core.Argument> argsByName;
         Scope scope;
 
         public Block(
                 List<Statement> block,
                 Sources sources,
-                Map<String, language.core.Argument> argsByName,
                 Scope scope
         ) {
             this.block = block;
             this.sources = sources;
-            this.argsByName = argsByName;
             this.scope = scope;
         }
         
         public void execute(Compiler.MethodCompiler compiler, Scope scope) {
             for (Statement stmt : block) {
-                stmt.handle(compiler, sources, argsByName, this.scope);
+                stmt.handle(compiler, sources, this.scope);
             }
         }
     }

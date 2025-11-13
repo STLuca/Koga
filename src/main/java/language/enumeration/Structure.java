@@ -3,7 +3,6 @@ package language.enumeration;
 import language.core.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 class Structure implements language.core.Structure {
@@ -38,13 +37,12 @@ class Structure implements language.core.Structure {
     }
 
     @Override
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<Argument> arguments) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<String> argumentNames) {
 
     }
 
     @Override
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<Argument> arguments) {
-        Scope operationScope = variable.startOperation(operationName);
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<String> arguments) {
         Method method = null;
         for (Method m : methods) {
             if (m.name.equals(operationName)) {
@@ -54,15 +52,33 @@ class Structure implements language.core.Structure {
         }
         if (method == null) throw new RuntimeException("Method not found");
 
+        Scope operationScope = variable.startOperation(operationName);
         // Map the args to name using parameters
-        HashMap<String, Argument> argsByName = new HashMap<>();
         int i = 0;
         for (Parameter param : method.params) {
-            argsByName.put(param.name, arguments.get(i++));
+            String arg = arguments.get(i++);
+            switch (param.type) {
+                case Literal -> {
+                    int literal = scope.findLiteral(arg).orElseThrow();
+                    operationScope.literals.put(param.name, literal);
+                }
+                case Variable -> {
+                    Scope v = scope.findVariable(arg);
+                    if (v == null) { throw new RuntimeException(); }
+                    operationScope.scopes.put(param.name, v);
+                }
+                case Block -> {
+                    Block b = scope.findBlock(arg).orElseThrow();
+                    operationScope.blocks.put(param.name, b);
+                }
+                case Name -> {
+                    operationScope.names.put(param.name, arg);
+                }
+            }
         }
 
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, sources, argsByName, operationScope);
+            stmt.handle(compiler, sources, operationScope);
         }
     }
 }

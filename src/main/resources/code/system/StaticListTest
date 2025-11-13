@@ -11,6 +11,8 @@ structures {
     core.AdminRef;
     collection.ListIterator;
     collection.ListView;
+    core.If;
+    core.Boolean;
 }
 
 documents {
@@ -55,7 +57,12 @@ test.StaticListTest {
         ~ Iterator usage
         Int sum 0;
         ListIterator<Int> (list) {
-            sum + element;
+            Int check (element);
+            check + size;
+            Boolean b { check > 20; };
+            If(b) {
+                sum + element;
+            };
         };
 
         Exit;

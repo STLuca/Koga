@@ -4,7 +4,6 @@ import core.Document;
 import language.core.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class CompositeStructure implements Structure {
@@ -79,7 +78,7 @@ public class CompositeStructure implements Structure {
 
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<Argument> arguments) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<String> argumentNames) {
         Scope thisVariable = scope.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
@@ -119,22 +118,31 @@ public class CompositeStructure implements Structure {
 
         Scope operationScope = thisVariable.startOperation(constructorName);
         // Map the args to name using parameters
-        HashMap<String, language.core.Argument> argsByName = new HashMap<>();
         int i = 0;
         for (Parameter param : method.params) {
-            Argument value = arguments.get(i++);
-            argsByName.put(param.name, value);
-            if (value.type == Argument.Type.Variable) {
-                operationScope.scopes.put(param.name, value.variable);
+            String argName = argumentNames.get(i++);
+            switch (param.type) {
+                case Variable -> {
+                    Scope v = scope.findVariable(argName);
+                    if (v == null) {
+                        throw new RuntimeException();
+                    }
+                    operationScope.scopes.put(param.name, v);
+                }
+                case Block -> {
+                    Block b = scope.findBlock(argName).orElseThrow();
+                    operationScope.blocks.put(param.name, b);
+                }
             }
+
         }
 
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, sources, argsByName, thisVariable.generics, name, operationScope);
+            stmt.handle(compiler, sources, name, operationScope);
         }
     }
     
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<Argument> arguments) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<String> arguments) {
         Method method = null;
         for (Method m : methods) {
             if (m.name.equals(operationName)) {
@@ -144,16 +152,27 @@ public class CompositeStructure implements Structure {
         }
         if (method == null) throw new RuntimeException("Method not found");
 
+        Scope operationScope = variable.startOperation(operationName);
         // Map the args to name using parameters
-        HashMap<String, language.core.Argument> argsByName = new HashMap<>();
         int i = 0;
         for (Parameter param : method.params) {
-            argsByName.put(param.name, arguments.get(i++));
-        }
+            String arg = arguments.get(i++);
+            switch (param.type) {
+                case Variable -> {
+                    Scope v = operationScope.findVariable(arg);
+                    operationScope.scopes.put(param.name, v);
+                }
+                case Block -> {
+                    Block b = variable.findBlock(arg).orElseThrow();
+                    operationScope.blocks.put(param.name, b);
+                }
+                case null, default -> {
 
-        Scope operationScope = variable.startOperation(operationName);
+                }
+            }
+        }
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, sources, argsByName, variable.generics, variable.name, operationScope);
+            stmt.handle(compiler, sources, variable.name, operationScope);
         }
     }
 }

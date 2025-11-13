@@ -2,13 +2,11 @@ package language.machine;
 
 import language.core.*;
 
-import java.util.Map;
-
 public class AddressStatement implements Statement {
 
     String name;
     
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Map<String, Argument> arguments, Scope scope) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Scope scope) {
         if (scope.findAllocation(name) != null) {
             compiler.address(scope.findAllocation(name).location());
             return;

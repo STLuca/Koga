@@ -3,18 +3,17 @@ package language.machine;
 import language.core.*;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class DataStatement implements Statement {
 
     String name;
     ArrayList<String> sizes = new ArrayList<>();
     
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Map<String, Argument> arguments, Scope scope) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Scope scope) {
         int allocateSize = 1;
         for (int i = 0; i < sizes.size(); i+= 2) {
             InputType inputType = InputType.valueOf(sizes.get(i));
-            int size = inputType.resolve(sizes.get(i + 1), variable, arguments, scope).value();
+            int size = inputType.resolve(sizes.get(i + 1), variable, scope).value();
             allocateSize *= size;
         }
         int allocated = compiler.data(allocateSize);

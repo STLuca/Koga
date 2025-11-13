@@ -1,7 +1,5 @@
 package language.composite;
 
-import language.core.Argument;
-
 import java.util.ArrayList;
 
 public class Method {
@@ -14,11 +12,11 @@ public class Method {
         Parameter p = new Parameter();
         p.name = name;
         if (typeName.equals("Block")) {
-            p.type = Argument.Type.Block;
+            p.type = Parameter.Type.Block;
         } else if (typeName.equals("Name")) {
-            p.type = Argument.Type.Name;
+            p.type = Parameter.Type.Name;
         } else {
-            p.type = Argument.Type.Variable;
+            p.type = Parameter.Type.Variable;
             p.structure = typeName;
         }
         params.add(p);
@@ -26,7 +24,7 @@ public class Method {
 
     void addParam(int bits, String name) {
         Parameter p = new Parameter();
-        p.type = Argument.Type.Literal;
+        p.type = Parameter.Type.Literal;
         p.bits = bits;
         p.name = name;
         params.add(p);

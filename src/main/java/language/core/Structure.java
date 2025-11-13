@@ -28,7 +28,7 @@ public interface Structure {
             List<String> generics,
             List<GenericArgument> nestedGenerics,
             String constructorName,
-            List<Argument> arguments
+            List<String> arguments
     );
     void operate(
             Compiler.MethodCompiler compiler,
@@ -36,7 +36,7 @@ public interface Structure {
             Scope scope,
             Scope variable,
             String operationName,
-            List<Argument> arguments
+            List<String> arguments
     );
 
 }

@@ -1,6 +1,5 @@
 package language.machine;
 
-import language.core.Argument;
 import language.core.Parser;
 import language.core.Structure;
 import language.scanning.SingleLineScanner;
@@ -216,7 +215,7 @@ public class MachineCompositeParser implements Parser {
 
             if (binaryType) {
                 Operation.Parameter p = new Operation.Parameter();
-                p.type = Argument.Type.Literal;
+                p.type = Operation.Parameter.Type.Literal;
                 p.bits = Integer.parseInt(paramType.substring(1));
                 p.array = isArray;
                 p.name = paramName;
@@ -224,11 +223,11 @@ public class MachineCompositeParser implements Parser {
             } else {
                 Operation.Parameter p = new Operation.Parameter();
                 if (paramType.equals("Block")) {
-                    p.type = Argument.Type.Block;
+                    p.type = Operation.Parameter.Type.Block;
                 } else if (paramType.equals("Name")) {
-                    p.type = Argument.Type.Name;
+                    p.type = Operation.Parameter.Type.Name;
                 } else {
-                    p.type = Argument.Type.Variable;
+                    p.type = Operation.Parameter.Type.Variable;
                     Operation.VariableMatcher vm = new Operation.VariableMatcher();
                     buildVariableMatcher(vm, paramType, structures, mc.generics);
                     p.variableMatcher = vm;

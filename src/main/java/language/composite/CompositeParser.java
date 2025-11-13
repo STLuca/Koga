@@ -1,6 +1,5 @@
 package language.composite;
 
-import language.core.Argument;
 import language.core.Parser;
 import language.core.Structure;
 import language.scanning.Scanner;
@@ -207,6 +206,7 @@ public class CompositeParser implements Parser {
             if (curr != NAME) scanner.fail("name");
             Parameter p = new Parameter();
             if (ctx.structures.containsKey(curr.matched())) {
+                p.type = Parameter.Type.Variable;
                 p.structure = ctx.structures.get(curr.matched());
                 curr = scanner.next(tokens);
 
@@ -230,7 +230,7 @@ public class CompositeParser implements Parser {
                 p.generic = ctx.generics.indexOf(curr.matched());
                 curr = scanner.next(tokens);
             } else if (curr.matched().equals("Block")) {
-                p.type = Argument.Type.Block;
+                p.type = Parameter.Type.Block;
                 curr = scanner.next(tokens);
             } else {
                 throw new RuntimeException();

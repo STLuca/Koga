@@ -2,14 +2,12 @@ package language.machine;
 
 import language.core.*;
 
-import java.util.Map;
-
 public class PositionStatement implements Statement {
 
     String addr;
     String prevName;
 
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Map<String, Argument> arguments, Scope scope) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Scope scope) {
         int addr;
         if (scope.findAllocation(this.addr) != null) {
             addr = scope.findAllocation(this.addr).location();

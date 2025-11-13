@@ -1,12 +1,12 @@
 package language.enumeration;
 
-import language.core.Argument;
-
 import java.util.ArrayList;
 
 public class Parameter {
 
-    Argument.Type type;
+    public enum Type { Literal, Name, Variable, Block }
+
+    Type type;
     String name;
     // Type literal
     int bits;

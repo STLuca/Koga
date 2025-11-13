@@ -4,7 +4,6 @@ import core.Types;
 import language.core.*;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class SymbolStatement implements Statement {
 
@@ -12,7 +11,7 @@ public class SymbolStatement implements Statement {
 
     // Logic here is annoying, if document type then you need to lookup the global document name
     // generics already have the global document name
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Map<String, Argument> arguments, Scope scope) {
+    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Scope scope) {
         Types.Symbol type = Types.Symbol.valueOf(this.arguments.getFirst().toUpperCase());
         int nameLength = (this.arguments.size() - 2) / 2;
         if (nameLength != 1 && nameLength != 2) {
@@ -26,7 +25,7 @@ public class SymbolStatement implements Statement {
             names[index] = switch (inputType) {
                 case IL -> input;
                 case AL -> {
-                    String name = arguments.get(input).name;
+                    String name = scope.findName(input).orElse(null);
 
                     switch (type) {
                         case CLASS, PROTOCOL, METHOD, INTERFACE -> {
@@ -48,7 +47,7 @@ public class SymbolStatement implements Statement {
                 }
                 case AG -> {
                     String[] split = input.split("\\.");
-                    Scope var = arguments.get(split[0]).variable;
+                    Scope var = scope.findVariable(split[0]);
                     Scope.Generic g = var.generics.get(split[1]);
                     yield g.document.name;
                 }
@@ -63,8 +62,7 @@ public class SymbolStatement implements Statement {
             symbol = compiler.symbol(type, names[0], names[1]);
         }
 
-        Argument arg = Argument.of(symbol);
-        arguments.put(this.arguments.get(1), arg);
+        scope.literals.put(this.arguments.get(1), symbol);
     }
 
 }

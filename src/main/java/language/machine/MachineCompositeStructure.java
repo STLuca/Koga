@@ -5,7 +5,6 @@ import language.core.*;
 import language.core.Compiler;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class MachineCompositeStructure implements Structure {
@@ -95,7 +94,7 @@ public class MachineCompositeStructure implements Structure {
         }
     }
 
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<Argument> args) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<String> arguments) {
         Scope variable = scope.add(name);
         variable.name = name;
         variable.structure = this;
@@ -133,21 +132,13 @@ public class MachineCompositeStructure implements Structure {
         // Try and match a constructor
         Operation c = null;
         for (Operation con : constructors) {
-            if (con.matches(variable, constructorName, args)) {
+            if (con.matches(variable, scope, constructorName, arguments)) {
                 c = con;
                 break;
             }
         }
         if (c == null) {
             throw new RuntimeException(String.format("No constructor found for %s.%s", this.name, constructorName));
-        }
-
-        // Map the args to their name using generics and parameters
-        HashMap<String, Argument> argsByName = new HashMap<>();
-        int i = 0;
-        for (Operation.Parameter p : c.parameters) {
-            argsByName.put(p.name, args.get(i));
-            i++;
         }
 
         for (String address : addresses) {
@@ -161,16 +152,39 @@ public class MachineCompositeStructure implements Structure {
         }
 
         Scope operationScope = variable.startOperation(constructorName);
+        int argIdx = 0;
+        for (Operation.Parameter p : c.parameters) {
+            String arg = arguments.get(argIdx++);
+            switch(p.type) {
+                case Literal -> {
+                    int literal = scope.findLiteral(arg).orElseThrow();
+                    operationScope.literals.put(p.name, literal);
+                }
+                case Variable -> {
+                    Scope v = scope.findVariable(arg);
+                    if (v == null) { throw new RuntimeException(); }
+                    operationScope.scopes.put(p.name, v);
+                }
+                case Block -> {
+                    Block b = scope.findBlock(arg).orElseThrow();
+                    operationScope.blocks.put(p.name, b);
+                }
+                case Name -> {
+                    operationScope.names.put(p.name, arg);
+                }
+            }
+        }
+
         for (Statement s : c.body) {
-            s.compile(compiler, sources, variable, argsByName, operationScope);
+            s.compile(compiler, sources, variable, operationScope);
         }
     }
 
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<Argument> args) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<String> arguments) {
         // Find the method
         Operation operation = null;
         for (Operation m : operations) {
-            if (m.matches(variable, operationName, args)) {
+            if (m.matches(variable, scope, operationName, arguments)) {
                 operation = m;
                 break;
             }
@@ -179,16 +193,33 @@ public class MachineCompositeStructure implements Structure {
             throw new RuntimeException(String.format("Can't match method %s", operationName));
         }
 
-        // Map the args to name using parameters
-        HashMap<String, Argument> argsByName = new HashMap<>();
-        int i = 0;
-        for (Operation.Parameter param : operation.parameters) {
-            argsByName.put(param.name, args.get(i++));
+        // should this be scoped from scope or variable?
+        Scope operationScope = scope.startOperation(operationName);
+        int argIdx = 0;
+        for (Operation.Parameter p : operation.parameters) {
+            String arg = arguments.get(argIdx++);
+            switch(p.type) {
+                case Literal -> {
+                    int literal = scope.findLiteral(arg).orElseThrow();
+                    operationScope.literals.put(p.name, literal);
+                }
+                case Variable -> {
+                    Scope v = scope.findVariable(arg);
+                    if (v == null) { throw new RuntimeException(); }
+                    operationScope.scopes.put(p.name, v);
+                }
+                case Block -> {
+                    Block b = scope.findBlock(arg).orElseThrow();
+                    operationScope.blocks.put(p.name, b);
+                }
+                case Name -> {
+                    operationScope.names.put(p.name, arg);
+                }
+            }
         }
 
-        Scope operationScope = variable.startOperation(operationName);
         for (Statement s : operation.body) {
-            s.compile(compiler, sources, variable, argsByName, operationScope);
+            s.compile(compiler, sources, variable, operationScope);
         }
     }
 

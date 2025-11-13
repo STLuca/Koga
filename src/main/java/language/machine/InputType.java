@@ -1,10 +1,7 @@
 package language.machine;
 
-import language.core.Argument;
 import language.core.Scope;
 import language.core.Structure;
-
-import java.util.Map;
 
 enum InputType {
     R,     // register
@@ -20,7 +17,7 @@ enum InputType {
     ;
 
     record Resolved(int size, int value) {}
-    Resolved resolve(String toResolve, Scope variable, Map<String, Argument> arguments, Scope scope) {
+    Resolved resolve(String toResolve, Scope variable, Scope scope) {
         switch (this) {
             case R -> {
                 int index = switch (toResolve) {
@@ -41,14 +38,12 @@ enum InputType {
             }
             case AL -> {
                 // arguments should be type literal
-                Argument arg = arguments.get(toResolve);
-                if (arg.type != Argument.Type.Literal) throw new RuntimeException();
-                return new Resolved(4, arg.val);
+                int literal = scope.findLiteral(toResolve).orElseThrow();
+                return new Resolved(4, literal);
             }
             case CL -> {
-                Argument arg = scope.get(toResolve).orElseThrow();
-                if (arg.type != Argument.Type.Literal) throw new RuntimeException();
-                return new Resolved(4, arg.val);
+                int literal = scope.findLiteral(toResolve).orElseThrow();
+                return new Resolved(4, literal);
             }
             case LDA -> {
                 // Local allocation
@@ -65,17 +60,17 @@ enum InputType {
             case ADA -> {
                 // argument should be type variable
                 String[] split = toResolve.split("\\.");
-                Argument arg = arguments.get(split[0]);
-                if (arg.type != Argument.Type.Variable) throw new RuntimeException();
+                Scope v = scope.findVariable(split[0]);
+                if (v == null) throw new RuntimeException();
                 if (split.length == 2) {
                     // we just want an allocation
-                    Scope.Allocation allocation = arg.variable.allocations.get(split[1]);
+                    Scope.Allocation allocation = v.allocations.get(split[1]);
                     return new Resolved(allocation.size(), allocation.location());
                 }
                 // we want the variable
                 int start = Integer.MAX_VALUE;
                 int size = 0;
-                for (Scope.Allocation a : arg.variable.allocations.values()) {
+                for (Scope.Allocation a : v.allocations.values()) {
                     if (a.location() < start) start = a.location();
                     size += a.size();
                 }
@@ -93,15 +88,15 @@ enum InputType {
             }
             case ADS -> {// argument should be type variable
                 String[] split = toResolve.split("\\.");
-                Argument arg = arguments.get(split[0]);
-                if (arg.type != Argument.Type.Variable) throw new RuntimeException();
+                Scope v = scope.findVariable(split[0]);
+                if (v == null) throw new RuntimeException();
                 if (split.length == 2) {
                     // we just want an allocation
-                    return new Resolved(4, arg.variable.allocations.get(split[1]).size());
+                    return new Resolved(4, v.allocations.get(split[1]).size());
                 }
                 // we want the variable
                 int size = 0;
-                for (Scope.Allocation a : arg.variable.allocations.values()) {
+                for (Scope.Allocation a : v.allocations.values()) {
                     size += a.size();
                 }
                 return new Resolved(4, size);
@@ -112,7 +107,7 @@ enum InputType {
             }
             case AG -> {
                 String[] split = toResolve.split("\\.");
-                Scope var = arguments.get(split[0]).variable;
+                Scope var = scope.findVariable(split[0]);
 
                 Structure u = var.generics.get(toResolve).structure;
                 return new Resolved(4, u.size(null));

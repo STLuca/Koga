@@ -31,14 +31,14 @@ public class MachineProxyStructure implements Structure {
         throw new RuntimeException("Not supported");
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<Argument> arguments) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<String> argumentNames) {
         // init the proxy
         // compiler.proxy(variable.name, null);
         // First generic is the proxied class
         // variable.generics.get(0).declare(compiler, variable, List.of(), null);
     }
     
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<Argument> arguments) {
+    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<String> arguments) {
         // variable.generics.get(0).invoke(compiler, variable, admin, methodName, arguments);
     }
 

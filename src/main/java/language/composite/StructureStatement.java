@@ -4,7 +4,7 @@ import language.core.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
 public class StructureStatement implements Statement {
 
@@ -40,29 +40,31 @@ public class StructureStatement implements Statement {
     public void handle(
             Compiler.MethodCompiler compiler,
             Sources sources,
-            Map<String, language.core.Argument> argsByName,
-            Map<String, Scope.Generic> genericsByName,
             String name,
             Scope scope
     ) {
-        ArrayList<language.core.Argument> args = new ArrayList<>();
+        ArrayList<String> argNames = new ArrayList<>();
 
         for (Argument arg : arguments) {
-            if (argsByName.containsKey(arg.name)) {
-                args.add(argsByName.get(arg.name));
-            } else if (arg.literal != null) {
+            if (arg.literal != null) {
                 int literal = parseLiteral(arg.literal);
-                args.add(language.core.Argument.of(literal));
+                String anonName = UUID.randomUUID().toString();
+
+                scope.literals.put(anonName, literal);
+                argNames.add(anonName);
             } else if (arg.block != null) {
-                Block b = new Block(arg.block, sources, argsByName, genericsByName, name, scope);
-                args.add(language.core.Argument.of(b));
+                Block b = new Block(arg.block, sources, name, scope);
+                String anonName = UUID.randomUUID().toString();
+
+                scope.blocks.put(anonName, b);
+                argNames.add(anonName);
             } else if (arg.name != null) {
                 Scope variable = scope.findVariable(arg.name);
                 if (variable != null) {
-                    args.add(language.core.Argument.of(variable));
-                } else {
-                    args.add(language.core.Argument.of(arg.name));
+                    scope.scopes.put(arg.name, variable);
                 }
+
+                argNames.add(arg.name);
             } else if (arg.array != null) {
                 byte[] bytes = new byte[arg.array.size()];
                 int i = 0;
@@ -71,12 +73,15 @@ public class StructureStatement implements Statement {
                     i++;
                 }
                 int symbol = compiler.constant(bytes);
-                args.add(language.core.Argument.of(symbol));
+                String anonName = UUID.randomUUID().toString();
+
+                scope.literals.put(anonName, symbol);
+                argNames.add(anonName);
             }
         }
 
         if (!scope.defaults().isEmpty()) {
-            args.addAll(scope.defaults());
+            argNames.addAll(scope.defaults());
         }
 
         ArrayList<String> resolvedGenerics = new ArrayList<>();
@@ -86,7 +91,7 @@ public class StructureStatement implements Statement {
                     resolvedGenerics.add(g.name);
                 }
                 case Generic -> {
-                    String resolved = genericsByName.get(g.name).structure.name();
+                    String resolved = scope.parent.generics.get(g.name).structure.name();
                     resolvedGenerics.add(resolved);
                 }
                 case null, default -> {
@@ -97,8 +102,9 @@ public class StructureStatement implements Statement {
 
         switch (type) {
             case DECLARE -> {
-                if (genericsByName.containsKey(this.structure)) {
-                    Structure structure = genericsByName.get(this.structure).structure;
+                Scope.Generic g = scope.parent.generics.get(this.structure);
+                if (g != null) {
+                    Structure structure = g.structure;
                     structure.declare(compiler, sources, scope, variableName, resolvedGenerics, null);
                 } else {
                     Structure structure = sources.structure(this.structure);
@@ -107,15 +113,12 @@ public class StructureStatement implements Statement {
             }
             case CONSTRUCT -> {
                 Structure structure = sources.structure(this.structure);
-                structure.construct(compiler, sources, scope, variableName, resolvedGenerics, null, methodName, args);
+                structure.construct(compiler, sources, scope, variableName, resolvedGenerics, null, methodName, argNames);
             }
             case INVOKE -> {
                 Scope variable = scope.findVariable(variableName);
-                if (variable == null) {
-                    variable = argsByName.get(variableName).variable;
-                }
                 Structure sc = variable.structure;
-                sc.operate(compiler, sources, scope, variable, methodName, args);
+                sc.operate(compiler, sources, scope, variable, methodName, argNames);
             }
         }
     }
@@ -124,35 +127,27 @@ public class StructureStatement implements Statement {
 
         List<Statement> block;
         Sources sources;
-        Map<String, language.core.Argument> argsByName;
-        Map<String, Scope.Generic> genericsByName;
         String name;
         Scope scope;
 
         public Block(
                 List<Statement> block,
                 Sources sources,
-                Map<String, language.core.Argument> argsByName,
-                Map<String, Scope.Generic> genericsByName,
                 String name,
                 Scope scope
         ) {
             this.block = block;
             this.sources = sources;
-            this.argsByName = argsByName;
-            this.genericsByName = genericsByName;
             this.name = name;
             this.scope = scope;
         }
         
         public void execute(Compiler.MethodCompiler compiler, Scope scope) {
-            this.scope.scopes.putAll(scope.implicit);
+            this.scope.addImplicit(scope.implicitScope);
             for (Statement stmt : block) {
-                stmt.handle(compiler, sources, argsByName, genericsByName, name, this.scope);
+                stmt.handle(compiler, sources, name, this.scope);
             }
-            for (String key : scope.implicit.keySet()) {
-                this.scope.scopes.remove(key);
-            }
+            this.scope.removeImplicit(scope.implicitScope);
         }
     }
 

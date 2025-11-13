@@ -1,6 +1,6 @@
 package language.machine;
 
-import language.core.Argument;
+import language.core.Block;
 import language.core.Scope;
 
 import java.util.ArrayList;
@@ -14,13 +14,18 @@ public class Operation {
         String name;
         ArrayList<VariableMatcher> subMatchers;
 
-        boolean match(Scope variable, Argument arg) {
+        boolean match(Scope variable, Scope operation, String arg) {
             boolean matches;
             if (isGeneric) {
                 if (!variable.generics.containsKey(name)) return false;
-                matches = variable.generics.get(name).structure == arg.variable.structure;
+                Scope v = variable.findVariable(arg);
+                matches = variable.generics.get(name).structure == v.structure;
             } else {
-                matches = name.equals(arg.variable.structure.name());
+                Scope v = operation.findVariable(arg);
+                if (v == null) {
+                    return false;
+                }
+                matches = name.equals(v.structure.name());
             }
             if (!matches) {
                 return false;
@@ -28,11 +33,13 @@ public class Operation {
             if (subMatchers == null) {
                 return true;
             }
-            if (subMatchers.size() != arg.variable.generics.size()) {
+            Scope v = variable.findVariable(arg);
+            if (subMatchers.size() != v.generics.size()) {
                 return false;
             }
             boolean allMatch = true;
-            List<Scope.Generic> orderedGenerics = arg.variable.generics.sequencedValues().stream().toList();
+            Scope var = variable.findVariable(arg);
+            List<Scope.Generic> orderedGenerics = var.generics.sequencedValues().stream().toList();
             for (int i = 0; i < subMatchers.size(); i++) {
                 VariableMatcher m = subMatchers.get(i);
                 Scope.Generic g = orderedGenerics.get(i);
@@ -51,7 +58,10 @@ public class Operation {
     }
 
     public static class Parameter {
-        Argument.Type type;
+
+        public enum Type { Literal, Name, Variable, Block }
+
+        Type type;
         int bits;
         VariableMatcher variableMatcher;
         boolean array;
@@ -62,27 +72,29 @@ public class Operation {
     ArrayList<Parameter> parameters = new ArrayList<>();
     ArrayList<Statement> body = new ArrayList<>();
 
-    boolean matches(Scope variable, String name, List<Argument> args) {
+    boolean matches(Scope variable, Scope operation, String name, List<String> arguments) {
         if (!name.equals(this.name)) return false;
-        if (args.size() != parameters.size()) return false;
-        for (int i = 0; i < args.size(); i++) {
+        if (arguments.size() != parameters.size()) return false;
+        for (int i = 0; i < arguments.size(); i++) {
             Parameter param = parameters.get(i);
-            Argument arg = args.get(i);
-            if (param.array && arg.type == Argument.Type.Literal) continue;
+            String arg = arguments.get(i);
+            if (param.array) {
+                operation.findLiteral(arg);
+            }
             switch (param.type) {
                 case Variable -> {
-                    if (arg.type != Argument.Type.Variable) return false;
-                    if (param.variableMatcher.match(variable, arg)) continue;
+                    if (param.variableMatcher.match(variable, operation, arg)) { continue; }
+                }
+                case Literal -> {
+                    Integer literal = operation.findLiteral(arg).orElse(null);
+                    if (literal != null) { continue; }
+                }
+                case Block -> {
+                    Block b = operation.findBlock(arg).orElse(null);
+                    if (b != null) { continue; }
                 }
                 case Name -> {
-                    if (arg.type == Argument.Type.Name || arg.type == Argument.Type.Variable) {
-                        continue;
-                    } else {
-                        return false;
-                    }
-                }
-                case Literal, Block -> {
-                    if (param.type == arg.type) continue;
+                    continue;
                 }
             }
             return false;

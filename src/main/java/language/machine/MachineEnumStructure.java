@@ -82,7 +82,7 @@ public class MachineEnumStructure implements Structure {
         while(i < arguments.size()) {
             String literalArg = arguments.get(i);
             String blockArg = arguments.get(i + 1);
-            Block block = operationScope.findBlock(blockArg).orElse(null);
+            Block block = scope.findBlock(blockArg).orElse(null);
             if (block == null) throw new RuntimeException("expecting arg " + (i + 1) + " to be block");
 
             String literalName = literalArg;

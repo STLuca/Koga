@@ -53,6 +53,7 @@ class Structure implements language.core.Structure {
         if (method == null) throw new RuntimeException("Method not found");
 
         Scope operationScope = variable.startOperation(operationName);
+        operationScope.scopes.putAll(variable.scopes);
         // Map the args to name using parameters
         int i = 0;
         for (Parameter param : method.params) {

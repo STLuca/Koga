@@ -153,17 +153,18 @@ public class CompositeStructure implements Structure {
         if (method == null) throw new RuntimeException("Method not found");
 
         Scope operationScope = variable.startOperation(operationName);
+        operationScope.scopes.putAll(variable.scopes);
         // Map the args to name using parameters
         int i = 0;
         for (Parameter param : method.params) {
             String arg = arguments.get(i++);
             switch (param.type) {
                 case Variable -> {
-                    Scope v = operationScope.findVariable(arg);
+                    Scope v = scope.findVariable(arg);
                     operationScope.scopes.put(param.name, v);
                 }
                 case Block -> {
-                    Block b = variable.findBlock(arg).orElseThrow();
+                    Block b = scope.findBlock(arg).orElseThrow();
                     operationScope.blocks.put(param.name, b);
                 }
                 case null, default -> {

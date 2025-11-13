@@ -49,17 +49,6 @@ public class Scope {
         scopes.put(name, null);
     }
 
-    public Scope findVariable(String name) {
-        Scope curr = this;
-        while (curr != null) {
-            if (curr.scopes.containsKey(name)) {
-                return curr.scopes.get(name);
-            }
-            curr = curr.parent;
-        }
-        return null;
-    }
-
     public void addImplicit(Scope scope) {
         scopes.putAll(scope.scopes);
         literals.putAll(scope.literals);
@@ -80,37 +69,36 @@ public class Scope {
         defaultArgs.removeAll(scope.defaultArgs);
     }
 
+    public Scope findVariable(String name) {
+        if (scopes.containsKey(name)) {
+            return scopes.get(name);
+        }
+        return null;
+    }
+
     public Optional<Integer> findLiteral(String name) {
-        Scope curr = this;
-        while (curr != null) {
-            if (curr.literals.containsKey(name)) {
-                return Optional.of(curr.literals.get(name));
-            }
-            curr = curr.parent;
+        if (literals.containsKey(name)) {
+            return Optional.of(literals.get(name));
         }
         return Optional.empty();
     }
 
     public Optional<String> findName(String name) {
-        Scope curr = this;
-        while (curr != null) {
-            if (curr.names.containsKey(name)) {
-                return Optional.of(curr.names.get(name));
-            }
-            curr = curr.parent;
+        if (names.containsKey(name)) {
+            return Optional.of(names.get(name));
         }
         return Optional.empty();
     }
 
     public Optional<Block> findBlock(String name) {
-        Scope curr = this;
-        while (curr != null) {
-            if (curr.blocks.containsKey(name)) {
-                return Optional.of(curr.blocks.get(name));
-            }
-            curr = curr.parent;
+        if (blocks.containsKey(name)) {
+            return Optional.of(blocks.get(name));
         }
         return Optional.empty();
+    }
+
+    public Allocation findAllocation(String name) {
+        return allocations.get(name);
     }
 
     public Scope state(String name) {
@@ -136,10 +124,6 @@ public class Scope {
         }
         this.scopes.put(scopeName, newScope);
         return newScope;
-    }
-
-    public Allocation findAllocation(String name) {
-        return allocations.get(name);
     }
 
     public void add(String name, Allocation allocation) {

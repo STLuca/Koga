@@ -130,7 +130,7 @@ public class EnumStructure implements language.core.Structure {
 
     @Override
     public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<String> arguments) {
-        Scope operationScope = variable.startOperation(operationName);
+        Scope operationScope = scope.startOperation(operationName);
         switch (operationName) {
             case "match" -> {
                 if (arguments.size() % 2 != 0) { throw new RuntimeException("Should be type followed by block for every type"); }
@@ -163,7 +163,7 @@ public class EnumStructure implements language.core.Structure {
                     structScope.structure = structure;
                     structScope.implicitScope.scopes.put(structure.name, structScope);
                     String arg = arguments.get(i + 1);
-                    Block b = operationScope.findBlock(arg).orElse(null);
+                    Block b = scope.findBlock(arg).orElse(null);
                     if (b == null) {
                         throw new RuntimeException("Expecting block for union type");
                     }
@@ -220,6 +220,7 @@ public class EnumStructure implements language.core.Structure {
                     Scope structScope = variable.state(s.name);
                     structScope.structure = s;
                     Scope methodScope = structScope.startOperation(operationName);
+                    methodScope.scopes.putAll(structScope.scopes);
                     Method m = methods.get(i);
                     for (Statement stmt : m.statements) {
                         int argI = 0;
@@ -231,7 +232,7 @@ public class EnumStructure implements language.core.Structure {
                                     if (v == null) {
                                         throw new RuntimeException();
                                     }
-                                    operationScope.scopes.put(p.name, v);
+                                    methodScope.scopes.put(p.name, v);
                                 }
                             }
                         }

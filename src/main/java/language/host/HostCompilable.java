@@ -98,7 +98,7 @@ public class HostCompilable implements Compilable {
 
         for (Method m : methods) {
             Compiler.MethodCompiler mb = compiler.method();
-            Scope scope = Scope.reset();
+            Scope scope = Scope.withImplicit();
             mb.name(m.name);
 
             for (Field f : fields) {

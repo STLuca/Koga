@@ -25,19 +25,13 @@ public class Scope {
     public HashMap<String, Scope> scopes = new HashMap<>();
     public LinkedHashMap<String, Generic> generics = new LinkedHashMap<>();
     public HashMap<String, Allocation> allocations = new HashMap<>();
-    public Scope implicitScope;
     public HashMap<String, Integer> literals = new HashMap<>();
     public HashMap<String, Block> blocks = new HashMap<>();
     public HashMap<String, String> names = new HashMap<>();
+    public ArrayList<String> defaultArgs = new ArrayList<>();
+    public Scope implicitScope;
 
-    static ArrayList<String> defaultArgs = new ArrayList<>();
-
-    public static Scope reset() {
-        defaultArgs = new ArrayList<>();
-        return Scope.withImplicit();
-    }
-
-    static Scope withImplicit() {
+    public static Scope withImplicit() {
         Scope s = new Scope();
         s.implicitScope = new Scope();
         return s;
@@ -70,6 +64,7 @@ public class Scope {
         scopes.putAll(scope.scopes);
         literals.putAll(scope.literals);
         blocks.putAll(scope.blocks);
+        defaultArgs.addAll(scope.defaultArgs);
     }
 
     public void removeImplicit(Scope scope) {
@@ -82,6 +77,7 @@ public class Scope {
         for (String key : scope.blocks.keySet()) {
             blocks.remove(key);
         }
+        defaultArgs.removeAll(scope.defaultArgs);
     }
 
     public Optional<Integer> findLiteral(String name) {
@@ -155,11 +151,11 @@ public class Scope {
     }
 
     public void addDefault(String arg) {
-        defaultArgs.add(arg);
+        implicitScope.defaultArgs.add(arg);
     }
 
     public void remove() {
-        defaultArgs.removeLast();
+        implicitScope.defaultArgs.removeLast();
     }
 
     public List<String> defaults() {

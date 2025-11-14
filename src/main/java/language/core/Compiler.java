@@ -1,11 +1,10 @@
 package language.core;
 
-import core.Document;
 import core.Types;
 
 public interface Compiler {
 
-    Document document();
+    byte[] document();
     void name(String name);
     void type(Types.Document type);
     ProtocolCompiler protocol();
@@ -63,7 +62,6 @@ public interface Compiler {
     }
 
     interface HostCompiler {
-        Document document();
         MethodCompiler method();
         void administrator(String name);
         int symbol(Types.Symbol type, String name);
@@ -87,12 +85,10 @@ public interface Compiler {
     }
 
     interface ProtocolCompiler {
-        Document document();
         ProtocolMethodCompiler method();
     }
 
     interface ProtocolMethodCompiler {
-        Document.ProtocolMethod method();
         void name(String name);
         void param(int size, int permission);
     }

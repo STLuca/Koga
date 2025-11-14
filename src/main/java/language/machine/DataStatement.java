@@ -9,7 +9,7 @@ public class DataStatement implements Statement {
     String name;
     ArrayList<String> sizes = new ArrayList<>();
     
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Scope scope) {
+    public void compile(Compiler.MethodCompiler compiler, Repository repository, Scope variable, Scope scope) {
         int allocateSize = 1;
         for (int i = 0; i < sizes.size(); i+= 2) {
             InputType inputType = InputType.valueOf(sizes.get(i));

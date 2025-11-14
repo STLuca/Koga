@@ -21,11 +21,11 @@ public class MachineEnumStructure implements Structure {
         return name;
     }
     
-    public int size(Sources sources) {
+    public int size(Repository repository) {
         return data.size;
     }
     
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<GenericArgument> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics) {
         Scope variable = scope.add(name);
         variable.name = name;
         variable.structure = this;
@@ -35,11 +35,11 @@ public class MachineEnumStructure implements Structure {
         compiler.debugData(variable.stateName(data.name), data.name, allocation, data.size);
     }
     
-    public void proxy(Sources sources, Scope variable, int location) {
+    public void proxy(Repository repository, Scope variable, int location) {
         throw new RuntimeException("Not supported");
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
         Scope variable = scope.add(name);
         variable.name = name;
         variable.structure = this;
@@ -65,10 +65,10 @@ public class MachineEnumStructure implements Structure {
         // l(ADD, II, LDA, data.name, IL, 0d0, IL, literal);
         // compiler.instruction("l", "ADD", "II", "LDA", data.name, "IL", "0d0", "IL", literal);
         Scope operationScope = variable.startOperation(constructorName);
-        new InstructionStatement("i", "ADD", "II", "LDA", data.name, "IL", "0d0", "IL", literal).compile(compiler, sources, variable, operationScope);
+        new InstructionStatement("i", "ADD", "II", "LDA", data.name, "IL", "0d0", "IL", literal).compile(compiler, repository, variable, operationScope);
     }
     
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<String> arguments) {
+    public void operate(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope variable, String operationName, List<String> arguments) {
         if (!operationName.equals("match")) throw new RuntimeException("expecting method match");
         if (arguments.isEmpty()) throw new RuntimeException("expecting arguments");
         if (arguments.size() % 2 != 0) throw new RuntimeException("expecting even number of arguments");
@@ -104,9 +104,9 @@ public class MachineEnumStructure implements Structure {
             int addr = compiler.address();
             Scope.Allocation afterAllocation = new Scope.Allocation(4, addr);
             operationScope.add(instruction, afterAllocation);
-            new InstructionStatement("cb", "NEQ", "TI", "LDA", "val", "IL", literal, instruction).compile(compiler, sources, variable, operationScope);
+            new InstructionStatement("cb", "NEQ", "TI", "LDA", "val", "IL", literal, instruction).compile(compiler, repository, variable, operationScope);
             block.execute(compiler, operationScope);
-            new InstructionStatement("j", "REL", "I", "end").compile(compiler, sources, variable, operationScope);
+            new InstructionStatement("j", "REL", "I", "end").compile(compiler, repository, variable, operationScope);
 
             compiler.address(addr);
 

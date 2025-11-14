@@ -1,10 +1,8 @@
 package language.parsing;
 
-import core.Document;
-import language.compiling.DocumentBuilder;
 import language.core.Compilable;
 import language.core.Parser;
-import language.core.Sources;
+import language.core.Repository;
 import language.core.Structure;
 import language.machine.MachineProxyStructure;
 
@@ -18,7 +16,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FileClassParser implements Sources {
+public class FileRepository implements Repository {
 
     Path root;
     HashMap<String, String> files;
@@ -28,10 +26,8 @@ public class FileClassParser implements Sources {
 
     HashMap<String, Compilable> compilableClasses = new HashMap<>();
     HashMap<String, Structure> compilerClasses = new HashMap<>();
-    HashMap<String, Document> documents = new HashMap<>();
-    HashMap<String, Document> headDocuments = new HashMap<>();
 
-    public FileClassParser(Path root, Map<String, String> files) {
+    public FileRepository(Path root, Map<String, String> files) {
         this.root = root;
         compilerClasses.put(MachineProxyStructure.NAME, MachineProxyStructure.INSTANCE);
         this.files = new HashMap<>(files);
@@ -82,38 +78,45 @@ public class FileClassParser implements Sources {
         return compilerClasses.get(name);
     }
 
-    public Document document(String name, Compilable.Level level) {
+    public Compilable compilable(String name) {
         parse(name);
-        switch (level) {
-            case Head -> {
-                if (headDocuments.containsKey(name)) {
-                    return headDocuments.get(name);
-                }
-                if (compilableClasses.containsKey(name)) {
-                    DocumentBuilder compiler = new DocumentBuilder();
-                    compilableClasses.get(name).compile(this, compiler, level);
-                    Document document = compiler.document();
-                    headDocuments.put(name, document);
-                    return document;
-                }
-            }
-            case Full -> {
-                if (documents.containsKey(name)) {
-                    return documents.get(name);
-                }
-                if (compilableClasses.containsKey(name)) {
-                    DocumentBuilder compiler = new DocumentBuilder();
-                    compilableClasses.get(name).compile(this, compiler, level);
-                    Document document = compiler.document();
-                    documents.put(name, document);
-                    return document;
-                }
-                return documents.get(name);
-            }
-            default -> {
-                throw new RuntimeException();
-            }
-        }
-        throw new RuntimeException();
+        return compilableClasses.get(name);
+    }
+
+    public language.core.Document document(String name, Compilable.Level level) {
+        parse(name);
+        Compilable compilable = compilableClasses.get(name);
+        return compilable.document();
+//        switch (level) {
+//            case Head -> {
+//                if (headDocuments.containsKey(name)) {
+//                    return headDocuments.get(name);
+//                }
+//                if (compilableClasses.containsKey(name)) {
+//                    DocumentBuilder compiler = new DocumentBuilder();
+//                    compilableClasses.get(name).compile(this, compiler, level);
+//                    Document document = compiler.document();
+//                    headDocuments.put(name, document);
+//                    return document;
+//                }
+//            }
+//            case Full -> {
+//                if (documents.containsKey(name)) {
+//                    return documents.get(name);
+//                }
+//                if (compilableClasses.containsKey(name)) {
+//                    DocumentBuilder compiler = new DocumentBuilder();
+//                    compilableClasses.get(name).compile(this, compiler, level);
+//                    Document document = compiler.document();
+//                    documents.put(name, document);
+//                    return document;
+//                }
+//                return documents.get(name);
+//            }
+//            default -> {
+//                throw new RuntimeException();
+//            }
+//        }
+//        throw new RuntimeException();
     }
 }

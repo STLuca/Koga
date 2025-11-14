@@ -20,30 +20,30 @@ public class EnumStructure implements language.core.Structure {
     }
 
     @Override
-    public int size(Sources sources) {
+    public int size(Repository repository) {
         int maxSize = 0;
         for (Structure struct : structures) {
-            maxSize = Math.max(struct.size(sources), maxSize);
+            maxSize = Math.max(struct.size(repository), maxSize);
         }
         return maxSize;
     }
 
     @Override
-    public void proxy(Sources sources, Scope variable, int location) {
+    public void proxy(Repository repository, Scope variable, int location) {
 
     }
 
     @Override
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<GenericArgument> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics) {
         Scope thisVariable = scope.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
 
         for (String imprt : this.imports) {
-            sources.structure(imprt);
+            repository.structure(imprt);
         }
 
-        int maxSize = size(sources);
+        int maxSize = size(repository);
         int typeLocation = compiler.data(TYPE_SIZE);
         thisVariable.allocations.put("type", new Scope.Allocation(TYPE_SIZE, typeLocation));
         compiler.debugData(thisVariable.stateName(thisVariable.name), "type", typeLocation, TYPE_SIZE);
@@ -54,20 +54,20 @@ public class EnumStructure implements language.core.Structure {
             mc.parent = compiler;
             mc.location = location;
             for (Field f : struct.fields) {
-                language.core.Structure u = sources.structure(f.structure);
-                u.declare(mc, sources, structScope, f.name, new ArrayList<>());
+                language.core.Structure u = repository.structure(f.structure);
+                u.declare(mc, repository, structScope, f.name, new ArrayList<>());
             }
         }
     }
 
     @Override
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
         Scope thisVariable = scope.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
 
         for (String imprt : this.imports) {
-            sources.structure(imprt);
+            repository.structure(imprt);
         }
 
         Structure structure = null;
@@ -99,7 +99,7 @@ public class EnumStructure implements language.core.Structure {
             }
         }
 
-        int maxSize = size(sources);
+        int maxSize = size(repository);
         int typeLocation = compiler.data(TYPE_SIZE);
         Scope.Allocation typeAllocation = new Scope.Allocation(TYPE_SIZE, typeLocation);
         thisVariable.allocations.put("type", typeAllocation);
@@ -112,8 +112,8 @@ public class EnumStructure implements language.core.Structure {
             mc.location = location;
             Scope structureScope = thisVariable.state(struct.name);
             for (Field f : struct.fields) {
-                language.core.Structure u = sources.structure(f.structure);
-                u.declare(mc, sources, structureScope, f.name, new ArrayList<>());
+                language.core.Structure u = repository.structure(f.structure);
+                u.declare(mc, repository, structureScope, f.name, new ArrayList<>());
             }
         }
 
@@ -121,15 +121,15 @@ public class EnumStructure implements language.core.Structure {
         mc.parent = compiler;
         mc.location = location;
         new InstructionStatement("i", "ADD", "II", "LDA", "type", "IL", "0d0", "IL", "0d" + (index + 1))
-                .compile(compiler, sources, thisVariable, operationScope);
+                .compile(compiler, repository, thisVariable, operationScope);
         Scope structureScope = thisVariable.state(structure.name);
         for (Statement stmt : method.statements) {
-            stmt.handle(mc, sources, structureScope);
+            stmt.handle(mc, repository, structureScope);
         }
     }
 
     @Override
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<String> arguments) {
+    public void operate(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope variable, String operationName, List<String> arguments) {
         Scope operationScope = scope.startOperation(operationName);
         switch (operationName) {
             case "match" -> {
@@ -138,7 +138,7 @@ public class EnumStructure implements language.core.Structure {
                 // add all names to types
                 int[] blockPositions = new int[arguments.size() / 2];
 
-                new InstructionStatement("j", "REL", "T", "LDA", "type").compile(compiler, sources, variable, operationScope);
+                new InstructionStatement("j", "REL", "T", "LDA", "type").compile(compiler, repository, variable, operationScope);
                 int jumps = compiler.address();
                 Scope.Allocation allocation = new Scope.Allocation(4, jumps);
                 operationScope.add("jumps", allocation);
@@ -153,7 +153,7 @@ public class EnumStructure implements language.core.Structure {
                     allocation = new Scope.Allocation(4, caseAddr);
                     operationScope.add("case", allocation);
                     int prev = compiler.position(jumps);
-                    new InstructionStatement("j", "REL", "I", "case").compile(compiler, sources, variable, operationScope);
+                    new InstructionStatement("j", "REL", "I", "case").compile(compiler, repository, variable, operationScope);
                     compiler.position(cases);
                     compiler.address(caseAddr);
 
@@ -170,7 +170,7 @@ public class EnumStructure implements language.core.Structure {
                     b.execute(compiler, structScope);
                     structScope.implicitScope.scopes.remove(structure.name);
 
-                    new InstructionStatement("j", "REL", "I", "end").compile(compiler, sources, variable, operationScope);
+                    new InstructionStatement("j", "REL", "I", "end").compile(compiler, repository, variable, operationScope);
                     compiler.address(end);
                     compiler.position(prev);
                 }
@@ -196,7 +196,7 @@ public class EnumStructure implements language.core.Structure {
                     throw new RuntimeException("Unexpected union method");
                 }
 
-                new InstructionStatement("j", "REL", "T", "LDA", "type").compile(compiler, sources, variable, operationScope);
+                new InstructionStatement("j", "REL", "T", "LDA", "type").compile(compiler, repository, variable, operationScope);
                 int jumps = compiler.address();
                 Scope.Allocation allocation = new Scope.Allocation(4, jumps);
                 operationScope.add("jumps", allocation);
@@ -212,7 +212,7 @@ public class EnumStructure implements language.core.Structure {
                     allocation = new Scope.Allocation(4, caseAddr);
                     operationScope.add("case", allocation);
                     int prev = compiler.position(jumps);
-                    new InstructionStatement("j", "REL", "I", "case").compile(compiler, sources, variable, operationScope);
+                    new InstructionStatement("j", "REL", "I", "case").compile(compiler, repository, variable, operationScope);
                     compiler.position(cases);
                     compiler.address(caseAddr);
 
@@ -236,10 +236,10 @@ public class EnumStructure implements language.core.Structure {
                                 }
                             }
                         }
-                        stmt.handle(compiler, sources, methodScope);
+                        stmt.handle(compiler, repository, methodScope);
                     }
 
-                    new InstructionStatement("j", "REL", "I", "end").compile(compiler, sources, variable, operationScope);
+                    new InstructionStatement("j", "REL", "I", "end").compile(compiler, repository, variable, operationScope);
                     compiler.address(end);
                     compiler.position(prev);
                     i++;

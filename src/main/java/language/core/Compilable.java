@@ -11,6 +11,9 @@ public interface Compilable {
 
     String name();
     List<String> dependencies();
-    void compile(Sources sources, Compiler compiler, Level level);
+    default Document document() {
+        throw new UnsupportedOperationException();
+    };
+    void compile(Repository repository, Compiler compiler, Level level);
 
 }

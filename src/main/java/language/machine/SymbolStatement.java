@@ -11,7 +11,7 @@ public class SymbolStatement implements Statement {
 
     // Logic here is annoying, if document type then you need to lookup the global document name
     // generics already have the global document name
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Scope scope) {
+    public void compile(Compiler.MethodCompiler compiler, Repository repository, Scope variable, Scope scope) {
         Types.Symbol type = Types.Symbol.valueOf(this.arguments.getFirst().toUpperCase());
         int nameLength = (this.arguments.size() - 2) / 2;
         if (nameLength != 1 && nameLength != 2) {
@@ -30,12 +30,12 @@ public class SymbolStatement implements Statement {
                     switch (type) {
                         case CLASS, PROTOCOL, METHOD, INTERFACE -> {
                             if (index == 0) {
-                                name = sources.document(name, Compilable.Level.Head).name;
+                                name = repository.document(name, Compilable.Level.Head).name();
                             }
                         }
                         case FIELD -> {
                             if (index == 0 && nameLength == 2) {
-                                name = sources.document(name, Compilable.Level.Head).name;
+                                name = repository.document(name, Compilable.Level.Head).name();
                             }
                         }
                     }
@@ -43,13 +43,13 @@ public class SymbolStatement implements Statement {
                 }
                 case LG -> {
                     Scope.Generic g = variable.generics.get(input);
-                    yield g.document.name;
+                    yield g.document.name();
                 }
                 case AG -> {
                     String[] split = input.split("\\.");
                     Scope var = scope.findVariable(split[0]);
                     Scope.Generic g = var.generics.get(split[1]);
-                    yield g.document.name;
+                    yield g.document.name();
                 }
                 default -> throw new RuntimeException();
             };

@@ -12,18 +12,18 @@ public interface Structure {
     }
 
     String name();
-    int size(Sources sources);
-    void proxy(Sources sources, Scope variable, int location);
+    int size(Repository repository);
+    void proxy(Repository repository, Scope variable, int location);
     void declare(
             Compiler.MethodCompiler compiler,
-            Sources sources,
+            Repository repository,
             Scope scope,
             String name,
             List<GenericArgument> generics
     );
     void construct(
             Compiler.MethodCompiler compiler,
-            Sources sources,
+            Repository repository,
             Scope scope,
             String name,
             List<GenericArgument> generics,
@@ -32,7 +32,7 @@ public interface Structure {
     );
     void operate(
             Compiler.MethodCompiler compiler,
-            Sources sources,
+            Repository repository,
             Scope scope,
             Scope variable,
             String operationName,

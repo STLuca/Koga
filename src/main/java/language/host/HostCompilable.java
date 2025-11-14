@@ -1,6 +1,5 @@
 package language.host;
 
-import core.Document;
 import core.Types;
 import language.core.*;
 
@@ -22,6 +21,13 @@ public class HostCompilable implements Compilable {
         return name;
     }
 
+    @Override
+    public language.core.Document document() {
+        HostDocument doc = new HostDocument();
+        doc.host = this;
+        return doc;
+    }
+
     public List<String> dependencies() {
         ArrayList<String> dependencies = new ArrayList<>();
         for (String dependency : this.dependencies) {
@@ -30,25 +36,25 @@ public class HostCompilable implements Compilable {
         return dependencies;
     }
 
-    public void compile(Sources sources, Compiler compiler, Level level) {
+    public void compile(Repository repository, Compiler compiler, Level level) {
         compiler.name(name);
         compiler.type(Types.Document.Host);
 
         for (String imprt : this.imports) {
-            sources.structure(imprt);
+            repository.structure(imprt);
         }
 
         if (level == Level.Head) {
             for (Field f : fields) {
-                Structure sc = sources.structure(f.structure);
-                compiler.data(f.name, sc.size(sources));
+                Structure sc = repository.structure(f.structure);
+                compiler.data(f.name, sc.size(repository));
             }
 
             for (Method m : methods) {
                 Compiler.MethodCompiler mb = compiler.method();
                 mb.name(m.name);
                 for (Parameter p : m.params) {
-                    Structure structure = sources.structure(p.structure);
+                    Structure structure = repository.structure(p.structure);
                     mb.parameter(structure.name());
                 }
             }
@@ -61,13 +67,13 @@ public class HostCompilable implements Compilable {
 
         String administrator = null;
         for (String dependency : dependencies) {
-            Document document = sources.document(dependency, Level.Head);
+            Document document = repository.document(dependency, Level.Head);
 
             compiler.dependency(dependency);
             if (administrator == null) {
-                for (String documentImplementing : document.implementing) {
+                for (String documentImplementing : document.implementing()) {
                    if (documentImplementing.equals("core.Administrator")) {
-                       administrator = document.name;
+                       administrator = document.name();
                        break;
                    }
                 }
@@ -92,8 +98,8 @@ public class HostCompilable implements Compilable {
         }
 
         for (Field f : fields) {
-            Structure sc = sources.structure(f.structure);
-            compiler.data(f.name, sc.size(sources));
+            Structure sc = repository.structure(f.structure);
+            compiler.data(f.name, sc.size(repository));
         }
 
         for (Method m : methods) {
@@ -112,14 +118,14 @@ public class HostCompilable implements Compilable {
                     generics.add(g.name);
                 }
 
-                Structure structure = sources.structure(p.structure);
+                Structure structure = repository.structure(p.structure);
                 mb.parameter(structure.name());
-                structure.declare(mb, sources, scope, p.name, p.generics);
+                structure.declare(mb, repository, scope, p.name, p.generics);
             }
 
             // handle each statement in the body
             for (Statement stmt : m.statements) {
-                stmt.handle(mb, sources, scope);
+                stmt.handle(mb, repository, scope);
             }
         }
     }

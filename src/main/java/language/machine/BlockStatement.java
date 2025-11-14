@@ -12,9 +12,9 @@ public class BlockStatement implements Statement {
     boolean isContextPush;
     ArrayList<Statement> block = new ArrayList<>();
     
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Scope scope) {
+    public void compile(Compiler.MethodCompiler compiler, Repository repository, Scope variable, Scope scope) {
         if (isContextPush) {
-            MachineBlock newBlock = new MachineBlock(this.block, sources, variable, scope, scope.state());
+            MachineBlock newBlock = new MachineBlock(this.block, repository, variable, scope, scope.state());
             scope.implicitScope.blocks.put(name, newBlock);
             return;
         }
@@ -28,7 +28,7 @@ public class BlockStatement implements Statement {
         if (bm == null) {
             if (block == null) throw new RuntimeException("Block doesn't exist");
             for (Statement statement : block) {
-                statement.compile(compiler, sources, variable, scope);
+                statement.compile(compiler, repository, variable, scope);
             }
             return;
         }
@@ -38,14 +38,14 @@ public class BlockStatement implements Statement {
     static class MachineBlock implements language.core.Block {
 
         List<Statement> statements;
-        Sources sources;
+        Repository repository;
         Scope variable;
         Scope scope;
         Scope state;
 
-        public MachineBlock(List<Statement> statements, Sources sources, Scope variable, Scope scope, Scope state) {
+        public MachineBlock(List<Statement> statements, Repository repository, Scope variable, Scope scope, Scope state) {
             this.statements = statements;
-            this.sources = sources;
+            this.repository = repository;
             this.variable = variable;
             this.scope = scope;
             this.state = state;
@@ -54,7 +54,7 @@ public class BlockStatement implements Statement {
         public void execute(Compiler.MethodCompiler compiler, Scope scope) {
             this.state.addImplicit(scope.implicitScope);
             for (Statement s : statements) {
-                s.compile(compiler, sources, variable, this.state);
+                s.compile(compiler, repository, variable, this.state);
             }
             this.state.removeImplicit(scope.implicitScope);
         }

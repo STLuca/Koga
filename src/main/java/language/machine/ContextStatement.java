@@ -16,7 +16,7 @@ public class ContextStatement implements Statement {
     
     ArrayList<String> arguments = new ArrayList<>();
     
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Scope scope) {
+    public void compile(Compiler.MethodCompiler compiler, Repository repository, Scope variable, Scope scope) {
         ContextType type = ContextType.valueOf(this.arguments.get(0));
         switch (type) {
             case PUSH -> {

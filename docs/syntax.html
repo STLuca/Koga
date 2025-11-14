@@ -184,7 +184,7 @@
         <li>a <strong>type</strong> e.g. integer (i) or jump (j)</li>
         <li>a <strong>subtype</strong> e.g. ADD or AND or OR</li>
         <li>an <strong>source type</strong> e.g. TI, TT.</li>
-        <li><strong>sources</strong></li>
+        <li><strong>repository</strong></li>
     </ul>
     <p>
         An instruction could be written as integer(ADD, TI, 0, 0, 6).
@@ -208,7 +208,7 @@
 
     <p>
         The statements in these methods aren't instructions though, they are instruction builders.
-        The difference is the builder sources need to be resolved during compilation.
+        The difference is the builder repository need to be resolved during compilation.
         Each source is instead two value, a resolve type and a string value.
         For example, "LDA, val" says to use the local data address for the field val i.e. this structure should have a data field named val.
         If you had a operation with just one Int, then val would compile to 0. If you had two Ints, the second Int's val would be at address 4 as the first Int val uses bytes 0 1 2 3.
@@ -236,7 +236,7 @@
     <ul>
         <li>integer(...) - this defines the instruction type integer, you can also write i(...) for brevity.</li>
         <li>ADD - A subtype of the integer instruction</li>
-        <li>II - The input type, II are for the two sources, both being of type immediate (I).
+        <li>II - The input type, II are for the two repository, both being of type immediate (I).
             This means the instruction contains the values to use in the add operation.</li>
         <li>
             We now describe three more values in order: the destination, the first source, and the second source.

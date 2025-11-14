@@ -1,4 +1,6 @@
-package core;
+package language.compiling;
+
+import core.Types;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

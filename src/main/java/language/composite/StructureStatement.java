@@ -30,7 +30,7 @@ public class StructureStatement implements Statement {
 
     public void handle(
             Compiler.MethodCompiler compiler,
-            Sources sources,
+            Repository repository,
             String name,
             Scope scope
     ) {
@@ -44,7 +44,7 @@ public class StructureStatement implements Statement {
                 scope.literals.put(anonName, literal);
                 argNames.add(anonName);
             } else if (arg.block != null) {
-                Block b = new Block(arg.block, sources, name, scope);
+                Block b = new Block(arg.block, repository, name, scope);
                 String anonName = UUID.randomUUID().toString();
 
                 scope.blocks.put(anonName, b);
@@ -86,20 +86,20 @@ public class StructureStatement implements Statement {
                 Scope.Generic g = scope.parent.generics.get(this.structure);
                 if (g != null) {
                     Structure structure = g.structure;
-                    structure.declare(compiler, sources, scope, variableName, generics);
+                    structure.declare(compiler, repository, scope, variableName, generics);
                 } else {
-                    Structure structure = sources.structure(this.structure);
-                    structure.declare(compiler, sources, scope, variableName, generics);
+                    Structure structure = repository.structure(this.structure);
+                    structure.declare(compiler, repository, scope, variableName, generics);
                 }
             }
             case CONSTRUCT -> {
-                Structure structure = sources.structure(this.structure);
-                structure.construct(compiler, sources, scope, variableName, generics, methodName, argNames);
+                Structure structure = repository.structure(this.structure);
+                structure.construct(compiler, repository, scope, variableName, generics, methodName, argNames);
             }
             case INVOKE -> {
                 Scope variable = scope.findVariable(variableName);
                 Structure sc = variable.structure;
-                sc.operate(compiler, sources, scope, variable, methodName, argNames);
+                sc.operate(compiler, repository, scope, variable, methodName, argNames);
             }
         }
     }
@@ -107,18 +107,18 @@ public class StructureStatement implements Statement {
     static class Block implements language.core.Block {
 
         List<Statement> block;
-        Sources sources;
+        Repository repository;
         String name;
         Scope scope;
 
         public Block(
                 List<Statement> block,
-                Sources sources,
+                Repository repository,
                 String name,
                 Scope scope
         ) {
             this.block = block;
-            this.sources = sources;
+            this.repository = repository;
             this.name = name;
             this.scope = scope;
         }
@@ -126,7 +126,7 @@ public class StructureStatement implements Statement {
         public void execute(Compiler.MethodCompiler compiler, Scope scope) {
             this.scope.addImplicit(scope.implicitScope);
             for (Statement stmt : block) {
-                stmt.handle(compiler, sources, name, this.scope);
+                stmt.handle(compiler, repository, name, this.scope);
             }
             this.scope.removeImplicit(scope.implicitScope);
         }

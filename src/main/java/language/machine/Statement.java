@@ -4,6 +4,6 @@ import language.core.*;
 
 public interface Statement {
 
-    void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Scope scope);
+    void compile(Compiler.MethodCompiler compiler, Repository repository, Scope variable, Scope scope);
 
 }

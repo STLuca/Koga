@@ -1,6 +1,6 @@
 package system;
 
-import core.Document;
+import language.compiling.DocumentBuilder;
 import language.core.Compilable;
 import language.host.HostParser;
 import language.hosted.HostedParser;
@@ -8,7 +8,7 @@ import language.interfaces.InterfaceParser;
 import language.machine.MachineEnumParser;
 import language.machine.MachineReferenceParser;
 import language.machine.MachineCompositeParser;
-import language.parsing.FileClassParser;
+import language.parsing.FileRepository;
 import language.protocol.ProtocolParser;
 import language.composite.CompositeParser;
 import language.enumeration.EnumParser;
@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class VirtualMachineTest {
 
-    FileClassParser parser;
+    FileRepository parser;
 
     {
         HashMap<String, String> srcMap = new HashMap<>();
@@ -132,7 +132,7 @@ public class VirtualMachineTest {
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
-        parser = new FileClassParser(path, srcMap);
+        parser = new FileRepository(path, srcMap);
         parser.addClassParser(new MachineCompositeParser());
         parser.addClassParser(new MachineReferenceParser());
         parser.addClassParser(new MachineEnumParser());
@@ -148,25 +148,26 @@ public class VirtualMachineTest {
         Administrator administrator = Administrator.boot();
 
         // Parse all required dependencies
-        ArrayList<Document> dependencies = new ArrayList<>();
+        ArrayList<Compilable> dependencies = new ArrayList<>();
         Set<String> haveCompiled = new HashSet<>();
         Deque<String> toCompile = new ArrayDeque<>(Arrays.asList(classNames));
         while (!toCompile.isEmpty()) {
             String compile = toCompile.pop();
             if (haveCompiled.contains(compile)) continue;
             parser.parse(compile);
-            Document compiled = parser.document(compile, Compilable.Level.Head);
-            if (compiled.dependencies != null) {
-                toCompile.addAll(Arrays.asList(compiled.dependencies));
+            Compilable compiled = parser.compilable(compile);
+            if (compiled.dependencies() != null) {
+                toCompile.addAll(compiled.dependencies());
             }
             haveCompiled.add(compile);
             dependencies.addFirst(compiled);
         }
 
         // Compile all dependencies
-        for (Document dependency : dependencies) {
-            Document document = parser.document(dependency.name, Compilable.Level.Full);
-            byte[] bytes = document.bytes();
+        for (Compilable dependency : dependencies) {
+            DocumentBuilder compiler = new DocumentBuilder();
+            dependency.compile(parser, compiler, Compilable.Level.Full);
+            byte[] bytes = compiler.document();
             administrator.integrate(bytes);
         }
 

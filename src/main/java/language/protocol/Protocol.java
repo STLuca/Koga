@@ -1,6 +1,7 @@
 package language.protocol;
 
-import language.core.Sources;
+import language.core.Document;
+import language.core.Repository;
 import language.core.Compilable;
 import language.core.Compiler;
 
@@ -19,8 +20,15 @@ public class Protocol implements Compilable {
     public List<String> dependencies() {
         return List.of();
     }
-    
-    public void compile(Sources sources, Compiler compiler, Level level) {
+
+    @Override
+    public Document document() {
+        ProtocolDocument doc = new ProtocolDocument();
+        doc.protocol = this;
+        return doc;
+    }
+
+    public void compile(Repository repository, Compiler compiler, Level level) {
         compiler.name(name);
         Compiler.ProtocolCompiler pc = compiler.protocol();
 

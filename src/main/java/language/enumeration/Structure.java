@@ -12,11 +12,11 @@ class Structure implements language.core.Structure {
     ArrayList<Method> constructors = new ArrayList<>();
     ArrayList<Method> methods = new ArrayList<>();
 
-    public int size(Sources sources) {
+    public int size(Repository repository) {
         int size = 0;
         for (Field f : fields) {
-            language.core.Structure u = sources.structure(f.structure);
-            size += u.size(sources);
+            language.core.Structure u = repository.structure(f.structure);
+            size += u.size(repository);
         }
         return size;
     }
@@ -27,22 +27,22 @@ class Structure implements language.core.Structure {
     }
 
     @Override
-    public void proxy(Sources sources, Scope variable, int location) {
+    public void proxy(Repository repository, Scope variable, int location) {
 
     }
 
     @Override
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<GenericArgument> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics) {
 
     }
 
     @Override
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
 
     }
 
     @Override
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<String> arguments) {
+    public void operate(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope variable, String operationName, List<String> arguments) {
         Method method = null;
         for (Method m : methods) {
             if (m.name.equals(operationName)) {
@@ -79,7 +79,7 @@ class Structure implements language.core.Structure {
         }
 
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, sources, operationScope);
+            stmt.handle(compiler, repository, operationScope);
         }
     }
 }

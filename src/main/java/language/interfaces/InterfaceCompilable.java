@@ -1,7 +1,8 @@
 package language.interfaces;
 
 import core.Types;
-import language.core.Sources;
+import language.core.Document;
+import language.core.Repository;
 import language.core.Compilable;
 import language.core.Compiler;
 
@@ -14,7 +15,6 @@ public class InterfaceCompilable implements Compilable {
     ArrayList<String> imports = new ArrayList<>();
     ArrayList<String> dependencies = new ArrayList<>();
     ArrayList<Method> methods = new ArrayList<>();
-
     
     public String name() {
         return name;
@@ -24,7 +24,7 @@ public class InterfaceCompilable implements Compilable {
         return dependencies;
     }
     
-    public void compile(Sources sources, Compiler compiler, Level level) {
+    public void compile(Repository repository, Compiler compiler, Level level) {
         compiler.name(name);
         compiler.type(Types.Document.Interface);
 //        int classSymbol = compiler.symbol(Class.Symbol.Type.CLASS, name);
@@ -36,4 +36,11 @@ public class InterfaceCompilable implements Compilable {
             mb.name(method.name);
         }
     }
+
+    public Document document() {
+        InterfaceDocument doc = new InterfaceDocument();
+        doc.host = this;
+        return doc;
+    }
+
 }

@@ -30,8 +30,8 @@
         There were three main changes to Java that I wanted:
     </p>
     <ul>
-        <li>Writing sources that don't allocate</li>
-        <li>Writing sources that have their own memory space</li>
+        <li>Writing repository that don't allocate</li>
+        <li>Writing repository that have their own memory space</li>
         <li>More control over memory and rubbish collection</li>
     </ul>
     <p>
@@ -267,7 +267,7 @@
 
     <p>
         <b>Access modifiers</b>: Host objects own their byte space and so are private by default with no ability to make them public.
-        For hosted sources, lets take ArrayList as an example, I think it's perfectly reasonable to have the internals of ArrayList exposed to someone who deliberately decided to use ArrayList.
+        For hosted repository, lets take ArrayList as an example, I think it's perfectly reasonable to have the internals of ArrayList exposed to someone who deliberately decided to use ArrayList.
         Of course if you use and couple to these internals, you may struggle when updated to a new ArrayList version, but it's your choice to make this tradeoff.
         I'm sure it makes sense in some cases.
     </p>
@@ -496,7 +496,7 @@
     <h4>Generics</h4>
 
     <p>
-        I personally think generics are better than templates and that while they are very useful, they are only really useful for a small number of cases e.g. container sources.
+        I personally think generics are better than templates and that while they are very useful, they are only really useful for a small number of cases e.g. container repository.
         I want to keep the feature simple enough to handle these cases, and try not to go much further.
         There's a few interactions with generics in Koga due to the existence of structures and compilables.
     </p>

@@ -1,6 +1,5 @@
 package language.hosted;
 
-import core.Document;
 import core.Types;
 import language.core.*;
 import language.core.Compiler;
@@ -30,25 +29,32 @@ public class HostedCompilable implements Compilable {
         return dependencies;
     }
 
-    public void compile(Sources sources, Compiler compiler, Level level) {
+    @Override
+    public language.core.Document document() {
+        HostedDocument doc = new HostedDocument();
+        doc.host = this;
+        return doc;
+    }
+
+    public void compile(Repository repository, Compiler compiler, Level level) {
         compiler.name(name);
         compiler.type(Types.Document.Hosted);
 
         for (String imprt : this.imports) {
-            sources.structure(imprt);
+            repository.structure(imprt);
         }
 
         if (level == Level.Head) {
             for (Field f : fields) {
-                Structure sc = sources.structure(f.structure);
-                compiler.data(f.name, sc.size(sources));
+                Structure sc = repository.structure(f.structure);
+                compiler.data(f.name, sc.size(repository));
             }
 
             for (Method m : methods) {
                 Compiler.MethodCompiler mb = compiler.method();
                 mb.name(m.name);
                 for (Parameter p : m.params) {
-                    Structure structure = sources.structure(p.structure);
+                    Structure structure = repository.structure(p.structure);
                     mb.parameter(structure.name());
                 }
             }
@@ -63,7 +69,6 @@ public class HostedCompilable implements Compilable {
         }
 
         for (String dependency : dependencies) {
-            Document document = sources.document(dependency, Level.Head);
             compiler.dependency(dependency);
         }
         for (String intrface : interfaces) {
@@ -71,8 +76,8 @@ public class HostedCompilable implements Compilable {
         }
 
         for (Field f : fields) {
-            Structure sc = sources.structure(f.structure);
-            compiler.data(f.name, sc.size(sources));
+            Structure sc = repository.structure(f.structure);
+            compiler.data(f.name, sc.size(repository));
         }
 
         for (Method m : methods) {
@@ -102,14 +107,14 @@ public class HostedCompilable implements Compilable {
                     generics.add(g.name);
                 }
 
-                Structure structure = sources.structure(p.structure);
+                Structure structure = repository.structure(p.structure);
                 mb.parameter(structure.name());
-                structure.declare(mb, sources, scope, p.name, p.generics);
+                structure.declare(mb, repository, scope, p.name, p.generics);
             }
 
             // handle each statement in the body
             for (Statement stmt : m.statements) {
-                stmt.handle(mb, sources, scope);
+                stmt.handle(mb, repository, scope);
             }
         }
     }

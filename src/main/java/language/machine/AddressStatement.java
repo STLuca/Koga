@@ -6,7 +6,7 @@ public class AddressStatement implements Statement {
 
     String name;
     
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Scope scope) {
+    public void compile(Compiler.MethodCompiler compiler, Repository repository, Scope variable, Scope scope) {
         if (scope.findAllocation(name) != null) {
             compiler.address(scope.findAllocation(name).location());
             return;

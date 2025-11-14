@@ -1,8 +1,8 @@
 package language.composite;
 
 import language.core.Compiler;
+import language.core.Repository;
 import language.core.Scope;
-import language.core.Sources;
 
 public class ScopeStatement implements Statement {
 
@@ -14,7 +14,7 @@ public class ScopeStatement implements Statement {
     String name;
 
     @Override
-    public void handle(Compiler.MethodCompiler compiler, Sources sources, String name, Scope scope) {
+    public void handle(Compiler.MethodCompiler compiler, Repository repository, String name, Scope scope) {
         switch (type) {
             case Implicit -> {
                 scope.implicitScope.scopes.put(this.name, scope.scopes.get(this.name));

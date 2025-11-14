@@ -31,7 +31,7 @@ public class Statement {
 
     void handle(
             Compiler.MethodCompiler compiler,
-            Sources sources,
+            Repository repository,
             Scope scope
     ) {
         ArrayList<String> argNames = new ArrayList<>();
@@ -43,7 +43,7 @@ public class Statement {
                 scope.literals.put(anonName, literal);
                 argNames.add(anonName);
             } else if (arg.block != null) {
-                Block b = new Block(arg.block, sources, scope);
+                Block b = new Block(arg.block, repository, scope);
                 String anonName = UUID.randomUUID().toString();
 
                 scope.blocks.put(anonName, b);
@@ -78,17 +78,17 @@ public class Statement {
 
         switch (type) {
             case DECLARE -> {
-                Structure structure = sources.structure(this.structure);
-                structure.declare(compiler, sources, scope, variableName, generics);
+                Structure structure = repository.structure(this.structure);
+                structure.declare(compiler, repository, scope, variableName, generics);
             }
             case CONSTRUCT -> {
-                Structure structure = sources.structure(this.structure);
-                structure.construct(compiler, sources, scope, variableName, generics, methodName, argNames);
+                Structure structure = repository.structure(this.structure);
+                structure.construct(compiler, repository, scope, variableName, generics, methodName, argNames);
             }
             case INVOKE -> {
                 Scope variable = scope.findVariable(variableName);
                 Structure sc = variable.structure;
-                sc.operate(compiler, sources, scope, variable, methodName, argNames);
+                sc.operate(compiler, repository, scope, variable, methodName, argNames);
             }
         }
     }
@@ -96,23 +96,23 @@ public class Statement {
     static class Block implements language.core.Block {
 
         List<Statement> block;
-        Sources sources;
+        Repository repository;
         Scope scope;
 
         public Block(
                 List<Statement> block,
-                Sources sources,
+                Repository repository,
                 Scope scope
         ) {
             this.block = block;
-            this.sources = sources;
+            this.repository = repository;
             this.scope = scope;
         }
         
         public void execute(Compiler.MethodCompiler compiler, Scope scope) {
             this.scope.addImplicit(scope.implicitScope);
             for (Statement stmt : block) {
-                stmt.handle(compiler, sources, this.scope);
+                stmt.handle(compiler, repository, this.scope);
             }
             this.scope.removeImplicit(scope.implicitScope);
         }

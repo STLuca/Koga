@@ -1,6 +1,5 @@
 package language.compiling;
 
-import core.Document;
 import core.Types;
 import language.core.Compiler;
 
@@ -26,32 +25,32 @@ public class DocumentBuilder implements Compiler {
 
     ProtocolBuilder protocolBuilder;
     
-    public Document document() {
+    public byte[] document() {
         if (protocolBuilder != null) {
-            Document c = protocolBuilder.document();
+            DocumentStruct c = protocolBuilder.document();
             c.name = name;
-            return c;
+            return c.bytes();
         }
 
-        Document d = new Document();
+        DocumentStruct d = new DocumentStruct();
         d.type = type;
         d.name = name;
         d.administrator = administrator;
         d.dependencies = dependencies.toArray(new String[0]);
         d.implementing = implementing.toArray(new String[0]);
         d.supporting = supporting.toArray(new String[0]);
-        d.consts = new Document.Const[constants.size()];
+        d.consts = new DocumentStruct.Const[constants.size()];
         for (int i = 0; i < constants.size(); i++) {
             Constant constant = constants.get(i);
-            Document.Const con = new Document.Const();
+            DocumentStruct.Const con = new DocumentStruct.Const();
             con.name = constant.name;
             con.value = constant.bytes;
             d.consts[i] = con;
         }
-        d.symbols = new Document.Symbol[symbols.size()];
+        d.symbols = new DocumentStruct.Symbol[symbols.size()];
         for (int i = 0; i < symbols.size(); i++) {
             Symbol symbol = symbols.get(i);
-            Document.Symbol s = new Document.Symbol();
+            DocumentStruct.Symbol s = new DocumentStruct.Symbol();
             s.type = symbol.type;
             if (symbol.two == null) {
                 s.identifier = symbol.one;
@@ -62,20 +61,20 @@ public class DocumentBuilder implements Compiler {
         }
 
         ArrayList<Map.Entry<String, Data>> entries = new ArrayList<>(data.entrySet());
-        d.data = new Document.Data[entries.size()];
+        d.data = new DocumentStruct.Data[entries.size()];
         for (int i = 0; i < entries.size(); i++) {
             Map.Entry<String, Data> e = entries.get(i);
-            d.data[i] = new Document.Data(e.getKey(), e.getValue().start, e.getValue().size);
+            d.data[i] = new DocumentStruct.Data(e.getKey(), e.getValue().start, e.getValue().size);
         }
 
         d.size = currData;
 
-        d.methods = new Document.Method[methodBuilders.size()];
+        d.methods = new DocumentStruct.Method[methodBuilders.size()];
         for (int i = 0; i < methodBuilders.size(); i++) {
             MethodBuilder mb = methodBuilders.get(i);
             d.methods[i] = mb.method();
         }
-        return d;
+        return d.bytes();
     }
     
     public void name(String name) {

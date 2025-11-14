@@ -1,7 +1,5 @@
 package language.compiling;
 
-import core.Document;
-import core.Instruction;
 import core.Types;
 import language.core.Compiler;
 
@@ -18,7 +16,7 @@ class MethodBuilder implements Compiler.MethodCompiler {
     Instructions.Item position;
     Instructions instructions = new Instructions();
     ArrayList<String> params = new ArrayList<>();
-    ArrayList<Document.Data> debugData = new ArrayList<>();
+    ArrayList<DocumentStruct.Data> debugData = new ArrayList<>();
 
     public MethodBuilder(DocumentBuilder documentBuilder) {
         this.documentBuilder = documentBuilder;
@@ -30,10 +28,10 @@ class MethodBuilder implements Compiler.MethodCompiler {
         direction = InsertDirection.BEFORE;
     }
 
-    Document.Method method() {
+    DocumentStruct.Method method() {
         List<InstructionBuilder> instructions = this.instructions.list();
 
-        Document.Method m = new Document.Method();
+        DocumentStruct.Method m = new DocumentStruct.Method();
         m.name = name;
         m.size = currData;
         m.instructions = new Instruction[instructions.size()];
@@ -44,7 +42,7 @@ class MethodBuilder implements Compiler.MethodCompiler {
         m.parameters = params.toArray(new String[0]);
 
         // DEBUG
-        m.data = debugData.toArray(new Document.Data[0]);
+        m.data = debugData.toArray(new DocumentStruct.Data[0]);
         return m;
     }
     
@@ -53,7 +51,7 @@ class MethodBuilder implements Compiler.MethodCompiler {
     }
 
     public void debugData(String variableName, String name, int location, int size) {
-        debugData.add(new Document.Data(variableName + "." + name, location, size));
+        debugData.add(new DocumentStruct.Data(variableName + "." + name, location, size));
     }
 
     public int data(int size) {

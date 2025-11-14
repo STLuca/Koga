@@ -1,6 +1,5 @@
 package language.compiling;
 
-import core.Instruction;
 import core.Types;
 import language.core.Compiler;
 

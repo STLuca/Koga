@@ -1,7 +1,5 @@
 package language.core;
 
-import core.Document;
-
 import java.util.*;
 
 public class Scope {

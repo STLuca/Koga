@@ -18,7 +18,7 @@ public class AdminStatement implements Statement {
 
     ArrayList<String> arguments = new ArrayList<>();
     
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Scope scope) {
+    public void compile(Compiler.MethodCompiler compiler, Repository repository, Scope variable, Scope scope) {
         String methodAddr = "adminMethodAddr";
         String frameDataAddr = "frameDataAddr";
         String methodSymbol = "adminMethodSymbol";
@@ -58,16 +58,16 @@ public class AdminStatement implements Statement {
         scope.add(frameDataAddr, allocation);
         compiler.debugData(scope.stateName(variable.name), frameDataAddr, location, 4);
 
-        new InstructionStatement("c", "ADDR", "LI", "LDA", methodAddr, "R", "table", "AL", methodSymbol).compile(compiler, sources, variable, scope);
-        new InstructionStatement("i", "ADD", "LI", "LDA", frameDataAddr, "R", "altTask", "IL", "0d0").compile(compiler, sources, variable, scope);
+        new InstructionStatement("c", "ADDR", "LI", "LDA", methodAddr, "R", "table", "AL", methodSymbol).compile(compiler, repository, variable, scope);
+        new InstructionStatement("i", "ADD", "LI", "LDA", frameDataAddr, "R", "altTask", "IL", "0d0").compile(compiler, repository, variable, scope);
 
         for (int i = 1; i < this.arguments.size(); i++) {
-            new InstructionStatement("m", "COPY", "TII", "LDA", frameDataAddr, "LDA", this.arguments.get(i), "IL", "0d4").compile(compiler, sources, variable, scope);
+            new InstructionStatement("m", "COPY", "TII", "LDA", frameDataAddr, "LDA", this.arguments.get(i), "IL", "0d4").compile(compiler, repository, variable, scope);
             if (i == this.arguments.size() - 1) continue;
-            new InstructionStatement("i","ADD", "TI", "LDA", frameDataAddr, "LDA", frameDataAddr, "IL", "0d4").compile(compiler, sources, variable, scope);
+            new InstructionStatement("i","ADD", "TI", "LDA", frameDataAddr, "LDA", frameDataAddr, "IL", "0d4").compile(compiler, repository, variable, scope);
         }
 
-        new InstructionStatement("logician", "START_ADMIN", "T", "LDA", methodAddr).compile(compiler, sources, variable, scope);
+        new InstructionStatement("logician", "START_ADMIN", "T", "LDA", methodAddr).compile(compiler, repository, variable, scope);
     }
 
 }

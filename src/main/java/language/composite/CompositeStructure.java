@@ -1,6 +1,5 @@
 package language.composite;
 
-import core.Document;
 import language.core.*;
 
 import java.util.ArrayList;
@@ -20,16 +19,16 @@ public class CompositeStructure implements Structure {
         return name;
     }
     
-    public int size(Sources sources) {
+    public int size(Repository repository) {
         int size = 0;
         for (Field f : fields) {
-            Structure u = sources.structure(f.name);
-            size += u.size(sources);
+            Structure u = repository.structure(f.name);
+            size += u.size(repository);
         }
         return size;
     }
     
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<GenericArgument> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics) {
         Scope thisVariable = scope.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
@@ -41,12 +40,12 @@ public class CompositeStructure implements Structure {
             g.known = true;
             switch (generic.type) {
                 case Structure -> {
-                    Structure value = sources.structure(generics.get(i).name);
+                    Structure value = repository.structure(generics.get(i).name);
                     g.type = Scope.Generic.Type.Structure;
                     g.structure = value;
                 }
                 case Document -> {
-                    Document doc = sources.document(generics.get(i).name, Compilable.Level.Head);
+                    language.core.Document doc = repository.document(generics.get(i).name, Compilable.Level.Head);
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                 }
@@ -55,11 +54,7 @@ public class CompositeStructure implements Structure {
         }
 
         for (String imprt : this.imports) {
-            sources.structure(imprt);
-        }
-
-        for (String dependency : dependencies) {
-            Document document = sources.document(dependency, Compilable.Level.Head);
+            repository.structure(imprt);
         }
 
         for (Field f : fields) {
@@ -72,18 +67,18 @@ public class CompositeStructure implements Structure {
             if (thisVariable.generics.containsKey(f.structure)) {
                 u = thisVariable.generics.get(f.structure).structure;
             } else {
-                u = sources.structure(f.structure);
+                u = repository.structure(f.structure);
             }
             String fieldName = f.name;
-            u.declare(compiler, sources, thisVariable, fieldName, f.generics);
+            u.declare(compiler, repository, thisVariable, fieldName, f.generics);
         }
     }
 
-    public void proxy(Sources sources, Scope variable, int location) {
+    public void proxy(Repository repository, Scope variable, int location) {
 
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
         Scope thisVariable = scope.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
@@ -95,12 +90,12 @@ public class CompositeStructure implements Structure {
             g.known = true;
             switch (generic.type) {
                 case Structure -> {
-                    Structure value = sources.structure(generics.get(i).name);
+                    Structure value = repository.structure(generics.get(i).name);
                     g.type = Scope.Generic.Type.Structure;
                     g.structure = value;
                 }
                 case Document -> {
-                    Document doc = sources.document(generics.get(i).name, Compilable.Level.Head);
+                    Document doc = repository.document(generics.get(i).name, Compilable.Level.Head);
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                 }
@@ -109,7 +104,7 @@ public class CompositeStructure implements Structure {
         }
 
         for (String imprt : this.imports) {
-            sources.structure(imprt);
+            repository.structure(imprt);
         }
 
         Method method = null;
@@ -144,11 +139,11 @@ public class CompositeStructure implements Structure {
         operationScope.addState(thisVariable);
 
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, sources, name, operationScope);
+            stmt.handle(compiler, repository, name, operationScope);
         }
     }
     
-    public void operate(Compiler.MethodCompiler compiler, Sources sources, Scope scope, Scope variable, String operationName, List<String> arguments) {
+    public void operate(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope variable, String operationName, List<String> arguments) {
         Method method = null;
         for (Method m : methods) {
             if (m.name.equals(operationName)) {
@@ -179,7 +174,7 @@ public class CompositeStructure implements Structure {
             }
         }
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, sources, variable.name, operationScope);
+            stmt.handle(compiler, repository, variable.name, operationScope);
         }
     }
 }

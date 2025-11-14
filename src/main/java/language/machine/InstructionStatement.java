@@ -35,7 +35,7 @@ public class InstructionStatement implements Statement {
         this.arguments = new ArrayList<>(Arrays.asList(arguments));
     }
 
-    public void compile(Compiler.MethodCompiler compiler, Sources sources, Scope variable, Scope scope) {
+    public void compile(Compiler.MethodCompiler compiler, Repository repository, Scope variable, Scope scope) {
         switch (instructionType) {
             case I, INTEGER -> {
                 Compiler.InstructionCompiler ic = compiler.instruction();

@@ -5,6 +5,8 @@ import java.util.*;
 public interface Structure {
 
     class GenericArgument {
+        public enum Type { Known, Unknown }
+        public Type type;
         public String name;
         public ArrayList<GenericArgument> generics = new ArrayList<>();
     }
@@ -17,16 +19,14 @@ public interface Structure {
             Sources sources,
             Scope scope,
             String name,
-            List<String> generics,
-            List<GenericArgument> nestedGenerics
+            List<GenericArgument> generics
     );
     void construct(
             Compiler.MethodCompiler compiler,
             Sources sources,
             Scope scope,
             String name,
-            List<String> generics,
-            List<GenericArgument> nestedGenerics,
+            List<GenericArgument> generics,
             String constructorName,
             List<String> arguments
     );

@@ -5,6 +5,7 @@ import language.scanning.Scanner;
 import language.scanning.Token;
 import language.scanning.Tokens;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,7 @@ public class EnumParser implements Parser {
         EnumStructure c;
         HashMap<String, String> structures = new HashMap<>();
         HashMap<String, String> documents = new HashMap<>();
+        ArrayList<String> generics = new ArrayList<>();
     }
 
     Token DEPENDENCIES, IMPORTS, CONSTRUCTOR, NAME, GLOBAL_NAME, IMPLEMENTS, OP_BRACE, CL_BRACE, OP_PAREN, CL_PAREN,
@@ -249,18 +251,45 @@ public class EnumParser implements Parser {
 
             // generics
             if (scanner.peek(tokens).orElse(null) == OP_PT_BRACE) {
-                curr = scanner.next(tokens);
-                do {
+                ArrayDeque<language.core.Structure.GenericArgument> stack = new ArrayDeque<>();
+                while (!stack.isEmpty() || curr != CL_PT_BRACE) {
                     curr = scanner.next(tokens);
-                    if (curr != NAME) scanner.fail("name");
-                    if (ctx.structures.containsKey(curr.matched())) {
-                        s.generics.add(ctx.structures.get(curr.matched()));
-                    } else if (ctx.documents.containsKey(curr.matched())) {
-                        s.generics.add(ctx.documents.get(curr.matched()));
+                    if (curr == OP_PT_BRACE) {
+                        stack.push(new language.core.Structure.GenericArgument());
+                    } else if (curr == CL_PT_BRACE) {
+                        language.core.Structure.GenericArgument popped = stack.pop();
+                        if (stack.isEmpty()) {
+                            s.generics.add(popped);
+                        } else {
+                            stack.peek().generics.add(popped);
+                        }
+                    } else if (curr == COMMA) {
+                        language.core.Structure.GenericArgument pop = stack.pop();
+                        language.core.Structure.GenericArgument peek = stack.peek();
+                        if (peek == null) {
+                            s.generics.add(pop);
+                        } else {
+                            pop.generics.add(peek);
+                        }
+                        stack.push(new language.core.Structure.GenericArgument());
+                    } else if (curr == NAME) {
+                        language.core.Structure.GenericArgument peek = stack.peek();
+                        if (ctx.structures.containsKey(curr.matched())) {
+                            peek.type = language.core.Structure.GenericArgument.Type.Known;
+                            peek.name = ctx.structures.get(curr.matched());
+                        } else if (ctx.documents.containsKey(curr.matched())) {
+                            peek.type = language.core.Structure.GenericArgument.Type.Known;
+                            peek.name = ctx.documents.get(curr.matched());
+                        } else if (ctx.generics.contains(curr.matched())) {
+                            peek.type = language.core.Structure.GenericArgument.Type.Unknown;
+                            peek.name = curr.matched();
+                        } else {
+                            scanner.fail("");
+                        }
+                    } else {
+                        scanner.fail("");
                     }
-                    curr = scanner.next(tokens);
-                } while (curr == COMMA);
-                if (curr != CL_PT_BRACE) scanner.fail(">");
+                }
             }
 
             curr = scanner.next(tokens);

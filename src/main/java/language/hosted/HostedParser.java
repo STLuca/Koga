@@ -237,10 +237,13 @@ public class HostedParser implements Parser {
                     } else if (curr == NAME) {
                         Structure.GenericArgument peek = stack.peek();
                         if (ctx.structures.containsKey(curr.matched())) {
+                            peek.type = Structure.GenericArgument.Type.Known;
                             peek.name = ctx.structures.get(curr.matched());
                         } else if (ctx.documents.containsKey(curr.matched())) {
+                            peek.type = Structure.GenericArgument.Type.Known;
                             peek.name = ctx.documents.get(curr.matched());
                         } else if (ctx.generics.contains(curr.matched())) {
+                            peek.type = Structure.GenericArgument.Type.Unknown;
                             peek.name = curr.matched();
                         } else {
                             scanner.fail("");
@@ -319,10 +322,13 @@ public class HostedParser implements Parser {
                     } else if (curr == NAME) {
                         Structure.GenericArgument peek = stack.peek();
                         if (ctx.structures.containsKey(curr.matched())) {
+                            peek.type = Structure.GenericArgument.Type.Known;
                             peek.name = ctx.structures.get(curr.matched());
                         } else if (ctx.documents.containsKey(curr.matched())) {
+                            peek.type = Structure.GenericArgument.Type.Known;
                             peek.name = ctx.documents.get(curr.matched());
                         } else if (ctx.generics.contains(curr.matched())) {
+                            peek.type = Structure.GenericArgument.Type.Unknown;
                             peek.name = curr.matched();
                         } else {
                             scanner.fail("");
@@ -508,10 +514,13 @@ public class HostedParser implements Parser {
                 } else if (curr == NAME) {
                     Structure.GenericArgument peek = stack.peek();
                     if (ctx.structures.containsKey(curr.matched())) {
+                        peek.type = Structure.GenericArgument.Type.Known;
                         peek.name = ctx.structures.get(curr.matched());
                     } else if (ctx.documents.containsKey(curr.matched())) {
+                        peek.type = Structure.GenericArgument.Type.Known;
                         peek.name = ctx.documents.get(curr.matched());
                     } else if (ctx.generics.contains(curr.matched())) {
+                        peek.type = Structure.GenericArgument.Type.Unknown;
                         peek.name = curr.matched();
                     } else {
                         scanner.fail("");

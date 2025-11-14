@@ -21,20 +21,11 @@ public class StructureStatement implements Statement {
         List<String> array;
     }
 
-    public static class GenericArgument {
-        enum Type {
-            Known,
-            Generic
-        }
-        Type type;
-        String name;
-    }
-
     Type type;
     String structure;
     String variableName;
     String methodName;
-    ArrayList<GenericArgument> generics = new ArrayList<>();
+    ArrayList<Structure.GenericArgument> generics = new ArrayList<>();
     ArrayList<Argument> arguments = new ArrayList<>();
 
     public void handle(
@@ -84,20 +75,10 @@ public class StructureStatement implements Statement {
             argNames.addAll(scope.defaults());
         }
 
-        ArrayList<String> resolvedGenerics = new ArrayList<>();
-        for (GenericArgument g : this.generics) {
-            switch (g.type) {
-                case Known -> {
-                    resolvedGenerics.add(g.name);
-                }
-                case Generic -> {
-                    String resolved = scope.parent.generics.get(g.name).structure.name();
-                    resolvedGenerics.add(resolved);
-                }
-                case null, default -> {
-                    throw new RuntimeException();
-                }
-            }
+        ArrayList<String> oldGenerics = new ArrayList<>();
+
+        for (Structure.GenericArgument g : generics) {
+            oldGenerics.add(g.name);
         }
 
         switch (type) {
@@ -105,15 +86,15 @@ public class StructureStatement implements Statement {
                 Scope.Generic g = scope.parent.generics.get(this.structure);
                 if (g != null) {
                     Structure structure = g.structure;
-                    structure.declare(compiler, sources, scope, variableName, resolvedGenerics, null);
+                    structure.declare(compiler, sources, scope, variableName, generics);
                 } else {
                     Structure structure = sources.structure(this.structure);
-                    structure.declare(compiler, sources, scope, variableName, resolvedGenerics, null);
+                    structure.declare(compiler, sources, scope, variableName, generics);
                 }
             }
             case CONSTRUCT -> {
                 Structure structure = sources.structure(this.structure);
-                structure.construct(compiler, sources, scope, variableName, resolvedGenerics, null, methodName, argNames);
+                structure.construct(compiler, sources, scope, variableName, generics, methodName, argNames);
             }
             case INVOKE -> {
                 Scope variable = scope.findVariable(variableName);

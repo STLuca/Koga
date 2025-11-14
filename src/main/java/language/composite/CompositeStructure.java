@@ -29,7 +29,7 @@ public class CompositeStructure implements Structure {
         return size;
     }
     
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<GenericArgument> generics) {
         Scope thisVariable = scope.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
@@ -41,12 +41,12 @@ public class CompositeStructure implements Structure {
             g.known = true;
             switch (generic.type) {
                 case Structure -> {
-                    Structure value = sources.structure(generics.get(i));
+                    Structure value = sources.structure(generics.get(i).name);
                     g.type = Scope.Generic.Type.Structure;
                     g.structure = value;
                 }
                 case Document -> {
-                    Document doc = sources.document(generics.get(i), Compilable.Level.Head);
+                    Document doc = sources.document(generics.get(i).name, Compilable.Level.Head);
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                 }
@@ -63,6 +63,11 @@ public class CompositeStructure implements Structure {
         }
 
         for (Field f : fields) {
+            ArrayList<String> oldGenerics = new ArrayList<>();
+            for (Structure.GenericArgument g : f.generics) {
+                oldGenerics.add(g.name);
+            }
+
             Structure u;
             if (thisVariable.generics.containsKey(f.structure)) {
                 u = thisVariable.generics.get(f.structure).structure;
@@ -70,7 +75,7 @@ public class CompositeStructure implements Structure {
                 u = sources.structure(f.structure);
             }
             String fieldName = f.name;
-            u.declare(compiler, sources, thisVariable, fieldName, f.generics, null);
+            u.declare(compiler, sources, thisVariable, fieldName, f.generics);
         }
     }
 
@@ -78,7 +83,7 @@ public class CompositeStructure implements Structure {
 
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<String> argumentNames) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
         Scope thisVariable = scope.state(name);
         thisVariable.name = name;
         thisVariable.structure = this;
@@ -90,12 +95,12 @@ public class CompositeStructure implements Structure {
             g.known = true;
             switch (generic.type) {
                 case Structure -> {
-                    Structure value = sources.structure(generics.get(i));
+                    Structure value = sources.structure(generics.get(i).name);
                     g.type = Scope.Generic.Type.Structure;
                     g.structure = value;
                 }
                 case Document -> {
-                    Document doc = sources.document(generics.get(i), Compilable.Level.Head);
+                    Document doc = sources.document(generics.get(i).name, Compilable.Level.Head);
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                 }
@@ -136,6 +141,7 @@ public class CompositeStructure implements Structure {
             }
 
         }
+        operationScope.addState(thisVariable);
 
         for (Statement stmt : method.statements) {
             stmt.handle(compiler, sources, name, operationScope);

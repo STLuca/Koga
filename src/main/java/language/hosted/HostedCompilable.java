@@ -84,9 +84,6 @@ public class HostedCompilable implements Compilable {
                     case Structure -> {
                         generic.type = Scope.Generic.Type.Structure;
                     }
-                    case Document -> {
-                        generic.type = Scope.Generic.Type.Document;
-                    }
                     case null, default -> throw new RuntimeException();
                 }
                 generic.known = false;
@@ -99,8 +96,6 @@ public class HostedCompilable implements Compilable {
                 scope.addVariable(f.name);
             }
 
-            // empty construct the parameters
-
             for (Parameter p : m.params) {
                 ArrayList<String> generics = new ArrayList<>();
                 for (Structure.GenericArgument g : p.generics) {
@@ -109,7 +104,7 @@ public class HostedCompilable implements Compilable {
 
                 Structure structure = sources.structure(p.structure);
                 mb.parameter(structure.name());
-                structure.declare(mb, sources, scope, p.name, generics, null);
+                structure.declare(mb, sources, scope, p.name, p.generics);
             }
 
             // handle each statement in the body

@@ -26,7 +26,7 @@ public class Statement {
     String structure;
     String variableName;
     String methodName;
-    ArrayList<String> generics = new ArrayList<>();
+    ArrayList<Structure.GenericArgument> generics = new ArrayList<>();
     ArrayList<Argument> arguments = new ArrayList<>();
 
     void handle(
@@ -75,14 +75,19 @@ public class Statement {
             argNames.addAll(scope.defaults());
         }
 
+        ArrayList<String> oldGenerics = new ArrayList<>();
+        for (Structure.GenericArgument g : generics) {
+            oldGenerics.add(g.name);
+        }
+
         switch (type) {
             case DECLARE -> {
                 Structure structure = sources.structure(this.structure);
-                structure.declare(compiler, sources, scope, variableName, generics, null);
+                structure.declare(compiler, sources, scope, variableName, generics);
             }
             case CONSTRUCT -> {
                 Structure structure = sources.structure(this.structure);
-                structure.construct(compiler, sources, scope, variableName, generics, null, methodName, argNames);
+                structure.construct(compiler, sources, scope, variableName, generics, methodName, argNames);
             }
             case INVOKE -> {
                 Scope variable = scope.findVariable(variableName);

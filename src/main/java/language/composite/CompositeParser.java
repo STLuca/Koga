@@ -6,6 +6,7 @@ import language.scanning.Scanner;
 import language.scanning.Token;
 import language.scanning.Tokens;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -208,34 +209,58 @@ public class CompositeParser implements Parser {
             if (ctx.structures.containsKey(curr.matched())) {
                 p.type = Parameter.Type.Variable;
                 p.structure = ctx.structures.get(curr.matched());
-                curr = scanner.next(tokens);
+                Token next = scanner.peek(tokens).orElse(null);
 
-                if (curr == OP_PT_BRACE) {
-                    curr = scanner.next(tokens);
-                    while (curr != CL_PT_BRACE) {
-                        if (curr != NAME) scanner.fail("name");
-                        if (ctx.structures.containsKey(curr.matched())) {
-                            p.generics.add(ctx.structures.get(curr.matched()));
-                        } else if (ctx.documents.containsKey(curr.matched())) {
-                            p.generics.add(ctx.documents.get(curr.matched()));
-                        } else {
-                            p.generics.add(curr.matched());
-                        }
+                if (next == OP_PT_BRACE) {
+                    ArrayDeque<Structure.GenericArgument> stack = new ArrayDeque<>();
+                    while (!stack.isEmpty() || curr != CL_PT_BRACE) {
                         curr = scanner.next(tokens);
-                        if (curr == COMMA) curr = scanner.next(tokens);
+                        if (curr == OP_PT_BRACE) {
+                            stack.push(new Structure.GenericArgument());
+                        } else if (curr == CL_PT_BRACE) {
+                            Structure.GenericArgument popped = stack.pop();
+                            if (stack.isEmpty()) {
+                                p.generics.add(popped);
+                            } else {
+                                stack.peek().generics.add(popped);
+                            }
+                        } else if (curr == COMMA) {
+                            Structure.GenericArgument pop = stack.pop();
+                            Structure.GenericArgument peek = stack.peek();
+                            if (peek == null) {
+                                p.generics.add(pop);
+                            } else {
+                                pop.generics.add(peek);
+                            }
+                            stack.push(new Structure.GenericArgument());
+                        } else if (curr == NAME) {
+                            Structure.GenericArgument peek = stack.peek();
+                            if (ctx.structures.containsKey(curr.matched())) {
+                                peek.type = Structure.GenericArgument.Type.Known;
+                                peek.name = ctx.structures.get(curr.matched());
+                            } else if (ctx.documents.containsKey(curr.matched())) {
+                                peek.type = Structure.GenericArgument.Type.Known;
+                                peek.name = ctx.documents.get(curr.matched());
+                            } else if (ctx.generics.contains(curr.matched())) {
+                                peek.type = Structure.GenericArgument.Type.Unknown;
+                                peek.name = curr.matched();
+                            } else {
+                                scanner.fail("");
+                            }
+                        } else {
+                            scanner.fail("");
+                        }
                     }
-                    curr = scanner.next(tokens);
                 }
             } else if (ctx.generics.contains(curr.matched())) {
                 p.generic = ctx.generics.indexOf(curr.matched());
-                curr = scanner.next(tokens);
             } else if (curr.matched().equals("Block")) {
                 p.type = Parameter.Type.Block;
-                curr = scanner.next(tokens);
             } else {
                 throw new RuntimeException();
             }
 
+            curr = scanner.next(tokens);
             if (curr != NAME) scanner.fail("name");
             p.name = curr.matched();
 
@@ -314,13 +339,13 @@ public class CompositeParser implements Parser {
                 do {
                     curr = scanner.next(tokens);
                     if (curr != NAME) scanner.fail("name");
-                    StructureStatement.GenericArgument g = new StructureStatement.GenericArgument();
+                    Structure.GenericArgument g = new Structure.GenericArgument();
                     String name = curr.matched();
                     if (ctx.generics.contains(name)) {
-                        g.type = StructureStatement.GenericArgument.Type.Generic;
+                        g.type = Structure.GenericArgument.Type.Unknown;
                         g.name = name;
                     } else {
-                        g.type = StructureStatement.GenericArgument.Type.Known;
+                        g.type = Structure.GenericArgument.Type.Known;
                         if (ctx.structures.containsKey(curr.matched())) {
                             g.name = ctx.structures.get(curr.matched());
                         } else if (ctx.documents.containsKey(curr.matched())) {
@@ -487,17 +512,49 @@ public class CompositeParser implements Parser {
         } else {
             f.structure = curr.matched();
         }
-        curr = scanner.next(tokens);
-        if (curr == OP_PT_BRACE) {
-            do {
-                curr = scanner.expect(tokens, NAME);
-                f.generics.add(ctx.structures.get(curr.matched()));
+        Token next = scanner.peek(tokens).orElse(null);
+        if (next == OP_PT_BRACE) {
+            ArrayDeque<Structure.GenericArgument> stack = new ArrayDeque<>();
+            while (!stack.isEmpty() || curr != CL_PT_BRACE) {
                 curr = scanner.next(tokens);
-            } while (curr == COMMA);
-            if (curr != CL_PT_BRACE) scanner.fail(">");
-            curr = scanner.next(tokens);
+                if (curr == OP_PT_BRACE) {
+                    stack.push(new Structure.GenericArgument());
+                } else if (curr == CL_PT_BRACE) {
+                    Structure.GenericArgument popped = stack.pop();
+                    if (stack.isEmpty()) {
+                        f.generics.add(popped);
+                    } else {
+                        stack.peek().generics.add(popped);
+                    }
+                } else if (curr == COMMA) {
+                    Structure.GenericArgument pop = stack.pop();
+                    Structure.GenericArgument peek = stack.peek();
+                    if (peek == null) {
+                        f.generics.add(pop);
+                    } else {
+                        pop.generics.add(peek);
+                    }
+                    stack.push(new Structure.GenericArgument());
+                } else if (curr == NAME) {
+                    Structure.GenericArgument peek = stack.peek();
+                    if (ctx.structures.containsKey(curr.matched())) {
+                        peek.type = Structure.GenericArgument.Type.Known;
+                        peek.name = ctx.structures.get(curr.matched());
+                    } else if (ctx.documents.containsKey(curr.matched())) {
+                        peek.type = Structure.GenericArgument.Type.Known;
+                        peek.name = ctx.documents.get(curr.matched());
+                    } else if (ctx.generics.contains(curr.matched())) {
+                        peek.type = Structure.GenericArgument.Type.Unknown;
+                        peek.name = curr.matched();
+                    } else {
+                        scanner.fail("");
+                    }
+                } else {
+                    scanner.fail("");
+                }
+            }
         }
-        if (curr != NAME) scanner.fail("field name");
+        curr = scanner.expect(tokens, NAME);
         f.name = curr.matched();
         scanner.expect(tokens, SEMI_COLON);
         ctx.c.fields.add(f);

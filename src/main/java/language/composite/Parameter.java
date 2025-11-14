@@ -1,5 +1,7 @@
 package language.composite;
 
+import language.core.Structure;
+
 import java.util.ArrayList;
 
 public class Parameter {
@@ -12,7 +14,7 @@ public class Parameter {
     int bits;
     // Type variable
     String structure;
-    ArrayList<String> generics = new ArrayList<>();
+    ArrayList<Structure.GenericArgument> generics = new ArrayList<>();
     int generic = -1;
 
 }

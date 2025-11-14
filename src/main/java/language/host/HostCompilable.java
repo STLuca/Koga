@@ -107,9 +107,14 @@ public class HostCompilable implements Compilable {
 
             // declare the parameters
             for (Parameter p : m.params) {
+                ArrayList<String> generics = new ArrayList<>();
+                for (Structure.GenericArgument g : p.generics) {
+                    generics.add(g.name);
+                }
+
                 Structure structure = sources.structure(p.structure);
                 mb.parameter(structure.name());
-                structure.declare(mb, sources, scope, p.name, p.generics, null);
+                structure.declare(mb, sources, scope, p.name, p.generics);
             }
 
             // handle each statement in the body

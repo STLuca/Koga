@@ -130,6 +130,11 @@ public class Scope {
         allocations.put(name, allocation);
     }
 
+    public void addState(Scope thisVariable) {
+        scopes.putAll(thisVariable.scopes);
+        generics.putAll(thisVariable.generics);
+    }
+
     public Scope state() {
         return this;
     }

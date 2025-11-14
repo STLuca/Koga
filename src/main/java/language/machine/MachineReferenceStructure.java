@@ -21,25 +21,26 @@ public class MachineReferenceStructure implements Structure {
         return name;
     }
 
-    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics) {
+    public void declare(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<GenericArgument> generics) {
         Scope variable = scope.add(name);
         variable.name = name;
         variable.structure = this;
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
+            String genericName = generics.get(i).name;
             Scope.Generic g = new Scope.Generic();
             g.name = generic.name;
             g.known = true;
             switch (generic.type) {
                 case Structure -> {
-                    Structure value = sources.structure(generics.get(i));
+                    Structure value = sources.structure(genericName);
                     g.type = Scope.Generic.Type.Structure;
                     g.structure = value;
                     variable.generics.put(generic.name, g);
                 }
                 case Document -> {
-                    Document doc = sources.document(generics.get(i), Compilable.Level.Head);
+                    Document doc = sources.document(genericName, Compilable.Level.Head);
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                     variable.generics.put(generic.name, g);
@@ -59,25 +60,26 @@ public class MachineReferenceStructure implements Structure {
         throw new RuntimeException("Not supported");
     }
 
-    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<String> generics, List<GenericArgument> nestedGenerics, String constructorName, List<String> arguments) {
+    public void construct(Compiler.MethodCompiler compiler, Sources sources, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> arguments) {
         Scope variable = scope.add(name);
         variable.name = name;
         variable.structure = this;
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
+            String genericName = generics.get(i).name;
             Scope.Generic g = new Scope.Generic();
             g.name = generic.name;
             g.known = true;
             switch (generic.type) {
                 case Structure -> {
-                    Structure value = sources.structure(generics.get(i));
+                    Structure value = sources.structure(genericName);
                     g.type = Scope.Generic.Type.Structure;
                     g.structure = value;
                     variable.generics.put(generic.name, g);
                 }
                 case Document -> {
-                    Document doc = sources.document(generics.get(i), Compilable.Level.Head);
+                    Document doc = sources.document(genericName, Compilable.Level.Head);
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                     variable.generics.put(generic.name, g);

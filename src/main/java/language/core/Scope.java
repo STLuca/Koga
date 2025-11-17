@@ -6,6 +6,10 @@ public class Scope {
 
     public record Allocation(int size, int location) {}
 
+    public interface Block {
+        void execute(Compiler.MethodCompiler compiler, Scope scope);
+    }
+
     public static class Generic {
         public enum Type { Structure, Document }
         public Scope.Generic.Type type;

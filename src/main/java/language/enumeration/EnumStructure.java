@@ -153,7 +153,7 @@ public class EnumStructure implements language.core.Structure {
                     Scope structScope = variable.state(structure, structure.name);
                     structScope.implicit().put(structure.name, structScope);
                     String arg = arguments.get(i + 1);
-                    Block b = scope.findBlock(arg).orElse(null);
+                    Scope.Block b = scope.findBlock(arg).orElse(null);
                     if (b == null) {
                         throw new RuntimeException("Expecting block for union type");
                     }

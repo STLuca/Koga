@@ -116,7 +116,7 @@ public class MachineReferenceStructure implements Structure {
                     operationScope.put(p.name, v);
                 }
                 case Block -> {
-                    Block b = scope.findBlock(arg).orElseThrow();
+                    Scope.Block b = scope.findBlock(arg).orElseThrow();
                     operationScope.put(p.name, b);
                 }
                 case Name -> {

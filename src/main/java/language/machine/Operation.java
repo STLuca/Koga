@@ -1,6 +1,5 @@
 package language.machine;
 
-import language.core.Block;
 import language.core.Scope;
 
 import java.util.ArrayList;
@@ -90,7 +89,7 @@ public class Operation {
                     if (literal != null) { continue; }
                 }
                 case Block -> {
-                    Block b = operation.findBlock(arg).orElse(null);
+                    Scope.Block b = operation.findBlock(arg).orElse(null);
                     if (b != null) { continue; }
                 }
                 case Name -> {

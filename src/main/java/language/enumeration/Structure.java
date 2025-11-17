@@ -67,7 +67,7 @@ class Structure implements language.core.Structure {
                     operationScope.put(param.name, v);
                 }
                 case Block -> {
-                    Block b = scope.findBlock(arg).orElseThrow();
+                    Scope.Block b = scope.findBlock(arg).orElseThrow();
                     operationScope.put(param.name, b);
                 }
                 case Name -> {

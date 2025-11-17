@@ -86,7 +86,7 @@ public class Statement {
         }
     }
 
-    static class Block implements language.core.Block {
+    static class Block implements Scope.Block {
 
         List<Statement> block;
         Repository repository;

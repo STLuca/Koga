@@ -8,7 +8,7 @@ public class BlockStatement implements Statement {
 
     @Override
     public void handle(Compiler.MethodCompiler compiler, Repository repository, Scope scope) {
-        Block b = scope.findBlock(blockName).orElseThrow();
+        Scope.Block b = scope.findBlock(blockName).orElseThrow();
         b.execute(compiler, scope);
     }
 }

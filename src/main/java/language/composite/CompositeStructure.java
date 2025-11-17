@@ -125,7 +125,7 @@ public class CompositeStructure implements Structure {
                     operationScope.put(param.name, v);
                 }
                 case Block -> {
-                    Block b = scope.findBlock(argName).orElseThrow();
+                    Scope.Block b = scope.findBlock(argName).orElseThrow();
                     operationScope.put(param.name, b);
                 }
             }
@@ -158,7 +158,7 @@ public class CompositeStructure implements Structure {
                     operationScope.put(param.name, v);
                 }
                 case Block -> {
-                    Block b = scope.findBlock(arg).orElseThrow();
+                    Scope.Block b = scope.findBlock(arg).orElseThrow();
                     operationScope.put(param.name, b);
                 }
                 case null, default -> {

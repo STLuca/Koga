@@ -19,7 +19,7 @@ public class BlockStatement implements Statement {
             return;
         }
 
-        Block bm = null;
+        Scope.Block bm = null;
         if (scope.findBlock(this.name).isPresent()) {
             bm = scope.findBlock(this.name).orElseThrow();
         }
@@ -33,7 +33,7 @@ public class BlockStatement implements Statement {
         bm.execute(compiler, scope);
     }
 
-    static class MachineBlock implements language.core.Block {
+    static class MachineBlock implements Scope.Block {
 
         List<Statement> statements;
         Repository repository;

@@ -43,7 +43,7 @@ public class CompositeStructure implements Structure {
                     g.structure = value;
                 }
                 case Document -> {
-                    language.core.Document doc = repository.document(generics.get(i).name, Compilable.Level.Head);
+                    language.core.Document doc = repository.document(generics.get(i).name);
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                 }
@@ -56,11 +56,6 @@ public class CompositeStructure implements Structure {
         }
 
         for (Field f : fields) {
-            ArrayList<String> oldGenerics = new ArrayList<>();
-            for (Structure.GenericArgument g : f.generics) {
-                oldGenerics.add(g.name);
-            }
-
             Structure u;
             Scope.Generic generic = thisVariable.findGeneric(f.structure).orElse(null);
             if (generic != null) {
@@ -92,7 +87,7 @@ public class CompositeStructure implements Structure {
                     g.structure = value;
                 }
                 case Document -> {
-                    Document doc = repository.document(generics.get(i).name, Compilable.Level.Head);
+                    Document doc = repository.document(generics.get(i).name);
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                 }
@@ -104,6 +99,12 @@ public class CompositeStructure implements Structure {
             repository.structure(imprt);
         }
 
+        for (Field field : fields) {
+            Structure structure = repository.structure(field.structure);
+            Scope fieldScope = thisVariable.state(structure, field.name);
+            // Add field generics?
+        }
+
         Method method = null;
         for (Method m : constructors) {
             if (m.name.equals(constructorName)) {
@@ -113,7 +114,7 @@ public class CompositeStructure implements Structure {
         }
         if (method == null) throw new RuntimeException("Method not found");
 
-        Scope operationScope = thisVariable.startOperation(thisVariable, constructorName);
+        Scope operationScope = scope.startOperation(thisVariable, constructorName);
         // Map the args to name using parameters
         int i = 0;
         for (Parameter param : method.params) {
@@ -146,7 +147,7 @@ public class CompositeStructure implements Structure {
         }
         if (method == null) throw new RuntimeException("Method not found");
 
-        Scope operationScope = variable.startOperation(variable, operationName);
+        Scope operationScope = scope.startOperation(variable, operationName);
         // Map the args to name using parameters
         int i = 0;
         for (Parameter param : method.params) {

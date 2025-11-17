@@ -24,7 +24,7 @@ public class InterfaceCompilable implements Compilable {
         return dependencies;
     }
     
-    public void compile(Repository repository, Compiler compiler, Level level) {
+    public void compile(Repository repository, Compiler compiler) {
         compiler.name(name);
         compiler.type(Types.Document.Interface);
 //        int classSymbol = compiler.symbol(Class.Symbol.Type.CLASS, name);

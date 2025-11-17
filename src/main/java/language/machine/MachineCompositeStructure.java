@@ -53,7 +53,7 @@ public class MachineCompositeStructure implements Structure {
                     variable.put(generic.name, g);
                 }
                 case Document -> {
-                    language.core.Document doc = repository.document(genericName, Compilable.Level.Head);
+                    language.core.Document doc = repository.document(genericName);
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                     variable.put(generic.name, g);
@@ -119,7 +119,7 @@ public class MachineCompositeStructure implements Structure {
                 }
                 case Document -> {
                     g.type = Scope.Generic.Type.Document;
-                    Document doc = repository.document(genericName, Compilable.Level.Head);
+                    Document doc = repository.document(genericName);
                     g.document = doc;
                     variable.put(generic.name, g);
                 }
@@ -148,7 +148,7 @@ public class MachineCompositeStructure implements Structure {
             compiler.debugData(variable.stateName(v.name), v.name, location, v.size);
         }
 
-        Scope operationScope = variable.startOperation(variable, constructorName);
+        Scope operationScope = scope.startOperation(variable, constructorName);
         int argIdx = 0;
         for (Operation.Parameter p : c.parameters) {
             String arg = arguments.get(argIdx++);

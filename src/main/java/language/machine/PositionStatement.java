@@ -19,7 +19,7 @@ public class PositionStatement implements Statement {
         int prev = compiler.position(addr);
         if (this.prevName != null) {
             Scope.Allocation newAllocation = new Scope.Allocation(4, prev);
-            scope.add(prevName, newAllocation);
+            scope.put(prevName, newAllocation);
         }
     }
 

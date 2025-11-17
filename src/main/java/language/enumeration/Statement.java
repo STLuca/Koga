@@ -70,11 +70,6 @@ public class Statement {
             argNames.addAll(scope.defaults());
         }
 
-        ArrayList<String> oldGenerics = new ArrayList<>();
-        for (Structure.GenericArgument g : generics) {
-            oldGenerics.add(g.name);
-        }
-
         switch (type) {
             case DECLARE -> {
                 Structure structure = repository.structure(this.structure);

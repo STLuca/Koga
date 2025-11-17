@@ -37,7 +37,7 @@ public class MachineReferenceStructure implements Structure {
                     variable.put(generic.name, g);
                 }
                 case Document -> {
-                    language.core.Document doc = repository.document(genericName, Compilable.Level.Head);
+                    language.core.Document doc = repository.document(genericName);
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                     variable.put(generic.name, g);
@@ -74,7 +74,7 @@ public class MachineReferenceStructure implements Structure {
                     variable.put(generic.name, g);
                 }
                 case Document -> {
-                    language.core.Document doc = repository.document(genericName, Compilable.Level.Head);
+                    language.core.Document doc = repository.document(genericName);
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                     variable.put(generic.name, g);

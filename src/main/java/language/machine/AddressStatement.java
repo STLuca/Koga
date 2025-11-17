@@ -19,7 +19,7 @@ public class AddressStatement implements Statement {
         }
         int address = compiler.address();
         Scope.Allocation newAllocation = new Scope.Allocation(4, address);
-        scope.add(name, newAllocation);
+        scope.put(name, newAllocation);
     }
 
 }

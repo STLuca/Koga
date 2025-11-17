@@ -69,11 +69,6 @@ public class Statement {
             argNames.addAll(scope.defaults());
         }
 
-        ArrayList<String> oldGenerics = new ArrayList<>();
-        for (Structure.GenericArgument g : generics) {
-            oldGenerics.add(g.name);
-        }
-
         switch (type) {
             case DECLARE -> {
                 Structure structure = repository.structure(this.structure);
@@ -108,11 +103,10 @@ public class Statement {
         }
         
         public void execute(Compiler.MethodCompiler compiler, Scope scope) {
-            this.scope.addImplicit(scope.implicit());
+            Scope blockScope = this.scope.startBlock(scope);
             for (Statement stmt : block) {
-                stmt.handle(compiler, repository, this.scope);
+                stmt.handle(compiler, repository, blockScope);
             }
-            this.scope.removeImplicit(scope.implicit());
         }
     }
 

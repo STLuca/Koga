@@ -75,15 +75,9 @@ public class StructureStatement implements Statement {
             argNames.addAll(scope.defaults());
         }
 
-        ArrayList<String> oldGenerics = new ArrayList<>();
-
-        for (Structure.GenericArgument g : generics) {
-            oldGenerics.add(g.name);
-        }
-
         switch (type) {
             case DECLARE -> {
-                Scope.Generic g = scope.parent().findGeneric(this.structure).orElse(null);
+                Scope.Generic g = scope.findGeneric(this.structure).orElse(null);
                 if (g != null) {
                     Structure structure = g.structure;
                     structure.declare(compiler, repository, scope, variableName, generics);
@@ -124,11 +118,10 @@ public class StructureStatement implements Statement {
         }
         
         public void execute(Compiler.MethodCompiler compiler, Scope scope) {
-            this.scope.addImplicit(scope.implicit());
+            Scope blockScope = this.scope.startBlock(scope);
             for (Statement stmt : block) {
-                stmt.handle(compiler, repository, name, this.scope);
+                stmt.handle(compiler, repository, name, blockScope);
             }
-            this.scope.removeImplicit(scope.implicit());
         }
     }
 

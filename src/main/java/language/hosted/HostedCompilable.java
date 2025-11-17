@@ -36,36 +36,12 @@ public class HostedCompilable implements Compilable {
         return doc;
     }
 
-    public void compile(Repository repository, Compiler compiler, Level level) {
+    public void compile(Repository repository, Compiler compiler) {
         compiler.name(name);
         compiler.type(Types.Document.Hosted);
 
         for (String imprt : this.imports) {
             repository.structure(imprt);
-        }
-
-        if (level == Level.Head) {
-            for (Field f : fields) {
-                Structure sc = repository.structure(f.structure);
-                compiler.data(f.name, sc.size(repository));
-            }
-
-            for (Method m : methods) {
-                Compiler.MethodCompiler mb = compiler.method();
-                mb.name(m.name);
-                for (Parameter p : m.params) {
-                    Structure structure = repository.structure(p.structure);
-                    mb.parameter(structure.name());
-                }
-            }
-            for (String dependency : dependencies) {
-                compiler.dependency(dependency);
-            }
-
-            for (String implementing : interfaces) {
-                compiler.implementing(implementing);
-            }
-            return;
         }
 
         for (String dependency : dependencies) {

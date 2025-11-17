@@ -83,7 +83,7 @@ public class FileRepository implements Repository {
         return compilableClasses.get(name);
     }
 
-    public language.core.Document document(String name, Compilable.Level level) {
+    public language.core.Document document(String name) {
         parse(name);
         Compilable compilable = compilableClasses.get(name);
         return compilable.document();

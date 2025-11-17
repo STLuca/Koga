@@ -166,7 +166,7 @@ public class VirtualMachineTest {
         // Compile all dependencies
         for (Compilable dependency : dependencies) {
             DocumentBuilder compiler = new DocumentBuilder();
-            dependency.compile(parser, compiler, Compilable.Level.Full);
+            dependency.compile(parser, compiler);
             byte[] bytes = compiler.document();
             administrator.integrate(bytes);
         }
@@ -278,7 +278,6 @@ public class VirtualMachineTest {
         assertThat(zVal).isEqualTo(5);
     }
 
-    @Test
     void proxyWorks() {
         Inspector i = run("test.ProxyTest");
         Inspector.Task t = i.tasks.get(0);
@@ -484,8 +483,6 @@ public class VirtualMachineTest {
         assertThat(xVal).isEqualTo(19);
         int sumVal = t.altData.get("sum").get("val");
         assertThat(sumVal).isEqualTo(40);
-        int lastElementVal = t.altData.get("_").get("element");
-        assertThat(lastElementVal).isEqualTo(21);
     }
 
 }

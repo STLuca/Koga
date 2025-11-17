@@ -79,7 +79,7 @@ public class EnumStructure implements language.core.Structure {
         }
         if (method == null) { throw new RuntimeException("Method not found"); }
 
-        Scope operationScope = thisVariable.startOperation(thisVariable, structure.name);
+        Scope operationScope = scope.startOperation(thisVariable, structure.name);
         // Map the args to name using parameters
         int i = 0;
         for (Parameter param : method.params) {
@@ -134,17 +134,17 @@ public class EnumStructure implements language.core.Structure {
                 new InstructionStatement("j", "REL", "T", "LDA", "type").compile(compiler, repository, variable, operationScope);
                 int jumps = compiler.address();
                 Scope.Allocation allocation = new Scope.Allocation(4, jumps);
-                operationScope.add("jumps", allocation);
+                operationScope.put("jumps", allocation);
                 int cases = compiler.address();
                 allocation = new Scope.Allocation(4, cases);
-                operationScope.add("cases", allocation);
+                operationScope.put("cases", allocation);
                 int end = compiler.address();
                 allocation = new Scope.Allocation(4, end);
-                operationScope.add("end", allocation);
+                operationScope.put("end", allocation);
                 for (int i = 0; i < arguments.size(); i+=2) {
                     int caseAddr = compiler.address();
                     allocation = new Scope.Allocation(4, caseAddr);
-                    operationScope.add("case", allocation);
+                    operationScope.put("case", allocation);
                     int prev = compiler.position(jumps);
                     new InstructionStatement("j", "REL", "I", "case").compile(compiler, repository, variable, operationScope);
                     compiler.position(cases);
@@ -191,18 +191,18 @@ public class EnumStructure implements language.core.Structure {
                 new InstructionStatement("j", "REL", "T", "LDA", "type").compile(compiler, repository, variable, operationScope);
                 int jumps = compiler.address();
                 Scope.Allocation allocation = new Scope.Allocation(4, jumps);
-                operationScope.add("jumps", allocation);
+                operationScope.put("jumps", allocation);
                 int cases = compiler.address();
                 allocation = new Scope.Allocation(4, cases);
-                operationScope.add("cases", allocation);
+                operationScope.put("cases", allocation);
                 int end = compiler.address();
                 allocation = new Scope.Allocation(4, end);
-                operationScope.add("end", allocation);
+                operationScope.put("end", allocation);
                 int i = 0;
                 for (Structure s : structures) {
                     int caseAddr = compiler.address();
                     allocation = new Scope.Allocation(4, caseAddr);
-                    operationScope.add("case", allocation);
+                    operationScope.put("case", allocation);
                     int prev = compiler.position(jumps);
                     new InstructionStatement("j", "REL", "I", "case").compile(compiler, repository, variable, operationScope);
                     compiler.position(cases);
@@ -210,7 +210,7 @@ public class EnumStructure implements language.core.Structure {
 
                     // execute block
                     Scope structScope = variable.state(s, s.name);
-                    Scope methodScope = structScope.startOperation(structScope, operationName);
+                    Scope methodScope = scope.startOperation(structScope, operationName);
                     Method m = methods.get(i);
                     for (Statement stmt : m.statements) {
                         int argI = 0;

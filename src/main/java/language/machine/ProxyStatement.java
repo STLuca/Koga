@@ -13,6 +13,7 @@ public class ProxyStatement implements Statement {
         Scope.Allocation allocation = variable.findAllocation(this.arguments.get(1)).orElseThrow();
 
         int location = allocation.location();
-        proxy.structure().proxy(null, proxy, location);
+
+        proxy.structure().proxy(repository, proxy, location);
     }
 }

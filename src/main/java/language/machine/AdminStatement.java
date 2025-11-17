@@ -51,11 +51,11 @@ public class AdminStatement implements Statement {
 
         int location = compiler.data(4);
         Scope.Allocation allocation = new Scope.Allocation(4, location);
-        scope.add(methodAddr, allocation);
+        scope.put(methodAddr, allocation);
         compiler.debugData(scope.stateName(variable.name()), methodAddr, location, 4);
         location = compiler.data(4);
         allocation = new Scope.Allocation(4, location);
-        scope.add(frameDataAddr, allocation);
+        scope.put(frameDataAddr, allocation);
         compiler.debugData(scope.stateName(variable.name()), frameDataAddr, location, 4);
 
         new InstructionStatement("c", "ADDR", "LI", "LDA", methodAddr, "R", "table", "AL", methodSymbol).compile(compiler, repository, variable, scope);

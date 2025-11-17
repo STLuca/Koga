@@ -52,11 +52,10 @@ public class BlockStatement implements Statement {
         }
         
         public void execute(Compiler.MethodCompiler compiler, Scope scope) {
-            this.state.addImplicit(scope.implicit());
+            Scope blockScope = this.scope.startBlock(scope);
             for (Statement s : statements) {
-                s.compile(compiler, repository, variable, this.state);
+                s.compile(compiler, repository, variable, blockScope);
             }
-            this.state.removeImplicit(scope.implicit());
         }
     }
 

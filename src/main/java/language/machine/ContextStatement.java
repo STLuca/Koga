@@ -23,7 +23,7 @@ public class ContextStatement implements Statement {
                 scope.addDefault(variable.name());
             }
             case POP -> {
-                scope.remove();
+                scope.removeLastDefault();
             }
             case VALUE -> {
                 String name = this.arguments.get(1);

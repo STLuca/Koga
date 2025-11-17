@@ -28,7 +28,7 @@ public class Protocol implements Compilable {
         return doc;
     }
 
-    public void compile(Repository repository, Compiler compiler, Level level) {
+    public void compile(Repository repository, Compiler compiler) {
         compiler.name(name);
         Compiler.ProtocolCompiler pc = compiler.protocol();
 

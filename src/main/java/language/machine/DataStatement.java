@@ -21,7 +21,7 @@ public class DataStatement implements Statement {
         if (variableAllocation != null) {
             variable.put(name, new Scope.Allocation(allocateSize, allocated));
         } else {
-            scope.add(name, new Scope.Allocation(allocateSize, allocated));
+            scope.put(name, new Scope.Allocation(allocateSize, allocated));
         }
         compiler.debugData(scope.stateName(name), name, allocated, allocateSize);
     }

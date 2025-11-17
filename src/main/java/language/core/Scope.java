@@ -37,25 +37,23 @@ public class Scope {
     }
 
     public Scope state(Structure structure, String name) {
-        if (name.equals("_")) {
-            Scope newScope = Scope.withImplicit();
-            newScope.parent = this;
-            newScope.name = name;
-            newScope.structure = structure;
-            unnamedSubScopes.add(newScope);
-            currentAnonymous = newScope;
-            return newScope;
-        }
         if (namedSubScopes.containsKey(name)) {
             return namedSubScopes.get(name);
-        } else {
-            Scope newScope = Scope.withImplicit();
-            newScope.parent = this;
-            newScope.name = name;
-            newScope.structure = structure;
-            namedSubScopes.put(name, newScope);
-            return newScope;
         }
+
+        Scope newScope = Scope.withImplicit();
+        newScope.parent = this;
+        newScope.name = name;
+        newScope.structure = structure;
+
+        if (name.equals("_")) {
+            unnamedSubScopes.add(newScope);
+            currentAnonymous = newScope;
+        } else {
+            namedSubScopes.put(name, newScope);
+        }
+
+        return newScope;
     }
 
     public Scope startOperation(Scope state, String name) {
@@ -65,10 +63,54 @@ public class Scope {
         unnamedSubScopes.add(newScope);
 
         newScope.namedSubScopes.putAll(state.namedSubScopes);
+        newScope.literals.putAll(state.literals);
+        newScope.blocks.putAll(state.blocks);
+        newScope.defaultArgs.addAll(state.defaultArgs);
+        newScope.allocations.putAll(state.allocations);
         newScope.generics.putAll(state.generics);
+
+        newScope.namedSubScopes.putAll(implicitScope.namedSubScopes);
+        newScope.literals.putAll(implicitScope.literals);
+        newScope.blocks.putAll(implicitScope.blocks);
+        newScope.defaultArgs.addAll(implicitScope.defaultArgs);
+        newScope.allocations.putAll(implicitScope.allocations);
+
+        newScope.implicitScope.namedSubScopes.putAll(implicitScope.namedSubScopes);
+        newScope.implicitScope.literals.putAll(implicitScope.literals);
+        newScope.implicitScope.blocks.putAll(implicitScope.blocks);
+        newScope.implicitScope.defaultArgs.addAll(implicitScope.defaultArgs);
+        newScope.implicitScope.allocations.putAll(implicitScope.allocations);
         return newScope;
     }
 
+    public Scope startBlock(Scope implicitHost) {
+        Scope newScope = Scope.withImplicit();
+        newScope.name = "block";
+        newScope.parent = this;
+        unnamedSubScopes.add(newScope);
+
+        newScope.namedSubScopes.putAll(namedSubScopes);
+        newScope.literals.putAll(literals);
+        newScope.blocks.putAll(blocks);
+        newScope.defaultArgs.addAll(defaultArgs);
+        newScope.allocations.putAll(allocations);
+        newScope.generics.putAll(generics);
+
+        Scope implicitScope = implicitHost.implicitScope;
+        newScope.namedSubScopes.putAll(implicitScope.namedSubScopes);
+        newScope.literals.putAll(implicitScope.literals);
+        newScope.blocks.putAll(implicitScope.blocks);
+        newScope.defaultArgs.addAll(implicitScope.defaultArgs);
+        newScope.allocations.putAll(implicitScope.allocations);
+
+        newScope.implicitScope.namedSubScopes.putAll(implicitScope.namedSubScopes);
+        newScope.implicitScope.literals.putAll(implicitScope.literals);
+        newScope.implicitScope.blocks.putAll(implicitScope.blocks);
+        newScope.implicitScope.defaultArgs.addAll(implicitScope.defaultArgs);
+        newScope.implicitScope.allocations.putAll(implicitScope.allocations);
+
+        return newScope;
+    }
 
     public Scope parent() {
         return parent;
@@ -176,36 +218,12 @@ public class Scope {
         return implicitScope;
     }
 
-    public void addImplicit(Scope scope) {
-        namedSubScopes.putAll(scope.namedSubScopes);
-        literals.putAll(scope.literals);
-        blocks.putAll(scope.blocks);
-        defaultArgs.addAll(scope.defaultArgs);
-    }
-
-    public void removeImplicit(Scope scope) {
-        for (String key : scope.namedSubScopes.keySet()) {
-            namedSubScopes.remove(key);
-        }
-        for (String key : scope.literals.keySet()) {
-            literals.remove(key);
-        }
-        for (String key : scope.blocks.keySet()) {
-            blocks.remove(key);
-        }
-        defaultArgs.removeAll(scope.defaultArgs);
-    }
-
-    public void add(String name, Scope.Allocation allocation) {
-        allocations.put(name, allocation);
-    }
-
 
     public void addDefault(String arg) {
         implicitScope.defaultArgs.add(arg);
     }
 
-    public void remove() {
+    public void removeLastDefault() {
         implicitScope.defaultArgs.removeLast();
     }
 

@@ -43,7 +43,7 @@ public class Scope {
 
         Scope newScope = Scope.withImplicit();
         newScope.parent = this;
-        newScope.name = name;
+        newScope.name = this.name == null ? name : this.name + "." + name;
         newScope.structure = structure;
 
         if (name.equals("_")) {
@@ -58,7 +58,7 @@ public class Scope {
 
     public Scope startOperation(Scope state, String name) {
         Scope newScope = Scope.withImplicit();
-        newScope.name = name;
+        newScope.name = this.name == null ? name : this.name + "." + name;
         newScope.parent = this;
         unnamedSubScopes.add(newScope);
 
@@ -93,17 +93,7 @@ public class Scope {
     }
 
     public String stateName(String name) {
-        StringBuilder sb = new StringBuilder();
-        Scope curr = this;
-        while (curr.parent != null) {
-            if (curr.structure != null) {
-                sb.insert(0, curr.name)
-                        .insert(curr.name.length(), ".");
-            }
-            curr = curr.parent;
-        }
-        sb.append(name);
-        return sb.toString();
+        return this.name + "." + name;
     }
 
 
@@ -190,8 +180,9 @@ public class Scope {
     }
 
 
-    public void addDefault(String arg) {
-        implicitScope.defaultArgs.add(arg);
+    public void addDefault(Scope arg) {
+        String[] split = arg.name.split("\\.");
+        implicitScope.defaultArgs.add(split[split.length - 1]);
     }
 
     public void removeLastDefault() {

@@ -20,7 +20,7 @@ public class ContextStatement implements Statement {
         ContextType type = ContextType.valueOf(this.arguments.get(0));
         switch (type) {
             case PUSH -> {
-                scope.addDefault(variable.name());
+                scope.addDefault(variable);
             }
             case POP -> {
                 scope.removeLastDefault();

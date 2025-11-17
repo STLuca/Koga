@@ -15,8 +15,8 @@ documents {
 test.DeferTest {
 
     main() {
+        Int x 0;
         Deferrer d {
-            Int x 0;
             d defer { x + 10; };
             Boolean b { x > 0; };
             If (b) {

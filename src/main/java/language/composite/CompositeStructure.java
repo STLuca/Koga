@@ -133,7 +133,7 @@ public class CompositeStructure implements Structure {
         }
 
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, repository, name, operationScope);
+            stmt.handle(compiler, repository, operationScope);
         }
     }
     
@@ -167,7 +167,7 @@ public class CompositeStructure implements Structure {
             }
         }
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, repository, variable.name(), operationScope);
+            stmt.handle(compiler, repository, operationScope);
         }
     }
 }

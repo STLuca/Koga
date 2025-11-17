@@ -9,7 +9,6 @@ public interface Statement {
     void handle(
         Compiler.MethodCompiler compiler,
         Repository repository,
-        String name,
         Scope scope
     );
 

@@ -31,7 +31,6 @@ public class StructureStatement implements Statement {
     public void handle(
             Compiler.MethodCompiler compiler,
             Repository repository,
-            String name,
             Scope scope
     ) {
         ArrayList<String> argNames = new ArrayList<>();
@@ -44,7 +43,7 @@ public class StructureStatement implements Statement {
                 scope.put(anonName, literal);
                 argNames.add(anonName);
             } else if (arg.block != null) {
-                Block b = new Block(arg.block, repository, name, scope);
+                Block b = new Block(arg.block, repository, scope);
                 String anonName = UUID.randomUUID().toString();
 
                 scope.put(anonName, b);
@@ -102,25 +101,22 @@ public class StructureStatement implements Statement {
 
         List<Statement> block;
         Repository repository;
-        String name;
         Scope scope;
 
         public Block(
                 List<Statement> block,
                 Repository repository,
-                String name,
                 Scope scope
         ) {
             this.block = block;
             this.repository = repository;
-            this.name = name;
             this.scope = scope;
         }
         
         public void execute(Compiler.MethodCompiler compiler, Scope scope) {
             Scope blockScope = scope.startOperation(this.scope, "block");
             for (Statement stmt : block) {
-                stmt.handle(compiler, repository, name, blockScope);
+                stmt.handle(compiler, repository, blockScope);
             }
         }
     }

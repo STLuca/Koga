@@ -14,7 +14,7 @@ public class ScopeStatement implements Statement {
     String name;
 
     @Override
-    public void handle(Compiler.MethodCompiler compiler, Repository repository, String name, Scope scope) {
+    public void handle(Compiler.MethodCompiler compiler, Repository repository, Scope scope) {
         switch (type) {
             case Implicit -> {
                 scope.implicit().put(this.name, scope.findVariable(this.name).orElseThrow());

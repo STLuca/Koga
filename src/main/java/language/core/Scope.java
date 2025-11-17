@@ -58,11 +58,14 @@ public class Scope {
         }
     }
 
-    public Scope startOperation(String name) {
+    public Scope startOperation(Scope state, String name) {
         Scope newScope = Scope.withImplicit();
         newScope.name = name;
         newScope.parent = this;
-        this.unnamedSubScopes.add(newScope);
+        unnamedSubScopes.add(newScope);
+
+        newScope.namedSubScopes.putAll(state.namedSubScopes);
+        newScope.generics.putAll(state.generics);
         return newScope;
     }
 
@@ -195,11 +198,6 @@ public class Scope {
 
     public void add(String name, Scope.Allocation allocation) {
         allocations.put(name, allocation);
-    }
-
-    public void addState(Scope thisVariable) {
-        namedSubScopes.putAll(thisVariable.namedSubScopes);
-        generics.putAll(thisVariable.generics);
     }
 
 

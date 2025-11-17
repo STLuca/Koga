@@ -79,7 +79,7 @@ public class EnumStructure implements language.core.Structure {
         }
         if (method == null) { throw new RuntimeException("Method not found"); }
 
-        Scope operationScope = thisVariable.startOperation(structure.name);
+        Scope operationScope = thisVariable.startOperation(thisVariable, structure.name);
         // Map the args to name using parameters
         int i = 0;
         for (Parameter param : method.params) {
@@ -123,7 +123,7 @@ public class EnumStructure implements language.core.Structure {
 
     @Override
     public void operate(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope variable, String operationName, List<String> arguments) {
-        Scope operationScope = scope.startOperation(operationName);
+        Scope operationScope = scope.startOperation(variable, operationName);
         switch (operationName) {
             case "match" -> {
                 if (arguments.size() % 2 != 0) { throw new RuntimeException("Should be type followed by block for every type"); }
@@ -210,8 +210,7 @@ public class EnumStructure implements language.core.Structure {
 
                     // execute block
                     Scope structScope = variable.state(s, s.name);
-                    Scope methodScope = structScope.startOperation(operationName);
-                    methodScope.addState(structScope);
+                    Scope methodScope = structScope.startOperation(structScope, operationName);
                     Method m = methods.get(i);
                     for (Statement stmt : m.statements) {
                         int argI = 0;

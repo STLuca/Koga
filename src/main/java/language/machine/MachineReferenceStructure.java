@@ -104,7 +104,7 @@ public class MachineReferenceStructure implements Structure {
             compiler.debugData(variable.stateName(v.name), v.name, location, v.size);
         }
 
-        Scope operationScope = scope.startOperation(constructorName);
+        Scope operationScope = scope.startOperation(variable, constructorName);
         int argIdx = 0;
         for (Operation.Parameter p : c.parameters) {
             String arg = arguments.get(argIdx++);
@@ -133,7 +133,7 @@ public class MachineReferenceStructure implements Structure {
 
     public void operate(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope variable, String operationName, List<String> arguments) {
         // put the name instead of the arguments
-        Scope operationScope = scope.startOperation(operationName);
+        Scope operationScope = scope.startOperation(variable, operationName);
         operationScope.put("methodName", operationName);
 
         for (String arg : arguments) {

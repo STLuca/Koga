@@ -113,7 +113,7 @@ public class CompositeStructure implements Structure {
         }
         if (method == null) throw new RuntimeException("Method not found");
 
-        Scope operationScope = thisVariable.startOperation(constructorName);
+        Scope operationScope = thisVariable.startOperation(thisVariable, constructorName);
         // Map the args to name using parameters
         int i = 0;
         for (Parameter param : method.params) {
@@ -130,7 +130,6 @@ public class CompositeStructure implements Structure {
             }
 
         }
-        operationScope.addState(thisVariable);
 
         for (Statement stmt : method.statements) {
             stmt.handle(compiler, repository, name, operationScope);
@@ -147,8 +146,7 @@ public class CompositeStructure implements Structure {
         }
         if (method == null) throw new RuntimeException("Method not found");
 
-        Scope operationScope = variable.startOperation(operationName);
-        operationScope.addState(variable);
+        Scope operationScope = variable.startOperation(variable, operationName);
         // Map the args to name using parameters
         int i = 0;
         for (Parameter param : method.params) {

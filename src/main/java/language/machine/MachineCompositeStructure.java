@@ -148,7 +148,7 @@ public class MachineCompositeStructure implements Structure {
             compiler.debugData(variable.stateName(v.name), v.name, location, v.size);
         }
 
-        Scope operationScope = variable.startOperation(constructorName);
+        Scope operationScope = variable.startOperation(variable, constructorName);
         int argIdx = 0;
         for (Operation.Parameter p : c.parameters) {
             String arg = arguments.get(argIdx++);
@@ -190,7 +190,7 @@ public class MachineCompositeStructure implements Structure {
         }
 
         // should this be scoped from scope or variable?
-        Scope operationScope = scope.startOperation(operationName);
+        Scope operationScope = scope.startOperation(variable, operationName);
         int argIdx = 0;
         for (Operation.Parameter p : operation.parameters) {
             String arg = arguments.get(argIdx++);

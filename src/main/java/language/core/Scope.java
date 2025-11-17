@@ -34,7 +34,7 @@ public class Scope {
     ArrayList<String> defaultArgs = new ArrayList<>();
     Scope implicitScope;
 
-    public static Scope withImplicit() {
+    public static Scope root() {
         Scope s = new Scope();
         s.implicitScope = new Scope();
         return s;
@@ -45,7 +45,7 @@ public class Scope {
             return namedSubScopes.get(name);
         }
 
-        Scope newScope = Scope.withImplicit();
+        Scope newScope = new Scope();
         newScope.parent = this;
         newScope.name = this.name == null ? name : this.name + "." + name;
         newScope.structure = structure;
@@ -61,7 +61,8 @@ public class Scope {
     }
 
     public Scope startOperation(Scope state, String name) {
-        Scope newScope = Scope.withImplicit();
+        Scope newScope = new Scope();
+        newScope.implicitScope = new Scope();
         newScope.name = this.name == null ? name : this.name + "." + name;
         newScope.parent = this;
         unnamedSubScopes.add(newScope);

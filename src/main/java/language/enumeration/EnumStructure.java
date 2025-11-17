@@ -114,8 +114,9 @@ public class EnumStructure implements language.core.Structure {
         new InstructionStatement("i", "ADD", "II", "LDA", "type", "IL", "0d0", "IL", "0d" + (index + 1))
                 .compile(compiler, repository, thisVariable, operationScope);
         Scope structureScope = thisVariable.state(structure, structure.name);
+        Scope structConstructorScope = operationScope.startOperation(structureScope, "?");
         for (Statement stmt : method.statements) {
-            stmt.handle(mc, repository, structureScope);
+            stmt.handle(mc, repository, structConstructorScope);
         }
     }
 
@@ -151,14 +152,14 @@ public class EnumStructure implements language.core.Structure {
                     // execute block
                     Structure structure = structures.get(i / 2);
                     Scope structScope = variable.state(structure, structure.name);
-                    structScope.implicit().put(structure.name, structScope);
+                    operationScope.implicit().put(structure.name, structScope);
                     String arg = arguments.get(i + 1);
                     Scope.Block b = scope.findBlock(arg).orElse(null);
                     if (b == null) {
                         throw new RuntimeException("Expecting block for union type");
                     }
-                    b.execute(compiler, structScope);
-                    structScope.implicit().removeVariable(structure.name);
+                    b.execute(compiler, operationScope);
+                    operationScope.implicit().removeVariable(structure.name);
 
                     new InstructionStatement("j", "REL", "I", "end").compile(compiler, repository, variable, operationScope);
                     compiler.address(end);

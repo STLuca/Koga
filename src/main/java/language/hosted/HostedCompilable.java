@@ -58,7 +58,7 @@ public class HostedCompilable implements Compilable {
 
         for (Method m : methods) {
             Compiler.MethodCompiler mb = compiler.method();
-            Scope scope = Scope.withImplicit();
+            Scope scope = Scope.root();
             for (Generic g : generics) {
                 Scope.Generic generic = new Scope.Generic();
                 switch (g.type) {

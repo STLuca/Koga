@@ -47,16 +47,16 @@ public class AdminStatement implements Statement {
             default -> throw new RuntimeException();
         };
         int allocateAddr = compiler.symbol(Types.Symbol.METHOD, "core.Administrator", methodName);
-        scope.literals.put(methodSymbol, allocateAddr);
+        scope.put(methodSymbol, allocateAddr);
 
         int location = compiler.data(4);
         Scope.Allocation allocation = new Scope.Allocation(4, location);
         scope.add(methodAddr, allocation);
-        compiler.debugData(scope.stateName(variable.name), methodAddr, location, 4);
+        compiler.debugData(scope.stateName(variable.name()), methodAddr, location, 4);
         location = compiler.data(4);
         allocation = new Scope.Allocation(4, location);
         scope.add(frameDataAddr, allocation);
-        compiler.debugData(scope.stateName(variable.name), frameDataAddr, location, 4);
+        compiler.debugData(scope.stateName(variable.name()), frameDataAddr, location, 4);
 
         new InstructionStatement("c", "ADDR", "LI", "LDA", methodAddr, "R", "table", "AL", methodSymbol).compile(compiler, repository, variable, scope);
         new InstructionStatement("i", "ADD", "LI", "LDA", frameDataAddr, "R", "altTask", "IL", "0d0").compile(compiler, repository, variable, scope);

@@ -17,20 +17,20 @@ documents {
 
 collection.ArrayList<Structure T> implements List {
 
-    Array items;
+    Array<T> items;
 
     init(Structure<T> mc, Int size) {
-        Reference<ArrayList> this this();
-        Pointer<Array> thisItems (this items);
-        Array<Int> items dynamic(mc size);
+        Reference<ArrayList<T>> this this();
+        Pointer<Array<T>> thisItems (this items);
+        Array<T> items dynamic(mc size);
         thisItems copyFrom(items);
         Task t complete();
     }
 
     set(Int index, Int value) {
-        Reference<ArrayList> this this();
-        Pointer<Array> thisItems (this items);
-        Array<Int> items (0);
+        Reference<ArrayList<T>> this this();
+        Pointer<Array<T>> thisItems (this items);
+        Array<T> items;
         thisItems copyTo(items);
         ArrayAccessor<Int> p (items);
         p indexInt(index);

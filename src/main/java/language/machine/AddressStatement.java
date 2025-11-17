@@ -7,17 +7,19 @@ public class AddressStatement implements Statement {
     String name;
     
     public void compile(Compiler.MethodCompiler compiler, Repository repository, Scope variable, Scope scope) {
-        if (scope.findAllocation(name) != null) {
-            compiler.address(scope.findAllocation(name).location());
+        Scope.Allocation allocation = scope.findAllocation(name).orElse(null);
+        if (allocation != null) {
+            compiler.address(allocation.location());
             return;
         }
-        if (variable.allocations.containsKey(name)) {
-            compiler.address(variable.allocations.get(name).location());
+        Scope.Allocation variableAllocation = variable.findAllocation(name).orElse(null);
+        if (variableAllocation != null) {
+            compiler.address(variableAllocation.location());
             return;
         }
         int address = compiler.address();
-        Scope.Allocation allocation = new Scope.Allocation(4, address);
-        scope.add(name, allocation);
+        Scope.Allocation newAllocation = new Scope.Allocation(4, address);
+        scope.add(name, newAllocation);
     }
 
 }

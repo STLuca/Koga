@@ -17,7 +17,7 @@ public class ScopeStatement implements Statement {
     public void handle(Compiler.MethodCompiler compiler, Repository repository, String name, Scope scope) {
         switch (type) {
             case Implicit -> {
-                scope.implicitScope.scopes.put(this.name, scope.scopes.get(this.name));
+                scope.implicit().put(this.name, scope.findVariable(this.name).orElseThrow());
             }
             case null, default -> {
                 throw new RuntimeException();

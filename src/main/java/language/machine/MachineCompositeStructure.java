@@ -33,14 +33,14 @@ public class MachineCompositeStructure implements Structure {
         }
         // Setup variable
         Scope variable = scope.add(name);
-        variable.name = name;
-        variable.structure = this;
+        variable.structure(this);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
             String genericName = generics.get(i).name;
-            if (scope.generics.containsKey(genericName)) {
-                variable.generics.put(generic.name, scope.generics.get(genericName));
+            Scope.Generic scopeGeneric = scope.findGeneric(genericName).orElse(null);
+            if (scopeGeneric != null) {
+                variable.put(generic.name, scopeGeneric);
                 continue;
             }
             Scope.Generic g = new Scope.Generic();
@@ -51,25 +51,25 @@ public class MachineCompositeStructure implements Structure {
                     Structure value = repository.structure(genericName);
                     g.type = Scope.Generic.Type.Structure;
                     g.structure = value;
-                    variable.generics.put(generic.name, g);
+                    variable.put(generic.name, g);
                 }
                 case Document -> {
                     language.core.Document doc = repository.document(genericName, Compilable.Level.Head);
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
-                    variable.generics.put(generic.name, g);
+                    variable.put(generic.name, g);
                 }
             }
         }
         // setup data and addresses
         for (String address : addresses) {
             int addr = compiler.address();
-            variable.allocations.put(address, new Scope.Allocation(4, addr));
+            variable.put(address, new Scope.Allocation(4, addr));
         }
         for (Data v : this.variables) {
             if (v.size > 0) {
                 int location = compiler.data(v.size);
-                variable.allocations.put(v.name, new Scope.Allocation(v.size, location));
+                variable.put(v.name, new Scope.Allocation(v.size, location));
                 compiler.debugData(variable.stateName(v.name), v.name, location, v.size);
             }
         }
@@ -77,7 +77,7 @@ public class MachineCompositeStructure implements Structure {
     
     public void proxy(Repository repository, Scope variable, int location) {
         // Setup variable
-        variable.structure = this;
+        variable.structure(this);
         // generics
 
         // setup data and addresses
@@ -87,7 +87,7 @@ public class MachineCompositeStructure implements Structure {
 //        }
         for (Data v : this.variables) {
             if (v.size > 0) {
-                variable.allocations.put(v.name, new Scope.Allocation(v.size, location));
+                variable.put(v.name, new Scope.Allocation(v.size, location));
                 location += v.size;
             }
         }
@@ -95,8 +95,7 @@ public class MachineCompositeStructure implements Structure {
 
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> arguments) {
         Scope variable = scope.add(name);
-        variable.name = name;
-        variable.structure = this;
+        variable.structure(this);
 
         // Setup variable
         if (this.generics.size() != generics.size()) {
@@ -105,8 +104,9 @@ public class MachineCompositeStructure implements Structure {
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
             String genericName = generics.get(i).name;
-            if (scope.generics.containsKey(genericName)) {
-                variable.generics.put(generic.name, scope.generics.get(genericName));
+            Scope.Generic scopeGeneric = scope.findGeneric(genericName).orElse(null);
+            if (scopeGeneric != null) {
+                variable.put(generic.name, scopeGeneric);
                 continue;
             }
             Scope.Generic g = new Scope.Generic();
@@ -117,13 +117,13 @@ public class MachineCompositeStructure implements Structure {
                     g.type = Scope.Generic.Type.Structure;
                     Structure value = repository.structure(genericName);
                     g.structure = value;
-                    variable.generics.put(generic.name, g);
+                    variable.put(generic.name, g);
                 }
                 case Document -> {
                     g.type = Scope.Generic.Type.Document;
                     Document doc = repository.document(genericName, Compilable.Level.Head);
                     g.document = doc;
-                    variable.generics.put(generic.name, g);
+                    variable.put(generic.name, g);
                 }
             }
         }
@@ -142,11 +142,11 @@ public class MachineCompositeStructure implements Structure {
 
         for (String address : addresses) {
             int addr = compiler.address();
-            variable.allocations.put(address, new Scope.Allocation(4, addr));
+            variable.put(address, new Scope.Allocation(4, addr));
         }
         for (Data v : this.variables) {
             int location = compiler.data(v.size);
-            variable.allocations.put(v.name, new Scope.Allocation(v.size, location));
+            variable.put(v.name, new Scope.Allocation(v.size, location));
             compiler.debugData(variable.stateName(v.name), v.name, location, v.size);
         }
 
@@ -157,19 +157,18 @@ public class MachineCompositeStructure implements Structure {
             switch(p.type) {
                 case Literal -> {
                     int literal = scope.findLiteral(arg).orElseThrow();
-                    operationScope.literals.put(p.name, literal);
+                    operationScope.put(p.name, literal);
                 }
                 case Variable -> {
-                    Scope v = scope.findVariable(arg);
-                    if (v == null) { throw new RuntimeException(); }
-                    operationScope.scopes.put(p.name, v);
+                    Scope v = scope.findVariable(arg).orElseThrow();
+                    operationScope.put(p.name, v);
                 }
                 case Block -> {
                     Block b = scope.findBlock(arg).orElseThrow();
-                    operationScope.blocks.put(p.name, b);
+                    operationScope.put(p.name, b);
                 }
                 case Name -> {
-                    operationScope.names.put(p.name, arg);
+                    operationScope.put(p.name, arg);
                 }
             }
         }
@@ -200,19 +199,18 @@ public class MachineCompositeStructure implements Structure {
             switch(p.type) {
                 case Literal -> {
                     int literal = scope.findLiteral(arg).orElseThrow();
-                    operationScope.literals.put(p.name, literal);
+                    operationScope.put(p.name, literal);
                 }
                 case Variable -> {
-                    Scope v = scope.findVariable(arg);
-                    if (v == null) { throw new RuntimeException(); }
-                    operationScope.scopes.put(p.name, v);
+                    Scope v = scope.findVariable(arg).orElseThrow();
+                    operationScope.put(p.name, v);
                 }
                 case Block -> {
                     Block b = scope.findBlock(arg).orElseThrow();
-                    operationScope.blocks.put(p.name, b);
+                    operationScope.put(p.name, b);
                 }
                 case Name -> {
-                    operationScope.names.put(p.name, arg);
+                    operationScope.put(p.name, arg);
                 }
             }
         }

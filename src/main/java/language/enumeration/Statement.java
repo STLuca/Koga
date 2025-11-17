@@ -41,20 +41,15 @@ public class Statement {
                 int literal = parseLiteral(arg.literal);
                 String anonName = UUID.randomUUID().toString();
 
-                scope.literals.put(anonName, literal);
+                scope.put(anonName, literal);
                 argNames.add(anonName);
             } else if (arg.block != null) {
                 Block b = new Block(arg.block, repository, scope);
                 String anonName = UUID.randomUUID().toString();
 
-                scope.blocks.put(anonName, b);
+                scope.put(anonName, b);
                 argNames.add(anonName);
             } else if (arg.name != null) {
-                Scope variable = scope.findVariable(arg.name);
-                if (variable == null) {
-                    variable = scope.findVariable(arg.name);
-                }
-
                 argNames.add(arg.name);
             } else if (arg.array != null) {
                 byte[] bytes = new byte[arg.array.size()];
@@ -66,7 +61,7 @@ public class Statement {
                 int symbol = compiler.constant(bytes);
                 String anonName = UUID.randomUUID().toString();
 
-                scope.literals.put(anonName, symbol);
+                scope.put(anonName, symbol);
                 argNames.add(anonName);
             }
         }
@@ -90,8 +85,8 @@ public class Statement {
                 structure.construct(compiler, repository, scope, variableName, generics, methodName, argNames);
             }
             case INVOKE -> {
-                Scope variable = scope.findVariable(variableName);
-                Structure sc = variable.structure;
+                Scope variable = scope.findVariable(variableName).orElseThrow();
+                Structure sc = variable.structure();
                 sc.operate(compiler, repository, scope, variable, methodName, argNames);
             }
         }

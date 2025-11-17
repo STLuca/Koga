@@ -22,8 +22,7 @@ public class MachineReferenceStructure implements Structure {
 
     public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics) {
         Scope variable = scope.add(name);
-        variable.name = name;
-        variable.structure = this;
+        variable.structure(this);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
@@ -36,20 +35,20 @@ public class MachineReferenceStructure implements Structure {
                     Structure value = repository.structure(genericName);
                     g.type = Scope.Generic.Type.Structure;
                     g.structure = value;
-                    variable.generics.put(generic.name, g);
+                    variable.put(generic.name, g);
                 }
                 case Document -> {
                     language.core.Document doc = repository.document(genericName, Compilable.Level.Head);
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
-                    variable.generics.put(generic.name, g);
+                    variable.put(generic.name, g);
                 }
             }
         }
         for (Data v : this.variables) {
             if (v.size > 0) {
                 int location = compiler.data(v.size);
-                variable.allocations.put(v.name, new Scope.Allocation(v.size, location));
+                variable.put(v.name, new Scope.Allocation(v.size, location));
                 compiler.debugData(variable.stateName(v.name), v.name, location, v.size);
             }
         }
@@ -61,8 +60,7 @@ public class MachineReferenceStructure implements Structure {
 
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> arguments) {
         Scope variable = scope.add(name);
-        variable.name = name;
-        variable.structure = this;
+        variable.structure(this);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
@@ -75,13 +73,13 @@ public class MachineReferenceStructure implements Structure {
                     Structure value = repository.structure(genericName);
                     g.type = Scope.Generic.Type.Structure;
                     g.structure = value;
-                    variable.generics.put(generic.name, g);
+                    variable.put(generic.name, g);
                 }
                 case Document -> {
                     language.core.Document doc = repository.document(genericName, Compilable.Level.Head);
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
-                    variable.generics.put(generic.name, g);
+                    variable.put(generic.name, g);
                 }
             }
         }
@@ -100,11 +98,11 @@ public class MachineReferenceStructure implements Structure {
 
         for (String address : addresses) {
             int addr = compiler.address();
-            variable.allocations.put(address, new Scope.Allocation(4, addr));
+            variable.put(address, new Scope.Allocation(4, addr));
         }
         for (Data v : this.variables) {
             int location = compiler.data(v.size);
-            variable.allocations.put(v.name, new Scope.Allocation(v.size, location));
+            variable.put(v.name, new Scope.Allocation(v.size, location));
             compiler.debugData(variable.stateName(v.name), v.name, location, v.size);
         }
 
@@ -115,19 +113,18 @@ public class MachineReferenceStructure implements Structure {
             switch(p.type) {
                 case Literal -> {
                     int literal = scope.findLiteral(arg).orElseThrow();
-                    operationScope.literals.put(p.name, literal);
+                    operationScope.put(p.name, literal);
                 }
                 case Variable -> {
-                    Scope v = scope.findVariable(arg);
-                    if (v == null) { throw new RuntimeException(); }
-                    operationScope.scopes.put(p.name, v);
+                    Scope v = scope.findVariable(arg).orElseThrow();
+                    operationScope.put(p.name, v);
                 }
                 case Block -> {
                     Block b = scope.findBlock(arg).orElseThrow();
-                    operationScope.blocks.put(p.name, b);
+                    operationScope.put(p.name, b);
                 }
                 case Name -> {
-                    operationScope.names.put(p.name, arg);
+                    operationScope.put(p.name, arg);
                 }
             }
         }
@@ -139,12 +136,11 @@ public class MachineReferenceStructure implements Structure {
     public void operate(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope variable, String operationName, List<String> arguments) {
         // put the name instead of the arguments
         Scope operationScope = scope.startOperation(operationName);
-        operationScope.names.put("methodName", operationName);
+        operationScope.put("methodName", operationName);
 
         for (String arg : arguments) {
-            Scope v = scope.findVariable(arg);
-            if (v == null) { throw new RuntimeException("Every reference argument should be a variable"); }
-            operationScope.scopes.put(arg, v);
+            Scope v = scope.findVariable(arg).orElseThrow(() -> new RuntimeException("Every reference argument should be a variable"));
+            operationScope.put(arg, v);
         }
 
         for (Statement s : invokeOperation.body) {
@@ -155,12 +151,11 @@ public class MachineReferenceStructure implements Structure {
             // For each argument, invoke the argMethod
             int argIndex = 0;
             for (String arg : arguments) {
-                Scope v = scope.findVariable(arg);
-                if (v == null) { throw new RuntimeException("Every reference argument should be a variable"); }
-                operationScope.scopes.put(argOperation.parameters.get(0).name, v);
+                Scope v = scope.findVariable(arg).orElseThrow(() -> new RuntimeException("Every reference argument should be a variable"));
+                operationScope.put(argOperation.parameters.get(0).name, v);
 
-                operationScope.literals.put("index", argIndex++);
-                operationScope.names.put("methodName", operationName);
+                operationScope.put("index", argIndex++);
+                operationScope.put("methodName", operationName);
                 for (Statement as : argOperation.body) {
                     as.compile(compiler, repository, variable, operationScope);
                 }
@@ -194,13 +189,13 @@ public class MachineReferenceStructure implements Structure {
             String input = this.arguments.get(1);
             d = switch (docInType) {
                 case LG -> {
-                    Scope.Generic g = variable.generics.get(input);
+                    Scope.Generic g = variable.findGeneric(input).orElseThrow();
                     yield g.document;
                 }
                 case AG -> {
                     String[] split = input.split("\\.");
-                    Scope var = scope.findVariable(split[0]);
-                    Scope.Generic g = var.generics.get(split[1]);
+                    Scope var = scope.findVariable(split[0]).orElseThrow();
+                    Scope.Generic g = var.findGeneric(split[1]).orElseThrow();
                     yield g.document;
                 }
                 default -> throw new RuntimeException();
@@ -217,14 +212,14 @@ public class MachineReferenceStructure implements Structure {
             InputType inputType = InputType.valueOf(this.arguments.get(4).toUpperCase());
             int index = inputType.resolve(this.arguments.get(5), variable, scope).value();
 
-            Scope argVariable = scope.findVariable(this.arguments.get(7));
+            Scope argVariable = scope.findVariable(this.arguments.get(7)).orElseThrow();
 
             inputType = InputType.valueOf(this.arguments.get(8).toUpperCase());
             int addr = inputType.resolve(this.arguments.get(9), variable, scope).value();
 
             language.core.Document.Method method = d.method(scope, methodName).orElseThrow();
             String param = method.parameters.get(index);
-            if (param.equals(argVariable.structure.name())) {
+            if (param.equals(argVariable.structure().name())) {
                 new InstructionStatement("m", "COPY", "TII", "LDA", "frameDataAddr", "ADA", "a", "ADS", "a").compile(compiler, repository, variable, scope);
                 new InstructionStatement("i","ADD", "TI", "LDA", "frameDataAddr", "LDA", "frameDataAddr", "ADS", "a").compile(compiler, repository, variable, scope);
             } else if (param.equals("core.Pointer")) {

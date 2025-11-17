@@ -17,8 +17,9 @@ public class DataStatement implements Statement {
             allocateSize *= size;
         }
         int allocated = compiler.data(allocateSize);
-        if (variable.allocations.containsKey(name)) {
-            variable.allocations.put(name, new Scope.Allocation(allocateSize, allocated));
+        Scope.Allocation variableAllocation = variable.findAllocation(name).orElse(null);
+        if (variableAllocation != null) {
+            variable.put(name, new Scope.Allocation(allocateSize, allocated));
         } else {
             scope.add(name, new Scope.Allocation(allocateSize, allocated));
         }

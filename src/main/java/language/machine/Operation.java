@@ -17,15 +17,16 @@ public class Operation {
         boolean match(Scope variable, Scope operation, String arg) {
             boolean matches;
             if (isGeneric) {
-                if (!variable.generics.containsKey(name)) return false;
-                Scope v = operation.findVariable(arg);
-                matches = variable.generics.get(name).structure == v.structure;
+                Scope.Generic generic = variable.findGeneric(name).orElse(null);
+                if (generic == null) return false;
+                Scope v = operation.findVariable(arg).orElseThrow();
+                matches = generic.structure == v.structure();
             } else {
-                Scope v = operation.findVariable(arg);
+                Scope v = operation.findVariable(arg).orElse(null);
                 if (v == null) {
                     return false;
                 }
-                matches = name.equals(v.structure.name());
+                matches = name.equals(v.structure().name());
             }
             if (!matches) {
                 return false;
@@ -33,13 +34,12 @@ public class Operation {
             if (subMatchers == null) {
                 return true;
             }
-            Scope v = operation.findVariable(arg);
-            if (subMatchers.size() != v.generics.size()) {
+            Scope v = operation.findVariable(arg).orElseThrow();
+            if (subMatchers.size() != v.genericSize()) {
                 return false;
             }
             boolean allMatch = true;
-            Scope var = operation.findVariable(arg);
-            List<Scope.Generic> orderedGenerics = var.generics.sequencedValues().stream().toList();
+            List<Scope.Generic> orderedGenerics = v.generics();
             for (int i = 0; i < subMatchers.size(); i++) {
                 VariableMatcher m = subMatchers.get(i);
                 Scope.Generic g = orderedGenerics.get(i);

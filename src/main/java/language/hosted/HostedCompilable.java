@@ -93,12 +93,12 @@ public class HostedCompilable implements Compilable {
                 }
                 generic.known = false;
                 generic.name = g.name;
-                scope.generics.put(g.name, generic);
+                scope.put(g.name, generic);
             }
             mb.name(m.name);
 
             for (Field f : fields) {
-                scope.addVariable(f.name);
+                scope.putVariable(f.name);
             }
 
             for (Parameter p : m.params) {

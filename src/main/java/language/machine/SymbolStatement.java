@@ -42,13 +42,13 @@ public class SymbolStatement implements Statement {
                     yield name;
                 }
                 case LG -> {
-                    Scope.Generic g = variable.generics.get(input);
+                    Scope.Generic g = variable.findGeneric(input).orElseThrow();
                     yield g.document.name();
                 }
                 case AG -> {
                     String[] split = input.split("\\.");
-                    Scope var = scope.findVariable(split[0]);
-                    Scope.Generic g = var.generics.get(split[1]);
+                    Scope var = scope.findVariable(split[0]).orElseThrow();
+                    Scope.Generic g = var.findGeneric(split[1]).orElseThrow();
                     yield g.document.name();
                 }
                 default -> throw new RuntimeException();
@@ -62,7 +62,7 @@ public class SymbolStatement implements Statement {
             symbol = compiler.symbol(type, names[0], names[1]);
         }
 
-        scope.literals.put(this.arguments.get(1), symbol);
+        scope.put(this.arguments.get(1), symbol);
     }
 
 }

@@ -108,7 +108,7 @@ public class HostCompilable implements Compilable {
             mb.name(m.name);
 
             for (Field f : fields) {
-                scope.addVariable(f.name);
+                scope.putVariable(f.name);
             }
 
             // declare the parameters

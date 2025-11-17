@@ -47,30 +47,29 @@ enum InputType {
             }
             case LDA -> {
                 // Local allocation
-                if (scope.findAllocation(toResolve) != null) {
-                    Scope.Allocation allocation = scope.findAllocation(toResolve);
+                Scope.Allocation allocation = scope.findAllocation(toResolve).orElse(null);
+                if (allocation != null) {
                     return new Resolved(allocation.size(), allocation.location());
                 }
-                if (variable.allocations.containsKey(toResolve)) {
-                    Scope.Allocation allocation = variable.allocations.get(toResolve);
-                    return new Resolved(allocation.size(), allocation.location());
+                Scope.Allocation variableAllocation = variable.findAllocation(toResolve).orElse(null);
+                if (variableAllocation != null) {
+                    return new Resolved(variableAllocation.size(), variableAllocation.location());
                 }
                 return new Resolved(4, -1);
             }
             case ADA -> {
                 // argument should be type variable
                 String[] split = toResolve.split("\\.");
-                Scope v = scope.findVariable(split[0]);
-                if (v == null) throw new RuntimeException();
+                Scope v = scope.findVariable(split[0]).orElseThrow();
                 if (split.length == 2) {
                     // we just want an allocation
-                    Scope.Allocation allocation = v.allocations.get(split[1]);
+                    Scope.Allocation allocation = v.findAllocation(split[1]).orElseThrow();
                     return new Resolved(allocation.size(), allocation.location());
                 }
                 // we want the variable
                 int start = Integer.MAX_VALUE;
                 int size = 0;
-                for (Scope.Allocation a : v.allocations.values()) {
+                for (Scope.Allocation a : v.allocations()) {
                     if (a.location() < start) start = a.location();
                     size += a.size();
                 }
@@ -81,35 +80,36 @@ enum InputType {
             }
             case LDS -> {
                 // local size
-                if (scope.findAllocation(toResolve) != null) {
-                    return new Resolved(4, scope.findAllocation(toResolve).size());
+                Scope.Allocation allocation = scope.findAllocation(toResolve).orElse(null);
+                if (allocation != null) {
+                    return new Resolved(4, allocation.size());
                 }
-                return new Resolved(4, variable.allocations.get(toResolve).size());
+                Scope.Allocation variableAllocation = variable.findAllocation(toResolve).orElseThrow();
+                return new Resolved(4, variableAllocation.size());
             }
             case ADS -> {// argument should be type variable
                 String[] split = toResolve.split("\\.");
-                Scope v = scope.findVariable(split[0]);
-                if (v == null) throw new RuntimeException();
+                Scope v = scope.findVariable(split[0]).orElseThrow();
                 if (split.length == 2) {
                     // we just want an allocation
-                    return new Resolved(4, v.allocations.get(split[1]).size());
+                    Scope.Allocation variableAllocation = v.findAllocation(split[1]).orElseThrow();
+                    return new Resolved(4, variableAllocation.size());
                 }
                 // we want the variable
                 int size = 0;
-                for (Scope.Allocation a : v.allocations.values()) {
+                for (Scope.Allocation a : v.allocations()) {
                     size += a.size();
                 }
                 return new Resolved(4, size);
             }
             case LG -> {
-                Structure u = variable.generics.get(toResolve).structure;
+                Structure u = variable.findGeneric(toResolve).orElseThrow().structure;
                 return new Resolved(4, u.size(null));
             }
             case AG -> {
                 String[] split = toResolve.split("\\.");
-                Scope var = scope.findVariable(split[0]);
-
-                Structure u = var.generics.get(toResolve).structure;
+                Scope var = scope.findVariable(split[0]).orElseThrow();
+                Structure u = var.findGeneric(toResolve).orElseThrow().structure;
                 return new Resolved(4, u.size(null));
             }
         }

@@ -9,15 +9,17 @@ public class PositionStatement implements Statement {
 
     public void compile(Compiler.MethodCompiler compiler, Repository repository, Scope variable, Scope scope) {
         int addr;
-        if (scope.findAllocation(this.addr) != null) {
-            addr = scope.findAllocation(this.addr).location();
+        Scope.Allocation allocation = scope.findAllocation(this.addr).orElse(null);
+        if (allocation != null) {
+            addr = allocation.location();
         } else {
-            addr = variable.allocations.get(this.addr).location();
+            Scope.Allocation varAllocation = variable.findAllocation(this.addr).orElseThrow();
+            addr = varAllocation.location();
         }
         int prev = compiler.position(addr);
         if (this.prevName != null) {
-            Scope.Allocation allocation = new Scope.Allocation(4, prev);
-            scope.add(prevName, allocation);
+            Scope.Allocation newAllocation = new Scope.Allocation(4, prev);
+            scope.add(prevName, newAllocation);
         }
     }
 

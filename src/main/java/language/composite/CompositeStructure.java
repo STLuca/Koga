@@ -30,8 +30,7 @@ public class CompositeStructure implements Structure {
     
     public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics) {
         Scope thisVariable = scope.state(name);
-        thisVariable.name = name;
-        thisVariable.structure = this;
+        thisVariable.structure(this);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
@@ -50,7 +49,7 @@ public class CompositeStructure implements Structure {
                     g.document = doc;
                 }
             }
-            thisVariable.generics.put(generic.name, g);
+            thisVariable.put(generic.name, g);
         }
 
         for (String imprt : this.imports) {
@@ -64,8 +63,9 @@ public class CompositeStructure implements Structure {
             }
 
             Structure u;
-            if (thisVariable.generics.containsKey(f.structure)) {
-                u = thisVariable.generics.get(f.structure).structure;
+            Scope.Generic generic = thisVariable.findGeneric(f.structure).orElse(null);
+            if (generic != null) {
+                u = generic.structure;
             } else {
                 u = repository.structure(f.structure);
             }
@@ -80,8 +80,7 @@ public class CompositeStructure implements Structure {
     
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
         Scope thisVariable = scope.state(name);
-        thisVariable.name = name;
-        thisVariable.structure = this;
+        thisVariable.structure(this);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
@@ -100,7 +99,7 @@ public class CompositeStructure implements Structure {
                     g.document = doc;
                 }
             }
-            thisVariable.generics.put(generic.name, g);
+            thisVariable.put(generic.name, g);
         }
 
         for (String imprt : this.imports) {
@@ -123,15 +122,12 @@ public class CompositeStructure implements Structure {
             String argName = argumentNames.get(i++);
             switch (param.type) {
                 case Variable -> {
-                    Scope v = scope.findVariable(argName);
-                    if (v == null) {
-                        throw new RuntimeException();
-                    }
-                    operationScope.scopes.put(param.name, v);
+                    Scope v = scope.findVariable(argName).orElseThrow();
+                    operationScope.put(param.name, v);
                 }
                 case Block -> {
                     Block b = scope.findBlock(argName).orElseThrow();
-                    operationScope.blocks.put(param.name, b);
+                    operationScope.put(param.name, b);
                 }
             }
 
@@ -154,19 +150,19 @@ public class CompositeStructure implements Structure {
         if (method == null) throw new RuntimeException("Method not found");
 
         Scope operationScope = variable.startOperation(operationName);
-        operationScope.scopes.putAll(variable.scopes);
+        operationScope.addState(variable);
         // Map the args to name using parameters
         int i = 0;
         for (Parameter param : method.params) {
             String arg = arguments.get(i++);
             switch (param.type) {
                 case Variable -> {
-                    Scope v = scope.findVariable(arg);
-                    operationScope.scopes.put(param.name, v);
+                    Scope v = scope.findVariable(arg).orElseThrow();
+                    operationScope.put(param.name, v);
                 }
                 case Block -> {
                     Block b = scope.findBlock(arg).orElseThrow();
-                    operationScope.blocks.put(param.name, b);
+                    operationScope.put(param.name, b);
                 }
                 case null, default -> {
 
@@ -174,7 +170,7 @@ public class CompositeStructure implements Structure {
             }
         }
         for (Statement stmt : method.statements) {
-            stmt.handle(compiler, repository, variable.name, operationScope);
+            stmt.handle(compiler, repository, variable.name(), operationScope);
         }
     }
 }

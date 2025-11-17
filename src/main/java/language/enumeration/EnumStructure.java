@@ -36,8 +36,7 @@ public class EnumStructure implements language.core.Structure {
     @Override
     public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics) {
         Scope thisVariable = scope.state(name);
-        thisVariable.name = name;
-        thisVariable.structure = this;
+        thisVariable.structure(this);
 
         for (String imprt : this.imports) {
             repository.structure(imprt);
@@ -45,8 +44,8 @@ public class EnumStructure implements language.core.Structure {
 
         int maxSize = size(repository);
         int typeLocation = compiler.data(TYPE_SIZE);
-        thisVariable.allocations.put("type", new Scope.Allocation(TYPE_SIZE, typeLocation));
-        compiler.debugData(thisVariable.stateName(thisVariable.name), "type", typeLocation, TYPE_SIZE);
+        thisVariable.put("type", new Scope.Allocation(TYPE_SIZE, typeLocation));
+        compiler.debugData(thisVariable.stateName(thisVariable.name()), "type", typeLocation, TYPE_SIZE);
         int location = compiler.data(maxSize);
         for (Structure struct : structures) {
             SharedLocationMethodCompiler mc = new SharedLocationMethodCompiler();
@@ -63,8 +62,7 @@ public class EnumStructure implements language.core.Structure {
     @Override
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
         Scope thisVariable = scope.state(name);
-        thisVariable.name = name;
-        thisVariable.structure = this;
+        thisVariable.structure(this);
 
         for (String imprt : this.imports) {
             repository.structure(imprt);
@@ -90,11 +88,8 @@ public class EnumStructure implements language.core.Structure {
             String argName = argumentNames.get(i++);
             switch (param.type) {
                 case Variable -> {
-                    Scope v = scope.findVariable(argName);
-                    if (v == null) {
-                        throw new RuntimeException();
-                    }
-                    operationScope.scopes.put(param.name, v);
+                    Scope v = scope.findVariable(argName).orElseThrow();
+                    operationScope.put(param.name, v);
                 }
             }
         }
@@ -102,8 +97,8 @@ public class EnumStructure implements language.core.Structure {
         int maxSize = size(repository);
         int typeLocation = compiler.data(TYPE_SIZE);
         Scope.Allocation typeAllocation = new Scope.Allocation(TYPE_SIZE, typeLocation);
-        thisVariable.allocations.put("type", typeAllocation);
-        compiler.debugData(thisVariable.stateName(thisVariable.name), "type", typeLocation, TYPE_SIZE);
+        thisVariable.put("type", typeAllocation);
+        compiler.debugData(thisVariable.stateName(thisVariable.name()), "type", typeLocation, TYPE_SIZE);
         int location = compiler.data(maxSize);
         int index = structures.indexOf(structure);
         for (Structure struct : structures) {
@@ -160,15 +155,15 @@ public class EnumStructure implements language.core.Structure {
                     // execute block
                     Structure structure = structures.get(i / 2);
                     Scope structScope = variable.state(structure.name);
-                    structScope.structure = structure;
-                    structScope.implicitScope.scopes.put(structure.name, structScope);
+                    structScope.structure(structure);
+                    structScope.implicit().put(structure.name, structScope);
                     String arg = arguments.get(i + 1);
                     Block b = scope.findBlock(arg).orElse(null);
                     if (b == null) {
                         throw new RuntimeException("Expecting block for union type");
                     }
                     b.execute(compiler, structScope);
-                    structScope.implicitScope.scopes.remove(structure.name);
+                    structScope.implicit().removeVariable(structure.name);
 
                     new InstructionStatement("j", "REL", "I", "end").compile(compiler, repository, variable, operationScope);
                     compiler.address(end);
@@ -218,9 +213,9 @@ public class EnumStructure implements language.core.Structure {
 
                     // execute block
                     Scope structScope = variable.state(s.name);
-                    structScope.structure = s;
+                    structScope.structure(s);
                     Scope methodScope = structScope.startOperation(operationName);
-                    methodScope.scopes.putAll(structScope.scopes);
+                    methodScope.addState(structScope);
                     Method m = methods.get(i);
                     for (Statement stmt : m.statements) {
                         int argI = 0;
@@ -228,11 +223,8 @@ public class EnumStructure implements language.core.Structure {
                             String arg = arguments.get(argI++);
                             switch (p.type) {
                                 case Variable -> {
-                                    Scope v = scope.findVariable(arg);
-                                    if (v == null) {
-                                        throw new RuntimeException();
-                                    }
-                                    methodScope.scopes.put(p.name, v);
+                                    Scope v = scope.findVariable(arg).orElseThrow();
+                                    methodScope.put(p.name, v);
                                 }
                             }
                         }

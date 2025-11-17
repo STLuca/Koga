@@ -53,7 +53,7 @@ class Structure implements language.core.Structure {
         if (method == null) throw new RuntimeException("Method not found");
 
         Scope operationScope = variable.startOperation(operationName);
-        operationScope.scopes.putAll(variable.scopes);
+        operationScope.addState(variable);
         // Map the args to name using parameters
         int i = 0;
         for (Parameter param : method.params) {
@@ -61,19 +61,18 @@ class Structure implements language.core.Structure {
             switch (param.type) {
                 case Literal -> {
                     int literal = scope.findLiteral(arg).orElseThrow();
-                    operationScope.literals.put(param.name, literal);
+                    operationScope.put(param.name, literal);
                 }
                 case Variable -> {
-                    Scope v = scope.findVariable(arg);
-                    if (v == null) { throw new RuntimeException(); }
-                    operationScope.scopes.put(param.name, v);
+                    Scope v = scope.findVariable(arg).orElseThrow();
+                    operationScope.put(param.name, v);
                 }
                 case Block -> {
                     Block b = scope.findBlock(arg).orElseThrow();
-                    operationScope.blocks.put(param.name, b);
+                    operationScope.put(param.name, b);
                 }
                 case Name -> {
-                    operationScope.names.put(param.name, arg);
+                    operationScope.put(param.name, arg);
                 }
             }
         }

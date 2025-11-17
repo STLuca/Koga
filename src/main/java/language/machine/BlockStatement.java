@@ -14,16 +14,16 @@ public class BlockStatement implements Statement {
     
     public void compile(Compiler.MethodCompiler compiler, Repository repository, Scope variable, Scope scope) {
         if (isContextPush) {
-            MachineBlock newBlock = new MachineBlock(this.block, repository, variable, scope, scope.state());
-            scope.implicitScope.blocks.put(name, newBlock);
+            MachineBlock newBlock = new MachineBlock(this.block, repository, variable, scope, scope);
+            scope.implicit().put(name, newBlock);
             return;
         }
 
         Block bm = null;
         if (scope.findBlock(this.name).isPresent()) {
             bm = scope.findBlock(this.name).orElseThrow();
-        } else if (scope.parent.findBlock(this.name).isPresent()) {
-            bm = scope.parent.findBlock(this.name).orElseThrow();
+        } else if (scope.parent().findBlock(this.name).isPresent()) {
+            bm = scope.parent().findBlock(this.name).orElseThrow();
         }
         if (bm == null) {
             if (block == null) throw new RuntimeException("Block doesn't exist");
@@ -52,11 +52,11 @@ public class BlockStatement implements Statement {
         }
         
         public void execute(Compiler.MethodCompiler compiler, Scope scope) {
-            this.state.addImplicit(scope.implicitScope);
+            this.state.addImplicit(scope.implicit());
             for (Statement s : statements) {
                 s.compile(compiler, repository, variable, this.state);
             }
-            this.state.removeImplicit(scope.implicitScope);
+            this.state.removeImplicit(scope.implicit());
         }
     }
 

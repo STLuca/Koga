@@ -26,8 +26,7 @@ public class MachineEnumStructure implements Structure {
     }
     
     public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics) {
-        Scope variable = scope.state(name);
-        variable.structure(this);
+        Scope variable = scope.state(this, name);
 
         int allocation = compiler.data(data.size);
         variable.put(data.name, new Scope.Allocation(data.size, allocation));
@@ -39,8 +38,7 @@ public class MachineEnumStructure implements Structure {
     }
     
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
-        Scope variable = scope.state(name);
-        variable.structure(this);
+        Scope variable = scope.state(this, name);
 
         // Read literal from args
         if (argumentNames.size() != 1) throw new RuntimeException("Only 1 argument allowed for enum constructor");

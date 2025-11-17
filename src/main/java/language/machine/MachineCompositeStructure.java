@@ -32,8 +32,7 @@ public class MachineCompositeStructure implements Structure {
             throw new RuntimeException();
         }
         // Setup variable
-        Scope variable = scope.state(name);
-        variable.structure(this);
+        Scope variable = scope.state(this, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
@@ -77,7 +76,7 @@ public class MachineCompositeStructure implements Structure {
     
     public void proxy(Repository repository, Scope variable, int location) {
         // Setup variable
-        variable.structure(this);
+        // variable.structure(this);
         // generics
 
         // setup data and addresses
@@ -94,8 +93,7 @@ public class MachineCompositeStructure implements Structure {
     }
 
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> arguments) {
-        Scope variable = scope.state(name);
-        variable.structure(this);
+        Scope variable = scope.state(this, name);
 
         // Setup variable
         if (this.generics.size() != generics.size()) {

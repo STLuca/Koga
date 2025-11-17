@@ -36,11 +36,12 @@ public class Scope {
         return s;
     }
 
-    public Scope state(String name) {
+    public Scope state(Structure structure, String name) {
         if (name.equals("_")) {
             Scope newScope = Scope.withImplicit();
             newScope.parent = this;
             newScope.name = name;
+            newScope.structure = structure;
             unnamedSubScopes.add(newScope);
             currentAnonymous = newScope;
             return newScope;
@@ -51,6 +52,7 @@ public class Scope {
             Scope newScope = Scope.withImplicit();
             newScope.parent = this;
             newScope.name = name;
+            newScope.structure = structure;
             namedSubScopes.put(name, newScope);
             return newScope;
         }
@@ -88,10 +90,6 @@ public class Scope {
         return sb.toString();
     }
 
-
-    public void structure(Structure structure) {
-        this.structure = structure;
-    }
 
     public Structure structure() {
         return structure;

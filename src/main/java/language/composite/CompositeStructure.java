@@ -29,8 +29,7 @@ public class CompositeStructure implements Structure {
     }
     
     public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics) {
-        Scope thisVariable = scope.state(name);
-        thisVariable.structure(this);
+        Scope thisVariable = scope.state(this, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
@@ -79,8 +78,7 @@ public class CompositeStructure implements Structure {
     }
     
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
-        Scope thisVariable = scope.state(name);
-        thisVariable.structure(this);
+        Scope thisVariable = scope.state(this, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);

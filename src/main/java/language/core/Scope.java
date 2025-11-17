@@ -16,11 +16,12 @@ public class Scope {
         public ArrayList<Scope.Generic> generics = new ArrayList<>();
     }
 
-    int operationCount = 0;
     Scope parent;
     String name;
     Structure structure;
-    HashMap<String, Scope> scopes = new HashMap<>();
+    HashMap<String, Scope> namedSubScopes = new HashMap<>();
+    ArrayList<Scope> unnamedSubScopes = new ArrayList<>();
+    Scope currentAnonymous;
     LinkedHashMap<String, Scope.Generic> generics = new LinkedHashMap<>();
     HashMap<String, Scope.Allocation> allocations = new HashMap<>();
     HashMap<String, Integer> literals = new HashMap<>();
@@ -36,27 +37,30 @@ public class Scope {
     }
 
     public Scope state(String name) {
-        if (scopes.containsKey(name)) {
-            return scopes.get(name);
+        if (name.equals("_")) {
+            Scope newScope = Scope.withImplicit();
+            newScope.parent = this;
+            newScope.name = name;
+            unnamedSubScopes.add(newScope);
+            currentAnonymous = newScope;
+            return newScope;
+        }
+        if (namedSubScopes.containsKey(name)) {
+            return namedSubScopes.get(name);
         } else {
             Scope newScope = Scope.withImplicit();
             newScope.parent = this;
             newScope.name = name;
-            scopes.put(name, newScope);
+            namedSubScopes.put(name, newScope);
             return newScope;
         }
     }
 
     public Scope startOperation(String name) {
         Scope newScope = Scope.withImplicit();
+        newScope.name = name;
         newScope.parent = this;
-        String scopeName;
-        if (structure != null) {
-            scopeName = structure.name() + "." + name + "#" + operationCount++;
-        } else {
-            scopeName = name + "#" + operationCount++;
-        }
-        this.scopes.put(scopeName, newScope);
+        this.unnamedSubScopes.add(newScope);
         return newScope;
     }
 
@@ -74,7 +78,7 @@ public class Scope {
         StringBuilder sb = new StringBuilder();
         Scope curr = this;
         while (curr.parent != null) {
-            if (curr.name != null) {
+            if (curr.structure != null) {
                 sb.insert(0, curr.name)
                         .insert(curr.name.length(), ".");
             }
@@ -94,32 +98,19 @@ public class Scope {
     }
 
 
-    public Scope add(String name) {
-        Scope newScope = Scope.withImplicit();
-        newScope.parent = this;
-        newScope.name = name;
-        this.scopes.put(name, newScope);
-        return newScope;
-    }
-
-    public void putVariable(String name) {
-        scopes.put(name, null);
-    }
-
     public void put(String name, Scope scope) {
-        scopes.put(name, scope);
-    }
-
-    public void putAll(Scope s) {
-        scopes.putAll(s.scopes);
+        namedSubScopes.put(name, scope);
     }
 
     public void removeVariable(String name) {
-        scopes.remove(name);
+        namedSubScopes.remove(name);
     }
 
     public Optional<Scope> findVariable(String name) {
-        return Optional.ofNullable(scopes.get(name));
+        if (name.equals("_")) {
+            return Optional.ofNullable(currentAnonymous);
+        }
+        return Optional.ofNullable(namedSubScopes.get(name));
     }
 
 
@@ -185,15 +176,15 @@ public class Scope {
     }
 
     public void addImplicit(Scope scope) {
-        scopes.putAll(scope.scopes);
+        namedSubScopes.putAll(scope.namedSubScopes);
         literals.putAll(scope.literals);
         blocks.putAll(scope.blocks);
         defaultArgs.addAll(scope.defaultArgs);
     }
 
     public void removeImplicit(Scope scope) {
-        for (String key : scope.scopes.keySet()) {
-            scopes.remove(key);
+        for (String key : scope.namedSubScopes.keySet()) {
+            namedSubScopes.remove(key);
         }
         for (String key : scope.literals.keySet()) {
             literals.remove(key);
@@ -209,7 +200,7 @@ public class Scope {
     }
 
     public void addState(Scope thisVariable) {
-        scopes.putAll(thisVariable.scopes);
+        namedSubScopes.putAll(thisVariable.namedSubScopes);
         generics.putAll(thisVariable.generics);
     }
 

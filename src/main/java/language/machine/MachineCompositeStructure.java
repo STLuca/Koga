@@ -32,7 +32,7 @@ public class MachineCompositeStructure implements Structure {
             throw new RuntimeException();
         }
         // Setup variable
-        Scope variable = scope.add(name);
+        Scope variable = scope.state(name);
         variable.structure(this);
 
         for (int i = 0; i < this.generics.size(); i++) {
@@ -94,7 +94,7 @@ public class MachineCompositeStructure implements Structure {
     }
 
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> arguments) {
-        Scope variable = scope.add(name);
+        Scope variable = scope.state(name);
         variable.structure(this);
 
         // Setup variable

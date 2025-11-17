@@ -107,9 +107,9 @@ public class HostCompilable implements Compilable {
             Scope scope = Scope.withImplicit();
             mb.name(m.name);
 
-            for (Field f : fields) {
-                scope.putVariable(f.name);
-            }
+//            for (Field f : fields) {
+//                scope.putVariable(f.name);
+//            }
 
             // declare the parameters
             for (Parameter p : m.params) {

@@ -97,9 +97,9 @@ public class HostedCompilable implements Compilable {
             }
             mb.name(m.name);
 
-            for (Field f : fields) {
-                scope.putVariable(f.name);
-            }
+//            for (Field f : fields) {
+//                scope.putVariable(f.name);
+//            }
 
             for (Parameter p : m.params) {
                 ArrayList<String> generics = new ArrayList<>();

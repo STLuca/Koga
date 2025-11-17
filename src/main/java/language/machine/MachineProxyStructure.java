@@ -21,7 +21,7 @@ public class MachineProxyStructure implements Structure {
     }
     
     public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics) {
-        Scope variable = scope.add(name);
+        Scope variable = scope.state(name);
         variable.structure(repository.structure(generics.get(0).name));
         // variable.proxy = true
     }

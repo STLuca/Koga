@@ -65,10 +65,6 @@ public class Statement {
             }
         }
 
-        if (!scope.defaults().isEmpty()) {
-            argNames.addAll(scope.defaults());
-        }
-
         switch (type) {
             case DECLARE -> {
                 Structure structure = repository.structure(this.structure);

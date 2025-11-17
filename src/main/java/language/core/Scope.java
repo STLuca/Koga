@@ -31,7 +31,7 @@ public class Scope {
     HashMap<String, Integer> literals = new HashMap<>();
     HashMap<String, Block> blocks = new HashMap<>();
     HashMap<String, String> names = new HashMap<>();
-    ArrayList<String> defaultArgs = new ArrayList<>();
+    ArrayList<Scope> defaultArgs = new ArrayList<>();
     Scope implicitScope;
 
     public static Scope root() {
@@ -173,15 +173,14 @@ public class Scope {
 
 
     public void addDefault(Scope arg) {
-        String[] split = arg.name.split("\\.");
-        implicitScope.defaultArgs.add(split[split.length - 1]);
+        implicitScope.defaultArgs.add(arg);
     }
 
     public void removeLastDefault() {
         implicitScope.defaultArgs.removeLast();
     }
 
-    public List<String> defaults() {
+    public List<Scope> defaults() {
         return defaultArgs;
     }
 

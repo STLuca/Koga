@@ -147,27 +147,7 @@ public class MachineCompositeStructure implements Structure {
         }
 
         Scope operationScope = scope.startOperation(variable, constructorName);
-        int argIdx = 0;
-        for (Operation.Parameter p : c.parameters) {
-            String arg = arguments.get(argIdx++);
-            switch(p.type) {
-                case Literal -> {
-                    int literal = scope.findLiteral(arg).orElseThrow();
-                    operationScope.put(p.name, literal);
-                }
-                case Variable -> {
-                    Scope v = scope.findVariable(arg).orElseThrow();
-                    operationScope.put(p.name, v);
-                }
-                case Block -> {
-                    Scope.Block b = scope.findBlock(arg).orElseThrow();
-                    operationScope.put(p.name, b);
-                }
-                case Name -> {
-                    operationScope.put(p.name, arg);
-                }
-            }
-        }
+        c.populateScope(scope, operationScope, arguments);
 
         for (Statement s : c.body) {
             s.compile(compiler, repository, variable, operationScope);
@@ -187,29 +167,8 @@ public class MachineCompositeStructure implements Structure {
             throw new RuntimeException(String.format("Can't match method %s", operationName));
         }
 
-        // should this be scoped from scope or variable?
         Scope operationScope = scope.startOperation(variable, operationName);
-        int argIdx = 0;
-        for (Operation.Parameter p : operation.parameters) {
-            String arg = arguments.get(argIdx++);
-            switch(p.type) {
-                case Literal -> {
-                    int literal = scope.findLiteral(arg).orElseThrow();
-                    operationScope.put(p.name, literal);
-                }
-                case Variable -> {
-                    Scope v = scope.findVariable(arg).orElseThrow();
-                    operationScope.put(p.name, v);
-                }
-                case Block -> {
-                    Scope.Block b = scope.findBlock(arg).orElseThrow();
-                    operationScope.put(p.name, b);
-                }
-                case Name -> {
-                    operationScope.put(p.name, arg);
-                }
-            }
-        }
+        operation.populateScope(scope, operationScope, arguments);
 
         for (Statement s : operation.body) {
             s.compile(compiler, repository, variable, operationScope);

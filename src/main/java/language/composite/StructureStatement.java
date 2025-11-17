@@ -70,10 +70,6 @@ public class StructureStatement implements Statement {
             }
         }
 
-        if (!scope.defaults().isEmpty()) {
-            argNames.addAll(scope.defaults());
-        }
-
         switch (type) {
             case DECLARE -> {
                 Scope.Generic g = scope.findGeneric(this.structure).orElse(null);

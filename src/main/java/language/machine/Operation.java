@@ -73,7 +73,9 @@ public class Operation {
 
     boolean matches(Scope variable, Scope operation, String name, List<String> arguments) {
         if (!name.equals(this.name)) return false;
-        if (arguments.size() != parameters.size()) return false;
+        List<Scope> defaults = operation.defaults();
+        int argumentSize = arguments.size() + defaults.size();
+        if (parameters.size() != argumentSize) return false;
         for (int i = 0; i < arguments.size(); i++) {
             Parameter param = parameters.get(i);
             String arg = arguments.get(i);
@@ -98,7 +100,45 @@ public class Operation {
             }
             return false;
         }
+        for (int i = 0; i < defaults.size(); i++) {
+            Parameter param = parameters.get(i + arguments.size());
+            Scope arg = defaults.get(i);
+            if (param.type != Parameter.Type.Variable || !param.variableMatcher.name.equals(arg.structure().name())) {
+                return false;
+            }
+        }
+
         return true;
+    }
+
+    void populateScope(Scope scope, Scope operationScope, List<String> arguments) {
+        for (int i = 0; i < arguments.size(); i++) {
+            Parameter p = parameters.get(i);
+            String arg = arguments.get(i);
+            switch(p.type) {
+                case Literal -> {
+                    int literal = scope.findLiteral(arg).orElseThrow();
+                    operationScope.put(p.name, literal);
+                }
+                case Variable -> {
+                    Scope v = scope.findVariable(arg).orElseThrow();
+                    operationScope.put(p.name, v);
+                }
+                case Block -> {
+                    Scope.Block b = scope.findBlock(arg).orElseThrow();
+                    operationScope.put(p.name, b);
+                }
+                case Name -> {
+                    operationScope.put(p.name, arg);
+                }
+            }
+        }
+        List<Scope> defaults = scope.defaults();
+        for (int i = 0; i < defaults.size(); i++) {
+            Parameter p = parameters.get(i + arguments.size());
+            Scope arg = defaults.get(i);
+            operationScope.put(p.name, arg);
+        }
     }
 
 }

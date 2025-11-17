@@ -23,7 +23,6 @@ public class DataStatement implements Statement {
         } else {
             scope.put(name, new Scope.Allocation(allocateSize, allocated));
         }
-        compiler.debugData(scope.stateName(name), name, allocated, allocateSize);
     }
 
 }

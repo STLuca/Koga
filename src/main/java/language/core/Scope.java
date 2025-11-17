@@ -83,19 +83,6 @@ public class Scope {
         return newScope;
     }
 
-    public Scope parent() {
-        return parent;
-    }
-
-
-    public String name() {
-        return name;
-    }
-
-    public String stateName(String name) {
-        return this.name + "." + name;
-    }
-
 
     public Structure structure() {
         return structure;
@@ -191,6 +178,21 @@ public class Scope {
 
     public List<String> defaults() {
         return defaultArgs;
+    }
+
+    public void debugData(Compiler.MethodCompiler methodCompiler) {
+        HashSet<Scope> handled = new HashSet<>();
+        ArrayDeque<Scope> scopes = new ArrayDeque<>();
+        scopes.push(this);
+        while (!scopes.isEmpty()) {
+            Scope s = scopes.pop();
+            if (handled.contains(s)) continue;
+            handled.add(s);
+            for (Map.Entry<String, Allocation> entry : s.allocations.entrySet()) {
+                methodCompiler.debugData(s.name + "." + entry.getKey(), entry.getValue().location, entry.getValue().size);
+            }
+            scopes.addAll(s.namedSubScopes.values());
+        }
     }
 
 }

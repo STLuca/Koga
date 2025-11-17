@@ -44,7 +44,6 @@ public class EnumStructure implements language.core.Structure {
         int maxSize = size(repository);
         int typeLocation = compiler.data(TYPE_SIZE);
         thisVariable.put("type", new Scope.Allocation(TYPE_SIZE, typeLocation));
-        compiler.debugData(thisVariable.stateName(thisVariable.name()), "type", typeLocation, TYPE_SIZE);
         int location = compiler.data(maxSize);
         for (Structure struct : structures) {
             SharedLocationMethodCompiler mc = new SharedLocationMethodCompiler();
@@ -96,7 +95,6 @@ public class EnumStructure implements language.core.Structure {
         int typeLocation = compiler.data(TYPE_SIZE);
         Scope.Allocation typeAllocation = new Scope.Allocation(TYPE_SIZE, typeLocation);
         thisVariable.put("type", typeAllocation);
-        compiler.debugData(thisVariable.stateName(thisVariable.name()), "type", typeLocation, TYPE_SIZE);
         int location = compiler.data(maxSize);
         int index = structures.indexOf(structure);
         for (Structure struct : structures) {

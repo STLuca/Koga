@@ -66,7 +66,7 @@ public class SharedLocationMethodCompiler implements Compiler.MethodCompiler {
     }
 
     @Override
-    public void debugData(String variableName, String name, int location, int size) {
-        parent.debugData(variableName, name, location, size);
+    public void debugData(String name, int location, int size) {
+        parent.debugData(name, location, size);
     }
 }

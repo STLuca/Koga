@@ -106,6 +106,8 @@ public class HostCompilable implements Compilable {
             for (Statement stmt : m.statements) {
                 stmt.handle(mb, repository, scope);
             }
+
+            scope.debugData(mb);
         }
     }
 

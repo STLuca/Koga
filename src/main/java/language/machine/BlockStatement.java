@@ -22,8 +22,6 @@ public class BlockStatement implements Statement {
         Block bm = null;
         if (scope.findBlock(this.name).isPresent()) {
             bm = scope.findBlock(this.name).orElseThrow();
-        } else if (scope.parent().findBlock(this.name).isPresent()) {
-            bm = scope.parent().findBlock(this.name).orElseThrow();
         }
         if (bm == null) {
             if (block == null) throw new RuntimeException("Block doesn't exist");

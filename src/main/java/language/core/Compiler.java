@@ -36,7 +36,7 @@ public interface Compiler {
         int constant(byte[] bytes);
         void parameter(String name);
         InstructionCompiler instruction();
-        void debugData(String variableName, String name, int location, int size);
+        void debugData(String name, int location, int size);
     }
 
     interface InstructionCompiler {

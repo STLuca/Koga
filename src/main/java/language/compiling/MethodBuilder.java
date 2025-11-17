@@ -54,6 +54,10 @@ class MethodBuilder implements Compiler.MethodCompiler {
         debugData.add(new DocumentStruct.Data(variableName + "." + name, location, size));
     }
 
+    public void debugData(String name, int location, int size) {
+        debugData.add(new DocumentStruct.Data(name, location, size));
+    }
+
     public int data(int size) {
         int curr = currData;
         currData+=size;

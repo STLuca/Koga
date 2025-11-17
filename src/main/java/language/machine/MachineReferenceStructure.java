@@ -48,7 +48,6 @@ public class MachineReferenceStructure implements Structure {
             if (v.size > 0) {
                 int location = compiler.data(v.size);
                 variable.put(v.name, new Scope.Allocation(v.size, location));
-                compiler.debugData(variable.stateName(v.name), v.name, location, v.size);
             }
         }
     }
@@ -101,7 +100,6 @@ public class MachineReferenceStructure implements Structure {
         for (Data v : this.variables) {
             int location = compiler.data(v.size);
             variable.put(v.name, new Scope.Allocation(v.size, location));
-            compiler.debugData(variable.stateName(v.name), v.name, location, v.size);
         }
 
         Scope operationScope = scope.startOperation(variable, constructorName);

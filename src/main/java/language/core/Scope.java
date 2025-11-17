@@ -83,35 +83,6 @@ public class Scope {
         return newScope;
     }
 
-    public Scope startBlock(Scope implicitHost) {
-        Scope newScope = Scope.withImplicit();
-        newScope.name = "block";
-        newScope.parent = this;
-        unnamedSubScopes.add(newScope);
-
-        newScope.namedSubScopes.putAll(namedSubScopes);
-        newScope.literals.putAll(literals);
-        newScope.blocks.putAll(blocks);
-        newScope.defaultArgs.addAll(defaultArgs);
-        newScope.allocations.putAll(allocations);
-        newScope.generics.putAll(generics);
-
-        Scope implicitScope = implicitHost.implicitScope;
-        newScope.namedSubScopes.putAll(implicitScope.namedSubScopes);
-        newScope.literals.putAll(implicitScope.literals);
-        newScope.blocks.putAll(implicitScope.blocks);
-        newScope.defaultArgs.addAll(implicitScope.defaultArgs);
-        newScope.allocations.putAll(implicitScope.allocations);
-
-        newScope.implicitScope.namedSubScopes.putAll(implicitScope.namedSubScopes);
-        newScope.implicitScope.literals.putAll(implicitScope.literals);
-        newScope.implicitScope.blocks.putAll(implicitScope.blocks);
-        newScope.implicitScope.defaultArgs.addAll(implicitScope.defaultArgs);
-        newScope.implicitScope.allocations.putAll(implicitScope.allocations);
-
-        return newScope;
-    }
-
     public Scope parent() {
         return parent;
     }

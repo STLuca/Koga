@@ -52,7 +52,7 @@ public class BlockStatement implements Statement {
         }
         
         public void execute(Compiler.MethodCompiler compiler, Scope scope) {
-            Scope blockScope = this.scope.startBlock(scope);
+            Scope blockScope = scope.startOperation(this.scope, "block");
             for (Statement s : statements) {
                 s.compile(compiler, repository, variable, blockScope);
             }

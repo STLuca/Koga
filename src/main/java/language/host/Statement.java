@@ -103,7 +103,7 @@ public class Statement {
         }
         
         public void execute(Compiler.MethodCompiler compiler, Scope scope) {
-            Scope blockScope = this.scope.startBlock(scope);
+            Scope blockScope = scope.startOperation(this.scope, "block");
             for (Statement stmt : block) {
                 stmt.handle(compiler, repository, blockScope);
             }

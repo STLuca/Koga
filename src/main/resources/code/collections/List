@@ -7,10 +7,12 @@ structures {
     core.InterfaceReference;
 }
 
-collection.List {
-
-    accessor(Pointer accessorOut);
-
+documents {
+    collection.ListAccessor;
 }
 
-~ Pointer<InterfaceReference<ListAccessor>>
+collection.List<Structure T> {
+
+    accessor(Pointer<InterfaceReference<ListAccessor<T>>> accessorOut);
+
+}

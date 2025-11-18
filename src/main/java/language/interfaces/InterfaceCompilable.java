@@ -14,6 +14,7 @@ public class InterfaceCompilable implements Compilable {
     String name;
     ArrayList<String> imports = new ArrayList<>();
     ArrayList<String> dependencies = new ArrayList<>();
+    ArrayList<Generic> generics = new ArrayList<>();
     ArrayList<Method> methods = new ArrayList<>();
     
     public String name() {

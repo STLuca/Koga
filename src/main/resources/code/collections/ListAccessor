@@ -5,14 +5,14 @@ structures {
     core.Pointer;
 }
 
-collection.ListAccessor {
+collection.ListAccessor<Structure T> {
 
-    size(Pointer intOut);
+    size(Pointer<Int> intOut);
     next();
     previous();
     index(Int index);
-    add(Pointer struct);
+    add(Pointer<T> struct);
     remove();
-    get(Pointer structOut);
+    get(Pointer<T> structOut);
 
 }

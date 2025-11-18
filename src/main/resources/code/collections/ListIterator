@@ -16,9 +16,9 @@ documents {
 
 collection.ListIterator<Structure T> {
 
-    constructor(InterfaceReference<List> listRef, Block b) {
-        InterfaceReference<ListAccessor> accessor;
-        Pointer<InterfaceReference> accessorPtr (accessor);
+    constructor(InterfaceReference<List<T>> listRef, Block b) {
+        InterfaceReference<ListAccessor<T>> accessor;
+        Pointer<InterfaceReference<ListAccessor<T>>> accessorPtr (accessor);
         listRef accessor(accessorPtr);
         T element;
         Pointer<T> elementPtr (element);

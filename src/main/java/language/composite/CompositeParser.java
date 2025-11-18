@@ -335,28 +335,45 @@ public class CompositeParser implements Parser {
 
             // generics
             if (scanner.peek(tokens).orElse(null) == OP_PT_BRACE) {
-                curr = scanner.next(tokens);
-                do {
+                ArrayDeque<Structure.GenericArgument> stack = new ArrayDeque<>();
+                while (!stack.isEmpty() || curr != CL_PT_BRACE) {
                     curr = scanner.next(tokens);
-                    if (curr != NAME) scanner.fail("name");
-                    Structure.GenericArgument g = new Structure.GenericArgument();
-                    String name = curr.matched();
-                    if (ctx.generics.contains(name)) {
-                        g.type = Structure.GenericArgument.Type.Unknown;
-                        g.name = name;
-                    } else {
-                        g.type = Structure.GenericArgument.Type.Known;
-                        if (ctx.structures.containsKey(curr.matched())) {
-                            g.name = ctx.structures.get(curr.matched());
-                        } else if (ctx.documents.containsKey(curr.matched())) {
-                            g.name = ctx.documents.get(curr.matched());
+                    if (curr == OP_PT_BRACE) {
+                        stack.push(new Structure.GenericArgument());
+                    } else if (curr == CL_PT_BRACE) {
+                        Structure.GenericArgument popped = stack.pop();
+                        if (stack.isEmpty()) {
+                            s.generics.add(popped);
+                        } else {
+                            stack.peek().generics.add(popped);
                         }
+                    } else if (curr == COMMA) {
+                        Structure.GenericArgument pop = stack.pop();
+                        Structure.GenericArgument peek = stack.peek();
+                        if (peek == null) {
+                            s.generics.add(pop);
+                        } else {
+                            pop.generics.add(peek);
+                        }
+                        stack.push(new Structure.GenericArgument());
+                    } else if (curr == NAME) {
+                        Structure.GenericArgument peek = stack.peek();
+                        if (ctx.structures.containsKey(curr.matched())) {
+                            peek.type = Structure.GenericArgument.Type.Known;
+                            peek.name = ctx.structures.get(curr.matched());
+                        } else if (ctx.documents.containsKey(curr.matched())) {
+                            peek.type = Structure.GenericArgument.Type.Known;
+                            peek.name = ctx.documents.get(curr.matched());
+                        } else if (ctx.generics.contains(curr.matched())) {
+                            peek.type = Structure.GenericArgument.Type.Unknown;
+                            peek.name = curr.matched();
+                        } else {
+                            scanner.fail("");
+                        }
+                    } else {
+                        scanner.fail("");
                     }
-                    s.generics.add(g);
-
-                    curr = scanner.next(tokens);
-                } while (curr == COMMA);
-                if (curr != CL_PT_BRACE) scanner.fail(">");
+                }
             }
 
             curr = scanner.next(tokens);

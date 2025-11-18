@@ -26,15 +26,15 @@ test.StaticListTest {
 
     main() {
         AdminRef admin init();
-        Reference<StaticList> staticList new();
+        Reference<StaticList<Int>> staticList new();
         Structure<Int> mc ();
         Int size 5;
         staticList init(mc size);
-        InterfaceReference<List> list (staticList);
+        InterfaceReference<List<Int>> list (staticList);
 
         ~ Get the list accessor
-        InterfaceReference<ListAccessor> listAccessor;
-        Pointer<InterfaceReference> listAccessorPtr (listAccessor);
+        InterfaceReference<ListAccessor<Int>> listAccessor;
+        Pointer<InterfaceReference<ListAccessor<Int>>> listAccessorPtr (listAccessor);
         list accessor(listAccessorPtr);
 
         ~ Add two elements

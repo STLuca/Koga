@@ -2,10 +2,13 @@ package language.interfaces;
 
 import language.core.Compilable;
 import language.core.Parser;
+import language.core.Structure;
 import language.scanning.Scanner;
 import language.scanning.Token;
 import language.scanning.Tokens;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class InterfaceParser implements Parser {
@@ -13,6 +16,8 @@ public class InterfaceParser implements Parser {
     static class Context {
         InterfaceCompilable ic;
         HashMap<String, String> structures = new HashMap<>();
+        HashMap<String, String> documents = new HashMap<>();
+        ArrayList<String> generics = new ArrayList<>();
     }
 
     Token   DEPENDENCIES, IMPORTS,
@@ -39,8 +44,10 @@ public class InterfaceParser implements Parser {
 
         metaTokens.add(OP_BRACE);
         metaTokens.add(CL_BRACE);
+        metaTokens.add(OP_PT_BRACE);
+        metaTokens.add(CL_PT_BRACE);
         metaTokens.add(SEMI_COLON);
-        DEPENDENCIES  = metaTokens.add("'dependencies'");
+        DEPENDENCIES  = metaTokens.add("'documents'");
         IMPORTS       = metaTokens.add("'structures'");
         GLOBAL_NAME = metaTokens.add("[a-zA-Z]+\\.[a-zA-Z]+(\\.[a-zA-Z]+)*");
         metaTokens.add(NAME);
@@ -78,12 +85,24 @@ public class InterfaceParser implements Parser {
             curr = scanner.next(metaTokens);
         }
         if (curr == DEPENDENCIES) {
-            scanner.expect(tokens, OP_BRACE);
+            scanner.expect(metaTokens, OP_BRACE);
             curr = scanner.next(metaTokens);
             while (curr != CL_BRACE) {
-                if (curr != NAME) throw new RuntimeException("name");
-                ic.dependencies.add(curr.matched());
-                scanner.expect(tokens, SEMI_COLON);
+                if (curr != NAME && curr != GLOBAL_NAME) throw new RuntimeException("name");
+                String globalName = curr.matched();
+                String localName = curr.matched();
+                if (localName.contains(".")) {
+                    String[] split = localName.split("\\.");
+                    localName = split[split.length - 1];
+                }
+                curr = scanner.next(metaTokens);
+                if (curr == NAME) {
+                    localName = curr.matched();
+                    curr = scanner.next(metaTokens);
+                }
+                if (curr != SEMI_COLON) { scanner.fail(";"); }
+                ctx.documents.put(localName, globalName);
+                ic.dependencies.add(globalName);
                 curr = scanner.next(metaTokens);
             }
             curr = scanner.next(metaTokens);
@@ -92,7 +111,26 @@ public class InterfaceParser implements Parser {
             scanner.fail("name");
         }
         ic.name = curr.matched();
-        scanner.expect(tokens, OP_BRACE);
+
+        curr = scanner.next(tokens);
+        if (curr == OP_PT_BRACE) {
+            do {
+                curr = scanner.expect(metaTokens, NAME);
+                String type = curr.matched();
+                curr = scanner.expect(metaTokens, NAME);
+                String name = curr.matched();
+                Generic g = new Generic();
+                g.type = Generic.Type.valueOf(type);
+                g.name = name;
+                ic.generics.add(g);
+                ctx.generics.add(name);
+                curr = scanner.next(metaTokens);
+            } while (curr == COMMA);
+            if (curr != CL_PT_BRACE) scanner.fail(">");
+            curr = scanner.next(metaTokens);
+        }
+
+        if (curr != OP_BRACE) scanner.fail("{");
         curr = scanner.next(tokens);
         while (curr != CL_BRACE) {
             Token peek = scanner.peek(tokens).orElseThrow();
@@ -114,8 +152,51 @@ public class InterfaceParser implements Parser {
         while (curr != CL_PAREN) {
             if (curr != NAME) scanner.fail("name");
             Parameter p = new Parameter();
-            p.structure = ctx.structures.get(curr.matched());
-            scanner.expect(tokens, NAME);
+            p.structure = ctx.structures.get(curr.matched());Token next = scanner.peek(tokens).orElse(null);
+
+            if (next == OP_PT_BRACE) {
+                ArrayDeque<Structure.GenericArgument> stack = new ArrayDeque<>();
+                while (!stack.isEmpty() || curr != CL_PT_BRACE) {
+                    curr = scanner.next(tokens);
+                    if (curr == OP_PT_BRACE) {
+                        stack.push(new Structure.GenericArgument());
+                    } else if (curr == CL_PT_BRACE) {
+                        Structure.GenericArgument popped = stack.pop();
+                        if (stack.isEmpty()) {
+                            p.generics.add(popped);
+                        } else {
+                            stack.peek().generics.add(popped);
+                        }
+                    } else if (curr == COMMA) {
+                        Structure.GenericArgument pop = stack.pop();
+                        Structure.GenericArgument peek = stack.peek();
+                        if (peek == null) {
+                            p.generics.add(pop);
+                        } else {
+                            pop.generics.add(peek);
+                        }
+                        stack.push(new Structure.GenericArgument());
+                    } else if (curr == NAME) {
+                        Structure.GenericArgument peek = stack.peek();
+                        if (ctx.structures.containsKey(curr.matched())) {
+                            peek.type = Structure.GenericArgument.Type.Known;
+                            peek.name = ctx.structures.get(curr.matched());
+                        } else if (ctx.documents.containsKey(curr.matched())) {
+                            peek.type = Structure.GenericArgument.Type.Known;
+                            peek.name = ctx.documents.get(curr.matched());
+                        } else if (ctx.generics.contains(curr.matched())) {
+                            peek.type = Structure.GenericArgument.Type.Unknown;
+                            peek.name = curr.matched();
+                        } else {
+                            scanner.fail("");
+                        }
+                    } else {
+                        scanner.fail("");
+                    }
+                }
+            }
+
+            curr = scanner.expect(tokens, NAME);
             p.name = curr.matched();
             m.params.add(p);
             curr = scanner.next(tokens);

@@ -35,7 +35,7 @@ collection.StaticList<Structure T> implements List {
         Task t complete();
     }
 
-    accessor(Pointer<IRef<ListAccessor>> accessorOut) {
+    accessor(Pointer<IRef<ListAccessor<T>>> accessorOut) {
         Reference<StaticList<T>> this this();
         Reference<StaticListAccessor<T>> accessor new();
         accessor init(this);

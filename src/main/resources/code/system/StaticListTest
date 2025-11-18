@@ -45,24 +45,10 @@ test.StaticListTest {
         Pointer<Int> elementTwoPtr (elementTwo);
         listAccessor add (elementTwoPtr);
 
-        ~ Retrieve the first element
-        Int index 0;
-        listAccessor index (index);
-        Int writeElement;
-        Pointer<Int> writeElementPtr (writeElement);
-        listAccessor get (writeElementPtr);
-
-        ListView<Int> view;
-
         ~ Iterator usage
         Int sum 0;
         ListIterator<Int> (list) {
-            Int check (element);
-            check + size;
-            Boolean b { check > 20; };
-            If(b) {
-                sum + element;
-            };
+            sum + element;
         };
 
         Exit;

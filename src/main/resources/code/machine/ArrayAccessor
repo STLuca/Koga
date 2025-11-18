@@ -54,6 +54,11 @@ core.ArrayAccessor<Structure T> {
         i(ADD, TT, LDA, addr, LDA, addr, LDA, step);
     }
 
+    previous() {
+        ~ Bounds checking
+        i(SUB, TT, LDA, addr, LDA, addr, LDA, step);
+    }
+
     copyTo(Pointer<T> valPtr) {
         m(COPY, TTT, ADA, valPtr.addr, LDA, addr, LDA, step);
     }

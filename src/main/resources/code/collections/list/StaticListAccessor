@@ -36,27 +36,38 @@ collection.StaticListAccessor<Structure T> implements ListAccessor {
     }
 
     size(Pointer<Int> intOut) {
-        Int size 2;
+        Reference<StaticList<T>> thisList;
+        Pointer<Reference<StaticList<T>>> thisListPtr this(list);
+        thisListPtr -> thisList;
+        Pointer<Int> listSizePtr (thisList, size);
+        Int size;
+        listSizePtr -> size;
         intOut <- size;
+
         Task t complete();
     }
 
     next() {
-        Task t complete();
-    }
-
-    previous() {
-        Task t complete();
-    }
-
-    index(Int index) {
         ~ Load accessor
         Pointer<ArrayAccessor<T>> thisAccessorPtr this(accessor);
         ArrayAccessor<T> thisAccessor;
         thisAccessorPtr -> thisAccessor;
 
-        ~ index and store the accessor
-        thisAccessor index (index);
+        ~ Move to the next element and store
+        thisAccessor next();
+        thisAccessorPtr <- thisAccessor;
+
+        Task t complete();
+    }
+
+    previous() {
+        ~ Load accessor
+        Pointer<ArrayAccessor<T>> thisAccessorPtr this(accessor);
+        ArrayAccessor<T> thisAccessor;
+        thisAccessorPtr -> thisAccessor;
+
+        ~ Move to the previous element and store
+        thisAccessor previous();
         thisAccessorPtr <- thisAccessor;
 
         Task t complete();
@@ -71,14 +82,45 @@ collection.StaticListAccessor<Structure T> implements ListAccessor {
         ~ Store the structIn
         thisAccessor <- structIn;
 
-        ~ increment accessor and store accessor
+        ~ increment accessor
         thisAccessor next ();
+
+        Reference<StaticList<T>> thisList;
+        Pointer<Reference<StaticList<T>>> thisListPtr this(list);
+        thisListPtr -> thisList;
+        Pointer<Int> listSizePtr (thisList, size);
+        Int size;
+        listSizePtr -> size;
+        size + 1;
+
+        ~  Store accessor and size
         thisAccessorPtr <- thisAccessor;
+        listSizePtr <- size;
 
         Task t complete();
     }
 
     remove() {
+        ~ Load accessor
+        Pointer<ArrayAccessor<T>> thisAccessorPtr this(accessor);
+        ArrayAccessor<T> thisAccessor;
+        thisAccessorPtr -> thisAccessor;
+
+        ~ decrement accessor
+        thisAccessor previous ();
+
+        Reference<StaticList<T>> thisList;
+        Pointer<Reference<StaticList<T>>> thisListPtr this(list);
+        thisListPtr -> thisList;
+        Pointer<Int> listSizePtr (thisList, size);
+        Int size;
+        listSizePtr -> size;
+        size - 1;
+
+        ~  Store accessor and size
+        thisAccessorPtr <- thisAccessor;
+        listSizePtr <- size;
+
         Task t complete();
     }
 

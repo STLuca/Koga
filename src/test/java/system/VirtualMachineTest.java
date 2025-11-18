@@ -477,10 +477,7 @@ public class VirtualMachineTest {
     @Test
     void staticListTest() {
         Inspector i = run("test.StaticListTest");
-        String is = i.toString();
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("writeElement.val");
-        assertThat(xVal).isEqualTo(19);
         int sumVal = t.altData.get("sum.val");
         assertThat(sumVal).isEqualTo(40);
     }

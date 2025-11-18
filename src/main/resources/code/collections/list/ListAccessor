@@ -7,12 +7,11 @@ structures {
 
 collection.ListAccessor<Structure T> {
 
+    get(Pointer<T> structOut);
     size(Pointer<Int> intOut);
-    next();
-    previous();
-    index(Int index);
     add(Pointer<T> struct);
     remove();
-    get(Pointer<T> structOut);
+    next();
+    previous();
 
 }

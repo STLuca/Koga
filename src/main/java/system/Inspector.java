@@ -61,8 +61,9 @@ public class Inspector {
                 Administrator.DataRuntimeValue data = dataEntry.getValue();
                 if (name.contains(".") && data.size() <= 4) {
                     String[] split = name.split("\\.");
-                    t.data.putIfAbsent(split[0], new HashMap<>());
-                    t.data.get(split[0]).put(split[1], machine.loadInt(host.pageMap, t.task + data.addr(), data.size()));
+                    t.nestedData.putIfAbsent(split[0], new HashMap<>());
+                    t.nestedData.get(split[0]).put(split[1], machine.loadInt(host.pageMap, t.task + data.addr(), data.size()));
+                    t.data.put(name, machine.loadInt(host.pageMap, t.task + data.addr(), data.size()));
                 }
             }
 
@@ -77,8 +78,9 @@ public class Inspector {
                 Administrator.DataRuntimeValue data = dataEntry.getValue();
                 if (name.contains(".") && data.size() <= 4) {
                     String[] split = name.split("\\.");
-                    t.altData.putIfAbsent(split[0], new HashMap<>());
-                    t.altData.get(split[0]).put(split[1], machine.loadInt(host.pageMap, t.altTask + data.addr(), data.size()));
+                    t.nestedAltData.putIfAbsent(split[0], new HashMap<>());
+                    t.nestedAltData.get(split[0]).put(split[1], machine.loadInt(host.pageMap, t.altTask + data.addr(), data.size()));
+                    t.altData.put(name, machine.loadInt(host.pageMap, t.altTask + data.addr(), data.size()));
                 }
             }
 
@@ -162,8 +164,10 @@ public class Inspector {
 
     record Entry(int start, int end) {}
     static class Task {
-        HashMap<String, Map<String, Integer>> data = new HashMap<>();
-        HashMap<String, Map<String, Integer>> altData = new HashMap<>();
+        HashMap<String, Integer> data = new HashMap<>();
+        HashMap<String, Integer> altData = new HashMap<>();
+        HashMap<String, Map<String, Integer>> nestedData = new HashMap<>();
+        HashMap<String, Map<String, Integer>> nestedAltData = new HashMap<>();
         int task;
         int object;
         int instruction;

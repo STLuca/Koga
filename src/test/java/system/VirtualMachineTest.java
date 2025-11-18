@@ -189,9 +189,9 @@ public class VirtualMachineTest {
     void byteAndIntWorks() {
         Inspector i = run("test.ByteAndIntTest");
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("x").get("val");
-        int yVal = t.altData.get("y").get("val");
-        int zVal = t.altData.get("z").get("val");
+        int xVal = t.altData.get("x.val");
+        int yVal = t.altData.get("y.val");
+        int zVal = t.altData.get("z.val");
         assertThat(xVal).isEqualTo(10);
         assertThat(yVal).isEqualTo(25);
         assertThat(zVal).isEqualTo(111);
@@ -201,9 +201,9 @@ public class VirtualMachineTest {
     void charWorks() {
         Inspector i = run("test.CharTest");
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("x").get("val");
-        int yVal = t.altData.get("y").get("val");
-        int zVal = t.altData.get("z").get("val");
+        int xVal = t.altData.get("x.val");
+        int yVal = t.altData.get("y.val");
+        int zVal = t.altData.get("z.val");
         assertThat(xVal).isEqualTo(97);
         assertThat(yVal).isEqualTo(104);
         assertThat(zVal).isEqualTo(76);
@@ -213,7 +213,7 @@ public class VirtualMachineTest {
     void ifWorks() {
         Inspector i = run("test.IfTest");
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("x").get("val");
+        int xVal = t.altData.get("x.val");
         assertThat(xVal).isEqualTo(20);
     }
 
@@ -221,8 +221,8 @@ public class VirtualMachineTest {
     void whileWorks() {
         Inspector i = run("test.WhileTest");
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("x").get("val");
-        int yVal = t.altData.get("y").get("val");
+        int xVal = t.altData.get("x.val");
+        int yVal = t.altData.get("y.val");
         assertThat(xVal).isEqualTo(10);
         assertThat(yVal).isEqualTo(0);
     }
@@ -231,8 +231,8 @@ public class VirtualMachineTest {
     void whileWithBreakWorks() {
         Inspector i = run("test.WhileWithBreakTest");
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("x").get("val");
-        int yVal = t.altData.get("y").get("val");
+        int xVal = t.altData.get("x.val");
+        int yVal = t.altData.get("y.val");
         assertThat(xVal).isEqualTo(1);
         assertThat(yVal).isEqualTo(1);
     }
@@ -241,7 +241,7 @@ public class VirtualMachineTest {
     void basicSwitchWorks() {
         Inspector i = run("test.SwitchTest");
         Inspector.Task t = i.tasks.get(0);
-        int classSymbol = t.altData.get("x").get("val");
+        int classSymbol = t.altData.get("x.val");
         assertThat(classSymbol).isEqualTo(10);
     }
 
@@ -249,9 +249,9 @@ public class VirtualMachineTest {
     void pointerWorks() {
         Inspector i = run("test.PointerTest");
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("x").get("val");
-        int yVal = t.altData.get("y").get("val");
-        int zVal = t.altData.get("z").get("val");
+        int xVal = t.altData.get("x.val");
+        int yVal = t.altData.get("y.val");
+        int zVal = t.altData.get("z.val");
         assertThat(xVal).isEqualTo(3);
         assertThat(yVal).isEqualTo(1);
         assertThat(zVal).isEqualTo(3);
@@ -262,7 +262,7 @@ public class VirtualMachineTest {
         // unsigned memes def don't work
         Inspector i = run("test.IntCompareToBoolTest");
         Inspector.Task t = i.tasks.get(0);
-        int yVal = t.altData.get("y").get("val");
+        int yVal = t.altData.get("y.val");
         assertThat(yVal).isEqualTo(1);
     }
 
@@ -270,9 +270,9 @@ public class VirtualMachineTest {
     void ArrayAccessorWorks() {
         Inspector i = run("test.ArrayAccessorTest");
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("x").get("val");
-        int yVal = t.altData.get("y").get("val");
-        int zVal = t.altData.get("z").get("val");
+        int xVal = t.altData.get("x.val");
+        int yVal = t.altData.get("y.val");
+        int zVal = t.altData.get("z.val");
         assertThat(xVal).isEqualTo(4);
         assertThat(yVal).isEqualTo(5);
         assertThat(zVal).isEqualTo(5);
@@ -281,7 +281,7 @@ public class VirtualMachineTest {
     void proxyWorks() {
         Inspector i = run("test.ProxyTest");
         Inspector.Task t = i.tasks.get(0);
-        int yVal = t.altData.get("y").get("val");
+        int yVal = t.altData.get("y.val");
         assertThat(yVal).isEqualTo(3);
     }
 
@@ -289,7 +289,7 @@ public class VirtualMachineTest {
     void machineMethodVariableWorks() {
         Inspector i = run("test.MethodVariableTest");
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("x").get("val");
+        int xVal = t.altData.get("x.val");
         assertThat(xVal).isEqualTo(14);
     }
 
@@ -297,8 +297,8 @@ public class VirtualMachineTest {
     void methodInvokeWorks() {
         Inspector i = run("test.MethodInvokeTest");
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("x").get("val");
-        int yVal = t.altData.get("y").get("val");
+        int xVal = t.altData.get("x.val");
+        int yVal = t.altData.get("y.val");
         assertThat(xVal).isEqualTo(5);
         assertThat(yVal).isEqualTo(2);
     }
@@ -307,7 +307,7 @@ public class VirtualMachineTest {
     void localVariableWorks() {
         Inspector i = run("test.LocalVariableTest");
         Inspector.Task t = i.tasks.get(0);
-        int yVal = t.altData.get("y").get("val");
+        int yVal = t.altData.get("y.val");
         assertThat(yVal).isEqualTo(16);
     }
 
@@ -342,7 +342,7 @@ public class VirtualMachineTest {
     void exceptionTest() {
         Inspector i = run("test.ExceptionTest");
         Inspector.Task t = i.tasks.get(0);
-        int yVal = t.altData.get("x").get("val");
+        int yVal = t.altData.get("x.val");
         assertThat(yVal).isEqualTo(10);
     }
 
@@ -350,8 +350,8 @@ public class VirtualMachineTest {
     void constantsTest() {
         Inspector i = run("test.ConstantsTest");
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("x").get("val");
-        int yVal = t.altData.get("y").get("val");
+        int xVal = t.altData.get("x.val");
+        int yVal = t.altData.get("y.val");
         assertThat(xVal).isEqualTo(67);
         assertThat(yVal).isEqualTo(111);
     }
@@ -372,8 +372,8 @@ public class VirtualMachineTest {
 
         Inspector i = administrator.inspect(0);
         Inspector.Task t = i.tasks.get(0);
-        int stringStart = t.altData.get("result").get("start");
-        int stringSize = t.altData.get("result").get("size");
+        int stringStart = t.altData.get("result.start");
+        int stringSize = t.altData.get("result.size");
         assertThat(stringSize).isEqualTo(12);
         byte[] bytes = new byte[stringSize];
         i.load(stringStart, bytes);
@@ -384,8 +384,8 @@ public class VirtualMachineTest {
     void allocatorWorks() {
         Inspector i = run("test.AllocatorTest");
         Inspector.Task t = i.tasks.get(0);
-        int allocateOneVal = t.altData.get("allocateOne").get("val");
-        int allocateTwoVal = t.altData.get("allocateTwo").get("val");
+        int allocateOneVal = t.altData.get("allocateOne.val");
+        int allocateTwoVal = t.altData.get("allocateTwo.val");
         assertThat(allocateOneVal).isEqualTo(16392);
         assertThat(allocateTwoVal).isEqualTo(16516);
     }
@@ -394,7 +394,7 @@ public class VirtualMachineTest {
     void enumWorks() {
         Inspector i = run("test.EnumTest");
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("x").get("val");
+        int xVal = t.altData.get("x.val");
         assertThat(xVal).isEqualTo(4);
     }
 
@@ -402,7 +402,7 @@ public class VirtualMachineTest {
     void methodOverloadWorks() {
         Inspector i = run("test.MethodOverloadTest");
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("x").get("val");
+        int xVal = t.altData.get("x.val");
         assertThat(xVal).isEqualTo(10);
     }
 
@@ -410,8 +410,8 @@ public class VirtualMachineTest {
     void callerArgumentWorks() {
         Inspector i = run("test.ImplicitArgumentTest");
         Inspector.Task t = i.tasks.get(0);
-        int bVal = t.altData.get("b").get("val");
-        int cVal = t.altData.get("c").get("val");
+        int bVal = t.altData.get("b.val");
+        int cVal = t.altData.get("c.val");
         assertThat(bVal).isEqualTo(0);
         assertThat(cVal).isEqualTo(1);
     }
@@ -420,7 +420,7 @@ public class VirtualMachineTest {
     void stringEqualsWorks() {
         Inspector i = run("test.StringEqualsTest");
         Inspector.Task t = i.tasks.get(0);
-        int bVal = t.altData.get("b").get("val");
+        int bVal = t.altData.get("b.val");
         assertThat(bVal).isEqualTo(1);
     }
 
@@ -428,7 +428,7 @@ public class VirtualMachineTest {
     void tmp() {
         Inspector i = run("test.NewTest");
         Inspector.Task t = i.tasks.get(0);
-        int bVal = t.altData.get("x").get("val");
+        int bVal = t.altData.get("x.val");
         assertThat(bVal).isEqualTo(14);
     }
 
@@ -436,7 +436,7 @@ public class VirtualMachineTest {
     void tryWorks() {
         Inspector i = run("test.TryTest");
         Inspector.Task t = i.tasks.get(0);
-        int bVal = t.altData.get("x").get("val");
+        int bVal = t.altData.get("x.val");
         assertThat(bVal).isEqualTo(30);
     }
 
@@ -444,12 +444,12 @@ public class VirtualMachineTest {
     void structureWorks() {
         Inspector i = run("test.StructureTest");
         Inspector.Task t = i.tasks.get(0);
-        int todayYear  = t.altData.get("today").get("year");
-        int todayMonth = t.altData.get("today").get("month");
-        int todayDay   = t.altData.get("today").get("day");
-        int dateYear   = t.altData.get("date").get("year");
-        int dateMonth  = t.altData.get("date").get("month");
-        int dateDay    = t.altData.get("date").get("day");
+        int todayYear  = t.altData.get("today.year.val");
+        int todayMonth = t.altData.get("today.month.val");
+        int todayDay   = t.altData.get("today.day.val");
+        int dateYear   = t.altData.get("date.year.val");
+        int dateMonth  = t.altData.get("date.month.val");
+        int dateDay    = t.altData.get("date.day.val");
         assertThat(todayYear).isEqualTo(2025);
         assertThat(todayMonth).isEqualTo(3);
         assertThat(todayDay).isEqualTo(6);
@@ -462,7 +462,7 @@ public class VirtualMachineTest {
     void deferWorks() {
         Inspector i = run("test.DeferTest");
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("x").get("val");
+        int xVal = t.altData.get("x.val");
         assertThat(xVal).isEqualTo(10);
     }
 
@@ -470,7 +470,7 @@ public class VirtualMachineTest {
     void unionWorks() {
         Inspector i = run("test.UnionTest");
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("x").get("val");
+        int xVal = t.altData.get("x.val");
         assertThat(xVal).isEqualTo(8);
     }
 
@@ -479,9 +479,9 @@ public class VirtualMachineTest {
         Inspector i = run("test.StaticListTest");
         String is = i.toString();
         Inspector.Task t = i.tasks.get(0);
-        int xVal = t.altData.get("writeElement").get("val");
+        int xVal = t.altData.get("writeElement.val");
         assertThat(xVal).isEqualTo(19);
-        int sumVal = t.altData.get("sum").get("val");
+        int sumVal = t.altData.get("sum.val");
         assertThat(sumVal).isEqualTo(40);
     }
 

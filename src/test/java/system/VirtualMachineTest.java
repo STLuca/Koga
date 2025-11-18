@@ -84,12 +84,12 @@ public class VirtualMachineTest {
         srcMap.put("chatting.Chatting", "protocol/Chatting");
 
         // collections
-        srcMap.put("collection.List", "collections/List");
-        srcMap.put("collection.ListAccessor", "collections/ListAccessor");
-        srcMap.put("collection.ListIterator", "collections/ListIterator");
-        srcMap.put("collection.ListView", "collections/ListView");
-        srcMap.put("collection.StaticList", "collections/StaticList");
-        srcMap.put("collection.StaticListAccessor", "collections/StaticListAccessor");
+        srcMap.put("collection.List", "collections/list/List");
+        srcMap.put("collection.ListAccessor", "collections/list/ListAccessor");
+        srcMap.put("collection.ListIterator", "collections/list/ListIterator");
+        srcMap.put("collection.ListView", "collections/list/ListView");
+        srcMap.put("collection.StaticList", "collections/list/StaticList");
+        srcMap.put("collection.StaticListAccessor", "collections/list/StaticListAccessor");
 
 
         // System classes

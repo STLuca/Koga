@@ -42,8 +42,9 @@ core.InterfaceReference<Document R> {
     }
 
     arg(Variable a, Name methodName) {
-        m(COPY, TII, LDA, frameDataAddr, ADA, a, ADS, a);
-        i(ADD, TI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
+        ArgsCopy(LG, R, AL, methodName, AL, index, ADA, a, LDA, frameDataAddr);
+        ~ m(COPY, TII, LDA, frameDataAddr, ADA, a, ADS, a);
+        ~ i(ADD, TI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
     }
 
 }

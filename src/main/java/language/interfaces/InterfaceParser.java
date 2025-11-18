@@ -6,7 +6,14 @@ import language.scanning.Scanner;
 import language.scanning.Token;
 import language.scanning.Tokens;
 
+import java.util.HashMap;
+
 public class InterfaceParser implements Parser {
+
+    static class Context {
+        InterfaceCompilable ic;
+        HashMap<String, String> structures = new HashMap<>();
+    }
 
     Token   DEPENDENCIES, IMPORTS,
             NAME, GLOBAL_NAME,
@@ -46,6 +53,8 @@ public class InterfaceParser implements Parser {
     public Output parse(String input) {
         Scanner scanner = new Scanner(input);
         InterfaceCompilable ic = new InterfaceCompilable();
+        Context ctx = new Context();
+        ctx.ic = ic;
 
         Token curr = scanner.next(metaTokens);
         if (curr == IMPORTS) {
@@ -53,8 +62,17 @@ public class InterfaceParser implements Parser {
             curr = scanner.next(metaTokens);
             while (curr != CL_BRACE) {
                 if (curr != GLOBAL_NAME) throw new RuntimeException("name");
-                ic.imports.add(curr.matched());
-                scanner.expect(tokens, SEMI_COLON);
+                String globalName = curr.matched();
+                String[] split = globalName.split("\\.");
+                String localName = split[split.length - 1];
+                curr = scanner.next(metaTokens);
+                if (curr == NAME) {
+                    localName = curr.matched();
+                    curr = scanner.next(metaTokens);
+                }
+                if (curr != SEMI_COLON) { scanner.fail(";"); }
+                ctx.structures.put(localName, globalName);
+                ctx.ic.imports.add(globalName);
                 curr = scanner.next(metaTokens);
             }
             curr = scanner.next(metaTokens);
@@ -78,7 +96,7 @@ public class InterfaceParser implements Parser {
         curr = scanner.next(tokens);
         while (curr != CL_BRACE) {
             Token peek = scanner.peek(tokens).orElseThrow();
-            parseMethod(scanner, ic);
+            parseMethod(scanner, ctx);
             curr = scanner.next(tokens);
         }
 
@@ -87,7 +105,7 @@ public class InterfaceParser implements Parser {
         return out;
     }
 
-    private void parseMethod(Scanner scanner, InterfaceCompilable ic) {
+    private void parseMethod(Scanner scanner, Context ctx) {
         Token curr = scanner.current();
         Method m = new Method();
         m.name = curr.matched();
@@ -96,7 +114,7 @@ public class InterfaceParser implements Parser {
         while (curr != CL_PAREN) {
             if (curr != NAME) scanner.fail("name");
             Parameter p = new Parameter();
-            p.structure = curr.matched();
+            p.structure = ctx.structures.get(curr.matched());
             scanner.expect(tokens, NAME);
             p.name = curr.matched();
             m.params.add(p);
@@ -104,6 +122,6 @@ public class InterfaceParser implements Parser {
             if (curr == COMMA) curr = scanner.next(tokens);
         }
         scanner.expect(tokens, SEMI_COLON);
-        ic.methods.add(m);
+        ctx.ic.methods.add(m);
     }
 }

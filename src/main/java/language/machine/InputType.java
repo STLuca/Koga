@@ -38,11 +38,11 @@ enum InputType {
             }
             case AL -> {
                 // arguments should be type literal
-                int literal = scope.findLiteral(toResolve).orElseThrow();
+                int literal = scope.findLiteralAsInt(toResolve).orElseThrow();
                 return new Resolved(4, literal);
             }
             case CL -> {
-                int literal = scope.findLiteral(toResolve).orElseThrow();
+                int literal = scope.findLiteralAsInt(toResolve).orElseThrow();
                 return new Resolved(4, literal);
             }
             case LDA -> {

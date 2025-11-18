@@ -27,8 +27,9 @@ core.String {
     }
 
     constructor(b8[] const) {
-        c(ADDR, LI, start, table, const);
-        c(SIZE, LI, size, table, const);
+        Constant(constSymbol, const);
+        c(ADDR, LI, start, table, constSymbol);
+        c(SIZE, LI, size, table, constSymbol);
         i(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
     }
 

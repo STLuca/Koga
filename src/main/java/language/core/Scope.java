@@ -28,7 +28,7 @@ public class Scope {
     Scope currentAnonymous;
     LinkedHashMap<String, Scope.Generic> generics = new LinkedHashMap<>();
     HashMap<String, Scope.Allocation> allocations = new HashMap<>();
-    HashMap<String, Integer> literals = new HashMap<>();
+    HashMap<String, byte[]> literals = new HashMap<>();
     HashMap<String, Block> blocks = new HashMap<>();
     HashMap<String, String> names = new HashMap<>();
     ArrayList<Scope> defaultArgs = new ArrayList<>();
@@ -140,12 +140,33 @@ public class Scope {
     }
 
 
-    public void put(String name, Integer literal) {
-        literals.put(name, literal);
+    public void put(String name, int val) {
+        byte[] bytes = new byte[4];
+        for (int i = 0; i <= 3; i++) {
+            bytes[i] = (byte) (val >>> (8 * i));
+        }
+        literals.put(name, bytes);
     }
 
-    public Optional<Integer> findLiteral(String name) {
+    public void put(String name, byte[] val) {
+        literals.put(name, val);
+    }
+
+    public Optional<byte[]> findLiteral(String name) {
         return Optional.ofNullable(literals.get(name));
+    }
+
+    public Optional<Integer> findLiteralAsInt(String name) {
+        if (!literals.containsKey(name)) {
+            return Optional.empty();
+        }
+        byte[] bytes = literals.get(name);
+        int r = 0;
+        for (int i = 0; i < bytes.length; i++) {
+            int bi = bytes[i] & 0xFF;
+            r = r | (bi << (8 * i));
+        }
+        return Optional.of(r);
     }
 
 

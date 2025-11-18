@@ -80,14 +80,14 @@ public class Operation {
             Parameter param = parameters.get(i);
             String arg = arguments.get(i);
             if (param.array) {
-                operation.findLiteral(arg);
+                operation.findLiteralAsInt(arg);
             }
             switch (param.type) {
                 case Variable -> {
                     if (param.variableMatcher.match(variable, operation, arg)) { continue; }
                 }
                 case Literal -> {
-                    Integer literal = operation.findLiteral(arg).orElse(null);
+                    Integer literal = operation.findLiteralAsInt(arg).orElse(null);
                     if (literal != null) { continue; }
                 }
                 case Block -> {
@@ -117,7 +117,7 @@ public class Operation {
             String arg = arguments.get(i);
             switch(p.type) {
                 case Literal -> {
-                    int literal = scope.findLiteral(arg).orElseThrow();
+                    byte[] literal = scope.findLiteral(arg).orElseThrow();
                     operationScope.put(p.name, literal);
                 }
                 case Variable -> {

@@ -59,7 +59,7 @@ class Structure implements language.core.Structure {
             String arg = arguments.get(i++);
             switch (param.type) {
                 case Literal -> {
-                    int literal = scope.findLiteral(arg).orElseThrow();
+                    int literal = scope.findLiteralAsInt(arg).orElseThrow();
                     operationScope.put(param.name, literal);
                 }
                 case Variable -> {

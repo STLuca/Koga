@@ -309,6 +309,11 @@ public class MachineReferenceParser implements Parser {
                         arguments = is.arguments;
                         statement = is;
                     }
+                    case "Constant" -> {
+                        ConstantStatement is = new ConstantStatement();
+                        arguments = is.arguments;
+                        statement = is;
+                    }
                     case "Symbol" -> {
                         SymbolStatement is = new SymbolStatement();
                         arguments = is.arguments;

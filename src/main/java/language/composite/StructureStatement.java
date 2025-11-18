@@ -62,10 +62,9 @@ public class StructureStatement implements Statement {
                     bytes[i] = Byte.parseByte(literal);
                     i++;
                 }
-                int symbol = compiler.constant(bytes);
                 String anonName = UUID.randomUUID().toString();
 
-                scope.put(anonName, symbol);
+                scope.put(anonName, bytes);
                 argNames.add(anonName);
             }
         }

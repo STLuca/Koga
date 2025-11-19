@@ -10,6 +10,7 @@ enum InputType {
     P,   // position
     S,   // size
     G,   // generic
+    A,   // address
     ;
 
     record Resolved(int size, int value) {}
@@ -46,12 +47,9 @@ enum InputType {
                 if (allocation != null) {
                     return new Resolved(allocation.size(), allocation.location());
                 }
-                curr = curr.findVariable(split[split.length - 1]).orElse(null);
-                if (curr != null) {
-                    allocation = curr.allocation().orElseThrow();
-                    return new Resolved(allocation.size(), allocation.location());
-                }
-                return new Resolved(4, -1);
+                curr = curr.findVariable(split[split.length - 1]).orElseThrow();
+                allocation = curr.allocation().orElseThrow();
+                return new Resolved(allocation.size(), allocation.location());
             }
             case S -> {
                 String[] split = toResolve.split("\\.");
@@ -75,6 +73,10 @@ enum InputType {
                 }
                 Structure u = curr.findGeneric(split[split.length - 1]).orElseThrow().structure;
                 return new Resolved(4, u.size(null));
+            }
+            case A -> {
+                Integer address = scope.findAddress(toResolve).orElseThrow();
+                return new Resolved(4, address);
             }
         }
         throw new RuntimeException();

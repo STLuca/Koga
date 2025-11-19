@@ -170,7 +170,7 @@ public class MachineCompositeParser implements Parser {
         parseParameters(scanner, mc, mcc.parameters, structures);
         scanner.expect(tokens, OP_BRACE);
         scanner.next(tokens);
-        parseStatements(scanner, mcc.body);
+        parseStatements(scanner, mcc, mcc.body);
         mc.constructors.add(mcc);
     }
 
@@ -183,7 +183,7 @@ public class MachineCompositeParser implements Parser {
         parseParameters(scanner, mc, mcm.parameters, structures);
         scanner.expect(tokens, OP_BRACE);
         scanner.next(tokens);
-        parseStatements(scanner, mcm.body);
+        parseStatements(scanner, mcm, mcm.body);
         mc.operations.add(mcm);
     }
 
@@ -265,7 +265,7 @@ public class MachineCompositeParser implements Parser {
         }
     }
 
-    void parseStatements(SingleLineScanner scanner, List<Statement> statements) {
+    void parseStatements(SingleLineScanner scanner, Operation operation, List<Statement> statements) {
         Token curr = scanner.current();
         while (curr != CL_BRACE) {
             if (curr == TILDA) {
@@ -280,6 +280,7 @@ public class MachineCompositeParser implements Parser {
                 curr = scanner.expect(tokens, NAME);
                 as.name = curr.matched();
                 statements.add(as);
+                operation.addresses.add(as.name);
             } else if (curr == NAME) {
                 String name = curr.matched();
                 Statement statement;
@@ -386,7 +387,7 @@ public class MachineCompositeParser implements Parser {
                 if (peek == OP_BRACE) {
                     scanner.next(tokens);
                     scanner.next(tokens);
-                    parseStatements(scanner, b.block);
+                    parseStatements(scanner, operation, b.block);
                 }
                 statements.add(b);
             } else {

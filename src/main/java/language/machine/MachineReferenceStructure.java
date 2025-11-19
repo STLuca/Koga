@@ -96,6 +96,7 @@ public class MachineReferenceStructure implements Structure {
         for (String address : addresses) {
             int addr = compiler.address();
             variable.put(address, new Scope.Allocation(4, addr));
+            variable.putAddress(address, addr);
         }
         for (Data v : this.variables) {
             int location = compiler.data(v.size);
@@ -103,7 +104,7 @@ public class MachineReferenceStructure implements Structure {
         }
 
         Scope operationScope = scope.startOperation(variable, constructorName);
-        c.populateScope(scope, operationScope, arguments);
+        c.populateScope(compiler, scope, operationScope, arguments);
 
         for (Statement s : c.body) {
             s.compile(compiler, repository, variable, operationScope);

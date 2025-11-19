@@ -132,7 +132,7 @@ public class InstructionStatement implements Statement {
                 String addr;
                 switch (values.size()) {
                     case 3 -> {
-                        addrType = InputType.P;
+                        addrType = InputType.A;
                         addr = values.get(2);
                     }
                     case 4 -> {
@@ -187,14 +187,7 @@ public class InstructionStatement implements Statement {
                 }
                 Resolved resolvedSrc1 = src1Type.resolve(src1, scope);
                 Resolved resolvedSrc2 = src2Type.resolve(src2, scope);
-                Resolved resolvedAddr = InputType.P.resolve(addr, scope);
-                if (resolvedAddr.value() == -1) {
-                    // Put a placeholder address. Things will probably not work if the addr isn't then updated
-                    int address = compiler.address();
-                    Scope.Allocation addrAllocation = new Scope.Allocation(4, address);
-                    scope.put(addr, addrAllocation);
-                    resolvedAddr = new Resolved(addrAllocation.size(), addrAllocation.location());
-                }
+                Resolved resolvedAddr = InputType.A.resolve(addr, scope);
                 ic.inputType(inType);
                 ic.src(resolvedAddr.value());
                 ic.src(resolvedSrc1.value(), resolvedSrc1.size());

@@ -10,7 +10,6 @@ core.If {
     Addr end;
 
     constructor(Int bool, Block block) {
-        Addr after;
         cb(EQ, TI, P, bool.val, I, 0d0, after);
         Block block;
         j(REL, I, end);

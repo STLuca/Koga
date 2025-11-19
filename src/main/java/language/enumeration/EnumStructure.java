@@ -134,18 +134,14 @@ public class EnumStructure implements language.core.Structure {
 
                 new InstructionStatement("j", "REL", "T", "P", "type").compile(compiler, repository, variable, operationScope);
                 int jumps = compiler.address();
-                Scope.Allocation allocation = new Scope.Allocation(4, jumps);
-                operationScope.put("jumps", allocation);
+                operationScope.putAddress("jumps", jumps);
                 int cases = compiler.address();
-                allocation = new Scope.Allocation(4, cases);
-                operationScope.put("cases", allocation);
+                operationScope.putAddress("cases", cases);
                 int end = compiler.address();
-                allocation = new Scope.Allocation(4, end);
-                operationScope.put("end", allocation);
+                operationScope.putAddress("end", end);
                 for (int i = 0; i < arguments.size(); i+=2) {
                     int caseAddr = compiler.address();
-                    allocation = new Scope.Allocation(4, caseAddr);
-                    operationScope.put("case", allocation);
+                    operationScope.putAddress("case", caseAddr);
                     int prev = compiler.position(jumps);
                     new InstructionStatement("j", "REL", "I", "case").compile(compiler, repository, variable, operationScope);
                     compiler.position(cases);
@@ -191,19 +187,15 @@ public class EnumStructure implements language.core.Structure {
 
                 new InstructionStatement("j", "REL", "T", "P", "type").compile(compiler, repository, variable, operationScope);
                 int jumps = compiler.address();
-                Scope.Allocation allocation = new Scope.Allocation(4, jumps);
-                operationScope.put("jumps", allocation);
+                operationScope.putAddress("jumps", jumps);
                 int cases = compiler.address();
-                allocation = new Scope.Allocation(4, cases);
-                operationScope.put("cases", allocation);
+                operationScope.putAddress("cases", cases);
                 int end = compiler.address();
-                allocation = new Scope.Allocation(4, end);
-                operationScope.put("end", allocation);
+                operationScope.putAddress("end", end);
                 int i = 0;
                 for (Structure s : structures) {
                     int caseAddr = compiler.address();
-                    allocation = new Scope.Allocation(4, caseAddr);
-                    operationScope.put("case", allocation);
+                    operationScope.putAddress("case", caseAddr);
                     int prev = compiler.position(jumps);
                     new InstructionStatement("j", "REL", "I", "case").compile(compiler, repository, variable, operationScope);
                     compiler.position(cases);

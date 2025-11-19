@@ -171,7 +171,7 @@ public class MachineReferenceParser implements Parser {
         parseParameters(scanner, mc, mcc.parameters, structures);
         scanner.expect(tokens, OP_BRACE);
         curr = scanner.next(tokens);
-        parseBody(scanner, mc, mcc.body);
+        parseBody(scanner, mc, mcc, mcc.body);
         mc.constructors.add(mcc);
     }
 
@@ -184,7 +184,7 @@ public class MachineReferenceParser implements Parser {
         parseParameters(scanner, mc, mcm.parameters, structures);
         scanner.expect(tokens, OP_BRACE);
         curr = scanner.next(tokens);
-        parseBody(scanner, mc, mcm.body);
+        parseBody(scanner, mc, mcm, mcm.body);
         if (mcm.name.equals("invoke")) {
             mc.invokeOperation = mcm;
         } else if (mcm.name.equals("arg")) {
@@ -269,7 +269,7 @@ public class MachineReferenceParser implements Parser {
         }
     }
 
-    private void parseBody(Scanner scanner, MachineReferenceStructure mc, List<Statement> body) {
+    private void parseBody(Scanner scanner, MachineReferenceStructure mc, Operation operation, List<Statement> body) {
         Token curr = scanner.current();
         while (curr != CL_BRACE) {
             if (curr == TILDA) {
@@ -284,6 +284,7 @@ public class MachineReferenceParser implements Parser {
                 curr = scanner.expect(tokens, NAME);
                 as.name = curr.matched();
                 body.add(as);
+                operation.addresses.add(as.name);
             } else if (curr == NAME) {
                 String name = curr.matched();
                 Statement statement;
@@ -400,7 +401,7 @@ public class MachineReferenceParser implements Parser {
                 if (peek == OP_BRACE) {
                     scanner.next(tokens);
                     scanner.next(tokens);
-                    parseBody(scanner, mc, b.block);
+                    parseBody(scanner, mc, operation, b.block);
                 }
                 body.add(b);
             } else {

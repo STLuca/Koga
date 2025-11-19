@@ -1,5 +1,6 @@
 package language.machine;
 
+import language.core.Compiler;
 import language.core.Scope;
 
 import java.util.ArrayList;
@@ -69,6 +70,7 @@ public class Operation {
 
     String name;
     ArrayList<Parameter> parameters = new ArrayList<>();
+    ArrayList<String> addresses = new ArrayList<>();
     ArrayList<Statement> body = new ArrayList<>();
 
     boolean matches(Scope variable, Scope operation, String name, List<String> arguments) {
@@ -111,7 +113,7 @@ public class Operation {
         return true;
     }
 
-    void populateScope(Scope scope, Scope operationScope, List<String> arguments) {
+    void populateScope(Compiler.MethodCompiler compiler, Scope scope, Scope operationScope, List<String> arguments) {
         for (int i = 0; i < arguments.size(); i++) {
             Parameter p = parameters.get(i);
             String arg = arguments.get(i);
@@ -138,6 +140,12 @@ public class Operation {
             Parameter p = parameters.get(i + arguments.size());
             Scope arg = defaults.get(i);
             operationScope.put(p.name, arg);
+        }
+        for (String address : addresses) {
+            Integer addressId = operationScope.findAddress(address).orElse(null);
+            if (addressId == null) {
+                operationScope.putAddress(address, compiler.address());
+            }
         }
     }
 

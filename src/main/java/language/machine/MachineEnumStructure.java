@@ -69,8 +69,7 @@ public class MachineEnumStructure implements Structure {
 
         Scope operationScope = scope.startOperation(variable, operationName);
         int endAddr = compiler.address();
-        Scope.Allocation allocation = new Scope.Allocation(4, endAddr);
-        operationScope.put("end", allocation);
+        operationScope.putAddress("end", endAddr);
 
         int i = 0;
         while(i < arguments.size()) {
@@ -98,6 +97,7 @@ public class MachineEnumStructure implements Structure {
             int addr = compiler.address();
             Scope.Allocation afterAllocation = new Scope.Allocation(4, addr);
             operationScope.put(instruction, afterAllocation);
+            operationScope.putAddress(instruction, addr);
             new InstructionStatement("cb", "NEQ", "TI", "P", "val", "I", literal, instruction).compile(compiler, repository, variable, operationScope);
             block.execute(compiler, operationScope);
             new InstructionStatement("j", "REL", "I", "end").compile(compiler, repository, variable, operationScope);

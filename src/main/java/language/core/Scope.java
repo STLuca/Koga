@@ -28,6 +28,7 @@ public class Scope {
     Scope currentAnonymous;
     LinkedHashMap<String, Scope.Generic> generics = new LinkedHashMap<>();
     HashMap<String, Scope.Allocation> allocations = new HashMap<>();
+    HashMap<String, Integer> addresses = new HashMap<>();
     HashMap<String, byte[]> literals = new HashMap<>();
     HashMap<String, Block> blocks = new HashMap<>();
     HashMap<String, String> names = new HashMap<>();
@@ -73,18 +74,21 @@ public class Scope {
         newScope.defaultArgs.addAll(state.defaultArgs);
         newScope.allocations.putAll(state.allocations);
         newScope.generics.putAll(state.generics);
+        newScope.addresses.putAll(state.addresses);
 
         newScope.namedSubScopes.putAll(implicitScope.namedSubScopes);
         newScope.literals.putAll(implicitScope.literals);
         newScope.blocks.putAll(implicitScope.blocks);
         newScope.defaultArgs.addAll(implicitScope.defaultArgs);
         newScope.allocations.putAll(implicitScope.allocations);
+        newScope.addresses.putAll(implicitScope.addresses);
 
         newScope.implicitScope.namedSubScopes.putAll(implicitScope.namedSubScopes);
         newScope.implicitScope.literals.putAll(implicitScope.literals);
         newScope.implicitScope.blocks.putAll(implicitScope.blocks);
         newScope.implicitScope.defaultArgs.addAll(implicitScope.defaultArgs);
         newScope.implicitScope.allocations.putAll(implicitScope.allocations);
+        newScope.implicitScope.addresses.putAll(implicitScope.addresses);
         return newScope;
     }
 
@@ -146,6 +150,15 @@ public class Scope {
             return Optional.empty();
         }
         return Optional.of(new Allocation(size, start));
+    }
+
+
+    public void putAddress(String name, Integer address) {
+        addresses.put(name, address);
+    }
+
+    public Optional<Integer> findAddress(String name) {
+        return Optional.ofNullable(addresses.get(name));
     }
 
 

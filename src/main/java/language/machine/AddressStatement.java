@@ -11,10 +11,17 @@ public class AddressStatement implements Statement {
         if (allocation != null) {
             compiler.address(allocation.location());
             return;
+        } else {
+            Integer address = scope.findAddress(name).orElse(null);
+            if (address != null) {
+                compiler.address(address);
+                return;
+            }
         }
         int address = compiler.address();
         Scope.Allocation newAllocation = new Scope.Allocation(4, address);
         scope.put(name, newAllocation);
+        scope.putAddress(name, address);
     }
 
 }

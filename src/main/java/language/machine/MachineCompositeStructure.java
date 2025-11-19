@@ -63,7 +63,7 @@ public class MachineCompositeStructure implements Structure {
         // setup data and addresses
         for (String address : addresses) {
             int addr = compiler.address();
-            variable.put(address, new Scope.Allocation(4, addr));
+            variable.putAddress(address, addr);
         }
         for (Data v : this.variables) {
             if (v.size > 0) {
@@ -139,7 +139,7 @@ public class MachineCompositeStructure implements Structure {
 
         for (String address : addresses) {
             int addr = compiler.address();
-            variable.put(address, new Scope.Allocation(4, addr));
+            variable.putAddress(address, addr);
         }
         for (Data v : this.variables) {
             int location = compiler.data(v.size);
@@ -147,7 +147,7 @@ public class MachineCompositeStructure implements Structure {
         }
 
         Scope operationScope = scope.startOperation(variable, constructorName);
-        c.populateScope(scope, operationScope, arguments);
+        c.populateScope(compiler, scope, operationScope, arguments);
 
         for (Statement s : c.body) {
             s.compile(compiler, repository, variable, operationScope);
@@ -168,7 +168,7 @@ public class MachineCompositeStructure implements Structure {
         }
 
         Scope operationScope = scope.startOperation(variable, operationName);
-        operation.populateScope(scope, operationScope, arguments);
+        operation.populateScope(compiler, scope, operationScope, arguments);
 
         for (Statement s : operation.body) {
             s.compile(compiler, repository, variable, operationScope);

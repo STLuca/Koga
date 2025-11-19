@@ -8,29 +8,29 @@ structures {
 core.While {
 
     Addr start;
-    Addr endd;
+    Addr end;
 
     constructor(Int bool, Block loop) {
         Addr start;
-        cb(EQ, TI, P, bool.val, I, 0d0, endd);
+        cb(EQ, TI, P, bool.val, I, 0d0, end);
         Block loop;
         j(REL, I, start);
-        Addr endd;
+        Addr end;
     }
 
     constructor(Boolean bool, Block loop) {
         Addr start;
-        cb(EQ, TI, P, bool.val, I, 0d0, endd);
+        cb(EQ, TI, P, bool.val, I, 0d0, end);
         Block loop;
         j(REL, I, start);
-        Addr endd;
+        Addr end;
     }
 
     constructor loop(Block loop) {
         Addr start;
         Block loop;
         j(REL, I, start);
-        Addr endd;
+        Addr end;
     }
 
     continue() {
@@ -38,7 +38,7 @@ core.While {
     }
 
     break() {
-        j(REL, I, endd);
+        j(REL, I, end);
     }
 
 }

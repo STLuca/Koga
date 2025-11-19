@@ -23,7 +23,7 @@ core.InterfaceReference<Document R> {
         Byte[4] frameSize;
         Byte[4] methodAddr;
         Byte[4] newTask;
-        Byte[4] statusOut;
+        Byte[4] status;
 
         ~ Create the new task
         i(ADD, LI, P, newTask, R, task, P, newTask);
@@ -32,7 +32,7 @@ core.InterfaceReference<Document R> {
         c(ADDR, LI, iMethodSymbol, table, methodSymbol);
         c(SIZE, TT, P, frameSize, P, interfaceTable, P, iMethodSymbol);
         c(ADDR, TT, P, methodAddr, P, interfaceTable, P, iMethodSymbol);
-        Admin(TASK, newTask, objectAddr, objectTable, methodAddr, frameSize, statusOut);
+        Admin(TASK, newTask, objectAddr, objectTable, methodAddr, frameSize, status);
 
 
         Byte[4] frameDataAddr;

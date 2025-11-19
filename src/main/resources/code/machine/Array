@@ -10,7 +10,6 @@ core.Array<Structure T> {
     Byte[4] size;
     Byte[4] start;
     Byte[4] step;
-    Byte[0] data;
 
     constructor() {}
 

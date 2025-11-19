@@ -7,7 +7,7 @@ public class Data {
     }
 
     Type type;
-    int size = 1;
+    int size;
     String name;
 
 }

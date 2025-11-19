@@ -16,8 +16,8 @@ core.Array<Structure T> {
 
     constructor(b12 imm) {
         i(ADD, II, LDA, size, I, 0d0, L, imm);
-        i(ADD, II, LDA, step, I, 0d0, LG, T);
-        Byte[L imm][LG T] data;
+        i(ADD, II, LDA, step, I, 0d0, G, T);
+        Byte[L imm][G T] data;
         i(ADD, LI, LDA, start, R, task, LDA, data);
     }
 
@@ -25,7 +25,7 @@ core.Array<Structure T> {
         Symbol(CONST, constSymbol, L, const);
         c(ADDR, LI, start, table, constSymbol);
         c(SIZE, LI, size, table, constSymbol);
-        i(ADD, II, LDA, step, I, 0d0, LG, T);
+        i(ADD, II, LDA, step, I, 0d0, G, T);
     }
 
     constructor dynamic(Structure mc, Int x) {

@@ -16,7 +16,7 @@ core.MemberReference<Document R> {
         Byte[4] protocol;
         Byte[4] adminConnectMethod;
         Symbol(METHOD, adminConnectSymbol, I, core.Administrator, I, connect);
-        Symbol(METHOD, protocolMethodSymbol, LG, R, L, methodName);
+        Symbol(METHOD, protocolMethodSymbol, G, R, L, methodName);
         c(ADDR, LI, adminConnectMethod, table, adminConnectSymbol);
         c(SIZE, LI, protocol, table, protocolMethodSymbol);
         Byte[4] adminTask;

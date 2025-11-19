@@ -683,11 +683,11 @@
         }
 
         copyTo(Any val) {
-            memory(COPY, ITI, ADA, val, LDA, addr, LG, T);
+            memory(COPY, ITI, ADA, val, LDA, addr, G, T);
         }
 
         copyFrom(Any val) {
-            memory(COPY, TII, LDA, addr, ADA, val, LG, T);
+            memory(COPY, TII, LDA, addr, ADA, val, G, T);
         }
 
     }
@@ -740,9 +740,9 @@
     </p>
 
     <p>
-        You might also wonder what <code>LG, T</code> is doing.
-        Here we use the resolve type LG (local generic).
-        If our pointer were Pointer&lt;Int&gt;, "LG T" would resolve to 4, i.e. the size of the Int.
+        You might also wonder what <code>G, T</code> is doing.
+        Here we use the resolve type G (local generic).
+        If our pointer were Pointer&lt;Int&gt;, "G T" would resolve to 4, i.e. the size of the Int.
         The third source in the memory instruction is the size of the copy, so we're saying copy 4 bytes.
     </p>
 
@@ -768,8 +768,8 @@
 
         constructor(b12 imm) {
             i(ADD, II, LDA, size, I, 0d0, L, imm);
-            i(ADD, II, LDA, step, I, 0d0, LG, T);
-            Byte[L imm][LG T] data;
+            i(ADD, II, LDA, step, I, 0d0, G, T);
+            Byte[L imm][G T] data;
             i(ADD, LI, LDA, start, R, task, LDA, data);
         }
 
@@ -803,11 +803,11 @@
         }
 
         copyTo(Any val) {
-            memory(COPY, ITI, ADA, val, LDA, addr, LG, T);
+            memory(COPY, ITI, ADA, val, LDA, addr, G, T);
         }
 
         copyFrom(Any val) {
-            memory(COPY, TII, LDA, addr, ADA, val, LG, T);
+            memory(COPY, TII, LDA, addr, ADA, val, G, T);
         }
 
     }
@@ -845,7 +845,7 @@
 
     <p>
         Arrays are similar to pointers.
-        There is a "byte[0]" field that gets allocated in the constructor "Byte[L imm][LG T] data;".
+        There is a "byte[0]" field that gets allocated in the constructor "Byte[L imm][G T] data;".
         This allocates space in the operation (and thus has to be sized at compile time) using the input value and the size of the generic.
         In this case, 3 Ints (an Int being 4 bytes) leads to 12 bytes allocated on the operation.
     </p>
@@ -1043,7 +1043,7 @@
         ...
 
         constructor(Reference r, Name field) {
-            symbol(FIELD, fieldSymbol, AG, r.R, L, field);
+            symbol(FIELD, fieldSymbol, G, r.R, L, field);
             class(ADDR, I, addr, fieldSymbol);
             integer(ADD, TT, addr, addr, r.objectAddr);
         }
@@ -1070,7 +1070,7 @@
 
         constructor new() {
             byte[4] objectSize;
-            symbol(CLASS, classSymbol, LG, R);
+            symbol(CLASS, classSymbol, G, R);
             class(SIZE, I, objectSize, classSymbol);
             logician(GET_TASK, objectAddr);
             integer(ADD, TI, LDA, objectAddr, LDA, objectAddr, LDA, objectAddr);
@@ -1084,7 +1084,7 @@
             byte[4] newFrame;
             logician(GET_TASK, newFrame);
             integer(ADD, TI, LDA, newFrame, LDA, newFrame, LDA, newFrame);
-            symbol(METHOD, methodSymbol, LG, R, L, methodName);
+            symbol(METHOD, methodSymbol, G, R, L, methodName);
             class(SIZE, I, frameSize, methodSymbol);
             class(ADDR, I, methodAddr, methodSymbol);
 
@@ -1748,7 +1748,7 @@
 
             integer(ADD, RI, LDA, adminTask, R, altTask, I, 0d0);
             integer(ADD, RI, LDA, newTask, R, task, LDA, newTask);
-            symbol(METHOD, methodSymbol, LG, R, L, methodName);
+            symbol(METHOD, methodSymbol, G, R, L, methodName);
             class(SIZE, I, frameSize, methodSymbol);
             class(ADDR, I, methodAddr, methodSymbol);
 

@@ -68,11 +68,11 @@ core.ArrayAccessor<Structure T> {
     }
 
     copyTo(T val) {
-        m(COPY, ITI, ADA, val, LDA, addr, LG, T);
+        m(COPY, ITI, ADA, val, LDA, addr, G, T);
     }
 
     copyFrom(T val) {
-        m(COPY, TII, LDA, addr, ADA, val, LG, T);
+        m(COPY, TII, LDA, addr, ADA, val, G, T);
     }
 
 

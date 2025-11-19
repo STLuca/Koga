@@ -11,8 +11,7 @@ enum InputType {
     LDS,   // local data size,
     ADA,   // argument data address
     ADS,   // argument data size
-    LG,    // local generic
-    AG,    // argument generic
+    G,     // generic
     ;
 
     record Resolved(int size, int value) {}
@@ -88,14 +87,13 @@ enum InputType {
                 }
                 return new Resolved(4, size);
             }
-            case LG -> {
-                Structure u = scope.findGeneric(toResolve).orElseThrow().structure;
-                return new Resolved(4, u.size(null));
-            }
-            case AG -> {
+            case G -> {
                 String[] split = toResolve.split("\\.");
-                Scope var = scope.findVariable(split[0]).orElseThrow();
-                Structure u = var.findGeneric(toResolve).orElseThrow().structure;
+                Scope curr = scope;
+                for (int i = 0; i < split.length - 1; i++) {
+                    curr = scope.findVariable(split[i]).orElseThrow();
+                }
+                Structure u = curr.findGeneric(split[split.length - 1]).orElseThrow().structure;
                 return new Resolved(4, u.size(null));
             }
         }

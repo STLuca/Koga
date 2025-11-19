@@ -41,14 +41,13 @@ public class SymbolStatement implements Statement {
                     }
                     yield name;
                 }
-                case LG -> {
-                    Scope.Generic g = scope.findGeneric(input).orElseThrow();
-                    yield g.document.name();
-                }
-                case AG -> {
+                case G -> {
                     String[] split = input.split("\\.");
-                    Scope var = scope.findVariable(split[0]).orElseThrow();
-                    Scope.Generic g = var.findGeneric(split[1]).orElseThrow();
+                    Scope curr = scope;
+                    for (int si = 0; si < split.length - 1; si++) {
+                        curr = scope.findVariable(split[si]).orElseThrow();
+                    }
+                    Scope.Generic g = curr.findGeneric(split[split.length - 1]).orElseThrow();
                     yield g.document.name();
                 }
                 default -> throw new RuntimeException();

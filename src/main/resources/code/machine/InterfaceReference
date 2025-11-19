@@ -14,7 +14,7 @@ core.InterfaceReference<Document R> {
         i(ADD, TI, LDA, objectAddr, ADA, r.objectAddr, I, 0d0);
         i(ADD, TI, LDA, objectTable, ADA, r.objectTable, I, 0d0);
         Byte[2] interfaceClassSymbol;
-        Symbol(INTERFACE, interfaceClassSymbol, AG, r.R, LG, R);
+        Symbol(INTERFACE, interfaceClassSymbol, G, r.R, G, R);
         c(ADDR, LI, interfaceTable, table, interfaceClassSymbol);
     }
 
@@ -28,7 +28,7 @@ core.InterfaceReference<Document R> {
         ~ Create the new task
         i(ADD, LI, LDA, newTask, R, task, LDA, newTask);
         i(ADD, LI, LDA, status, R, task, LDA, status);
-        Symbol(METHOD, methodSymbol, LG, R, L, methodName);
+        Symbol(METHOD, methodSymbol, G, R, L, methodName);
         c(ADDR, LI, iMethodSymbol, table, methodSymbol);
         c(SIZE, TT, LDA, frameSize, LDA, interfaceTable, LDA, iMethodSymbol);
         c(ADDR, TT, LDA, methodAddr, LDA, interfaceTable, LDA, iMethodSymbol);
@@ -42,7 +42,7 @@ core.InterfaceReference<Document R> {
     }
 
     arg(Variable a, Name methodName) {
-        ArgsCopy(LG, R, L, methodName, L, index, ADA, a, LDA, frameDataAddr);
+        ArgsCopy(G, R, L, methodName, L, index, ADA, a, LDA, frameDataAddr);
         ~ m(COPY, TII, LDA, frameDataAddr, ADA, a, ADS, a);
         ~ i(ADD, TI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
     }

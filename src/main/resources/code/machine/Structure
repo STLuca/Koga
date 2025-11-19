@@ -5,7 +5,7 @@ core.Structure<Structure T> {
     Byte[4] size;
 
     constructor() {
-        i(ADD, II, LDA, size, I, 0d0, LG, T);
+        i(ADD, II, LDA, size, I, 0d0, G, T);
     }
 
 }

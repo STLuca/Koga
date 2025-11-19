@@ -15,7 +15,7 @@ core.Pointer<Structure T> {
     }
 
     constructor(Reference r, Name field) {
-        Symbol(FIELD, fieldSymbol, AG, r.R, L, field);
+        Symbol(FIELD, fieldSymbol, G, r.R, L, field);
         c(ADDR, LI, addr, table, fieldSymbol);
         i(ADD, TT, addr, addr, r.objectAddr);
     }
@@ -27,7 +27,7 @@ core.Pointer<Structure T> {
     }
 
     constructor admin(Reference r, Name field) {
-        Symbol(FIELD, fieldSymbol, AG, r.R, L, field);
+        Symbol(FIELD, fieldSymbol, G, r.R, L, field);
         c(ADDR, LI, LDA, addr, R, altTable, L, fieldSymbol);
         i(ADD, TT, addr, addr, r.objectAddr);
     }
@@ -37,11 +37,11 @@ core.Pointer<Structure T> {
     }
 
     copyTo(T val) {
-        m(COPY, ITI, ADA, val, LDA, addr, LG, T);
+        m(COPY, ITI, ADA, val, LDA, addr, G, T);
     }
 
     copyFrom(T val) {
-        m(COPY, TII, LDA, addr, ADA, val, LG, T);
+        m(COPY, TII, LDA, addr, ADA, val, G, T);
     }
 
     copyFromPointer(Pointer val) {

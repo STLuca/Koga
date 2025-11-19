@@ -165,14 +165,13 @@ public class MachineReferenceStructure implements Structure {
             InputType docInType = InputType.valueOf(this.arguments.get(0).toUpperCase());
             String input = this.arguments.get(1);
             d = switch (docInType) {
-                case LG -> {
-                    Scope.Generic g = scope.findGeneric(input).orElseThrow();
-                    yield g.document;
-                }
-                case AG -> {
+                case G -> {
                     String[] split = input.split("\\.");
-                    Scope var = scope.findVariable(split[0]).orElseThrow();
-                    Scope.Generic g = var.findGeneric(split[1]).orElseThrow();
+                    Scope curr = scope;
+                    for (int i = 0; i < split.length - 1; i++) {
+                        curr = scope.findVariable(split[i]).orElseThrow();
+                    }
+                    Scope.Generic g = curr.findGeneric(split[split.length - 1]).orElseThrow();
                     yield g.document;
                 }
                 default -> throw new RuntimeException();

@@ -6,8 +6,7 @@ import language.core.Structure;
 enum InputType {
     R,     // register
     I,     // immediate,
-    AL,    // argument literal,
-    CL,    // Context literal,
+    L,     // literal,
     LDA,   // local data address,
     LDS,   // local data size,
     ADA,   // argument data address
@@ -36,12 +35,7 @@ enum InputType {
             case I -> {
                 return new Resolved(4, parseLiteral(toResolve));
             }
-            case AL -> {
-                // arguments should be type literal
-                int literal = scope.findLiteralAsInt(toResolve).orElseThrow();
-                return new Resolved(4, literal);
-            }
-            case CL -> {
+            case L -> {
                 int literal = scope.findLiteralAsInt(toResolve).orElseThrow();
                 return new Resolved(4, literal);
             }

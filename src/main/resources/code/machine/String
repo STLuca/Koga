@@ -34,7 +34,7 @@ core.String {
     }
 
     constructor(Name const) {
-        Symbol(CONST, constSymbol, AL, const);
+        Symbol(CONST, constSymbol, L, const);
         c(ADDR, LI, start, table, constSymbol);
         c(SIZE, LI, size, table, constSymbol);
         i(ADD, II, LDA, step, I, 0d0, I, 0d1);

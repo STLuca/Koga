@@ -11,7 +11,7 @@ core.Reference<Document R> {
     Byte[4] objectTable;
 
     constructor(b16 imm) {
-        i(ADD, II, LDA, objectAddr, I, 0d0, AL, imm);
+        i(ADD, II, LDA, objectAddr, I, 0d0, L, imm);
         Symbol(CLASS, classSymbol, LG, R);
         c(ADDR, LI, objectTable, table, classSymbol);
     }
@@ -43,7 +43,7 @@ core.Reference<Document R> {
 
         i(ADD, LI, LDA, adminTask, R, altTask, I, 0d0);
         i(ADD, LI, LDA, newTask, R, task, LDA, newTask);
-        Symbol(METHOD, methodSymbol, LG, R, AL, methodName);
+        Symbol(METHOD, methodSymbol, LG, R, L, methodName);
         c(SIZE, LI, frameSize, table, methodSymbol);
         c(ADDR, LI, methodAddr, table, methodSymbol);
 
@@ -89,7 +89,7 @@ core.Reference<Document R> {
     }
 
     arg(Variable a, Name methodName) {
-        ArgsCopy(LG, R, AL, methodName, AL, index, ADA, a, LDA, frameDataAddr);
+        ArgsCopy(LG, R, L, methodName, L, index, ADA, a, LDA, frameDataAddr);
         ~ m(COPY, TII, LDA, frameDataAddr, ADA, a, ADS, a);
         ~ i(ADD, TI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
     }

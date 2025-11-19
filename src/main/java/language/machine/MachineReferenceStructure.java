@@ -182,7 +182,7 @@ public class MachineReferenceStructure implements Structure {
             input = this.arguments.get(3);
             methodName = switch (methodInType) {
                 case I -> input;
-                case AL -> scope.findName(input).orElseThrow();
+                case L -> scope.findName(input).orElseThrow();
                 default -> throw new RuntimeException();
             };
 

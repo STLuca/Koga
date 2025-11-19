@@ -30,7 +30,7 @@ core.ArrayAccessor<Structure T> {
 
     index(b12 imm) {
         Byte[4] index;
-        i(ADD, II, LDA, index, I, 0d0, AL, imm);
+        i(ADD, II, LDA, index, I, 0d0, L, imm);
         math(MULT, TT, LDA, index, LDA, index, LDA, step);
         i(ADD, TT, LDA, addr, LDA, start, LDA, index);
     }

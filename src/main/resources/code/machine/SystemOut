@@ -11,7 +11,7 @@ core.SystemOut {
 
     constructor() {
         Symbol(SYSTEM, sysOutSymbol, I, SystemOut);
-        c(ADDR, LI, LDA, root, R, altTable, AL, sysOutSymbol);
+        c(ADDR, LI, LDA, root, R, altTable, L, sysOutSymbol);
         m(COPY, ITI, LDA, current, LDA, root, LDS, current);
     }
 

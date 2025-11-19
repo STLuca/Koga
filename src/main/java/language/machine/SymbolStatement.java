@@ -24,7 +24,7 @@ public class SymbolStatement implements Statement {
             String input = this.arguments.get(i + 1);
             names[index] = switch (inputType) {
                 case I -> input;
-                case AL -> {
+                case L -> {
                     String name = scope.findName(input).orElse(null);
 
                     switch (type) {

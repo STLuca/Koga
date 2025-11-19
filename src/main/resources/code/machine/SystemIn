@@ -12,7 +12,7 @@ core.SystemIn {
 
     constructor() {
         Symbol(SYSTEM, sysInSymbol, I, SystemIn);
-        c(ADDR, LI, LDA, root, R, altTable, AL, sysInSymbol);
+        c(ADDR, LI, LDA, root, R, altTable, L, sysInSymbol);
         i(ADD, TI, LDA, current, LDA, root, I, 0d4);
     }
 

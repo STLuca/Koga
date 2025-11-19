@@ -24,7 +24,7 @@ core.Connection {
 
     constructor connect(Int instance, Name protocol, Name operation) {
         Byte[4] protocolMethodAddr;
-        Symbol(METHOD, protocolMethodSymbol, AL, protocol, AL, operation);
+        Symbol(METHOD, protocolMethodSymbol, L, protocol, L, operation);
         c(ADDR, LI, protocolMethodAddr, table, protocolMethodSymbol);
 
         Byte[4] adminConnectMethod;

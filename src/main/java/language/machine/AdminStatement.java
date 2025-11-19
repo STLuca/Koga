@@ -56,7 +56,7 @@ public class AdminStatement implements Statement {
         allocation = new Scope.Allocation(4, location);
         scope.put(frameDataAddr, allocation);
 
-        new InstructionStatement("c", "ADDR", "LI", "LDA", methodAddr, "R", "table", "AL", methodSymbol).compile(compiler, repository, variable, scope);
+        new InstructionStatement("c", "ADDR", "LI", "LDA", methodAddr, "R", "table", "L", methodSymbol).compile(compiler, repository, variable, scope);
         new InstructionStatement("i", "ADD", "LI", "LDA", frameDataAddr, "R", "altTask", "I", "0d0").compile(compiler, repository, variable, scope);
 
         for (int i = 1; i < this.arguments.size(); i++) {

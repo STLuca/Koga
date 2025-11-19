@@ -15,20 +15,20 @@ core.Pointer<Structure T> {
     }
 
     constructor(Reference r, Name field) {
-        Symbol(FIELD, fieldSymbol, AG, r.R, AL, field);
+        Symbol(FIELD, fieldSymbol, AG, r.R, L, field);
         c(ADDR, LI, addr, table, fieldSymbol);
         i(ADD, TT, addr, addr, r.objectAddr);
     }
 
     constructor this(Name field) {
-        Symbol(FIELD, fieldSymbol, AL, field);
+        Symbol(FIELD, fieldSymbol, L, field);
         c(ADDR, LI, addr, table, fieldSymbol);
         i(ADD, LT, LDA, addr, R, object, LDA, addr);
     }
 
     constructor admin(Reference r, Name field) {
-        Symbol(FIELD, fieldSymbol, AG, r.R, AL, field);
-        c(ADDR, LI, LDA, addr, R, altTable, AL, fieldSymbol);
+        Symbol(FIELD, fieldSymbol, AG, r.R, L, field);
+        c(ADDR, LI, LDA, addr, R, altTable, L, fieldSymbol);
         i(ADD, TT, addr, addr, r.objectAddr);
     }
 
@@ -49,7 +49,7 @@ core.Pointer<Structure T> {
     }
 
     plus(b32 imm) {
-        i(ADD, TI, LDA, addr, LDA, addr, AL, imm);
+        i(ADD, TI, LDA, addr, LDA, addr, L, imm);
     }
 
     plus(Int in) {

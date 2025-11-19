@@ -5,7 +5,7 @@ core.Boolean {
     Byte[1] val;
 
     constructor(b1 imm) {
-        i(ADD, II, LDA, val, I, 0d0, AL, imm);
+        i(ADD, II, LDA, val, I, 0d0, L, imm);
     }
 
     constructor(Block block) {
@@ -15,7 +15,7 @@ core.Boolean {
     }
 
     set(b1 imm) {
-        i(ADD, II, LDA, val, I, 0d0, AL, imm);
+        i(ADD, II, LDA, val, I, 0d0, L, imm);
     }
 
     set(Block block) {

@@ -58,7 +58,7 @@ public class InstructionStatement implements Statement {
                         dest = values.get(2);
                         src1Type = InputType.LDA;
                         src1 = values.get(3);
-                        src2Type = inType == Types.InputType.TI ? InputType.AL : InputType.ADA;
+                        src2Type = inType == Types.InputType.TI ? InputType.L : InputType.ADA;
                         src2 = values.get(4);
                     }
                     case 8 -> {
@@ -99,7 +99,7 @@ public class InstructionStatement implements Statement {
                         dest = values.get(2);
                         src1Type = InputType.LDA;
                         src1 = values.get(3);
-                        src2Type = inType == Types.InputType.TI ? InputType.AL : InputType.ADA;
+                        src2Type = inType == Types.InputType.TI ? InputType.L : InputType.ADA;
                         src2 = values.get(4);
                     }
                     case 8 -> {
@@ -218,7 +218,7 @@ public class InstructionStatement implements Statement {
                         dest = values.get(2);
                         src1Type = InputType.R;
                         src1 = values.get(3);
-                        src2Type = InputType.AL;
+                        src2Type = InputType.L;
                         src2 = values.get(4);
                     }
                     case 8 -> {

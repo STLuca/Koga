@@ -15,14 +15,14 @@ core.Array<Structure T> {
     constructor() {}
 
     constructor(b12 imm) {
-        i(ADD, II, LDA, size, I, 0d0, AL, imm);
+        i(ADD, II, LDA, size, I, 0d0, L, imm);
         i(ADD, II, LDA, step, I, 0d0, LG, T);
-        Byte[AL imm][LG T] data;
+        Byte[L imm][LG T] data;
         i(ADD, LI, LDA, start, R, task, LDA, data);
     }
 
     constructor fromBytes(Name const) {
-        Symbol(CONST, constSymbol, AL, const);
+        Symbol(CONST, constSymbol, L, const);
         c(ADDR, LI, start, table, constSymbol);
         c(SIZE, LI, size, table, constSymbol);
         i(ADD, II, LDA, step, I, 0d0, LG, T);

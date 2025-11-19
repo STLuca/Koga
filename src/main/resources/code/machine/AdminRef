@@ -21,7 +21,7 @@ core.AdminRef {
 
     invoke(Name methodName) {
         Byte[4] methodAddr;
-        Symbol(METHOD, methodSymbol, I, core.Administrator, AL, methodName);
+        Symbol(METHOD, methodSymbol, I, core.Administrator, L, methodName);
         c(ADDR, LI, methodAddr, table, methodSymbol);
 
         Byte[4] frameDataAddr;

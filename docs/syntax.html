@@ -106,7 +106,7 @@
         byte[1] val;
 
         constructor(b8 imm) {
-            integer(ADD, II, LDA, val, I, 0d0, AL, imm);
+            integer(ADD, II, LDA, val, I, 0d0, L, imm);
         }
 
         plus(b8 imm) {
@@ -125,7 +125,7 @@
         byte[4] val;
 
         constructor(b32 imm) {
-            integer(ADD, II, LDA, val, I, 0d0, AL, imm);
+            integer(ADD, II, LDA, val, I, 0d0, L, imm);
         }
 
         constructor(Int copy) {
@@ -133,7 +133,7 @@
         }
 
         plus(b32 imm) {
-            integer(ADD, TI, LDA, val, LDA, val, AL, imm);
+            integer(ADD, TI, LDA, val, LDA, val, L, imm);
         }
 
         plus(Int in) {
@@ -217,7 +217,7 @@
     <ul>
         <li>Immediate (I) - 0d1, 0b0110</li>
         <li>
-            Argument literal (AL) - these are literal values passed in when invoking the operation or constructor.
+            Argument literal (L) - these are literal values passed in when invoking the operation or constructor.
             In ByteAndIntTest, these would be 0, 10, 25, 111.
         </li>
         <li>Local data address (LDA) - The address of a local data field e.g. the val data in Int</li>
@@ -229,7 +229,7 @@
     <pre>
     <code>
     constructor(b32 imm) {
-        integer(ADD, II, LDA, val, I, 0d0, AL, imm);
+        integer(ADD, II, LDA, val, I, 0d0, L, imm);
     }
     </code>
     </pre>
@@ -248,7 +248,7 @@
             I, 0d0 - Just like above, only this time we say to resolve 0d0 as a literal. This will then resolve to 0.
         </li>
         <li>
-            AL, imm - Resolve the value imm as an argument literal.
+            L, imm - Resolve the value imm as an argument literal.
             You can see these values in the constructor statements in ByteAndIntTest.
             The system parser resolves literals differently, so there the decimal value is implicit (you omit the 0d).
         </li>
@@ -275,7 +275,7 @@
         byte[1] val;
 
         constructor(b1 imm) {
-            l(ADD, II, LDA, val, I, 0d0, AL, imm);
+            l(ADD, II, LDA, val, I, 0d0, L, imm);
         }
 
     }
@@ -425,7 +425,7 @@
         }
 
         lessThan(b32 imm, Boolean dest) {
-            l(SLT, TI, ADA, dest.val, LDA, val, AL, imm);
+            l(SLT, TI, ADA, dest.val, LDA, val, L, imm);
         }
 
     }
@@ -767,9 +767,9 @@
         constructor() {}
 
         constructor(b12 imm) {
-            i(ADD, II, LDA, size, I, 0d0, AL, imm);
+            i(ADD, II, LDA, size, I, 0d0, L, imm);
             i(ADD, II, LDA, step, I, 0d0, LG, T);
-            Byte[AL imm][LG T] data;
+            Byte[L imm][LG T] data;
             i(ADD, LI, LDA, start, R, task, LDA, data);
         }
 
@@ -797,7 +797,7 @@
 
         index(b12 imm) {
             byte[4] index;
-            integer(ADD, II, LDA, index, I, 0d0, AL, imm);
+            integer(ADD, II, LDA, index, I, 0d0, L, imm);
             integer(MUL, TT, LDA, index, LDA, index, LDA, step);
             integer(ADD, TT, LDA, addr, LDA, start, LDA, index);
         }
@@ -845,7 +845,7 @@
 
     <p>
         Arrays are similar to pointers.
-        There is a "byte[0]" field that gets allocated in the constructor "Byte[AL imm][LG T] data;".
+        There is a "byte[0]" field that gets allocated in the constructor "Byte[L imm][LG T] data;".
         This allocates space in the operation (and thus has to be sized at compile time) using the input value and the size of the generic.
         In this case, 3 Ints (an Int being 4 bytes) leads to 12 bytes allocated on the operation.
     </p>
@@ -869,7 +869,7 @@
         byte[4] step;
 
         constructor(Name const) {
-            Symbol(CONST, constSymbol, AL, const);
+            Symbol(CONST, constSymbol, L, const);
             class(ADDR, LI, start, table, constSymbol);
             class(SIZE, LI, size, table, constSymbol);
             i(ADD, II, LDA, step, I, 0d0, I, 0d1);
@@ -1043,7 +1043,7 @@
         ...
 
         constructor(Reference r, Name field) {
-            symbol(FIELD, fieldSymbol, AG, r.R, AL, field);
+            symbol(FIELD, fieldSymbol, AG, r.R, L, field);
             class(ADDR, I, addr, fieldSymbol);
             integer(ADD, TT, addr, addr, r.objectAddr);
         }
@@ -1084,7 +1084,7 @@
             byte[4] newFrame;
             logician(GET_TASK, newFrame);
             integer(ADD, TI, LDA, newFrame, LDA, newFrame, LDA, newFrame);
-            symbol(METHOD, methodSymbol, LG, R, AL, methodName);
+            symbol(METHOD, methodSymbol, LG, R, L, methodName);
             class(SIZE, I, frameSize, methodSymbol);
             class(ADDR, I, methodAddr, methodSymbol);
 
@@ -1718,7 +1718,7 @@
                 symbol(METHOD, adminScheduleSymbol, I, Administrator, I, awaitTask);
                 class(ADDR, I, adminScheduleMethod, adminScheduleSymbol);
                 integer(ADD, RI, LDA, awaitTaskAddr, R, altTask, I, 0d0);
-                memory(COPY, PA, LDA, awaitTaskAddr, CL, task, I, 0d4);
+                memory(COPY, PA, LDA, awaitTaskAddr, L, task, I, 0d4);
                 logician(START_ADMIN, LDA, adminScheduleMethod);
                 conditionalBranch(NEQ, TI, LDA, status, I, 0d0, fail);
             };
@@ -1748,7 +1748,7 @@
 
             integer(ADD, RI, LDA, adminTask, R, altTask, I, 0d0);
             integer(ADD, RI, LDA, newTask, R, task, LDA, newTask);
-            symbol(METHOD, methodSymbol, LG, R, AL, methodName);
+            symbol(METHOD, methodSymbol, LG, R, L, methodName);
             class(SIZE, I, frameSize, methodSymbol);
             class(ADDR, I, methodAddr, methodSymbol);
 

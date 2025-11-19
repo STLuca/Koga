@@ -42,7 +42,7 @@ public class SymbolStatement implements Statement {
                     yield name;
                 }
                 case LG -> {
-                    Scope.Generic g = variable.findGeneric(input).orElseThrow();
+                    Scope.Generic g = scope.findGeneric(input).orElseThrow();
                     yield g.document.name();
                 }
                 case AG -> {

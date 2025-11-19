@@ -12,11 +12,6 @@ public class AddressStatement implements Statement {
             compiler.address(allocation.location());
             return;
         }
-        Scope.Allocation variableAllocation = variable.findAllocation(name).orElse(null);
-        if (variableAllocation != null) {
-            compiler.address(variableAllocation.location());
-            return;
-        }
         int address = compiler.address();
         Scope.Allocation newAllocation = new Scope.Allocation(4, address);
         scope.put(name, newAllocation);

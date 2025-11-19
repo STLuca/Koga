@@ -17,7 +17,7 @@ enum InputType {
     ;
 
     record Resolved(int size, int value) {}
-    Resolved resolve(String toResolve, Scope variable, Scope scope) {
+    Resolved resolve(String toResolve, Scope scope) {
         switch (this) {
             case R -> {
                 int index = switch (toResolve) {
@@ -51,10 +51,6 @@ enum InputType {
                 if (allocation != null) {
                     return new Resolved(allocation.size(), allocation.location());
                 }
-                Scope.Allocation variableAllocation = variable.findAllocation(toResolve).orElse(null);
-                if (variableAllocation != null) {
-                    return new Resolved(variableAllocation.size(), variableAllocation.location());
-                }
                 return new Resolved(4, -1);
             }
             case ADA -> {
@@ -80,12 +76,8 @@ enum InputType {
             }
             case LDS -> {
                 // local size
-                Scope.Allocation allocation = scope.findAllocation(toResolve).orElse(null);
-                if (allocation != null) {
-                    return new Resolved(4, allocation.size());
-                }
-                Scope.Allocation variableAllocation = variable.findAllocation(toResolve).orElseThrow();
-                return new Resolved(4, variableAllocation.size());
+                Scope.Allocation allocation = scope.findAllocation(toResolve).orElseThrow();
+                return new Resolved(4, allocation.size());
             }
             case ADS -> {// argument should be type variable
                 String[] split = toResolve.split("\\.");
@@ -103,7 +95,7 @@ enum InputType {
                 return new Resolved(4, size);
             }
             case LG -> {
-                Structure u = variable.findGeneric(toResolve).orElseThrow().structure;
+                Structure u = scope.findGeneric(toResolve).orElseThrow().structure;
                 return new Resolved(4, u.size(null));
             }
             case AG -> {

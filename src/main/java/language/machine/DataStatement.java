@@ -13,11 +13,11 @@ public class DataStatement implements Statement {
         int allocateSize = 1;
         for (int i = 0; i < sizes.size(); i+= 2) {
             InputType inputType = InputType.valueOf(sizes.get(i));
-            int size = inputType.resolve(sizes.get(i + 1), variable, scope).value();
+            int size = inputType.resolve(sizes.get(i + 1), scope).value();
             allocateSize *= size;
         }
         int allocated = compiler.data(allocateSize);
-        Scope.Allocation variableAllocation = variable.findAllocation(name).orElse(null);
+        Scope.Allocation variableAllocation = scope.findAllocation(name).orElse(null);
         if (variableAllocation != null) {
             variable.put(name, new Scope.Allocation(allocateSize, allocated));
         } else {

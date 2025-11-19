@@ -166,7 +166,7 @@ public class MachineReferenceStructure implements Structure {
             String input = this.arguments.get(1);
             d = switch (docInType) {
                 case LG -> {
-                    Scope.Generic g = variable.findGeneric(input).orElseThrow();
+                    Scope.Generic g = scope.findGeneric(input).orElseThrow();
                     yield g.document;
                 }
                 case AG -> {
@@ -187,12 +187,12 @@ public class MachineReferenceStructure implements Structure {
             };
 
             InputType inputType = InputType.valueOf(this.arguments.get(4).toUpperCase());
-            int index = inputType.resolve(this.arguments.get(5), variable, scope).value();
+            int index = inputType.resolve(this.arguments.get(5), scope).value();
 
             Scope argVariable = scope.findVariable(this.arguments.get(7)).orElseThrow();
 
             inputType = InputType.valueOf(this.arguments.get(8).toUpperCase());
-            int addr = inputType.resolve(this.arguments.get(9), variable, scope).value();
+            int addr = inputType.resolve(this.arguments.get(9), scope).value();
 
             language.core.Document.Method method = d.method(scope, methodName).orElseThrow();
             String param = method.parameters.get(index);

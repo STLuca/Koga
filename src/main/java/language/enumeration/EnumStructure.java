@@ -60,6 +60,11 @@ public class EnumStructure implements language.core.Structure {
     @Override
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
         Scope thisVariable = scope.state(this, name);
+        int maxSize = size(repository);
+        int typeLocation = compiler.data(TYPE_SIZE);
+        Scope.Allocation typeAllocation = new Scope.Allocation(TYPE_SIZE, typeLocation);
+        thisVariable.put("type", typeAllocation);
+        int location = compiler.data(maxSize);
 
         for (String imprt : this.imports) {
             repository.structure(imprt);
@@ -91,11 +96,8 @@ public class EnumStructure implements language.core.Structure {
             }
         }
 
-        int maxSize = size(repository);
-        int typeLocation = compiler.data(TYPE_SIZE);
-        Scope.Allocation typeAllocation = new Scope.Allocation(TYPE_SIZE, typeLocation);
-        thisVariable.put("type", typeAllocation);
-        int location = compiler.data(maxSize);
+
+
         int index = structures.indexOf(structure);
         for (Structure struct : structures) {
             SharedLocationMethodCompiler mc = new SharedLocationMethodCompiler();

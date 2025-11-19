@@ -9,7 +9,7 @@ core.MemberReference<Document R> {
     Byte[4] instance;
 
     constructor(Int in) {
-        i(ADD, TI, LDA, instance, ADA, in.val, I, 0d0);
+        i(ADD, TI, P, instance, P, in.val, I, 0d0);
     }
 
     invoke(Name methodName) {
@@ -20,26 +20,26 @@ core.MemberReference<Document R> {
         c(ADDR, LI, adminConnectMethod, table, adminConnectSymbol);
         c(SIZE, LI, protocol, table, protocolMethodSymbol);
         Byte[4] adminTask;
-        i(ADD, LI, LDA, adminTask, R, altTask, I, 0d0);
+        i(ADD, LI, P, adminTask, R, altTask, I, 0d0);
 
-        m(COPY, TII, LDA, adminTask, LDA, instance, LDS, instance);
-        i(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, instance);
-        m(COPY, TII, LDA, adminTask, LDA, protocol, LDS, protocol);
-        i(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, protocol);
-        m(COPY, TII, LDA, adminTask, LDA, protocol, LDS, protocol);
-        i(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, protocol);
+        m(COPY, TII, P, adminTask, P, instance, S, instance);
+        i(ADD, TI, P, adminTask, P, adminTask, S, instance);
+        m(COPY, TII, P, adminTask, P, protocol, S, protocol);
+        i(ADD, TI, P, adminTask, P, adminTask, S, protocol);
+        m(COPY, TII, P, adminTask, P, protocol, S, protocol);
+        i(ADD, TI, P, adminTask, P, adminTask, S, protocol);
         Args();
-        logician(START_ADMIN, T, LDA, adminConnectMethod);
+        logician(START_ADMIN, T, P, adminConnectMethod);
 
         Byte[4] adminSendMethod;
         Symbol(METHOD, adminSendSymbol, I, core.Administrator, I, send);
         c(ADDR, LI, adminSendMethod, table, adminSendSymbol);
-        logician(START_ADMIN, T, LDA, adminSendMethod);
+        logician(START_ADMIN, T, P, adminSendMethod);
     }
 
     arg(Variable a, Name methodName) {
-        m(COPY, TII, LDA, adminTask, ADA, a, I, 0d4);
-        i(ADD, TI, LDA, adminTask, LDA, adminTask, I, 0d4);
+        m(COPY, TII, P, adminTask, P, a, I, 0d4);
+        i(ADD, TI, P, adminTask, P, adminTask, I, 0d4);
     }
 
 }

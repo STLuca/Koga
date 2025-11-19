@@ -196,13 +196,13 @@ public class MachineReferenceStructure implements Structure {
             language.core.Document.Method method = d.method(scope, methodName).orElseThrow();
             String param = method.parameters.get(index);
             if (param.equals(argVariable.structure().name())) {
-                new InstructionStatement("m", "COPY", "TII", "LDA", "frameDataAddr", "ADA", "a", "ADS", "a").compile(compiler, repository, variable, scope);
-                new InstructionStatement("i","ADD", "TI", "LDA", "frameDataAddr", "LDA", "frameDataAddr", "ADS", "a").compile(compiler, repository, variable, scope);
+                new InstructionStatement("m", "COPY", "TII", "P", "frameDataAddr", "P", "a", "S", "a").compile(compiler, repository, variable, scope);
+                new InstructionStatement("i","ADD", "TI", "P", "frameDataAddr", "P", "frameDataAddr", "S", "a").compile(compiler, repository, variable, scope);
             } else if (param.equals("core.Pointer")) {
                 int addrAddr = compiler.data(4);
-                new InstructionStatement("i", "ADD", "LI", "I", "0d" + addrAddr, "R", "task", "ADA", "a").compile(compiler, repository, variable, scope);
-                new InstructionStatement("m", "COPY", "TII", "LDA", "frameDataAddr", "I", "0d" + addrAddr, "ADS", "a").compile(compiler, repository, variable, scope);
-                new InstructionStatement("i","ADD", "TI", "LDA", "frameDataAddr", "LDA", "frameDataAddr", "I", "0d4").compile(compiler, repository, variable, scope);
+                new InstructionStatement("i", "ADD", "LI", "I", "0d" + addrAddr, "R", "task", "P", "a").compile(compiler, repository, variable, scope);
+                new InstructionStatement("m", "COPY", "TII", "P", "frameDataAddr", "I", "0d" + addrAddr, "S", "a").compile(compiler, repository, variable, scope);
+                new InstructionStatement("i","ADD", "TI", "P", "frameDataAddr", "P", "frameDataAddr", "I", "0d4").compile(compiler, repository, variable, scope);
             } else {
                 throw new RuntimeException("Can't copy to argument");
             }

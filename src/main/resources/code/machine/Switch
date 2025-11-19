@@ -11,7 +11,7 @@ core.Switch {
     Addr end;
 
     constructor(Int x) {
-        j(REL, T, ADA, x.val);
+        j(REL, T, P, x.val);
         Addr jumps;
         Addr cases;
     }

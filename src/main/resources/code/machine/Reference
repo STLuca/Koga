@@ -11,26 +11,26 @@ core.Reference<Document R> {
     Byte[4] objectTable;
 
     constructor(b16 imm) {
-        i(ADD, II, LDA, objectAddr, I, 0d0, L, imm);
+        i(ADD, II, P, objectAddr, I, 0d0, L, imm);
         Symbol(CLASS, classSymbol, G, R);
         c(ADDR, LI, objectTable, table, classSymbol);
     }
 
     constructor this() {
-        i(ADD, LI, LDA, objectAddr, R, object, I, 0d0);
-        i(ADD, LI, LDA, objectTable, R, table, I, 0d0);
+        i(ADD, LI, P, objectAddr, R, object, I, 0d0);
+        i(ADD, LI, P, objectTable, R, table, I, 0d0);
     }
 
     constructor alt() {
-        i(ADD, LI, LDA, objectAddr, R, altObject, I, 0d0);
-        i(ADD, LI, LDA, objectTable, R, altTable, I, 0d0);
+        i(ADD, LI, P, objectAddr, R, altObject, I, 0d0);
+        i(ADD, LI, P, objectTable, R, altTable, I, 0d0);
     }
 
     constructor new() {
         Byte[4] objectSize;
         Symbol(CLASS, classSymbol, G, R);
         c(SIZE, LI, objectSize, table, classSymbol);
-        i(ADD, LI, LDA, objectAddr, R, task, LDA, objectAddr);
+        i(ADD, LI, P, objectAddr, R, task, P, objectAddr);
         Admin(ALLOCATE, objectAddr, objectSize);
         c(ADDR, LI, objectTable, table, classSymbol);
     }
@@ -41,57 +41,57 @@ core.Reference<Document R> {
         Byte[4] methodAddr;
         Byte[4] newTask;
 
-        i(ADD, LI, LDA, adminTask, R, altTask, I, 0d0);
-        i(ADD, LI, LDA, newTask, R, task, LDA, newTask);
+        i(ADD, LI, P, adminTask, R, altTask, I, 0d0);
+        i(ADD, LI, P, newTask, R, task, P, newTask);
         Symbol(METHOD, methodSymbol, G, R, L, methodName);
         c(SIZE, LI, frameSize, table, methodSymbol);
         c(ADDR, LI, methodAddr, table, methodSymbol);
 
         ~ copy all the admin arguments
-        m(COPY, TII, LDA, adminTask, LDA, newTask, LDS, newTask);
-        i(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, newTask);
-        m(COPY, TII, LDA, adminTask, LDA, objectAddr, LDS, objectAddr);
-        i(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, objectAddr);
-        m(COPY, TII, LDA, adminTask, LDA, objectTable, LDS, objectTable);
-        i(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, objectTable);
-        m(COPY, TII, LDA, adminTask, LDA, methodAddr, LDS, methodAddr);
-        i(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, methodAddr);
-        m(COPY, TII, LDA, adminTask, LDA, frameSize, LDS, frameSize);
-        i(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, frameSize);
+        m(COPY, TII, P, adminTask, P, newTask, S, newTask);
+        i(ADD, TI, P, adminTask, P, adminTask, S, newTask);
+        m(COPY, TII, P, adminTask, P, objectAddr, S, objectAddr);
+        i(ADD, TI, P, adminTask, P, adminTask, S, objectAddr);
+        m(COPY, TII, P, adminTask, P, objectTable, S, objectTable);
+        i(ADD, TI, P, adminTask, P, adminTask, S, objectTable);
+        m(COPY, TII, P, adminTask, P, methodAddr, S, methodAddr);
+        i(ADD, TI, P, adminTask, P, adminTask, S, methodAddr);
+        m(COPY, TII, P, adminTask, P, frameSize, S, frameSize);
+        i(ADD, TI, P, adminTask, P, adminTask, S, frameSize);
 
         ~ use an implicit createTask body
         ~ otherwise get the status data address, copy to admin arg, and invoke admin.task
         Block createTask default {
             Byte[4] status;
-            i(ADD, LI, LDA, status, R, task, LDA, status);
-            m(COPY, TII, LDA, adminTask, LDA, status, LDS, status);
+            i(ADD, LI, P, status, R, task, P, status);
+            m(COPY, TII, P, adminTask, P, status, S, status);
 
             Byte[4] adminTaskMethod;
             Symbol(METHOD, adminTaskSymbol, I, core.Administrator, I, task);
             c(ADDR, LI, adminTaskMethod, table, adminTaskSymbol);
-            logician(START_ADMIN, T, LDA, adminTaskMethod);
+            logician(START_ADMIN, T, P, adminTaskMethod);
         };
 
         Byte[4] frameDataAddr;
-        i(ADD, TI, LDA, frameDataAddr, LDA, newTask, I, 0d0);
+        i(ADD, TI, P, frameDataAddr, P, newTask, I, 0d0);
         Args();
 
-        Context(IMPLICIT, task, LDA, newTask);
+        Context(IMPLICIT, task, P, newTask);
         Block taskReady default {
             Byte[4] adminScheduleMethod;
             Symbol(METHOD, adminScheduleSymbol, I, core.Administrator, I, awaitTask);
             c(ADDR, LI, adminScheduleMethod, table, adminScheduleSymbol);
-            i(ADD, LI, LDA, adminTask, R, altTask, I, 0d0);
-            m(COPY, TII, LDA, adminTask, LDA, newTask, LDS, newTask);
-            logician(START_ADMIN, T, LDA, adminScheduleMethod);
+            i(ADD, LI, P, adminTask, R, altTask, I, 0d0);
+            m(COPY, TII, P, adminTask, P, newTask, S, newTask);
+            logician(START_ADMIN, T, P, adminScheduleMethod);
         };
         Context(REMOVE, task);
     }
 
     arg(Variable a, Name methodName) {
-        ArgsCopy(G, R, L, methodName, L, index, ADA, a, LDA, frameDataAddr);
-        ~ m(COPY, TII, LDA, frameDataAddr, ADA, a, ADS, a);
-        ~ i(ADD, TI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
+        ArgsCopy(G, R, L, methodName, L, index, P, a, P, frameDataAddr);
+        ~ m(COPY, TII, P, frameDataAddr, P, a, S, a);
+        ~ i(ADD, TI, P, frameDataAddr, P, frameDataAddr, S, a);
     }
 
     reference(b16 fieldSymbol, Pointer dest) {

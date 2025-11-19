@@ -54,11 +54,11 @@ public class InstructionStatement implements Statement {
                 String src2;
                 switch (values.size()) {
                     case 5 -> {
-                        destType = InputType.LDA;
+                        destType = InputType.P;
                         dest = values.get(2);
-                        src1Type = InputType.LDA;
+                        src1Type = InputType.P;
                         src1 = values.get(3);
-                        src2Type = inType == Types.InputType.TI ? InputType.L : InputType.ADA;
+                        src2Type = inType == Types.InputType.TI ? InputType.L : InputType.P;
                         src2 = values.get(4);
                     }
                     case 8 -> {
@@ -95,11 +95,11 @@ public class InstructionStatement implements Statement {
                 String src2;
                 switch (values.size()) {
                     case 5 -> {
-                        destType = InputType.LDA;
+                        destType = InputType.P;
                         dest = values.get(2);
-                        src1Type = InputType.LDA;
+                        src1Type = InputType.P;
                         src1 = values.get(3);
-                        src2Type = inType == Types.InputType.TI ? InputType.L : InputType.ADA;
+                        src2Type = inType == Types.InputType.TI ? InputType.L : InputType.P;
                         src2 = values.get(4);
                     }
                     case 8 -> {
@@ -132,7 +132,7 @@ public class InstructionStatement implements Statement {
                 String addr;
                 switch (values.size()) {
                     case 3 -> {
-                        addrType = InputType.LDA;
+                        addrType = InputType.P;
                         addr = values.get(2);
                     }
                     case 4 -> {
@@ -187,7 +187,7 @@ public class InstructionStatement implements Statement {
                 }
                 Resolved resolvedSrc1 = src1Type.resolve(src1, scope);
                 Resolved resolvedSrc2 = src2Type.resolve(src2, scope);
-                Resolved resolvedAddr = InputType.LDA.resolve(addr, scope);
+                Resolved resolvedAddr = InputType.P.resolve(addr, scope);
                 if (resolvedAddr.value() == -1) {
                     // Put a placeholder address. Things will probably not work if the addr isn't then updated
                     int address = compiler.address();
@@ -214,7 +214,7 @@ public class InstructionStatement implements Statement {
                 String src2 = null;
                 switch (values.size()) {
                     case 5 -> {
-                        destType = InputType.LDA;
+                        destType = InputType.P;
                         dest = values.get(2);
                         src1Type = InputType.R;
                         src1 = values.get(3);
@@ -268,8 +268,8 @@ public class InstructionStatement implements Statement {
                 ic.subType(Types.DebugType.valueOf(values.get(0)));
                 String src = values.get(1);
                 String size = values.get(2);
-                Resolved resolvedSrc = InputType.ADA.resolve(src, scope);
-                Resolved resolvedSize = InputType.ADA.resolve(size, scope);
+                Resolved resolvedSrc = InputType.P.resolve(src, scope);
+                Resolved resolvedSize = InputType.P.resolve(size, scope);
                 ic.src(0, 0);
                 ic.src(resolvedSrc.value(), resolvedSrc.size());
                 ic.src(resolvedSize.value(), resolvedSize.size());
@@ -302,7 +302,7 @@ public class InstructionStatement implements Statement {
                     case NOTIFY_SUPERVISOR -> {
                         ic.inputType(Types.InputType.valueOf(values.get(1)));
                         String src = values.get(2);
-                        Resolved resolvedSrc = InputType.LDA.resolve(src, scope);
+                        Resolved resolvedSrc = InputType.P.resolve(src, scope);
                         ic.src(resolvedSrc.value(), resolvedSrc.size());
                     }
                     default -> throw new RuntimeException();

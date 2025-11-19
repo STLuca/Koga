@@ -11,24 +11,24 @@ core.OutputStream {
     Byte[4] current;
 
     constructor(Int in) {
-        i(ADD, TI, LDA, root, ADA, in.val, I, 0d0);
-        i(ADD, TI, LDA, current, ADA, in.val, I, 0d0);
+        i(ADD, TI, P, root, P, in.val, I, 0d0);
+        i(ADD, TI, P, current, P, in.val, I, 0d0);
     }
 
     constructor port() {
-        i(ADD, LI, LDA, root, R, task, LDA, root);
+        i(ADD, LI, P, root, R, task, P, root);
         Admin(PORT, root);
-        i(ADD, TI, LDA, current, LDA, root, I, 0d0);
+        i(ADD, TI, P, current, P, root, I, 0d0);
     }
 
     writeFromInt(Int x) {
-        m(COPY, TII, LDA, current, ADA, x, ADS, x);
-        i(ADD, TI, LDA, current, LDA, current, I, 0d4);
+        m(COPY, TII, P, current, P, x, S, x);
+        i(ADD, TI, P, current, P, current, I, 0d4);
     }
 
     writeFromString(String str) {
-        m(COPY, TTT, LDA, current, ADA, str.start, ADA, str.size);
-        i(ADD, TI, LDA, current, LDA, current, ADA, str.size);
+        m(COPY, TTT, P, current, P, str.start, P, str.size);
+        i(ADD, TI, P, current, P, current, P, str.size);
     }
 
 

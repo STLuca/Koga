@@ -106,7 +106,7 @@
         byte[1] val;
 
         constructor(b8 imm) {
-            integer(ADD, II, LDA, val, I, 0d0, L, imm);
+            integer(ADD, II, P, val, I, 0d0, L, imm);
         }
 
         plus(b8 imm) {
@@ -125,19 +125,19 @@
         byte[4] val;
 
         constructor(b32 imm) {
-            integer(ADD, II, LDA, val, I, 0d0, L, imm);
+            integer(ADD, II, P, val, I, 0d0, L, imm);
         }
 
         constructor(Int copy) {
-            integer(ADD, TI, LDA, val, ADA, copy.val, I, 0d0);
+            integer(ADD, TI, P, val, P, copy.val, I, 0d0);
         }
 
         plus(b32 imm) {
-            integer(ADD, TI, LDA, val, LDA, val, L, imm);
+            integer(ADD, TI, P, val, P, val, L, imm);
         }
 
         plus(Int in) {
-            integer(ADD, TT, LDA, val, LDA, val, ADA, in.val);
+            integer(ADD, TT, P, val, P, val, P, in.val);
         }
 
     }
@@ -210,7 +210,7 @@
         The statements in these methods aren't instructions though, they are instruction builders.
         The difference is the builder repository need to be resolved during compilation.
         Each source is instead two value, a resolve type and a string value.
-        For example, "LDA, val" says to use the local data address for the field val i.e. this structure should have a data field named val.
+        For example, "P, val" says to use the local data address for the field val i.e. this structure should have a data field named val.
         If you had a operation with just one Int, then val would compile to 0. If you had two Ints, the second Int's val would be at address 4 as the first Int val uses bytes 0 1 2 3.
         The resolvable types are:
     </p>
@@ -220,8 +220,8 @@
             Argument literal (L) - these are literal values passed in when invoking the operation or constructor.
             In ByteAndIntTest, these would be 0, 10, 25, 111.
         </li>
-        <li>Local data address (LDA) - The address of a local data field e.g. the val data in Int</li>
-        <li>Argument data address (ADA) - the address of an arguments data field, as shown in the Int copy constructor</li>
+        <li>Local data address (P) - The address of a local data field e.g. the val data in Int</li>
+        <li>Argument data address (P) - the address of an arguments data field, as shown in the Int copy constructor</li>
     </ul>
     <p>
         Let's analyse an example of an instruction builder.
@@ -229,7 +229,7 @@
     <pre>
     <code>
     constructor(b32 imm) {
-        integer(ADD, II, LDA, val, I, 0d0, L, imm);
+        integer(ADD, II, P, val, I, 0d0, L, imm);
     }
     </code>
     </pre>
@@ -241,7 +241,7 @@
         <li>
             We now describe three more values in order: the destination, the first source, and the second source.
             Each of these is described with two values, the resolve type and the resolve value.
-            LDA, val - Here we say resolve the value val as a local data address (LDA).
+            P, val - Here we say resolve the value val as a local data address (P).
             The result will be the destination of our addition i.e. the address we store the result.
         </li>
         <li>
@@ -275,7 +275,7 @@
         byte[1] val;
 
         constructor(b1 imm) {
-            l(ADD, II, LDA, val, I, 0d0, L, imm);
+            l(ADD, II, P, val, I, 0d0, L, imm);
         }
 
     }
@@ -295,7 +295,7 @@
         Addr end;
 
         constructor(Boolean bool, Block block) {
-            conditionalBranch(EQ, TI, ADA, bool.val, I, 0d0, after);
+            conditionalBranch(EQ, TI, P, bool.val, I, 0d0, after);
             Block block;
             jump(REL, I, end);
             Addr after;
@@ -304,7 +304,7 @@
 
         elseIf(Boolean bool, Block block) {
             Position end;
-            conditionalBranch(EQ, TI, ADA, bool.val, I, 0d0, after);
+            conditionalBranch(EQ, TI, P, bool.val, I, 0d0, after);
             Block block;
             jump(REL, I, end);
             Addr after;
@@ -417,7 +417,7 @@
         ...
 
         constructor(Int bool, Block block) {
-            cb(EQ, TI, ADA, bool.val, I, 0d0, after);
+            cb(EQ, TI, P, bool.val, I, 0d0, after);
             Block block;
             j(REL, I, end);
             Addr after;
@@ -425,7 +425,7 @@
         }
 
         lessThan(b32 imm, Boolean dest) {
-            l(SLT, TI, ADA, dest.val, LDA, val, L, imm);
+            l(SLT, TI, P, dest.val, P, val, L, imm);
         }
 
     }
@@ -447,7 +447,7 @@
 
         constructor(Int bool, Block loop) {
             Addr start;
-            conditionalBranch(EQ, TI, ADA, bool.val, I, 0d0, end);
+            conditionalBranch(EQ, TI, P, bool.val, I, 0d0, end);
             Block loop;
             jump(REL, I, start);
             Addr end;
@@ -546,7 +546,7 @@
         Addr end;
 
         constructor(Int x) {
-            jump(REL, T, ADA, x.val);
+            jump(REL, T, P, x.val);
             Addr jumps;
             Addr cases;
         }
@@ -679,15 +679,15 @@
         byte[4] addr;
 
         constructor(Any val) {
-            integer(ADD, LI, LDA, addr, R, task, ADA, val);
+            integer(ADD, LI, P, addr, R, task, P, val);
         }
 
         copyTo(Any val) {
-            memory(COPY, ITI, ADA, val, LDA, addr, G, T);
+            memory(COPY, ITI, P, val, P, addr, G, T);
         }
 
         copyFrom(Any val) {
-            memory(COPY, TII, LDA, addr, ADA, val, G, T);
+            memory(COPY, TII, P, addr, P, val, G, T);
         }
 
     }
@@ -767,10 +767,10 @@
         constructor() {}
 
         constructor(b12 imm) {
-            i(ADD, II, LDA, size, I, 0d0, L, imm);
-            i(ADD, II, LDA, step, I, 0d0, G, T);
+            i(ADD, II, P, size, I, 0d0, L, imm);
+            i(ADD, II, P, step, I, 0d0, G, T);
             Byte[L imm][G T] data;
-            i(ADD, LI, LDA, start, R, task, LDA, data);
+            i(ADD, LI, P, start, R, task, P, data);
         }
 
     }
@@ -789,25 +789,25 @@
         byte[4] addr;
 
         constructor(Array arr) {
-            integer(ADD, TI, LDA, start, ADA, arr.start, I, 0d0);
-            integer(ADD, TI, LDA, size, ADA, arr.size, I, 0d0);
-            integer(ADD, TI, LDA, step, ADA, arr.step, I, 0d0);
-            integer(ADD, TI, LDA, addr, LDA, start, I, 0d0);
+            integer(ADD, TI, P, start, P, arr.start, I, 0d0);
+            integer(ADD, TI, P, size, P, arr.size, I, 0d0);
+            integer(ADD, TI, P, step, P, arr.step, I, 0d0);
+            integer(ADD, TI, P, addr, P, start, I, 0d0);
         }
 
         index(b12 imm) {
             byte[4] index;
-            integer(ADD, II, LDA, index, I, 0d0, L, imm);
-            integer(MUL, TT, LDA, index, LDA, index, LDA, step);
-            integer(ADD, TT, LDA, addr, LDA, start, LDA, index);
+            integer(ADD, II, P, index, I, 0d0, L, imm);
+            integer(MUL, TT, P, index, P, index, P, step);
+            integer(ADD, TT, P, addr, P, start, P, index);
         }
 
         copyTo(Any val) {
-            memory(COPY, ITI, ADA, val, LDA, addr, G, T);
+            memory(COPY, ITI, P, val, P, addr, G, T);
         }
 
         copyFrom(Any val) {
-            memory(COPY, TII, LDA, addr, ADA, val, G, T);
+            memory(COPY, TII, P, addr, P, val, G, T);
         }
 
     }
@@ -872,13 +872,13 @@
             Symbol(CONST, constSymbol, L, const);
             class(ADDR, LI, start, table, constSymbol);
             class(SIZE, LI, size, table, constSymbol);
-            i(ADD, II, LDA, step, I, 0d0, I, 0d1);
+            i(ADD, II, P, step, I, 0d0, I, 0d1);
         }
 
         constructor(b8[] const) {
             class(ADDR, I, start, const);
             class(SIZE, I, size, const);
-            integer(ADD, II, LDA, step, I, 0d0, I, 0d1);
+            integer(ADD, II, P, step, I, 0d0, I, 0d1);
         }
 
         equalTo(String in, Boolean dest) {
@@ -1073,7 +1073,7 @@
             symbol(CLASS, classSymbol, G, R);
             class(SIZE, I, objectSize, classSymbol);
             logician(GET_TASK, objectAddr);
-            integer(ADD, TI, LDA, objectAddr, LDA, objectAddr, LDA, objectAddr);
+            integer(ADD, TI, P, objectAddr, P, objectAddr, P, objectAddr);
             admin(ALLOCATE, objectAddr, objectSize);
             class(ADDR, I, objectTable, classSymbol);
         }
@@ -1083,7 +1083,7 @@
             byte[4] methodAddr;
             byte[4] newFrame;
             logician(GET_TASK, newFrame);
-            integer(ADD, TI, LDA, newFrame, LDA, newFrame, LDA, newFrame);
+            integer(ADD, TI, P, newFrame, P, newFrame, P, newFrame);
             symbol(METHOD, methodSymbol, G, R, L, methodName);
             class(SIZE, I, frameSize, methodSymbol);
             class(ADDR, I, methodAddr, methodSymbol);
@@ -1093,32 +1093,32 @@
             class(ADDR, I, adminTaskMethod, adminTaskSymbol);
             byte[4] adminTask;
             logician(GET_ALT_TASK, adminTask);
-            memory(COPY, PA, LDA, adminTask, LDA, newFrame, LDS, newFrame);
-            integer(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, newFrame);
-            memory(COPY, PA, LDA, adminTask, LDA, objectAddr, LDS, objectAddr);
-            integer(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, objectAddr);
-            memory(COPY, PA, LDA, adminTask, LDA, objectTable, LDS, objectTable);
-            integer(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, objectTable);
-            memory(COPY, PA, LDA, adminTask, LDA, methodAddr, LDS, methodAddr);
-            integer(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, methodAddr);
-            memory(COPY, PA, LDA, adminTask, LDA, frameSize, LDS, frameSize);
-            logician(START_ADMIN, LDA, adminTaskMethod);
+            memory(COPY, PA, P, adminTask, P, newFrame, S, newFrame);
+            integer(ADD, TI, P, adminTask, P, adminTask, S, newFrame);
+            memory(COPY, PA, P, adminTask, P, objectAddr, S, objectAddr);
+            integer(ADD, TI, P, adminTask, P, adminTask, S, objectAddr);
+            memory(COPY, PA, P, adminTask, P, objectTable, S, objectTable);
+            integer(ADD, TI, P, adminTask, P, adminTask, S, objectTable);
+            memory(COPY, PA, P, adminTask, P, methodAddr, S, methodAddr);
+            integer(ADD, TI, P, adminTask, P, adminTask, S, methodAddr);
+            memory(COPY, PA, P, adminTask, P, frameSize, S, frameSize);
+            logician(START_ADMIN, P, adminTaskMethod);
 
             byte[4] frameDataAddr;
-            integer(ADD, TI, LDA, frameDataAddr, LDA, newFrame, I, 0d0);
+            integer(ADD, TI, P, frameDataAddr, P, newFrame, I, 0d0);
             args();
 
             byte[4] adminScheduleMethod;
             symbol(METHOD, adminScheduleSymbol, I, Administrator, I, schedule);
             class(ADDR, I, adminScheduleMethod, adminScheduleSymbol);
             logician(GET_ALT_TASK, adminTask);
-            memory(COPY, PA, LDA, adminTask, LDA, newFrame, LDS, newFrame);
-            logician(START_ADMIN, LDA, adminScheduleMethod);
+            memory(COPY, PA, P, adminTask, P, newFrame, S, newFrame);
+            logician(START_ADMIN, P, adminScheduleMethod);
         }
 
         arg(Any a) {
-            memory(COPY, PA, LDA, frameDataAddr, ADA, a, ADS, a);
-            integer(ADD, TI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
+            memory(COPY, PA, P, frameDataAddr, P, a, S, a);
+            integer(ADD, TI, P, frameDataAddr, P, frameDataAddr, S, a);
         }
 
     }
@@ -1698,29 +1698,29 @@
             byte[4] status;
             byte[4] statusAddr;
             byte[4] statusParamAddr;
-            l(ADD, RI, LDA, statusAddr, R, task, LDA, status);
+            l(ADD, RI, P, statusAddr, R, task, P, status);
             ~ status pointer is 20 bytes into the admin area
-            integer(ADD, RI, LDA, statusParamAddr, R, altTask, I, 0d20);
+            integer(ADD, RI, P, statusParamAddr, R, altTask, I, 0d20);
 
             byte[4] awaitTaskAddr;
-            integer(ADD, RI, LDA, awaitTaskAddr, R, altTask, I, 0d0);
+            integer(ADD, RI, P, awaitTaskAddr, R, altTask, I, 0d0);
 
             context(BLOCK, createTask) {
-                memory(COPY, PA, LDA, statusParamAddr, LDA, statusAddr, LDS, status);
+                memory(COPY, PA, P, statusParamAddr, P, statusAddr, S, status);
                 byte[4] adminTaskMethod;
                 symbol(METHOD, adminTaskSymbol, I, Administrator, I, task);
                 class(ADDR, I, adminTaskMethod, adminTaskSymbol);
-                logician(START_ADMIN, LDA, adminTaskMethod);
+                logician(START_ADMIN, P, adminTaskMethod);
             };
 
             context(BLOCK, taskReady) {
                 byte[4] adminScheduleMethod;
                 symbol(METHOD, adminScheduleSymbol, I, Administrator, I, awaitTask);
                 class(ADDR, I, adminScheduleMethod, adminScheduleSymbol);
-                integer(ADD, RI, LDA, awaitTaskAddr, R, altTask, I, 0d0);
-                memory(COPY, PA, LDA, awaitTaskAddr, L, task, I, 0d4);
-                logician(START_ADMIN, LDA, adminScheduleMethod);
-                conditionalBranch(NEQ, TI, LDA, status, I, 0d0, fail);
+                integer(ADD, RI, P, awaitTaskAddr, R, altTask, I, 0d0);
+                memory(COPY, PA, P, awaitTaskAddr, L, task, I, 0d4);
+                logician(START_ADMIN, P, adminScheduleMethod);
+                conditionalBranch(NEQ, TI, P, status, I, 0d0, fail);
             };
 
             Block try;
@@ -1746,49 +1746,49 @@
             byte[4] methodAddr;
             byte[4] newTask;
 
-            integer(ADD, RI, LDA, adminTask, R, altTask, I, 0d0);
-            integer(ADD, RI, LDA, newTask, R, task, LDA, newTask);
+            integer(ADD, RI, P, adminTask, R, altTask, I, 0d0);
+            integer(ADD, RI, P, newTask, R, task, P, newTask);
             symbol(METHOD, methodSymbol, G, R, L, methodName);
             class(SIZE, I, frameSize, methodSymbol);
             class(ADDR, I, methodAddr, methodSymbol);
 
             ~ copy all the admin arguments
-            memory(COPY, PA, LDA, adminTask, LDA, newTask, LDS, newTask);
-            integer(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, newTask);
-            memory(COPY, PA, LDA, adminTask, LDA, objectAddr, LDS, objectAddr);
-            integer(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, objectAddr);
-            memory(COPY, PA, LDA, adminTask, LDA, objectTable, LDS, objectTable);
-            integer(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, objectTable);
-            memory(COPY, PA, LDA, adminTask, LDA, methodAddr, LDS, methodAddr);
-            integer(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, methodAddr);
-            memory(COPY, PA, LDA, adminTask, LDA, frameSize, LDS, frameSize);
-            integer(ADD, TI, LDA, adminTask, LDA, adminTask, LDS, frameSize);
+            memory(COPY, PA, P, adminTask, P, newTask, S, newTask);
+            integer(ADD, TI, P, adminTask, P, adminTask, S, newTask);
+            memory(COPY, PA, P, adminTask, P, objectAddr, S, objectAddr);
+            integer(ADD, TI, P, adminTask, P, adminTask, S, objectAddr);
+            memory(COPY, PA, P, adminTask, P, objectTable, S, objectTable);
+            integer(ADD, TI, P, adminTask, P, adminTask, S, objectTable);
+            memory(COPY, PA, P, adminTask, P, methodAddr, S, methodAddr);
+            integer(ADD, TI, P, adminTask, P, adminTask, S, methodAddr);
+            memory(COPY, PA, P, adminTask, P, frameSize, S, frameSize);
+            integer(ADD, TI, P, adminTask, P, adminTask, S, frameSize);
 
             ~ use an implicit createTask body
             ~ otherwise get the status data address, copy to admin arg, and invoke admin.task
             createTask {
                 byte[4] status;
-                integer(ADD, RI, LDA, status, R, task, LDA, status);
-                memory(COPY, PA, LDA, adminTask, LDA, status, LDS, status);
+                integer(ADD, RI, P, status, R, task, P, status);
+                memory(COPY, PA, P, adminTask, P, status, S, status);
 
                 byte[4] adminTaskMethod;
                 symbol(METHOD, adminTaskSymbol, I, Administrator, I, task);
                 class(ADDR, I, adminTaskMethod, adminTaskSymbol);
-                logician(START_ADMIN, LDA, adminTaskMethod);
+                logician(START_ADMIN, P, adminTaskMethod);
             };
 
             byte[4] frameDataAddr;
-            integer(ADD, TI, LDA, frameDataAddr, LDA, newTask, I, 0d0);
+            integer(ADD, TI, P, frameDataAddr, P, newTask, I, 0d0);
             args();
 
-            context(IMPLICIT, task, LDA, newTask);
+            context(IMPLICIT, task, P, newTask);
             taskReady {
                 byte[4] adminScheduleMethod;
                 symbol(METHOD, adminScheduleSymbol, I, Administrator, I, awaitTask);
                 class(ADDR, I, adminScheduleMethod, adminScheduleSymbol);
-                integer(ADD, RI, LDA, adminTask, R, altTask, I, 0d0);
-                memory(COPY, PA, LDA, adminTask, LDA, newTask, LDS, newTask);
-                logician(START_ADMIN, LDA, adminScheduleMethod);
+                integer(ADD, RI, P, adminTask, R, altTask, I, 0d0);
+                memory(COPY, PA, P, adminTask, P, newTask, S, newTask);
+                logician(START_ADMIN, P, adminScheduleMethod);
             };
             context(REMOVE, task);
         }

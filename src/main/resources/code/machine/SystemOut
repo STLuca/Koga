@@ -11,27 +11,27 @@ core.SystemOut {
 
     constructor() {
         Symbol(SYSTEM, sysOutSymbol, I, SystemOut);
-        c(ADDR, LI, LDA, root, R, altTable, L, sysOutSymbol);
-        m(COPY, ITI, LDA, current, LDA, root, LDS, current);
+        c(ADDR, LI, P, root, R, altTable, L, sysOutSymbol);
+        m(COPY, ITI, P, current, P, root, S, current);
     }
 
     commit() {
         logician(NOTIFY_SUPERVISOR, T, root);
-        m(COPY, ITI, LDA, current, LDA, root, LDS, current);
+        m(COPY, ITI, P, current, P, root, S, current);
     }
 
     copyFrom(Int x) {
-        m(COPY, TII, LDA, current, ADA, x, ADS, x);
-        i(ADD, TI, LDA, current, LDA, current, I, 0d4);
+        m(COPY, TII, P, current, P, x, S, x);
+        i(ADD, TI, P, current, P, current, I, 0d4);
     }
 
     allocatePage(Int localPage) {
         Byte[4] msgType;
-        i(ADD, II, LDA, msgType, I, 0d0, I, 0d3);
-        m(COPY, TII, LDA, current, LDA, msgType, LDS, msgType);
-        i(ADD, TI, LDA, current, LDA, current, LDS, msgType);
-        m(COPY, TII, LDA, current, ADA, localPage, ADS, localPage);
-        i(ADD, TI, LDA, current, LDA, current, ADS, localPage);
+        i(ADD, II, P, msgType, I, 0d0, I, 0d3);
+        m(COPY, TII, P, current, P, msgType, S, msgType);
+        i(ADD, TI, P, current, P, current, S, msgType);
+        m(COPY, TII, P, current, P, localPage, S, localPage);
+        i(ADD, TI, P, current, P, current, S, localPage);
     }
 
 }

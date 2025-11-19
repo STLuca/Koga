@@ -4,14 +4,12 @@ import language.core.Scope;
 import language.core.Structure;
 
 enum InputType {
-    R,     // register
-    I,     // immediate,
-    L,     // literal,
-    LDA,   // local data address,
-    LDS,   // local data size,
-    ADA,   // argument data address
-    ADS,   // argument data size
-    G,     // generic
+    R,   // register
+    I,   // immediate
+    L,   // literal
+    P,   // position
+    S,   // size
+    G,   // generic
     ;
 
     record Resolved(int size, int value) {}
@@ -38,54 +36,36 @@ enum InputType {
                 int literal = scope.findLiteralAsInt(toResolve).orElseThrow();
                 return new Resolved(4, literal);
             }
-            case LDA -> {
-                // Local allocation
-                Scope.Allocation allocation = scope.findAllocation(toResolve).orElse(null);
+            case P -> {
+                String[] split = toResolve.split("\\.");
+                Scope curr = scope;
+                for (int i = 0; i < split.length - 1; i++) {
+                    curr = scope.findVariable(split[i]).orElseThrow();
+                }
+                Scope.Allocation allocation = curr.findAllocation(split[split.length - 1]).orElse(null);
                 if (allocation != null) {
+                    return new Resolved(allocation.size(), allocation.location());
+                }
+                curr = curr.findVariable(split[split.length - 1]).orElse(null);
+                if (curr != null) {
+                    allocation = curr.allocation().orElseThrow();
                     return new Resolved(allocation.size(), allocation.location());
                 }
                 return new Resolved(4, -1);
             }
-            case ADA -> {
-                // argument should be type variable
+            case S -> {
                 String[] split = toResolve.split("\\.");
-                Scope v = scope.findVariable(split[0]).orElseThrow();
-                if (split.length == 2) {
-                    // we just want an allocation
-                    Scope.Allocation allocation = v.findAllocation(split[1]).orElseThrow();
-                    return new Resolved(allocation.size(), allocation.location());
+                Scope curr = scope;
+                for (int i = 0; i < split.length - 1; i++) {
+                    curr = scope.findVariable(split[i]).orElseThrow();
                 }
-                // we want the variable
-                int start = Integer.MAX_VALUE;
-                int size = 0;
-                for (Scope.Allocation a : v.allocations()) {
-                    if (a.location() < start) start = a.location();
-                    size += a.size();
+                Scope.Allocation allocation = curr.findAllocation(split[split.length - 1]).orElse(null);
+                if (allocation != null) {
+                    return new Resolved(4, allocation.size());
                 }
-                if (start == Integer.MAX_VALUE) {
-                    throw new RuntimeException("variable has no allocations");
-                }
-                return new Resolved(size, start);
-            }
-            case LDS -> {
-                // local size
-                Scope.Allocation allocation = scope.findAllocation(toResolve).orElseThrow();
+                curr = curr.findVariable(split[split.length - 1]).orElseThrow();
+                allocation = curr.allocation().orElseThrow();
                 return new Resolved(4, allocation.size());
-            }
-            case ADS -> {// argument should be type variable
-                String[] split = toResolve.split("\\.");
-                Scope v = scope.findVariable(split[0]).orElseThrow();
-                if (split.length == 2) {
-                    // we just want an allocation
-                    Scope.Allocation variableAllocation = v.findAllocation(split[1]).orElseThrow();
-                    return new Resolved(4, variableAllocation.size());
-                }
-                // we want the variable
-                int size = 0;
-                for (Scope.Allocation a : v.allocations()) {
-                    size += a.size();
-                }
-                return new Resolved(4, size);
             }
             case G -> {
                 String[] split = toResolve.split("\\.");

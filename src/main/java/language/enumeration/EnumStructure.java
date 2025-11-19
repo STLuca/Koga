@@ -113,7 +113,7 @@ public class EnumStructure implements language.core.Structure {
         SharedLocationMethodCompiler mc = new SharedLocationMethodCompiler();
         mc.parent = compiler;
         mc.location = location;
-        new InstructionStatement("i", "ADD", "II", "LDA", "type", "I", "0d0", "I", "0d" + (index + 1))
+        new InstructionStatement("i", "ADD", "II", "P", "type", "I", "0d0", "I", "0d" + (index + 1))
                 .compile(compiler, repository, thisVariable, operationScope);
         Scope structureScope = thisVariable.state(structure, structure.name);
         Scope structConstructorScope = operationScope.startOperation(structureScope, "?");
@@ -132,7 +132,7 @@ public class EnumStructure implements language.core.Structure {
                 // add all names to types
                 int[] blockPositions = new int[arguments.size() / 2];
 
-                new InstructionStatement("j", "REL", "T", "LDA", "type").compile(compiler, repository, variable, operationScope);
+                new InstructionStatement("j", "REL", "T", "P", "type").compile(compiler, repository, variable, operationScope);
                 int jumps = compiler.address();
                 Scope.Allocation allocation = new Scope.Allocation(4, jumps);
                 operationScope.put("jumps", allocation);
@@ -189,7 +189,7 @@ public class EnumStructure implements language.core.Structure {
                     throw new RuntimeException("Unexpected union method");
                 }
 
-                new InstructionStatement("j", "REL", "T", "LDA", "type").compile(compiler, repository, variable, operationScope);
+                new InstructionStatement("j", "REL", "T", "P", "type").compile(compiler, repository, variable, operationScope);
                 int jumps = compiler.address();
                 Scope.Allocation allocation = new Scope.Allocation(4, jumps);
                 operationScope.put("jumps", allocation);

@@ -11,7 +11,7 @@ core.Pointer<Structure T> {
     Byte[4] addr;
 
     constructor(T val) {
-        i(ADD, LI, LDA, addr, R, task, ADA, val);
+        i(ADD, LI, P, addr, R, task, P, val);
     }
 
     constructor(Reference r, Name field) {
@@ -23,41 +23,41 @@ core.Pointer<Structure T> {
     constructor this(Name field) {
         Symbol(FIELD, fieldSymbol, L, field);
         c(ADDR, LI, addr, table, fieldSymbol);
-        i(ADD, LT, LDA, addr, R, object, LDA, addr);
+        i(ADD, LT, P, addr, R, object, P, addr);
     }
 
     constructor admin(Reference r, Name field) {
         Symbol(FIELD, fieldSymbol, G, r.R, L, field);
-        c(ADDR, LI, LDA, addr, R, altTable, L, fieldSymbol);
+        c(ADDR, LI, P, addr, R, altTable, L, fieldSymbol);
         i(ADD, TT, addr, addr, r.objectAddr);
     }
 
     constructor atAddr(Int addr) {
-        i(ADD, TI, LDA, addr, ADA, addr.val, I, 0d0);
+        i(ADD, TI, P, addr, P, addr.val, I, 0d0);
     }
 
     copyTo(T val) {
-        m(COPY, ITI, ADA, val, LDA, addr, G, T);
+        m(COPY, ITI, P, val, P, addr, G, T);
     }
 
     copyFrom(T val) {
-        m(COPY, TII, LDA, addr, ADA, val, G, T);
+        m(COPY, TII, P, addr, P, val, G, T);
     }
 
     copyFromPointer(Pointer val) {
-        m(COPY, III, LDA, addr, ADA, val.addr, ADS, val.addr);
+        m(COPY, III, P, addr, P, val.addr, S, val.addr);
     }
 
     plus(b32 imm) {
-        i(ADD, TI, LDA, addr, LDA, addr, L, imm);
+        i(ADD, TI, P, addr, P, addr, L, imm);
     }
 
     plus(Int in) {
-        i(ADD, TT, LDA, addr, LDA, addr, ADA, in.val);
+        i(ADD, TT, P, addr, P, addr, P, in.val);
     }
 
     set(Int addr) {
-        i(ADD, TI, LDA, addr, ADA, addr.val, I, 0d0);
+        i(ADD, TI, P, addr, P, addr.val, I, 0d0);
     }
 
 }

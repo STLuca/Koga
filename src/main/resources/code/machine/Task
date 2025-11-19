@@ -8,7 +8,7 @@ core.Task {
 
     constructor fail() {
         Byte[4] status;
-        i(ADD, II, LDA, status, I, 0d1, I, 0d0);
+        i(ADD, II, P, status, I, 0d1, I, 0d0);
         Admin(TRANSITION, status);
     }
 

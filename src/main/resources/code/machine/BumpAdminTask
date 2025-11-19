@@ -10,11 +10,11 @@ core.BumpAdminTask {
     Byte[4] return;
 
     constructor loadInAdmin() {
-        i(ADD, LI, LDA, taskAddr, R, altTask, I, 0d0);
-        i(ADD, LI, LDA, object, R, object, I, 0d0);
-        i(ADD, LI, LDA, table, R, table, I, 0d0);
-        i(ADD, LI, LDA, instruction, R, instruction, I, 0d0);
-        i(ADD, LI, LDA, altTask, R, task, I, 0d0);
+        i(ADD, LI, P, taskAddr, R, altTask, I, 0d0);
+        i(ADD, LI, P, object, R, object, I, 0d0);
+        i(ADD, LI, P, table, R, table, I, 0d0);
+        i(ADD, LI, P, instruction, R, instruction, I, 0d0);
+        i(ADD, LI, P, altTask, R, task, I, 0d0);
     }
 
 }

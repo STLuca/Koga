@@ -12,25 +12,25 @@ core.SystemIn {
 
     constructor() {
         Symbol(SYSTEM, sysInSymbol, I, SystemIn);
-        c(ADDR, LI, LDA, root, R, altTable, L, sysInSymbol);
-        i(ADD, TI, LDA, current, LDA, root, I, 0d4);
+        c(ADDR, LI, P, root, R, altTable, L, sysInSymbol);
+        i(ADD, TI, P, current, P, root, I, 0d4);
     }
 
     reset() {
-        m(COPY, TII, LDA, current, LDA, root, LDS, current);
+        m(COPY, TII, P, current, P, root, S, current);
     }
 
     peek(Int x) {
-        m(COPY, ITI, ADA, x, LDA, current, ADS, x);
+        m(COPY, ITI, P, x, P, current, S, x);
     }
 
     copyTo(Int x) {
-        m(COPY, ITI, ADA, x, LDA, current, ADS, x);
-        i(ADD, TI, LDA, current, LDA, current, I, 0d4);
+        m(COPY, ITI, P, x, P, current, S, x);
+        i(ADD, TI, P, current, P, current, I, 0d4);
     }
 
     copyToString(String s) {
-        m(COPY, TTT, ADA, s.start, LDA, current, ADA, s.size);
+        m(COPY, TTT, P, s.start, P, current, P, s.size);
         i(ADD, TT, current, current, s.size);
     }
 

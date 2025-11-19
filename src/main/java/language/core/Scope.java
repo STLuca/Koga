@@ -135,8 +135,17 @@ public class Scope {
         return Optional.ofNullable(allocations.get(name));
     }
 
-    public Iterable<Scope.Allocation> allocations() {
-        return allocations.values();
+    public Optional<Scope.Allocation> allocation() {
+        int start = Integer.MAX_VALUE;
+        int size = 0;
+        for (Scope.Allocation a : allocations.values()) {
+            if (a.location() < start) start = a.location();
+            size += a.size();
+        }
+        if (start == Integer.MAX_VALUE) {
+            return Optional.empty();
+        }
+        return Optional.of(new Allocation(size, start));
     }
 
 

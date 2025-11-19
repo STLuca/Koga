@@ -11,8 +11,8 @@ core.InterfaceReference<Document R> {
     Byte[4] interfaceTable;
 
     constructor(Reference r) {
-        i(ADD, TI, LDA, objectAddr, ADA, r.objectAddr, I, 0d0);
-        i(ADD, TI, LDA, objectTable, ADA, r.objectTable, I, 0d0);
+        i(ADD, TI, P, objectAddr, P, r.objectAddr, I, 0d0);
+        i(ADD, TI, P, objectTable, P, r.objectTable, I, 0d0);
         Byte[2] interfaceClassSymbol;
         Symbol(INTERFACE, interfaceClassSymbol, G, r.R, G, R);
         c(ADDR, LI, interfaceTable, table, interfaceClassSymbol);
@@ -26,25 +26,25 @@ core.InterfaceReference<Document R> {
         Byte[4] statusOut;
 
         ~ Create the new task
-        i(ADD, LI, LDA, newTask, R, task, LDA, newTask);
-        i(ADD, LI, LDA, status, R, task, LDA, status);
+        i(ADD, LI, P, newTask, R, task, P, newTask);
+        i(ADD, LI, P, status, R, task, P, status);
         Symbol(METHOD, methodSymbol, G, R, L, methodName);
         c(ADDR, LI, iMethodSymbol, table, methodSymbol);
-        c(SIZE, TT, LDA, frameSize, LDA, interfaceTable, LDA, iMethodSymbol);
-        c(ADDR, TT, LDA, methodAddr, LDA, interfaceTable, LDA, iMethodSymbol);
+        c(SIZE, TT, P, frameSize, P, interfaceTable, P, iMethodSymbol);
+        c(ADDR, TT, P, methodAddr, P, interfaceTable, P, iMethodSymbol);
         Admin(TASK, newTask, objectAddr, objectTable, methodAddr, frameSize, statusOut);
 
 
         Byte[4] frameDataAddr;
-        i(ADD, TI, LDA, frameDataAddr, LDA, newTask, I, 0d0);
+        i(ADD, TI, P, frameDataAddr, P, newTask, I, 0d0);
         Args();
         Admin(AWAIT_TASK, newTask);
     }
 
     arg(Variable a, Name methodName) {
-        ArgsCopy(G, R, L, methodName, L, index, ADA, a, LDA, frameDataAddr);
-        ~ m(COPY, TII, LDA, frameDataAddr, ADA, a, ADS, a);
-        ~ i(ADD, TI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
+        ArgsCopy(G, R, L, methodName, L, index, P, a, P, frameDataAddr);
+        ~ m(COPY, TII, P, frameDataAddr, P, a, S, a);
+        ~ i(ADD, TI, P, frameDataAddr, P, frameDataAddr, S, a);
     }
 
 }

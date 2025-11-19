@@ -12,7 +12,7 @@ core.While {
 
     constructor(Int bool, Block loop) {
         Addr start;
-        cb(EQ, TI, ADA, bool.val, I, 0d0, endd);
+        cb(EQ, TI, P, bool.val, I, 0d0, endd);
         Block loop;
         j(REL, I, start);
         Addr endd;
@@ -20,7 +20,7 @@ core.While {
 
     constructor(Boolean bool, Block loop) {
         Addr start;
-        cb(EQ, TI, ADA, bool.val, I, 0d0, endd);
+        cb(EQ, TI, P, bool.val, I, 0d0, endd);
         Block loop;
         j(REL, I, start);
         Addr endd;

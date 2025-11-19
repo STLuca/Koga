@@ -10,14 +10,14 @@ core.Optional<Structure T> {
     Byte[0] val;
 
     constructor() {
-        i(ADD, II, LDA, present, I, 0d0, I, 0d0);
+        i(ADD, II, P, present, I, 0d0, I, 0d0);
         Byte[G T] val;
     }
 
     constructor(T pVal) {
-        i(ADD, II, LDA, present, I, 0d1, I, 0d0);
+        i(ADD, II, P, present, I, 0d1, I, 0d0);
         Byte[G T] val;
-        m(COPY, III, LDA, val, ADA, pVal, G, T);
+        m(COPY, III, P, val, P, pVal, G, T);
     }
 
     get(Int p) {

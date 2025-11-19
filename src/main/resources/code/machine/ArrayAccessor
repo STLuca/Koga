@@ -15,64 +15,64 @@ core.ArrayAccessor<Structure T> {
     Byte[4] addr;
 
     constructor(Array<T> arr) {
-        i(ADD, TI, LDA, start, ADA, arr.start, I, 0d0);
-        i(ADD, TI, LDA, size, ADA, arr.size, I, 0d0);
-        i(ADD, TI, LDA, step, ADA, arr.step, I, 0d0);
-        i(ADD, TI, LDA, addr, LDA, start, I, 0d0);
+        i(ADD, TI, P, start, P, arr.start, I, 0d0);
+        i(ADD, TI, P, size, P, arr.size, I, 0d0);
+        i(ADD, TI, P, step, P, arr.step, I, 0d0);
+        i(ADD, TI, P, addr, P, start, I, 0d0);
     }
 
     constructor(String str) {
-        i(ADD, TI, LDA, start, ADA, str.start, I, 0d0);
-        i(ADD, TI, LDA, size, ADA, str.size, I, 0d0);
-        i(ADD, TI, LDA, step, ADA, str.step, I, 0d0);
-        i(ADD, TI, LDA, addr, LDA, start, I, 0d0);
+        i(ADD, TI, P, start, P, str.start, I, 0d0);
+        i(ADD, TI, P, size, P, str.size, I, 0d0);
+        i(ADD, TI, P, step, P, str.step, I, 0d0);
+        i(ADD, TI, P, addr, P, start, I, 0d0);
     }
 
     index(b12 imm) {
         Byte[4] index;
-        i(ADD, II, LDA, index, I, 0d0, L, imm);
-        math(MULT, TT, LDA, index, LDA, index, LDA, step);
-        i(ADD, TT, LDA, addr, LDA, start, LDA, index);
+        i(ADD, II, P, index, I, 0d0, L, imm);
+        math(MULT, TT, P, index, P, index, P, step);
+        i(ADD, TT, P, addr, P, start, P, index);
     }
 
     index(Int int) {
         Byte[4] index;
-        i(ADD, TI, LDA, index, ADA, int.val, I, 0d0);
-        math(MULT, TT, LDA, index, LDA, index, LDA, step);
-        i(ADD, TT, LDA, addr, LDA, start, LDA, index);
+        i(ADD, TI, P, index, P, int.val, I, 0d0);
+        math(MULT, TT, P, index, P, index, P, step);
+        i(ADD, TT, P, addr, P, start, P, index);
     }
 
     indexInt(Int int) {
         Byte[4] index;
-        i(ADD, TI, LDA, index, ADA, int.val, I, 0d0);
-        math(MULT, TT, LDA, index, LDA, index, LDA, step);
-        i(ADD, TT, LDA, addr, LDA, start, LDA, index);
+        i(ADD, TI, P, index, P, int.val, I, 0d0);
+        math(MULT, TT, P, index, P, index, P, step);
+        i(ADD, TT, P, addr, P, start, P, index);
     }
 
     next() {
         ~ Bounds checking
-        i(ADD, TT, LDA, addr, LDA, addr, LDA, step);
+        i(ADD, TT, P, addr, P, addr, P, step);
     }
 
     previous() {
         ~ Bounds checking
-        i(SUB, TT, LDA, addr, LDA, addr, LDA, step);
+        i(SUB, TT, P, addr, P, addr, P, step);
     }
 
     copyTo(Pointer<T> valPtr) {
-        m(COPY, TTT, ADA, valPtr.addr, LDA, addr, LDA, step);
+        m(COPY, TTT, P, valPtr.addr, P, addr, P, step);
     }
 
     copyFrom(Pointer<T> valPtr) {
-        m(COPY, TTT, LDA, addr, ADA, valPtr.addr, LDA, step);
+        m(COPY, TTT, P, addr, P, valPtr.addr, P, step);
     }
 
     copyTo(T val) {
-        m(COPY, ITI, ADA, val, LDA, addr, G, T);
+        m(COPY, ITI, P, val, P, addr, G, T);
     }
 
     copyFrom(T val) {
-        m(COPY, TII, LDA, addr, ADA, val, G, T);
+        m(COPY, TII, P, addr, P, val, G, T);
     }
 
 

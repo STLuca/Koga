@@ -13,10 +13,10 @@ core.AdminRef {
         c(ADDR, LI, methodAddr, table, methodSymbol);
 
         Byte[4] frameDataAddr;
-        i(ADD, LI, LDA, frameDataAddr, R, altTask, I, 0d0);
+        i(ADD, LI, P, frameDataAddr, R, altTask, I, 0d0);
         Args();
 
-        logician(START_ADMIN, T, LDA, methodAddr);
+        logician(START_ADMIN, T, P, methodAddr);
     }
 
     invoke(Name methodName) {
@@ -25,15 +25,15 @@ core.AdminRef {
         c(ADDR, LI, methodAddr, table, methodSymbol);
 
         Byte[4] frameDataAddr;
-        i(ADD, LI, LDA, frameDataAddr, R, altTask, I, 0d0);
+        i(ADD, LI, P, frameDataAddr, R, altTask, I, 0d0);
         Args();
 
-        logician(START_ADMIN, T, LDA, methodAddr);
+        logician(START_ADMIN, T, P, methodAddr);
     }
 
     arg(Variable a, Name methodName) {
-        m(COPY, TII, LDA, frameDataAddr, ADA, a, ADS, a);
-        i(ADD, TI, LDA, frameDataAddr, LDA, frameDataAddr, ADS, a);
+        m(COPY, TII, P, frameDataAddr, P, a, S, a);
+        i(ADD, TI, P, frameDataAddr, P, frameDataAddr, S, a);
     }
 
 }

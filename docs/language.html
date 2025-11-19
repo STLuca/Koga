@@ -218,15 +218,15 @@
         byte[4] val;
 
         constructor Int(b32 imm) {
-            l(ADD, II, LDA, val, I, 0d0, L, imm);
+            l(ADD, II, P, val, I, 0d0, L, imm);
         }
 
         plus(b32 imm) {
-            l(ADD, AI, LDA, val, LDA, val, L, imm);
+            l(ADD, AI, P, val, P, val, L, imm);
         }
 
         plus(Int in) {
-            l(ADD, AA, LDA, val, LDA, val, ADA, in.val);
+            l(ADD, AA, P, val, P, val, P, in.val);
         }
     }
     </code>
@@ -248,7 +248,7 @@
     <p>
         Take this small example of an Int and its usage.<br/>
         <code>Int x 0</code> - this statement constructs a variable x using the Int structure. It runs the matched Int constructor i.e. a no name constructor that takes a single immediate argument.<br/>
-        In this case, when compiling the main methods first statement, 4 bytes will be allocated along with the one instruction <code>l(ADD, II, LDA, val, I, 0d0, L, imm);</code>
+        In this case, when compiling the main methods first statement, 4 bytes will be allocated along with the one instruction <code>l(ADD, II, P, val, I, 0d0, L, imm);</code>
         Int methods can now be called on the variable x, in essence doing the same thing as the constructor e.g. <code>x plus(5);</code>.
     </p>
 

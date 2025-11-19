@@ -56,16 +56,16 @@ public class AdminStatement implements Statement {
         allocation = new Scope.Allocation(4, location);
         scope.put(frameDataAddr, allocation);
 
-        new InstructionStatement("c", "ADDR", "LI", "LDA", methodAddr, "R", "table", "L", methodSymbol).compile(compiler, repository, variable, scope);
-        new InstructionStatement("i", "ADD", "LI", "LDA", frameDataAddr, "R", "altTask", "I", "0d0").compile(compiler, repository, variable, scope);
+        new InstructionStatement("c", "ADDR", "LI", "P", methodAddr, "R", "table", "L", methodSymbol).compile(compiler, repository, variable, scope);
+        new InstructionStatement("i", "ADD", "LI", "P", frameDataAddr, "R", "altTask", "I", "0d0").compile(compiler, repository, variable, scope);
 
         for (int i = 1; i < this.arguments.size(); i++) {
-            new InstructionStatement("m", "COPY", "TII", "LDA", frameDataAddr, "LDA", this.arguments.get(i), "I", "0d4").compile(compiler, repository, variable, scope);
+            new InstructionStatement("m", "COPY", "TII", "P", frameDataAddr, "P", this.arguments.get(i), "I", "0d4").compile(compiler, repository, variable, scope);
             if (i == this.arguments.size() - 1) continue;
-            new InstructionStatement("i","ADD", "TI", "LDA", frameDataAddr, "LDA", frameDataAddr, "I", "0d4").compile(compiler, repository, variable, scope);
+            new InstructionStatement("i","ADD", "TI", "P", frameDataAddr, "P", frameDataAddr, "I", "0d4").compile(compiler, repository, variable, scope);
         }
 
-        new InstructionStatement("logician", "START_ADMIN", "T", "LDA", methodAddr).compile(compiler, repository, variable, scope);
+        new InstructionStatement("logician", "START_ADMIN", "T", "P", methodAddr).compile(compiler, repository, variable, scope);
     }
 
 }

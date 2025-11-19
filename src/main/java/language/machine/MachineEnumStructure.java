@@ -56,10 +56,10 @@ public class MachineEnumStructure implements Structure {
         variable.put(data.name, new Scope.Allocation(data.size, allocation));
 
         // instructions
-        // l(ADD, II, LDA, data.name, I, 0d0, I, literal);
-        // compiler.instruction("l", "ADD", "II", "LDA", data.name, "I", "0d0", "I", literal);
+        // l(ADD, II, P, data.name, I, 0d0, I, literal);
+        // compiler.instruction("l", "ADD", "II", "P", data.name, "I", "0d0", "I", literal);
         Scope operationScope = scope.startOperation(variable, constructorName);
-        new InstructionStatement("i", "ADD", "II", "LDA", data.name, "I", "0d0", "I", literal).compile(compiler, repository, variable, operationScope);
+        new InstructionStatement("i", "ADD", "II", "P", data.name, "I", "0d0", "I", literal).compile(compiler, repository, variable, operationScope);
     }
     
     public void operate(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope variable, String operationName, List<String> arguments) {
@@ -90,7 +90,7 @@ public class MachineEnumStructure implements Structure {
             if (literal == null) throw new RuntimeException("Literal " + literalName + " doesn't exist");
 
 
-            // cb(NEQ, AI, LDA, val, I, literal, instruction);
+            // cb(NEQ, AI, P, val, I, literal, instruction);
             // block;
             // j(REL, I, END);
             // Addr instruction;
@@ -98,7 +98,7 @@ public class MachineEnumStructure implements Structure {
             int addr = compiler.address();
             Scope.Allocation afterAllocation = new Scope.Allocation(4, addr);
             operationScope.put(instruction, afterAllocation);
-            new InstructionStatement("cb", "NEQ", "TI", "LDA", "val", "I", literal, instruction).compile(compiler, repository, variable, operationScope);
+            new InstructionStatement("cb", "NEQ", "TI", "P", "val", "I", literal, instruction).compile(compiler, repository, variable, operationScope);
             block.execute(compiler, operationScope);
             new InstructionStatement("j", "REL", "I", "end").compile(compiler, repository, variable, operationScope);
 

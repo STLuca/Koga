@@ -9,9 +9,9 @@ core.Throw {
         f(GET_CURR_FRAME, frame);
         Addr searchStart;
         f(GET_HANDLER, handler, frame);
-        cb(NEQ, TI, LDA, handler, IL, 0d0, handlerExecute);
+        cb(NEQ, TI, LDA, handler, I, 0d0, handlerExecute);
         f(GET_RETURN, frame, frame);
-        cb(NEQ, TI, LDA, frame, IL, 0d0, searchStart);
+        cb(NEQ, TI, LDA, frame, I, 0d0, searchStart);
         Admin(EXIT);
         Addr handlerExecute;
         f(SET_INSTRUCTION, frame, handler);

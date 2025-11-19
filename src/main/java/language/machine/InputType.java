@@ -5,7 +5,7 @@ import language.core.Structure;
 
 enum InputType {
     R,     // register
-    IL,    // immediate literal,
+    I,     // immediate,
     AL,    // argument literal,
     CL,    // Context literal,
     LDA,   // local data address,
@@ -33,7 +33,7 @@ enum InputType {
                 };
                 return new Resolved(4, index);
             }
-            case IL -> {
+            case I -> {
                 return new Resolved(4, parseLiteral(toResolve));
             }
             case AL -> {

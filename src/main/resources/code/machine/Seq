@@ -10,27 +10,27 @@ core.Seq {
         Byte[4] statusParamAddr;
         i(ADD, LI, LDA, statusAddr, R, task, LDA, status);
         ~ status pointer is 20 bytes into the admin area
-        i(ADD, LI, LDA, statusParamAddr, R, altTask, IL, 0d20);
+        i(ADD, LI, LDA, statusParamAddr, R, altTask, I, 0d20);
 
         Byte[4] awaitTaskAddr;
-        i(ADD, LI, LDA, awaitTaskAddr, R, altTask, IL, 0d0);
+        i(ADD, LI, LDA, awaitTaskAddr, R, altTask, I, 0d0);
 
         Block createTask {
             m(COPY, TII, LDA, statusParamAddr, LDA, statusAddr, LDS, status);
             Byte[4] adminTaskMethod;
-            Symbol(METHOD, adminTaskSymbol, IL, core.Administrator, IL, task);
+            Symbol(METHOD, adminTaskSymbol, I, core.Administrator, I, task);
             c(ADDR, LI, adminTaskMethod, table, adminTaskSymbol);
             logician(START_ADMIN, T, LDA, adminTaskMethod);
         };
 
         Block taskReady {
             Byte[4] adminScheduleMethod;
-            Symbol(METHOD, adminScheduleSymbol, IL, core.Administrator, IL, awaitTask);
+            Symbol(METHOD, adminScheduleSymbol, I, core.Administrator, I, awaitTask);
             c(ADDR, LI, adminScheduleMethod, table, adminScheduleSymbol);
-            i(ADD, LI, LDA, awaitTaskAddr, R, altTask, IL, 0d0);
-            m(COPY, TII, LDA, awaitTaskAddr, CL, task, IL, 0d4);
+            i(ADD, LI, LDA, awaitTaskAddr, R, altTask, I, 0d0);
+            m(COPY, TII, LDA, awaitTaskAddr, CL, task, I, 0d4);
             logician(START_ADMIN, T, LDA, adminScheduleMethod);
-            cb(NEQ, TI, LDA, status, IL, 0d0, fail);
+            cb(NEQ, TI, LDA, status, I, 0d0, fail);
         };
 
         Block try;

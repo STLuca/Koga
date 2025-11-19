@@ -57,12 +57,12 @@ public class AdminStatement implements Statement {
         scope.put(frameDataAddr, allocation);
 
         new InstructionStatement("c", "ADDR", "LI", "LDA", methodAddr, "R", "table", "AL", methodSymbol).compile(compiler, repository, variable, scope);
-        new InstructionStatement("i", "ADD", "LI", "LDA", frameDataAddr, "R", "altTask", "IL", "0d0").compile(compiler, repository, variable, scope);
+        new InstructionStatement("i", "ADD", "LI", "LDA", frameDataAddr, "R", "altTask", "I", "0d0").compile(compiler, repository, variable, scope);
 
         for (int i = 1; i < this.arguments.size(); i++) {
-            new InstructionStatement("m", "COPY", "TII", "LDA", frameDataAddr, "LDA", this.arguments.get(i), "IL", "0d4").compile(compiler, repository, variable, scope);
+            new InstructionStatement("m", "COPY", "TII", "LDA", frameDataAddr, "LDA", this.arguments.get(i), "I", "0d4").compile(compiler, repository, variable, scope);
             if (i == this.arguments.size() - 1) continue;
-            new InstructionStatement("i","ADD", "TI", "LDA", frameDataAddr, "LDA", frameDataAddr, "IL", "0d4").compile(compiler, repository, variable, scope);
+            new InstructionStatement("i","ADD", "TI", "LDA", frameDataAddr, "LDA", frameDataAddr, "I", "0d4").compile(compiler, repository, variable, scope);
         }
 
         new InstructionStatement("logician", "START_ADMIN", "T", "LDA", methodAddr).compile(compiler, repository, variable, scope);

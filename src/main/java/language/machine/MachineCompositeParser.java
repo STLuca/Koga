@@ -348,7 +348,7 @@ public class MachineCompositeParser implements Parser {
                     if (curr != OP_SQ_BRACKET) scanner.fail("[");
                     curr = scanner.next(tokens);
                     if (curr == NUMBER) {
-                        ds.sizes.add("IL");
+                        ds.sizes.add("I");
                     } else {
                         ds.sizes.add(curr.matched());
                         curr = scanner.next(tokens);

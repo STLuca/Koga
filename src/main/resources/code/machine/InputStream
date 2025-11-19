@@ -11,14 +11,14 @@ core.InputStream {
     Byte[4] current;
 
     constructor(Int in) {
-        i(ADD, TI, LDA, root, ADA, in.val, IL, 0d0);
-        i(ADD, TI, LDA, current, ADA, in.val, IL, 0d0);
+        i(ADD, TI, LDA, root, ADA, in.val, I, 0d0);
+        i(ADD, TI, LDA, current, ADA, in.val, I, 0d0);
     }
 
     constructor port() {
         i(ADD, LI, LDA, root, R, task, LDA, root);
         Admin(PORT, root);
-        i(ADD, TI, LDA, current, LDA, root, IL, 0d0);
+        i(ADD, TI, LDA, current, LDA, root, I, 0d0);
     }
 
     peek(Int x) {
@@ -27,11 +27,11 @@ core.InputStream {
 
     readToInt(Int x) {
         m(COPY, ITI, ADA, x, LDA, current, ADS, x);
-        i(ADD, TI, LDA, current, LDA, current, IL, 0d4);
+        i(ADD, TI, LDA, current, LDA, current, I, 0d4);
     }
 
     readToString(String s) {
-        i(ADD, TI, ADA, s.start, LDA, current, IL, 0d0);
+        i(ADD, TI, ADA, s.start, LDA, current, I, 0d0);
         i(ADD, TT, current, current, s.size);
     }
 
@@ -43,10 +43,10 @@ core.InputStream {
     wait() {
         Addr end;
         Byte[4] in;
-        i(ADD, II, LDA, in, IL, 0d0, IL, 0d0);
+        i(ADD, II, LDA, in, I, 0d0, I, 0d0);
         Addr read;
         m(COPY, ITI, LDA, in, LDA, current, LDS, in);
-        cb(NEQ, TI, LDA, in, IL, 0d0, end);
+        cb(NEQ, TI, LDA, in, I, 0d0, end);
         j(REL, I, read);
         Addr end;
     }

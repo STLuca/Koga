@@ -16,15 +16,15 @@ core.Int {
     constructor(b32 imm) {
         ~ Here is another comment
         ~ in fact what about two in a row
-        i(ADD, II, LDA, val, IL, 0d0, AL, imm);
+        i(ADD, II, LDA, val, I, 0d0, AL, imm);
     }
 
     constructor(Int copy) {
-        i(ADD, TI, LDA, val, ADA, copy.val, IL, 0d0);
+        i(ADD, TI, LDA, val, ADA, copy.val, I, 0d0);
     }
 
     constructor(Char char) {
-        i(ADD, TI, LDA, val, ADA, char.val, IL, 0d0);
+        i(ADD, TI, LDA, val, ADA, char.val, I, 0d0);
     }
 
     constructor port() {
@@ -34,43 +34,43 @@ core.Int {
     }
 
     constructor task() {
-        i(ADD, LI, LDA, val, R, task, IL, 0d0);
+        i(ADD, LI, LDA, val, R, task, I, 0d0);
     }
 
     constructor altTask() {
-        i(ADD, LI, LDA, val, R, altTask, IL, 0d0);
+        i(ADD, LI, LDA, val, R, altTask, I, 0d0);
     }
 
     constructor altMethod() {
-        i(ADD, LI, LDA, val, R, altInstruction, IL, 0d0);
+        i(ADD, LI, LDA, val, R, altInstruction, I, 0d0);
     }
 
     constructor currentObject() {
-        i(ADD, LI, LDA, val, R, object, IL, 0d0);
+        i(ADD, LI, LDA, val, R, object, I, 0d0);
     }
 
     constructor currentTable() {
-        i(ADD, LI, LDA, val, R, table, IL, 0d0);
+        i(ADD, LI, LDA, val, R, table, I, 0d0);
     }
 
     constructor pageOne(Connection connection) {
-        i(ADD, TI, LDA, val, ADA, connection.pageOne, IL, 0d0);
+        i(ADD, TI, LDA, val, ADA, connection.pageOne, I, 0d0);
     }
 
     constructor pageTwo(Connection connection) {
-        i(ADD, TI, LDA, val, ADA, connection.pageTwo, IL, 0d0);
+        i(ADD, TI, LDA, val, ADA, connection.pageTwo, I, 0d0);
     }
 
     constructor instance(Connection connection) {
-        i(ADD, TI, LDA, val, ADA, connection.instance, IL, 0d0);
+        i(ADD, TI, LDA, val, ADA, connection.instance, I, 0d0);
     }
 
     constructor pointerAddr(Pointer p) {
-        i(ADD, TI, LDA, val, ADA, p.addr, IL, 0d0);
+        i(ADD, TI, LDA, val, ADA, p.addr, I, 0d0);
     }
 
     set(b32 imm) {
-        i(ADD, II, LDA, val, AL, imm, IL, 0d0);
+        i(ADD, II, LDA, val, AL, imm, I, 0d0);
     }
 
     plus(b32 imm) {
@@ -106,7 +106,7 @@ core.Int {
     }
 
     set(Int x) {
-        i(ADD, TI, LDA, val, ADA, x.val, IL, 0d0);
+        i(ADD, TI, LDA, val, ADA, x.val, I, 0d0);
     }
 
     lessThan(b32 imm, Boolean dest) {
@@ -159,7 +159,7 @@ core.Int {
     ~ Delete
     makeBlock(Block b) {
         Block super {
-            i(ADD, TI, LDA, val, CL, int, IL, 0d10);
+            i(ADD, TI, LDA, val, CL, int, I, 0d10);
         };
         Block b;
     }

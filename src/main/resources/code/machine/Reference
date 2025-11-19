@@ -11,19 +11,19 @@ core.Reference<Document R> {
     Byte[4] objectTable;
 
     constructor(b16 imm) {
-        i(ADD, II, LDA, objectAddr, IL, 0d0, AL, imm);
+        i(ADD, II, LDA, objectAddr, I, 0d0, AL, imm);
         Symbol(CLASS, classSymbol, LG, R);
         c(ADDR, LI, objectTable, table, classSymbol);
     }
 
     constructor this() {
-        i(ADD, LI, LDA, objectAddr, R, object, IL, 0d0);
-        i(ADD, LI, LDA, objectTable, R, table, IL, 0d0);
+        i(ADD, LI, LDA, objectAddr, R, object, I, 0d0);
+        i(ADD, LI, LDA, objectTable, R, table, I, 0d0);
     }
 
     constructor alt() {
-        i(ADD, LI, LDA, objectAddr, R, altObject, IL, 0d0);
-        i(ADD, LI, LDA, objectTable, R, altTable, IL, 0d0);
+        i(ADD, LI, LDA, objectAddr, R, altObject, I, 0d0);
+        i(ADD, LI, LDA, objectTable, R, altTable, I, 0d0);
     }
 
     constructor new() {
@@ -41,7 +41,7 @@ core.Reference<Document R> {
         Byte[4] methodAddr;
         Byte[4] newTask;
 
-        i(ADD, LI, LDA, adminTask, R, altTask, IL, 0d0);
+        i(ADD, LI, LDA, adminTask, R, altTask, I, 0d0);
         i(ADD, LI, LDA, newTask, R, task, LDA, newTask);
         Symbol(METHOD, methodSymbol, LG, R, AL, methodName);
         c(SIZE, LI, frameSize, table, methodSymbol);
@@ -67,21 +67,21 @@ core.Reference<Document R> {
             m(COPY, TII, LDA, adminTask, LDA, status, LDS, status);
 
             Byte[4] adminTaskMethod;
-            Symbol(METHOD, adminTaskSymbol, IL, core.Administrator, IL, task);
+            Symbol(METHOD, adminTaskSymbol, I, core.Administrator, I, task);
             c(ADDR, LI, adminTaskMethod, table, adminTaskSymbol);
             logician(START_ADMIN, T, LDA, adminTaskMethod);
         };
 
         Byte[4] frameDataAddr;
-        i(ADD, TI, LDA, frameDataAddr, LDA, newTask, IL, 0d0);
+        i(ADD, TI, LDA, frameDataAddr, LDA, newTask, I, 0d0);
         Args();
 
         Context(IMPLICIT, task, LDA, newTask);
         Block taskReady default {
             Byte[4] adminScheduleMethod;
-            Symbol(METHOD, adminScheduleSymbol, IL, core.Administrator, IL, awaitTask);
+            Symbol(METHOD, adminScheduleSymbol, I, core.Administrator, I, awaitTask);
             c(ADDR, LI, adminScheduleMethod, table, adminScheduleSymbol);
-            i(ADD, LI, LDA, adminTask, R, altTask, IL, 0d0);
+            i(ADD, LI, LDA, adminTask, R, altTask, I, 0d0);
             m(COPY, TII, LDA, adminTask, LDA, newTask, LDS, newTask);
             logician(START_ADMIN, T, LDA, adminScheduleMethod);
         };

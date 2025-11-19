@@ -11,7 +11,7 @@ core.If {
 
     constructor(Int bool, Block block) {
         Addr after;
-        cb(EQ, TI, ADA, bool.val, IL, 0d0, after);
+        cb(EQ, TI, ADA, bool.val, I, 0d0, after);
         Block block;
         j(REL, I, end);
         Addr after;
@@ -19,7 +19,7 @@ core.If {
     }
 
     constructor(Boolean bool, Block block) {
-        cb(EQ, TI, ADA, bool.val, IL, 0d0, after);
+        cb(EQ, TI, ADA, bool.val, I, 0d0, after);
         Block block;
         j(REL, I, end);
         Addr after;
@@ -28,7 +28,7 @@ core.If {
 
     elseIf(Int bool, Block block) {
         Position end prev;
-        cb(EQ, TI, ADA, bool.val, IL, 0d0, after);
+        cb(EQ, TI, ADA, bool.val, I, 0d0, after);
         Block block;
         j(REL, I, end);
         Addr after;
@@ -37,7 +37,7 @@ core.If {
 
     elseIf(Boolean bool, Block block) {
         Position end prev;
-        cb(EQ, TI, ADA, bool.val, IL, 0d0, after);
+        cb(EQ, TI, ADA, bool.val, I, 0d0, after);
         Block block;
         j(REL, I, end);
         Addr after;

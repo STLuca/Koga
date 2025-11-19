@@ -11,8 +11,8 @@ core.InterfaceReference<Document R> {
     Byte[4] interfaceTable;
 
     constructor(Reference r) {
-        i(ADD, TI, LDA, objectAddr, ADA, r.objectAddr, IL, 0d0);
-        i(ADD, TI, LDA, objectTable, ADA, r.objectTable, IL, 0d0);
+        i(ADD, TI, LDA, objectAddr, ADA, r.objectAddr, I, 0d0);
+        i(ADD, TI, LDA, objectTable, ADA, r.objectTable, I, 0d0);
         Byte[2] interfaceClassSymbol;
         Symbol(INTERFACE, interfaceClassSymbol, AG, r.R, LG, R);
         c(ADDR, LI, interfaceTable, table, interfaceClassSymbol);
@@ -36,7 +36,7 @@ core.InterfaceReference<Document R> {
 
 
         Byte[4] frameDataAddr;
-        i(ADD, TI, LDA, frameDataAddr, LDA, newTask, IL, 0d0);
+        i(ADD, TI, LDA, frameDataAddr, LDA, newTask, I, 0d0);
         Args();
         Admin(AWAIT_TASK, newTask);
     }

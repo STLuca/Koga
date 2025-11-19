@@ -106,7 +106,7 @@
         byte[1] val;
 
         constructor(b8 imm) {
-            integer(ADD, II, LDA, val, IL, 0d0, AL, imm);
+            integer(ADD, II, LDA, val, I, 0d0, AL, imm);
         }
 
         plus(b8 imm) {
@@ -125,11 +125,11 @@
         byte[4] val;
 
         constructor(b32 imm) {
-            integer(ADD, II, LDA, val, IL, 0d0, AL, imm);
+            integer(ADD, II, LDA, val, I, 0d0, AL, imm);
         }
 
         constructor(Int copy) {
-            integer(ADD, TI, LDA, val, ADA, copy.val, IL, 0d0);
+            integer(ADD, TI, LDA, val, ADA, copy.val, I, 0d0);
         }
 
         plus(b32 imm) {
@@ -215,7 +215,7 @@
         The resolvable types are:
     </p>
     <ul>
-        <li>Immediate literal (IL) - 0d1, 0b0110</li>
+        <li>Immediate (I) - 0d1, 0b0110</li>
         <li>
             Argument literal (AL) - these are literal values passed in when invoking the operation or constructor.
             In ByteAndIntTest, these would be 0, 10, 25, 111.
@@ -229,7 +229,7 @@
     <pre>
     <code>
     constructor(b32 imm) {
-        integer(ADD, II, LDA, val, IL, 0d0, AL, imm);
+        integer(ADD, II, LDA, val, I, 0d0, AL, imm);
     }
     </code>
     </pre>
@@ -245,7 +245,7 @@
             The result will be the destination of our addition i.e. the address we store the result.
         </li>
         <li>
-            IL, 0d0 - Just like above, only this time we say to resolve 0d0 as a literal. This will then resolve to 0.
+            I, 0d0 - Just like above, only this time we say to resolve 0d0 as a literal. This will then resolve to 0.
         </li>
         <li>
             AL, imm - Resolve the value imm as an argument literal.
@@ -275,7 +275,7 @@
         byte[1] val;
 
         constructor(b1 imm) {
-            l(ADD, II, LDA, val, IL, 0d0, AL, imm);
+            l(ADD, II, LDA, val, I, 0d0, AL, imm);
         }
 
     }
@@ -295,7 +295,7 @@
         Addr end;
 
         constructor(Boolean bool, Block block) {
-            conditionalBranch(EQ, TI, ADA, bool.val, IL, 0d0, after);
+            conditionalBranch(EQ, TI, ADA, bool.val, I, 0d0, after);
             Block block;
             jump(REL, I, end);
             Addr after;
@@ -304,7 +304,7 @@
 
         elseIf(Boolean bool, Block block) {
             Position end;
-            conditionalBranch(EQ, TI, ADA, bool.val, IL, 0d0, after);
+            conditionalBranch(EQ, TI, ADA, bool.val, I, 0d0, after);
             Block block;
             jump(REL, I, end);
             Addr after;
@@ -417,7 +417,7 @@
         ...
 
         constructor(Int bool, Block block) {
-            cb(EQ, TI, ADA, bool.val, IL, 0d0, after);
+            cb(EQ, TI, ADA, bool.val, I, 0d0, after);
             Block block;
             j(REL, I, end);
             Addr after;
@@ -447,7 +447,7 @@
 
         constructor(Int bool, Block loop) {
             Addr start;
-            conditionalBranch(EQ, TI, ADA, bool.val, IL, 0d0, end);
+            conditionalBranch(EQ, TI, ADA, bool.val, I, 0d0, end);
             Block loop;
             jump(REL, I, start);
             Addr end;
@@ -767,8 +767,8 @@
         constructor() {}
 
         constructor(b12 imm) {
-            i(ADD, II, LDA, size, IL, 0d0, AL, imm);
-            i(ADD, II, LDA, step, IL, 0d0, LG, T);
+            i(ADD, II, LDA, size, I, 0d0, AL, imm);
+            i(ADD, II, LDA, step, I, 0d0, LG, T);
             Byte[AL imm][LG T] data;
             i(ADD, LI, LDA, start, R, task, LDA, data);
         }
@@ -789,15 +789,15 @@
         byte[4] addr;
 
         constructor(Array arr) {
-            integer(ADD, TI, LDA, start, ADA, arr.start, IL, 0d0);
-            integer(ADD, TI, LDA, size, ADA, arr.size, IL, 0d0);
-            integer(ADD, TI, LDA, step, ADA, arr.step, IL, 0d0);
-            integer(ADD, TI, LDA, addr, LDA, start, IL, 0d0);
+            integer(ADD, TI, LDA, start, ADA, arr.start, I, 0d0);
+            integer(ADD, TI, LDA, size, ADA, arr.size, I, 0d0);
+            integer(ADD, TI, LDA, step, ADA, arr.step, I, 0d0);
+            integer(ADD, TI, LDA, addr, LDA, start, I, 0d0);
         }
 
         index(b12 imm) {
             byte[4] index;
-            integer(ADD, II, LDA, index, IL, 0d0, AL, imm);
+            integer(ADD, II, LDA, index, I, 0d0, AL, imm);
             integer(MUL, TT, LDA, index, LDA, index, LDA, step);
             integer(ADD, TT, LDA, addr, LDA, start, LDA, index);
         }
@@ -872,13 +872,13 @@
             Symbol(CONST, constSymbol, AL, const);
             class(ADDR, LI, start, table, constSymbol);
             class(SIZE, LI, size, table, constSymbol);
-            i(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+            i(ADD, II, LDA, step, I, 0d0, I, 0d1);
         }
 
         constructor(b8[] const) {
             class(ADDR, I, start, const);
             class(SIZE, I, size, const);
-            integer(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+            integer(ADD, II, LDA, step, I, 0d0, I, 0d1);
         }
 
         equalTo(String in, Boolean dest) {
@@ -1089,7 +1089,7 @@
             class(ADDR, I, methodAddr, methodSymbol);
 
             byte[4] adminTaskMethod;
-            symbol(METHOD, adminTaskSymbol, IL, Administrator, IL, task);
+            symbol(METHOD, adminTaskSymbol, I, Administrator, I, task);
             class(ADDR, I, adminTaskMethod, adminTaskSymbol);
             byte[4] adminTask;
             logician(GET_ALT_TASK, adminTask);
@@ -1105,11 +1105,11 @@
             logician(START_ADMIN, LDA, adminTaskMethod);
 
             byte[4] frameDataAddr;
-            integer(ADD, TI, LDA, frameDataAddr, LDA, newFrame, IL, 0d0);
+            integer(ADD, TI, LDA, frameDataAddr, LDA, newFrame, I, 0d0);
             args();
 
             byte[4] adminScheduleMethod;
-            symbol(METHOD, adminScheduleSymbol, IL, Administrator, IL, schedule);
+            symbol(METHOD, adminScheduleSymbol, I, Administrator, I, schedule);
             class(ADDR, I, adminScheduleMethod, adminScheduleSymbol);
             logician(GET_ALT_TASK, adminTask);
             memory(COPY, PA, LDA, adminTask, LDA, newFrame, LDS, newFrame);
@@ -1700,27 +1700,27 @@
             byte[4] statusParamAddr;
             l(ADD, RI, LDA, statusAddr, R, task, LDA, status);
             ~ status pointer is 20 bytes into the admin area
-            integer(ADD, RI, LDA, statusParamAddr, R, altTask, IL, 0d20);
+            integer(ADD, RI, LDA, statusParamAddr, R, altTask, I, 0d20);
 
             byte[4] awaitTaskAddr;
-            integer(ADD, RI, LDA, awaitTaskAddr, R, altTask, IL, 0d0);
+            integer(ADD, RI, LDA, awaitTaskAddr, R, altTask, I, 0d0);
 
             context(BLOCK, createTask) {
                 memory(COPY, PA, LDA, statusParamAddr, LDA, statusAddr, LDS, status);
                 byte[4] adminTaskMethod;
-                symbol(METHOD, adminTaskSymbol, IL, Administrator, IL, task);
+                symbol(METHOD, adminTaskSymbol, I, Administrator, I, task);
                 class(ADDR, I, adminTaskMethod, adminTaskSymbol);
                 logician(START_ADMIN, LDA, adminTaskMethod);
             };
 
             context(BLOCK, taskReady) {
                 byte[4] adminScheduleMethod;
-                symbol(METHOD, adminScheduleSymbol, IL, Administrator, IL, awaitTask);
+                symbol(METHOD, adminScheduleSymbol, I, Administrator, I, awaitTask);
                 class(ADDR, I, adminScheduleMethod, adminScheduleSymbol);
-                integer(ADD, RI, LDA, awaitTaskAddr, R, altTask, IL, 0d0);
-                memory(COPY, PA, LDA, awaitTaskAddr, CL, task, IL, 0d4);
+                integer(ADD, RI, LDA, awaitTaskAddr, R, altTask, I, 0d0);
+                memory(COPY, PA, LDA, awaitTaskAddr, CL, task, I, 0d4);
                 logician(START_ADMIN, LDA, adminScheduleMethod);
-                conditionalBranch(NEQ, TI, LDA, status, IL, 0d0, fail);
+                conditionalBranch(NEQ, TI, LDA, status, I, 0d0, fail);
             };
 
             Block try;
@@ -1746,7 +1746,7 @@
             byte[4] methodAddr;
             byte[4] newTask;
 
-            integer(ADD, RI, LDA, adminTask, R, altTask, IL, 0d0);
+            integer(ADD, RI, LDA, adminTask, R, altTask, I, 0d0);
             integer(ADD, RI, LDA, newTask, R, task, LDA, newTask);
             symbol(METHOD, methodSymbol, LG, R, AL, methodName);
             class(SIZE, I, frameSize, methodSymbol);
@@ -1772,21 +1772,21 @@
                 memory(COPY, PA, LDA, adminTask, LDA, status, LDS, status);
 
                 byte[4] adminTaskMethod;
-                symbol(METHOD, adminTaskSymbol, IL, Administrator, IL, task);
+                symbol(METHOD, adminTaskSymbol, I, Administrator, I, task);
                 class(ADDR, I, adminTaskMethod, adminTaskSymbol);
                 logician(START_ADMIN, LDA, adminTaskMethod);
             };
 
             byte[4] frameDataAddr;
-            integer(ADD, TI, LDA, frameDataAddr, LDA, newTask, IL, 0d0);
+            integer(ADD, TI, LDA, frameDataAddr, LDA, newTask, I, 0d0);
             args();
 
             context(IMPLICIT, task, LDA, newTask);
             taskReady {
                 byte[4] adminScheduleMethod;
-                symbol(METHOD, adminScheduleSymbol, IL, Administrator, IL, awaitTask);
+                symbol(METHOD, adminScheduleSymbol, I, Administrator, I, awaitTask);
                 class(ADDR, I, adminScheduleMethod, adminScheduleSymbol);
-                integer(ADD, RI, LDA, adminTask, R, altTask, IL, 0d0);
+                integer(ADD, RI, LDA, adminTask, R, altTask, I, 0d0);
                 memory(COPY, PA, LDA, adminTask, LDA, newTask, LDS, newTask);
                 logician(START_ADMIN, LDA, adminScheduleMethod);
             };

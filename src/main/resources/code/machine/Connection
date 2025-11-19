@@ -12,14 +12,14 @@ core.Connection {
     Byte[4] instance; ~ breaks if before pageOne, not sure why yet
 
     constructor fromArray(Int instance, ArrayAccessor<Int> ptr) {
-        i(ADD, TI, LDA, instance, ADA, instance.val, IL, 0d0);
-        m(COPY, ITI, LDA, pageOne, ADA, ptr.start, IL, 0d8);
+        i(ADD, TI, LDA, instance, ADA, instance.val, I, 0d0);
+        m(COPY, ITI, LDA, pageOne, ADA, ptr.start, I, 0d8);
     }
 
     constructor(Int pageOne, Int pageTwo, Int instance) {
-        i(ADD, TI, LDA, pageOne, ADA, pageOne, IL, 0d0);
-        i(ADD, TI, LDA, pageTwo, ADA, pageTwo, IL, 0d0);
-        i(ADD, TI, LDA, instance, ADA, instance, IL, 0d0);
+        i(ADD, TI, LDA, pageOne, ADA, pageOne, I, 0d0);
+        i(ADD, TI, LDA, pageTwo, ADA, pageTwo, I, 0d0);
+        i(ADD, TI, LDA, instance, ADA, instance, I, 0d0);
     }
 
     constructor connect(Int instance, Name protocol, Name operation) {
@@ -28,7 +28,7 @@ core.Connection {
         c(ADDR, LI, protocolMethodAddr, table, protocolMethodSymbol);
 
         Byte[4] adminConnectMethod;
-        Symbol(METHOD, adminConnectSymbol, IL, core.Administrator, IL, connect);
+        Symbol(METHOD, adminConnectSymbol, I, core.Administrator, I, connect);
         c(ADDR, LI, adminConnectMethod, table, adminConnectSymbol);
 
         Byte[4] this;
@@ -36,7 +36,7 @@ core.Connection {
 
         ~ copy the instance, protocolMethodAddr, and Pointer to this args
         Byte[4] adminTask;
-        i(ADD, LI, LDA, adminTask, R, altTask, IL, 0d0);
+        i(ADD, LI, LDA, adminTask, R, altTask, I, 0d0);
 
         m(COPY, TII, LDA, adminTask, ADA, instance, ADA, instance);
         i(ADD, TI, LDA, adminTask, LDA, adminTask, ADS, instance);

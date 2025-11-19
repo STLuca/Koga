@@ -14,14 +14,14 @@ core.String {
     Byte[4] step;
 
     constructor(Int s) {
-        i(ADD, TI, LDA, size, ADA, s.val, IL, 0d0);
-        i(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+        i(ADD, TI, LDA, size, ADA, s.val, I, 0d0);
+        i(ADD, II, LDA, step, I, 0d0, I, 0d1);
     }
 
     constructor new(Int s) {
-        i(ADD, TI, LDA, size, ADA, s.val, IL, 0d0);
-        i(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
-        i(ADD, LI, LDA, start, R, task, IL, 0d0);
+        i(ADD, TI, LDA, size, ADA, s.val, I, 0d0);
+        i(ADD, II, LDA, step, I, 0d0, I, 0d1);
+        i(ADD, LI, LDA, start, R, task, I, 0d0);
         i(ADD, TI, LDA, start, LDA, start, LDA, start);
         Admin(ALLOCATE, start, size);
     }
@@ -30,21 +30,21 @@ core.String {
         Constant(constSymbol, const);
         c(ADDR, LI, start, table, constSymbol);
         c(SIZE, LI, size, table, constSymbol);
-        i(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+        i(ADD, II, LDA, step, I, 0d0, I, 0d1);
     }
 
     constructor(Name const) {
         Symbol(CONST, constSymbol, AL, const);
         c(ADDR, LI, start, table, constSymbol);
         c(SIZE, LI, size, table, constSymbol);
-        i(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
+        i(ADD, II, LDA, step, I, 0d0, I, 0d1);
     }
 
     constructor readFrom(InputStream in) {
         m(COPY, ITI, LDA, size, ADA, in.current, LDS, size);
-        i(ADD, TI, ADA, in.current, ADA, in.current, IL, 0d4);
-        i(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
-        i(ADD, LI, LDA, start, R, task, IL, 0d0);
+        i(ADD, TI, ADA, in.current, ADA, in.current, I, 0d4);
+        i(ADD, II, LDA, step, I, 0d0, I, 0d1);
+        i(ADD, LI, LDA, start, R, task, I, 0d0);
         i(ADD, TI, LDA, start, LDA, start, LDA, start);
         Admin(ALLOCATE, start, size);
         m(COPY, TTT, LDA, start, ADA, in.current, LDA, size);
@@ -53,9 +53,9 @@ core.String {
 
      readFrom(InputStream in) {
         m(COPY, ITI, LDA, size, ADA, in.current, LDS, size);
-        i(ADD, TI, ADA, in.current, ADA, in.current, IL, 0d4);
-        i(ADD, II, LDA, step, IL, 0d0, IL, 0d1);
-        i(ADD, LI, LDA, start, R, task, IL, 0d0);
+        i(ADD, TI, ADA, in.current, ADA, in.current, I, 0d4);
+        i(ADD, II, LDA, step, I, 0d0, I, 0d1);
+        i(ADD, LI, LDA, start, R, task, I, 0d0);
         i(ADD, TI, LDA, start, LDA, start, LDA, start);
         Admin(ALLOCATE, start, size);
         m(COPY, TTT, LDA, start, ADA, in.current, LDA, size);
@@ -64,7 +64,7 @@ core.String {
 
     copyTo(OutputStream out) {
         m(COPY, TII, ADA, out.current, LDA, size, LDS, size);
-        i(ADD, TI, ADA, out.current, ADA, out.current, IL, 0d4);
+        i(ADD, TI, ADA, out.current, ADA, out.current, I, 0d4);
         m(COPY, TTT, ADA, out.current, LDA, start, LDA, size);
         i(ADD, TI, ADA, out.current, ADA, out.current, LDA, size);
     }
@@ -79,22 +79,22 @@ core.String {
         Byte[4] inAddr;
         Byte[1] inVal;
         Byte[4] endAddr;
-        i(ADD, TI, LDA, thisAddr, LDA, start, IL, 0d0);
-        i(ADD, TI, LDA, inAddr, ADA, in.start, IL, 0d0);
+        i(ADD, TI, LDA, thisAddr, LDA, start, I, 0d0);
+        i(ADD, TI, LDA, inAddr, ADA, in.start, I, 0d0);
         i(ADD, TT, LDA, endAddr, LDA, thisAddr, LDA, size);
         Addr loop;
         cb(EQ, TT, LDA, thisAddr, LDA, endAddr, setTrue);
         m(COPY, ITI, LDA, thisVal, LDA, thisAddr, LDS, thisVal);
         m(COPY, ITI, LDA, inVal, LDA, inAddr, LDS, inVal);
         cb(NEQ, TT, LDA, thisVal, LDA, inVal, setFalse);
-        i(ADD, TI, LDA, thisAddr, LDA, thisAddr, IL, 0d1);
-        i(ADD, TI, LDA, inAddr, LDA, inAddr, IL, 0d1);
+        i(ADD, TI, LDA, thisAddr, LDA, thisAddr, I, 0d1);
+        i(ADD, TI, LDA, inAddr, LDA, inAddr, I, 0d1);
         j(REL, I, loop);
         Addr setTrue;
-        i(ADD, II, ADA, dest.val, IL, 0d1, IL, 0d0);
+        i(ADD, II, ADA, dest.val, I, 0d1, I, 0d0);
         j(REL, I, end);
         Addr setFalse;
-        i(ADD, II, ADA, dest.val, IL, 0d0, IL, 0d0);
+        i(ADD, II, ADA, dest.val, I, 0d0, I, 0d0);
         Addr end;
     }
 

@@ -113,7 +113,7 @@ public class EnumStructure implements language.core.Structure {
         SharedLocationMethodCompiler mc = new SharedLocationMethodCompiler();
         mc.parent = compiler;
         mc.location = location;
-        new InstructionStatement("i", "ADD", "II", "LDA", "type", "IL", "0d0", "IL", "0d" + (index + 1))
+        new InstructionStatement("i", "ADD", "II", "LDA", "type", "I", "0d0", "I", "0d" + (index + 1))
                 .compile(compiler, repository, thisVariable, operationScope);
         Scope structureScope = thisVariable.state(structure, structure.name);
         Scope structConstructorScope = operationScope.startOperation(structureScope, "?");

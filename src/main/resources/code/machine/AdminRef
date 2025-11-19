@@ -9,11 +9,11 @@ core.AdminRef {
 
     constructor init() {
         Byte[4] methodAddr;
-        Symbol(METHOD, methodSymbol, IL, core.Administrator, IL, init);
+        Symbol(METHOD, methodSymbol, I, core.Administrator, I, init);
         c(ADDR, LI, methodAddr, table, methodSymbol);
 
         Byte[4] frameDataAddr;
-        i(ADD, LI, LDA, frameDataAddr, R, altTask, IL, 0d0);
+        i(ADD, LI, LDA, frameDataAddr, R, altTask, I, 0d0);
         Args();
 
         logician(START_ADMIN, T, LDA, methodAddr);
@@ -21,11 +21,11 @@ core.AdminRef {
 
     invoke(Name methodName) {
         Byte[4] methodAddr;
-        Symbol(METHOD, methodSymbol, IL, core.Administrator, AL, methodName);
+        Symbol(METHOD, methodSymbol, I, core.Administrator, AL, methodName);
         c(ADDR, LI, methodAddr, table, methodSymbol);
 
         Byte[4] frameDataAddr;
-        i(ADD, LI, LDA, frameDataAddr, R, altTask, IL, 0d0);
+        i(ADD, LI, LDA, frameDataAddr, R, altTask, I, 0d0);
         Args();
 
         logician(START_ADMIN, T, LDA, methodAddr);

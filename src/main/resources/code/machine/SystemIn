@@ -11,9 +11,9 @@ core.SystemIn {
     Byte[4] current;
 
     constructor() {
-        Symbol(SYSTEM, sysInSymbol, IL, SystemIn);
+        Symbol(SYSTEM, sysInSymbol, I, SystemIn);
         c(ADDR, LI, LDA, root, R, altTable, AL, sysInSymbol);
-        i(ADD, TI, LDA, current, LDA, root, IL, 0d4);
+        i(ADD, TI, LDA, current, LDA, root, I, 0d4);
     }
 
     reset() {
@@ -26,7 +26,7 @@ core.SystemIn {
 
     copyTo(Int x) {
         m(COPY, ITI, ADA, x, LDA, current, ADS, x);
-        i(ADD, TI, LDA, current, LDA, current, IL, 0d4);
+        i(ADD, TI, LDA, current, LDA, current, I, 0d4);
     }
 
     copyToString(String s) {

@@ -23,7 +23,7 @@ public class SymbolStatement implements Statement {
             int index = (i / 2) - 1;
             String input = this.arguments.get(i + 1);
             names[index] = switch (inputType) {
-                case IL -> input;
+                case I -> input;
                 case AL -> {
                     String name = scope.findName(input).orElse(null);
 

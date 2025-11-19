@@ -15,36 +15,36 @@ core.ArrayAccessor<Structure T> {
     Byte[4] addr;
 
     constructor(Array<T> arr) {
-        i(ADD, TI, LDA, start, ADA, arr.start, IL, 0d0);
-        i(ADD, TI, LDA, size, ADA, arr.size, IL, 0d0);
-        i(ADD, TI, LDA, step, ADA, arr.step, IL, 0d0);
-        i(ADD, TI, LDA, addr, LDA, start, IL, 0d0);
+        i(ADD, TI, LDA, start, ADA, arr.start, I, 0d0);
+        i(ADD, TI, LDA, size, ADA, arr.size, I, 0d0);
+        i(ADD, TI, LDA, step, ADA, arr.step, I, 0d0);
+        i(ADD, TI, LDA, addr, LDA, start, I, 0d0);
     }
 
     constructor(String str) {
-        i(ADD, TI, LDA, start, ADA, str.start, IL, 0d0);
-        i(ADD, TI, LDA, size, ADA, str.size, IL, 0d0);
-        i(ADD, TI, LDA, step, ADA, str.step, IL, 0d0);
-        i(ADD, TI, LDA, addr, LDA, start, IL, 0d0);
+        i(ADD, TI, LDA, start, ADA, str.start, I, 0d0);
+        i(ADD, TI, LDA, size, ADA, str.size, I, 0d0);
+        i(ADD, TI, LDA, step, ADA, str.step, I, 0d0);
+        i(ADD, TI, LDA, addr, LDA, start, I, 0d0);
     }
 
     index(b12 imm) {
         Byte[4] index;
-        i(ADD, II, LDA, index, IL, 0d0, AL, imm);
+        i(ADD, II, LDA, index, I, 0d0, AL, imm);
         math(MULT, TT, LDA, index, LDA, index, LDA, step);
         i(ADD, TT, LDA, addr, LDA, start, LDA, index);
     }
 
     index(Int int) {
         Byte[4] index;
-        i(ADD, TI, LDA, index, ADA, int.val, IL, 0d0);
+        i(ADD, TI, LDA, index, ADA, int.val, I, 0d0);
         math(MULT, TT, LDA, index, LDA, index, LDA, step);
         i(ADD, TT, LDA, addr, LDA, start, LDA, index);
     }
 
     indexInt(Int int) {
         Byte[4] index;
-        i(ADD, TI, LDA, index, ADA, int.val, IL, 0d0);
+        i(ADD, TI, LDA, index, ADA, int.val, I, 0d0);
         math(MULT, TT, LDA, index, LDA, index, LDA, step);
         i(ADD, TT, LDA, addr, LDA, start, LDA, index);
     }

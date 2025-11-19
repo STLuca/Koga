@@ -33,7 +33,7 @@ core.Pointer<Structure T> {
     }
 
     constructor atAddr(Int addr) {
-        i(ADD, TI, LDA, addr, ADA, addr.val, IL, 0d0);
+        i(ADD, TI, LDA, addr, ADA, addr.val, I, 0d0);
     }
 
     copyTo(T val) {
@@ -57,7 +57,7 @@ core.Pointer<Structure T> {
     }
 
     set(Int addr) {
-        i(ADD, TI, LDA, addr, ADA, addr.val, IL, 0d0);
+        i(ADD, TI, LDA, addr, ADA, addr.val, I, 0d0);
     }
 
 }

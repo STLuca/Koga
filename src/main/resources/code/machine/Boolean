@@ -5,7 +5,7 @@ core.Boolean {
     Byte[1] val;
 
     constructor(b1 imm) {
-        i(ADD, II, LDA, val, IL, 0d0, AL, imm);
+        i(ADD, II, LDA, val, I, 0d0, AL, imm);
     }
 
     constructor(Block block) {
@@ -15,7 +15,7 @@ core.Boolean {
     }
 
     set(b1 imm) {
-        i(ADD, II, LDA, val, IL, 0d0, AL, imm);
+        i(ADD, II, LDA, val, I, 0d0, AL, imm);
     }
 
     set(Block block) {
@@ -26,7 +26,7 @@ core.Boolean {
 
     and(Block block) {
         Addr end;
-        cb(EQ, TI, LDA, val, IL, 0d0, end);
+        cb(EQ, TI, LDA, val, I, 0d0, end);
         Context(PUSH);
         Block block;
         Context(POP);
@@ -35,7 +35,7 @@ core.Boolean {
 
     or(Block block) {
         Addr end;
-        cb(EQ, TI, LDA, val, IL, 0d1, end);
+        cb(EQ, TI, LDA, val, I, 0d1, end);
         Context(PUSH);
         Block block;
         Context(POP);

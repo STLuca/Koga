@@ -10,12 +10,12 @@ core.Optional<Structure T> {
     Byte[0] val;
 
     constructor() {
-        i(ADD, II, LDA, present, IL, 0d0, IL, 0d0);
+        i(ADD, II, LDA, present, I, 0d0, I, 0d0);
         Byte[LG T] val;
     }
 
     constructor(T pVal) {
-        i(ADD, II, LDA, present, IL, 0d1, IL, 0d0);
+        i(ADD, II, LDA, present, I, 0d1, I, 0d0);
         Byte[LG T] val;
         m(COPY, III, LDA, val, ADA, pVal, LG, T);
     }

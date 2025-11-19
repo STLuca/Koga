@@ -181,7 +181,7 @@ public class MachineReferenceStructure implements Structure {
             InputType methodInType = InputType.valueOf(this.arguments.get(2).toUpperCase());
             input = this.arguments.get(3);
             methodName = switch (methodInType) {
-                case IL -> input;
+                case I -> input;
                 case AL -> scope.findName(input).orElseThrow();
                 default -> throw new RuntimeException();
             };
@@ -201,9 +201,9 @@ public class MachineReferenceStructure implements Structure {
                 new InstructionStatement("i","ADD", "TI", "LDA", "frameDataAddr", "LDA", "frameDataAddr", "ADS", "a").compile(compiler, repository, variable, scope);
             } else if (param.equals("core.Pointer")) {
                 int addrAddr = compiler.data(4);
-                new InstructionStatement("i", "ADD", "LI", "IL", "0d" + addrAddr, "R", "task", "ADA", "a").compile(compiler, repository, variable, scope);
-                new InstructionStatement("m", "COPY", "TII", "LDA", "frameDataAddr", "IL", "0d" + addrAddr, "ADS", "a").compile(compiler, repository, variable, scope);
-                new InstructionStatement("i","ADD", "TI", "LDA", "frameDataAddr", "LDA", "frameDataAddr", "IL", "0d4").compile(compiler, repository, variable, scope);
+                new InstructionStatement("i", "ADD", "LI", "I", "0d" + addrAddr, "R", "task", "ADA", "a").compile(compiler, repository, variable, scope);
+                new InstructionStatement("m", "COPY", "TII", "LDA", "frameDataAddr", "I", "0d" + addrAddr, "ADS", "a").compile(compiler, repository, variable, scope);
+                new InstructionStatement("i","ADD", "TI", "LDA", "frameDataAddr", "LDA", "frameDataAddr", "I", "0d4").compile(compiler, repository, variable, scope);
             } else {
                 throw new RuntimeException("Can't copy to argument");
             }

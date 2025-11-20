@@ -90,7 +90,7 @@
         </li>
         <li>
             A <strong>Structure</strong> is more complicated and has a few methods, all fairly similar to each other: <code>declare</code>, <code>construct</code>, and <code>invoke</code>. Each accept a MethodBuilder.
-            The idea being these are used to build up a operation e.g. the instructions.
+            The idea being these are used to build up a document's method e.g. the instructions.
         </li>
     </ul>
 
@@ -175,7 +175,7 @@
         This is like writing assembly in the style of a Java class.
         Looking at the Int source, it's like it has fields, constructors, and methods.
         It's got one field named "val" which is an address to a sequence of four bytes.
-        The constructor and operation statements here are defined in terms of machine instruction builders.
+        The constructor and operation statements here are defined in terms of machine instruction builders, known as instruction statements.
     </p>
     <p>
         Some Document types have methods, and those methods have instructions. A compiled instruction has:
@@ -184,18 +184,17 @@
         <li>a <strong>type</strong> e.g. integer (i) or jump (j)</li>
         <li>a <strong>subtype</strong> e.g. ADD or AND or OR</li>
         <li>an <strong>source type</strong> e.g. TI, TT.</li>
-        <li><strong>repository</strong></li>
+        <li><strong>source values</strong></li>
     </ul>
     <p>
         An instruction could be written as integer(ADD, TI, 0, 0, 6).
-        Note that an instruction and instruction builder are different.
         This instruction says add the literal value 6 to the value in address 0, store the result in address 0.
     </p>
 
     <p>
         The source type is how the instruction should interpret the source values.
         Each source potentially needs an input type, and these values are chained together into one string e.g. TI, TT.
-        In the case of integer instructions, the first source is treated as a destination value and is implicitly an address.
+        In the case of integer instructions, the first source is treated as a destination value and is implicitly a T.
         The current source types are:
     </p>
     <ul>
@@ -203,28 +202,30 @@
         <li>
             Logician (L) - a register value from the small selection of registers e.g. task address, instruction address, object, table.
         </li>
-        <li>Task (T) - a task relative location of a value to load</li>
+        <li>Task (T) - a task relative location of a value to load. A logician register holds the task location to calculate the location.</li>
     </ul>
 
     <p>
-        The statements in these methods aren't instructions though, they are instruction builders.
-        The difference is the builder repository need to be resolved during compilation.
-        Each source is instead two value, a resolve type and a string value.
-        For example, "P, val" says to use the local data address for the field val i.e. this structure should have a data field named val.
-        If you had a operation with just one Int, then val would compile to 0. If you had two Ints, the second Int's val would be at address 4 as the first Int val uses bytes 0 1 2 3.
+        The statements in these methods aren't instructions though, they are instruction statements.
+        The difference is the source values need to be resolved during compilation, the name val can't be used in a real instruction, it needs numbers.
+        Each source is defined with two value, a resolve type and a string value.
+        For example, "P, val" says to use the allocated (P)osition for the field val.
+        If you had a document method with just one Int, then val would compile to 0. If you had two Ints, the second Int's val would be at position 4 as the first Int val uses bytes 0 1 2 3.
         The resolvable types are:
     </p>
     <ul>
         <li>Immediate (I) - 0d1, 0b0110</li>
-        <li>
-            Argument literal (L) - these are literal values passed in when invoking the operation or constructor.
-            In ByteAndIntTest, these would be 0, 10, 25, 111.
-        </li>
-        <li>Local data address (P) - The address of a local data field e.g. the val data in Int</li>
-        <li>Argument data address (P) - the address of an arguments data field, as shown in the Int copy constructor</li>
+        <li>Literal (L) - these are literal values passed in when invoking the operation or constructor.
+            In ByteAndIntTest, these would be 0, 10, 25, 111.</li>
+        <li>Position (P) - The position of a local or argument allocation e.g. the val allocation in Int, copy.val in the Int construction(Int copy).</li>
+        <li>Size (S) - The size of a local or argument allocation</li>
+        <li>Address (A) - the address of an instruction position</li>
+        <li>Register (R) - the register id for a specific register</li>
+        <li>Generic (G) - information about a generic value e.g. size of a structure, name of a document</li>
     </ul>
     <p>
-        Let's analyse an example of an instruction builder.
+        Let's analyse an example of an instruction statement.
+        This instruction will add the input literal to 0 and store it in the allocation named val.
     </p>
     <pre>
     <code>
@@ -236,25 +237,25 @@
     <ul>
         <li>integer(...) - this defines the instruction type integer, you can also write i(...) for brevity.</li>
         <li>ADD - A subtype of the integer instruction</li>
-        <li>II - The input type, II are for the two repository, both being of type immediate (I).
-            This means the instruction contains the values to use in the add operation.</li>
+        <li>II - The input type, II are for the two sources, both being of type immediate (I).
+            This means the instruction contains the direct values to use in the add operation, no loading from memory is needed.</li>
         <li>
             We now describe three more values in order: the destination, the first source, and the second source.
             Each of these is described with two values, the resolve type and the resolve value.
-            P, val - Here we say resolve the value val as a local data address (P).
-            The result will be the destination of our addition i.e. the address we store the result.
+            P, val - Here we say find the allocation named val and return its allocated position.
+            The result will be the destination of our addition i.e. the position we store the result.
         </li>
         <li>
             I, 0d0 - Just like above, only this time we say to resolve 0d0 as a literal. This will then resolve to 0.
         </li>
         <li>
-            L, imm - Resolve the value imm as an argument literal.
+            L, imm - Resolve the value imm as a literal.
             You can see these values in the constructor statements in ByteAndIntTest.
-            The system parser resolves literals differently, so there the decimal value is implicit (you omit the 0d).
+            The system parser resolves literals differently to the machineComposite parser, so 0d isn't needed.
         </li>
     </ul>
     <p>
-        Now lets look at ByteAndIntTest.
+        Now lets look at the ByteAndIntTest example that uses these structures.
         This uses the host parser, and you can see it declares the imported structures Int and Byte.
         The general structure and operation statements should look familiar.
         Each statement type uses the structures interface in different ways.
@@ -650,7 +651,7 @@
     <p>
         Here's a new parser, machineEnum.
         This creates a Structure just like our other examples and so will be used inside a Host parser in the same way.
-        The difference here though is that the functionality is mostly implemented within the Java code and the enum configuration is quite minimal.
+        The difference here though is that the functionality is mostly implemented within the structure (i.e. the Java code) and the enum configuration is quite minimal.
     </p>
 
     <p>
@@ -667,7 +668,7 @@
 
     <h3 id="Pointer">Pointer</h3>
     <p>
-        Let's have a look at how pointers might be implemented. This example introduces generics, the memory instruction, register source type, and register resolvable type.
+        Let's have a look at how pointers might be implemented.
         Note this is just a basic implementation and generics are underdeveloped as you will see from the use of "Any".
     </p>
     <pre>
@@ -678,15 +679,15 @@
 
         byte[4] addr;
 
-        constructor(Any val) {
+        constructor(T val) {
             integer(ADD, LI, P, addr, R, task, P, val);
         }
 
-        copyTo(Any val) {
+        copyTo(T val) {
             memory(COPY, ITI, P, val, P, addr, G, T);
         }
 
-        copyFrom(Any val) {
+        copyFrom(T val) {
             memory(COPY, TII, P, addr, P, val, G, T);
         }
 
@@ -720,7 +721,7 @@
 
     <p>
         Looking at PointerTest, we construct the pointer at x, copy to y and copy from z.
-        That operation then ends with x:3, y:1, z:3.
+        That method then ends with x:3, y:1, z:3.
     </p>
 
     <p>
@@ -846,8 +847,8 @@
     <p>
         Arrays are similar to pointers.
         There is a "byte[0]" field that gets allocated in the constructor "Byte[L imm][G T] data;".
-        This allocates space in the operation (and thus has to be sized at compile time) using the input value and the size of the generic.
-        In this case, 3 Ints (an Int being 4 bytes) leads to 12 bytes allocated on the operation.
+        This allocates space in the method (and thus has to be sized at compile time) using the input value and the size of the generic.
+        In this case, 3 Ints (an Int being 4 bytes) leads to 12 bytes allocated on the method.
     </p>
     <p>
         You can probably guess what the ArrayAccessor is for.
@@ -922,8 +923,8 @@
 
     <p>
         Host and Hosted documents also have a symbol table/runtime table, and just like everything else, you manipulate this table using the language.
-        Each symbol has two values at runtime, for example a hosted document operation will have a size and address (how much space the operation needs and the instruction address).
-        Looking at some examples you might use runtime values to load the addr of a const, the size of a class, or the address and size of a operation.
+        Each symbol has two values at runtime, for example a hosted document method will have a size and address (how much space the method needs and the instruction address).
+        Looking at some examples you might use runtime values to load the addr of a const, the size of a class, or the address and size of a method.
     </p>
 
     <p>
@@ -935,7 +936,7 @@
 
     <p>
         Strings are very similar to arrays, they have an addr and a size along with a step, though this is always one right now (one byte characters).
-        The addr in a String could reference directly to the constant, or you might allocate space in the operation and address it there, or you might allocate space in your process memory and address it there.
+        The addr in a String could reference directly to the constant, or you might allocate space in the method and address it there, or you might allocate space in your process memory and address it there.
     </p>
 
     <h3 id="Administrator">Administrator</h3>
@@ -1165,17 +1166,17 @@
     </pre>
 
     <p>
-        We can ignore what the operation "second" is doing as it isn't really relevant, it's just some code, fairly verbose code in this case.
-        We're just interested in calling the operation.
+        We can ignore what the method "second" is doing as it isn't really relevant, it's just some code, fairly verbose code in this case.
+        We're just interested in calling the method.
     </p>
 
     <p>
         The Reference code here is rather large and requires some focus and thought to look at.
         The first thing to note is that it uses a new parser named "machineReference".
-        The Structure produced by a machineReference parser is different, running a operation will run the invoke operation using the name of the operation as the argument.
+        The Structure produced by a machineReference parser is different, running a operation will run the invoke operation using the name of the original operation as the argument.
         In our case "this second(p)" uses the Reference variable named "this" and run "second(p)".
         This runs the Reference.invoke operation with "second" as the name argument.
-        All the instructions there are to setup and run the "LocalVariableTest.second" operation.
+        All the instructions there are to setup and run the "LocalVariableTest.second" method.
     </p>
 
     <pre>
@@ -1193,7 +1194,7 @@
     <p>
         Looking at Reference invoke.
         It makes a symbol using the methodName argument.
-        It uses this symbol index to add a table lookup instruction, getting the operation address at runtime.
+        It uses this symbol index to add a table lookup instruction, getting the method address at runtime.
         It then invokes an admin instruction to create a new task.
         Copies over the arguments to this tasks memory space.
         It then invokes an admin instruction to schedule the new task.
@@ -1926,7 +1927,7 @@
     <p>
         The idea still needs further development.
         I do think it can work well though to implement useful concurrency constructs like All or One while keeping the syntax clean.
-        I should note that there is no function colouring either, every operation is invoked as a single task.
+        I should note that there is no function colouring either, every method is invoked as a single task.
         This needs more explaining which will be written elsewhere and another time.
     </p>
 

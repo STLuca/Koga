@@ -51,10 +51,6 @@ public class CompositeStructure implements Structure {
             thisVariable.put(generic.name, g);
         }
 
-        for (String imprt : this.imports) {
-            repository.structure(imprt);
-        }
-
         for (Field f : fields) {
             Structure u;
             Scope.Generic generic = thisVariable.findGeneric(f.structure).orElse(null);

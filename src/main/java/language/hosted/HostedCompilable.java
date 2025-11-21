@@ -40,13 +40,10 @@ public class HostedCompilable implements Compilable {
         compiler.name(name);
         compiler.type(Types.Document.Hosted);
 
-        for (String imprt : this.imports) {
-            repository.structure(imprt);
-        }
-
         for (String dependency : dependencies) {
             compiler.dependency(dependency);
         }
+
         for (String intrface : interfaces) {
             compiler.implementing(intrface);
         }
@@ -56,39 +53,32 @@ public class HostedCompilable implements Compilable {
             compiler.data(f.name, sc.size(repository));
         }
 
+        Scope hostedScope = Scope.rootState();
+        for (Generic g : generics) {
+            Scope.Generic generic = new Scope.Generic();
+            switch (g.type) {
+                case Structure -> {
+                    generic.type = Scope.Generic.Type.Structure;
+                }
+                case null, default -> throw new RuntimeException();
+            }
+            generic.known = false;
+            generic.name = g.name;
+            hostedScope.put(g.name, generic);
+        }
+
         for (Method m : methods) {
             Compiler.MethodCompiler mb = compiler.method();
-            Scope scope = Scope.root();
-            for (Generic g : generics) {
-                Scope.Generic generic = new Scope.Generic();
-                switch (g.type) {
-                    case Structure -> {
-                        generic.type = Scope.Generic.Type.Structure;
-                    }
-                    case null, default -> throw new RuntimeException();
-                }
-                generic.known = false;
-                generic.name = g.name;
-                scope.put(g.name, generic);
-            }
+            Scope scope = Scope.rootOperation(hostedScope);
+
             mb.name(m.name);
 
-//            for (Field f : fields) {
-//                scope.putVariable(f.name);
-//            }
-
             for (Parameter p : m.params) {
-                ArrayList<String> generics = new ArrayList<>();
-                for (Structure.GenericArgument g : p.generics) {
-                    generics.add(g.name);
-                }
-
                 Structure structure = repository.structure(p.structure);
                 mb.parameter(structure.name());
                 structure.declare(mb, repository, scope, p.name, p.generics);
             }
 
-            // handle each statement in the body
             for (Statement stmt : m.statements) {
                 stmt.handle(mb, repository, scope);
             }

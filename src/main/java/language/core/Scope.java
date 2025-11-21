@@ -35,10 +35,23 @@ public class Scope {
     ArrayList<Scope> defaultArgs = new ArrayList<>();
     Scope implicitScope;
 
-    public static Scope root() {
+    public static Scope rootOperation(Scope state) {
         Scope s = new Scope();
         s.implicitScope = new Scope();
+        if (state != null) {
+            s.namedSubScopes.putAll(state.namedSubScopes);
+            s.literals.putAll(state.literals);
+            s.blocks.putAll(state.blocks);
+            s.defaultArgs.addAll(state.defaultArgs);
+            s.allocations.putAll(state.allocations);
+            s.generics.putAll(state.generics);
+            s.addresses.putAll(state.addresses);
+        }
         return s;
+    }
+
+    public static Scope rootState() {
+        return new Scope();
     }
 
     public Scope state(Structure structure, String name) {

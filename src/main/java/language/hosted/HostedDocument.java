@@ -37,4 +37,12 @@ public class HostedDocument implements Document {
     public List<String> implementing() {
         return host.interfaces;
     }
+
+    @Override
+    public Document withParameters(List<Scope.Generic> generics) {
+        if (generics.size() != host.generics.size()) {
+            throw new RuntimeException();
+        }
+        return null;
+    }
 }

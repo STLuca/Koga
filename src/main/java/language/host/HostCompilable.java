@@ -40,10 +40,6 @@ public class HostCompilable implements Compilable {
         compiler.name(name);
         compiler.type(Types.Document.Host);
 
-        for (String imprt : this.imports) {
-            repository.structure(imprt);
-        }
-
         String administrator = null;
         for (String dependency : dependencies) {
             Document document = repository.document(dependency);
@@ -81,28 +77,18 @@ public class HostCompilable implements Compilable {
             compiler.data(f.name, sc.size(repository));
         }
 
+        Scope rootState = Scope.rootState();
         for (Method m : methods) {
             Compiler.MethodCompiler mb = compiler.method();
-            Scope scope = Scope.root();
+            Scope scope = Scope.rootOperation(rootState);
             mb.name(m.name);
 
-//            for (Field f : fields) {
-//                scope.putVariable(f.name);
-//            }
-
-            // declare the parameters
             for (Parameter p : m.params) {
-                ArrayList<String> generics = new ArrayList<>();
-                for (Structure.GenericArgument g : p.generics) {
-                    generics.add(g.name);
-                }
-
                 Structure structure = repository.structure(p.structure);
                 mb.parameter(structure.name());
                 structure.declare(mb, repository, scope, p.name, p.generics);
             }
 
-            // handle each statement in the body
             for (Statement stmt : m.statements) {
                 stmt.handle(mb, repository, scope);
             }

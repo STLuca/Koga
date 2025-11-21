@@ -32,10 +32,6 @@ public class MachineEnumStructure implements Structure {
         variable.put(data.name, new Scope.Allocation(data.size, allocation));
     }
     
-    public void proxy(Repository repository, Scope variable, int location) {
-        throw new RuntimeException("Not supported");
-    }
-    
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
         Scope variable = scope.state(this, name);
 

@@ -72,24 +72,6 @@ public class MachineCompositeStructure implements Structure {
             }
         }
     }
-    
-    public void proxy(Repository repository, Scope variable, int location) {
-        // Setup variable
-        // variable.structure(this);
-        // generics
-
-        // setup data and addresses
-//        for (String address : addresses) {
-//            int addr = compiler.address();
-//            variable.allocations.put(address, new Variable.Allocation(4, addr));
-//        }
-        for (Data v : this.variables) {
-            if (v.size > 0) {
-                variable.put(v.name, new Scope.Allocation(v.size, location));
-                location += v.size;
-            }
-        }
-    }
 
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> arguments) {
         Scope variable = scope.state(this, name);

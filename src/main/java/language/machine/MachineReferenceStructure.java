@@ -52,10 +52,6 @@ public class MachineReferenceStructure implements Structure {
         }
     }
 
-    public void proxy(Repository repository, Scope variable, int location) {
-        throw new RuntimeException("Not supported");
-    }
-
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> arguments) {
         Scope variable = scope.state(this, name);
 

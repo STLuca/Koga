@@ -14,6 +14,6 @@ public class ProxyStatement implements Statement {
 
         int location = allocation.location();
 
-        proxy.structure().proxy(repository, proxy, location);
+        // proxy.structure().proxy(repository, proxy, location);
     }
 }

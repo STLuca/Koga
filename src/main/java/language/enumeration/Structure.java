@@ -27,11 +27,6 @@ class Structure implements language.core.Structure {
     }
 
     @Override
-    public void proxy(Repository repository, Scope variable, int location) {
-
-    }
-
-    @Override
     public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics) {
 
     }

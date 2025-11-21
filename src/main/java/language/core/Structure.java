@@ -13,7 +13,6 @@ public interface Structure {
 
     String name();
     int size(Repository repository);
-    void proxy(Repository repository, Scope variable, int location);
     void declare(
             Compiler.MethodCompiler compiler,
             Repository repository,

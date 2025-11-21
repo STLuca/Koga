@@ -63,10 +63,6 @@ public class CompositeStructure implements Structure {
             u.declare(compiler, repository, thisVariable, fieldName, f.generics);
         }
     }
-
-    public void proxy(Repository repository, Scope variable, int location) {
-
-    }
     
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
         Scope thisVariable = scope.state(this, name);

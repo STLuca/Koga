@@ -29,14 +29,14 @@ public class ContextStatement implements Statement {
                 String name = this.arguments.get(1);
                 InputType inType = InputType.valueOf(this.arguments.get(2));
                 String resolveName = this.arguments.get(3);
-                InputType.Resolved r = inType.resolve(resolveName, scope);
+                InputType.Resolved r = inType.resolve(resolveName, scope, repository);
                 scope.put(name, r.value());
             }
             case IMPLICIT -> {
                 String name = this.arguments.get(1);
                 InputType inType = InputType.valueOf(this.arguments.get(2));
                 String resolveName = this.arguments.get(3);
-                InputType.Resolved r = inType.resolve(resolveName, scope);
+                InputType.Resolved r = inType.resolve(resolveName, scope, repository);
                 scope.implicit().put(name, r.value());
             }
             case REMOVE -> {

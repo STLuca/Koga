@@ -36,8 +36,8 @@ public class MachineCompositeStructure implements Structure {
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            String genericName = generics.get(i).name;
-            Scope.Generic scopeGeneric = scope.findGeneric(genericName).orElse(null);
+            GenericArgument genericName = generics.get(i);
+            Scope.Generic scopeGeneric = scope.findGeneric(genericName.name).orElse(null);
             if (scopeGeneric != null) {
                 variable.put(generic.name, scopeGeneric);
                 continue;
@@ -45,26 +45,28 @@ public class MachineCompositeStructure implements Structure {
             Scope.Generic g = new Scope.Generic();
             g.name = generic.name;
             g.known = true;
+
             switch (generic.type) {
                 case Structure -> {
-                    Structure value = repository.structure(genericName);
+                    Structure value = repository.structure(genericName.name);
                     g.type = Scope.Generic.Type.Structure;
                     g.structure = value;
                     variable.put(generic.name, g);
                 }
                 case Document -> {
-                    language.core.Document doc = repository.document(genericName);
+                    language.core.Document doc = repository.document(genericName.name);
                     g.type = Scope.Generic.Type.Document;
                     g.document = doc;
                     variable.put(generic.name, g);
                 }
             }
         }
-        // setup data and addresses
+
         for (String address : addresses) {
             int addr = compiler.address();
             variable.putAddress(address, addr);
         }
+
         for (Data v : this.variables) {
             if (v.size > 0) {
                 int location = compiler.data(v.size);

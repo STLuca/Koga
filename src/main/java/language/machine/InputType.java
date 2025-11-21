@@ -1,5 +1,6 @@
 package language.machine;
 
+import language.core.Repository;
 import language.core.Scope;
 import language.core.Structure;
 
@@ -14,7 +15,7 @@ enum InputType {
     ;
 
     record Resolved(int size, int value) {}
-    Resolved resolve(String toResolve, Scope scope) {
+    Resolved resolve(String toResolve, Scope scope, Repository repository) {
         switch (this) {
             case R -> {
                 int index = switch (toResolve) {
@@ -72,7 +73,7 @@ enum InputType {
                     curr = scope.findVariable(split[i]).orElseThrow();
                 }
                 Structure u = curr.findGeneric(split[split.length - 1]).orElseThrow().structure;
-                return new Resolved(4, u.size(null));
+                return new Resolved(4, u.size(repository));
             }
             case A -> {
                 Integer address = scope.findAddress(toResolve).orElseThrow();

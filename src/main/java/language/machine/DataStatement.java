@@ -13,7 +13,7 @@ public class DataStatement implements Statement {
         int allocateSize = 1;
         for (int i = 0; i < sizes.size(); i+= 2) {
             InputType inputType = InputType.valueOf(sizes.get(i));
-            int size = inputType.resolve(sizes.get(i + 1), scope).value();
+            int size = inputType.resolve(sizes.get(i + 1), scope, repository).value();
             allocateSize *= size;
         }
         int allocated = compiler.data(allocateSize);

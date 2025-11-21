@@ -183,12 +183,12 @@ public class MachineReferenceStructure implements Structure {
             };
 
             InputType inputType = InputType.valueOf(this.arguments.get(4).toUpperCase());
-            int index = inputType.resolve(this.arguments.get(5), scope).value();
+            int index = inputType.resolve(this.arguments.get(5), scope, repository).value();
 
             Scope argVariable = scope.findVariable(this.arguments.get(7)).orElseThrow();
 
             inputType = InputType.valueOf(this.arguments.get(8).toUpperCase());
-            int addr = inputType.resolve(this.arguments.get(9), scope).value();
+            int addr = inputType.resolve(this.arguments.get(9), scope, repository).value();
 
             language.core.Document.Method method = d.method(scope, methodName).orElseThrow();
             String param = method.parameters.get(index);

@@ -71,9 +71,9 @@ public class InstructionStatement implements Statement {
                     }
                     default -> throw new IllegalArgumentException();
                 }
-                Resolved rDest = destType.resolve(dest, scope);
-                Resolved rSrc1 = src1Type.resolve(src1, scope);
-                Resolved rSrc2 = src2Type.resolve(src2, scope);
+                Resolved rDest = destType.resolve(dest, scope, repository);
+                Resolved rSrc1 = src1Type.resolve(src1, scope, repository);
+                Resolved rSrc2 = src2Type.resolve(src2, scope, repository);
                 ic.src(rDest.value(), rDest.size());
                 ic.src(rSrc1.value(), rSrc1.size());
                 ic.src(rSrc2.value(), rSrc2.size());
@@ -112,9 +112,9 @@ public class InstructionStatement implements Statement {
                     }
                     default -> throw new IllegalArgumentException();
                 }
-                Resolved rDest = destType.resolve(dest, scope);
-                Resolved rSrc1 = src1Type.resolve(src1, scope);
-                Resolved rSrc2 = src2Type.resolve(src2, scope);
+                Resolved rDest = destType.resolve(dest, scope, repository);
+                Resolved rSrc1 = src1Type.resolve(src1, scope, repository);
+                Resolved rSrc2 = src2Type.resolve(src2, scope, repository);
                 ic.src(rDest.value(), rDest.size());
                 ic.src(rSrc1.value(), rSrc1.size());
                 ic.src(rSrc2.value(), rSrc2.size());
@@ -142,7 +142,7 @@ public class InstructionStatement implements Statement {
                     default -> throw new RuntimeException();
                 }
 
-                Resolved address = addrType.resolve(addr, scope);
+                Resolved address = addrType.resolve(addr, scope, repository);
                 switch (inType) {
                     case T -> {
                         ic.src(address.value(), address.size());
@@ -185,9 +185,9 @@ public class InstructionStatement implements Statement {
                     }
                     default -> throw new RuntimeException("Bad number of values");
                 }
-                Resolved resolvedSrc1 = src1Type.resolve(src1, scope);
-                Resolved resolvedSrc2 = src2Type.resolve(src2, scope);
-                Resolved resolvedAddr = InputType.A.resolve(addr, scope);
+                Resolved resolvedSrc1 = src1Type.resolve(src1, scope, repository);
+                Resolved resolvedSrc2 = src2Type.resolve(src2, scope, repository);
+                Resolved resolvedAddr = InputType.A.resolve(addr, scope, repository);
                 ic.inputType(inType);
                 ic.src(resolvedAddr.value());
                 ic.src(resolvedSrc1.value(), resolvedSrc1.size());
@@ -225,12 +225,12 @@ public class InstructionStatement implements Statement {
                     default -> throw new RuntimeException();
                 }
 
-                Resolved resolvedDest = destType.resolve(dest, scope);
-                Resolved resolvedTable = src1Type.resolve(src1, scope);
+                Resolved resolvedDest = destType.resolve(dest, scope, repository);
+                Resolved resolvedTable = src1Type.resolve(src1, scope, repository);
                 ic.src(resolvedDest.value(), resolvedDest.size());
                 ic.src(resolvedTable.value(), resolvedTable.size());
                 if (src2 != null) {
-                    Resolved resolvedSymbol = src2Type.resolve(src2, scope);
+                    Resolved resolvedSymbol = src2Type.resolve(src2, scope, repository);
                     ic.src(resolvedSymbol.value(), resolvedSymbol.size());
                 }
             }
@@ -247,9 +247,9 @@ public class InstructionStatement implements Statement {
                 InputType sizeType = InputType.valueOf(values.get(6));
                 String size = values.get(7);
 
-                Resolved resolvedDest = destType.resolve(dest, scope);
-                Resolved resolvedSrc = srcType.resolve(src, scope);
-                Resolved resolvedSize = sizeType.resolve(size, scope);
+                Resolved resolvedDest = destType.resolve(dest, scope, repository);
+                Resolved resolvedSrc = srcType.resolve(src, scope, repository);
+                Resolved resolvedSize = sizeType.resolve(size, scope, repository);
                 ic.src(resolvedDest.value(), resolvedDest.size());
                 ic.src(resolvedSrc.value(), resolvedSrc.size());
                 ic.src(resolvedSize.value(), resolvedSize.size());
@@ -261,8 +261,8 @@ public class InstructionStatement implements Statement {
                 ic.subType(Types.DebugType.valueOf(values.get(0)));
                 String src = values.get(1);
                 String size = values.get(2);
-                Resolved resolvedSrc = InputType.P.resolve(src, scope);
-                Resolved resolvedSize = InputType.P.resolve(size, scope);
+                Resolved resolvedSrc = InputType.P.resolve(src, scope, repository);
+                Resolved resolvedSize = InputType.P.resolve(size, scope, repository);
                 ic.src(0, 0);
                 ic.src(resolvedSrc.value(), resolvedSrc.size());
                 ic.src(resolvedSize.value(), resolvedSize.size());
@@ -278,16 +278,16 @@ public class InstructionStatement implements Statement {
                     case SET_OBJECT, SET_TABLE, START_ADMIN, SET_ALT_TASK, SET_ALT_OBJECT, SET_ALT_TABLE -> {
                         ic.inputType(Types.InputType.valueOf(values.get(1)));
                         InputType srcType = InputType.valueOf(values.get(2));
-                        Resolved resolvedSrc = srcType.resolve(values.get(3), scope);
+                        Resolved resolvedSrc = srcType.resolve(values.get(3), scope, repository);
 
                         ic.src(resolvedSrc.value(), resolvedSrc.size());
                     }
                     case SET, SET_METHOD_AND_TASK -> {
                         ic.inputType(Types.InputType.valueOf(values.get(1)));
                         InputType src1Type = InputType.valueOf(values.get(2));
-                        Resolved resolvedSrc1 = src1Type.resolve(values.get(3), scope);
+                        Resolved resolvedSrc1 = src1Type.resolve(values.get(3), scope, repository);
                         InputType src2Type = InputType.valueOf(values.get(4));
-                        Resolved resolvedSrc2 = src2Type.resolve(values.get(5), scope);
+                        Resolved resolvedSrc2 = src2Type.resolve(values.get(5), scope, repository);
                         ic.src(resolvedSrc1.value(), resolvedSrc1.size());
                         ic.src(resolvedSrc2.value(), resolvedSrc2.size());
                     }
@@ -295,7 +295,7 @@ public class InstructionStatement implements Statement {
                     case NOTIFY_SUPERVISOR -> {
                         ic.inputType(Types.InputType.valueOf(values.get(1)));
                         String src = values.get(2);
-                        Resolved resolvedSrc = InputType.P.resolve(src, scope);
+                        Resolved resolvedSrc = InputType.P.resolve(src, scope, repository);
                         ic.src(resolvedSrc.value(), resolvedSrc.size());
                     }
                     default -> throw new RuntimeException();

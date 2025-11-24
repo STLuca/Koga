@@ -13,7 +13,6 @@ public class Scope {
     public static class Generic {
         public enum Type { Structure, Document }
         public Scope.Generic.Type type;
-        public boolean known;
         public String name;
         public Structure structure;
         public Document document;

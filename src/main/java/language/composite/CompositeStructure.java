@@ -35,7 +35,6 @@ public class CompositeStructure implements Structure {
             Generic generic = this.generics.get(i);
             Scope.Generic g = new Scope.Generic();
             g.name = generic.name;
-            g.known = true;
             switch (generic.type) {
                 case Structure -> {
                     Structure value = repository.structure(generics.get(i).name);
@@ -71,7 +70,6 @@ public class CompositeStructure implements Structure {
             Generic generic = this.generics.get(i);
             Scope.Generic g = new Scope.Generic();
             g.name = generic.name;
-            g.known = true;
             switch (generic.type) {
                 case Structure -> {
                     Structure value = repository.structure(generics.get(i).name);

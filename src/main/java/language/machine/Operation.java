@@ -43,12 +43,13 @@ public class Operation {
             for (int i = 0; i < subMatchers.size(); i++) {
                 VariableMatcher m = subMatchers.get(i);
                 Scope.Generic g = orderedGenerics.get(i);
-                if (g.known) {
-                    if (!m.isGeneric && !m.name.equals(g.structure.name())) {
+                if (!m.isGeneric) {
+                    if (!m.name.equals(g.structure.name())) {
                         allMatch = false;
                     }
                 } else {
-                    if (m.isGeneric && !m.name.equals(g.name)) {
+                    Scope.Generic mg = variable.findGeneric(m.name).orElseThrow();
+                    if (mg.structure != g.structure) {
                         allMatch = false;
                     }
                 }

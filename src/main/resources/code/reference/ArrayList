@@ -15,22 +15,22 @@ documents {
     collection.SimpleList List;
 }
 
-collection.ArrayList<Structure T> implements List {
+collection.ArrayList<Structure Int> implements List {
 
-    Array<T> items;
+    Array<Int> items;
 
-    init(Structure<T> mc, Int size) {
-        Reference<ArrayList<T>> this this();
-        Pointer<Array<T>> thisItems (this items);
-        Array<T> items dynamic(mc size);
+    init(Structure<Int> mc, Int size) {
+        Reference<ArrayList<Int>> this this();
+        Pointer<Array<Int>> thisItems (this items);
+        Array<Int> items dynamic(mc size);
         thisItems copyFrom(items);
         Task t complete();
     }
 
     set(Int index, Int value) {
-        Reference<ArrayList<T>> this this();
-        Pointer<Array<T>> thisItems (this items);
-        Array<T> items;
+        Reference<ArrayList<Int>> this this();
+        Pointer<Array<Int>> thisItems (this items);
+        Array<Int> items;
         thisItems copyTo(items);
         ArrayAccessor<Int> p (items);
         p indexInt(index);

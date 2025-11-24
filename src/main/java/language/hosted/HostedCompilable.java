@@ -62,7 +62,6 @@ public class HostedCompilable implements Compilable {
                 }
                 case null, default -> throw new RuntimeException();
             }
-            generic.name = g.name;
             GenericStructure genericStructure = new GenericStructure();
             genericStructure.name = g.name;
             generic.structure = genericStructure;

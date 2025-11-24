@@ -43,7 +43,6 @@ public class MachineCompositeStructure implements Structure {
                 continue;
             }
             Scope.Generic g = new Scope.Generic();
-            g.name = generic.name;
 
             switch (generic.type) {
                 case Structure -> {
@@ -90,7 +89,6 @@ public class MachineCompositeStructure implements Structure {
                 continue;
             }
             Scope.Generic g = new Scope.Generic();
-            g.name = generic.name;
             switch (generic.type) {
                 case Structure -> {
                     g.type = Scope.Generic.Type.Structure;

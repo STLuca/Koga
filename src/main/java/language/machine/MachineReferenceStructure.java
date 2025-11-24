@@ -27,7 +27,6 @@ public class MachineReferenceStructure implements Structure {
             Generic generic = this.generics.get(i);
             String genericName = generics.get(i).name;
             Scope.Generic g = new Scope.Generic();
-            g.name = generic.name;
             switch (generic.type) {
                 case Structure -> {
                     Structure value = repository.structure(genericName);
@@ -58,7 +57,6 @@ public class MachineReferenceStructure implements Structure {
             Generic generic = this.generics.get(i);
             String genericName = generics.get(i).name;
             Scope.Generic g = new Scope.Generic();
-            g.name = generic.name;
             switch (generic.type) {
                 case Structure -> {
                     Structure value = repository.structure(genericName);

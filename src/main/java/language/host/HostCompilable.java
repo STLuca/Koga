@@ -3,6 +3,7 @@ package language.host;
 import core.Types;
 import language.core.*;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,7 +74,7 @@ public class HostCompilable implements Compilable {
         }
 
         for (Field f : fields) {
-            Structure sc = repository.structure(f.structure);
+            Structure sc = repository.structure(f.descriptor.name);
             compiler.data(f.name, sc.size(repository));
         }
 
@@ -84,9 +85,44 @@ public class HostCompilable implements Compilable {
             mb.name(m.name);
 
             for (Parameter p : m.params) {
-                Structure structure = repository.structure(p.structure);
+                Structure structure = repository.structure(p.descriptor.name);
                 mb.parameter(structure.name());
-                structure.declare(mb, repository, scope, p.name, p.generics);
+
+                Scope.Generic rootGeneric = new Scope.Generic();
+                ArrayDeque<Scope.Generic> generics = new ArrayDeque<>();
+                ArrayDeque<Descriptor> descriptors = new ArrayDeque<>();
+                generics.push(rootGeneric);
+                descriptors.push(p.descriptor);
+                while (!generics.isEmpty()) {
+                    Scope.Generic g = generics.pop();
+                    Descriptor d = descriptors.pop();
+                    switch (d.type) {
+                        case Structure -> {
+                            g.type = Scope.Generic.Type.Structure;
+                            g.structure = repository.structure(d.name);
+                        }
+                        case Document -> {
+                            g.type = Scope.Generic.Type.Document;
+                            g.document = repository.document(d.name);
+                        }
+                    }
+                    for (Descriptor subDescriptor : d.subDescriptors) {
+                        descriptors.push(subDescriptor);
+                        Scope.Generic subGeneric = new Scope.Generic();
+                        g.generics.add(subGeneric);
+                        generics.push(subGeneric);
+                    }
+                }
+
+                List<Structure.GenericArgument> arguments = new ArrayList<>();
+                for (Descriptor d : p.descriptor.subDescriptors) {
+                    Structure.GenericArgument arg = new Structure.GenericArgument();
+                    arg.type = Structure.GenericArgument.Type.Known;
+                    arg.name = d.name;
+                    arguments.add(arg);
+                }
+
+                structure.declare(mb, repository, scope, p.name, arguments, rootGeneric);
             }
 
             for (Statement stmt : m.statements) {

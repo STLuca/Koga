@@ -208,59 +208,56 @@ public class CompositeParser implements Parser {
             Parameter p = new Parameter();
             if (ctx.structures.containsKey(curr.matched())) {
                 p.type = Parameter.Type.Variable;
-                p.structure = ctx.structures.get(curr.matched());
-                Token next = scanner.peek(tokens).orElse(null);
+                Descriptor rootDescriptor = new Descriptor();
+                p.descriptor = rootDescriptor;
+                ArrayDeque<Descriptor> stack = new ArrayDeque<>();
+                stack.push(rootDescriptor);
 
-                if (next == OP_PT_BRACE) {
-                    ArrayDeque<Structure.GenericArgument> stack = new ArrayDeque<>();
-                    while (!stack.isEmpty() || curr != CL_PT_BRACE) {
-                        curr = scanner.next(tokens);
-                        if (curr == OP_PT_BRACE) {
-                            stack.push(new Structure.GenericArgument());
-                        } else if (curr == CL_PT_BRACE) {
-                            Structure.GenericArgument popped = stack.pop();
-                            if (stack.isEmpty()) {
-                                p.generics.add(popped);
-                            } else {
-                                stack.peek().generics.add(popped);
-                            }
-                        } else if (curr == COMMA) {
-                            Structure.GenericArgument pop = stack.pop();
-                            Structure.GenericArgument peek = stack.peek();
-                            if (peek == null) {
-                                p.generics.add(pop);
-                            } else {
-                                pop.generics.add(peek);
-                            }
-                            stack.push(new Structure.GenericArgument());
-                        } else if (curr == NAME) {
-                            Structure.GenericArgument peek = stack.peek();
-                            if (ctx.structures.containsKey(curr.matched())) {
-                                peek.type = Structure.GenericArgument.Type.Known;
-                                peek.name = ctx.structures.get(curr.matched());
-                            } else if (ctx.documents.containsKey(curr.matched())) {
-                                peek.type = Structure.GenericArgument.Type.Known;
-                                peek.name = ctx.documents.get(curr.matched());
-                            } else if (ctx.generics.contains(curr.matched())) {
-                                peek.type = Structure.GenericArgument.Type.Unknown;
-                                peek.name = curr.matched();
-                            } else {
-                                scanner.fail("");
-                            }
+                while (!stack.isEmpty()) {
+                    if (curr == NAME) {
+                        Descriptor d = stack.peek();
+                        if (d.name != null) { break; }
+                        if (ctx.structures.containsKey(curr.matched())) {
+                            d.type = Descriptor.Type.Structure;
+                            d.name = ctx.structures.get(curr.matched());
+                        } else if (ctx.documents.containsKey(curr.matched())) {
+                            d.type = Descriptor.Type.Document;
+                            d.name = ctx.documents.get(curr.matched());
+                        } else if (ctx.generics.contains(curr.matched())) {
+                            d.type = Descriptor.Type.Generic;
+                            d.name = curr.matched();
                         } else {
                             scanner.fail("");
                         }
+                    } else if (curr == OP_PT_BRACE) {
+                        Descriptor d = stack.peek();
+                        Descriptor subDescriptor = new Descriptor();
+                        d.subDescriptors.add(subDescriptor);
+                        stack.push(subDescriptor);
+                    } else if (curr == CL_PT_BRACE) {
+                        stack.pop();
+                        if (stack.peek() == rootDescriptor) {
+                            stack.pop();
+                        }
+                    } else if (curr == COMMA) {
+                        stack.pop();
+                        Descriptor d = stack.peek();
+                        Descriptor subDescriptor = new Descriptor();
+                        d.subDescriptors.add(subDescriptor);
+                        stack.push(subDescriptor);
                     }
+                    curr = scanner.next(tokens);
                 }
             } else if (ctx.generics.contains(curr.matched())) {
-                p.generic = ctx.generics.indexOf(curr.matched());
+                // ?
+                curr = scanner.next(tokens);
             } else if (curr.matched().equals("Block")) {
                 p.type = Parameter.Type.Block;
+                curr = scanner.next(tokens);
             } else {
                 throw new RuntimeException();
             }
 
-            curr = scanner.next(tokens);
             if (curr != NAME) scanner.fail("name");
             p.name = curr.matched();
 
@@ -325,58 +322,48 @@ public class CompositeParser implements Parser {
             // should be series of ( and {
             // Can continue into invokes if name before ;
             s.type = StructureStatement.Type.CONSTRUCT;
-            if (isGeneric) {
-                s.structure = currS;
-            } else if (isStructure) {
-                s.structure = ctx.structures.get(currS);
-            } else {
-                throw new RuntimeException();
-            }
+            Descriptor rootDescriptor = new Descriptor();
+            s.descriptor = rootDescriptor;
+            ArrayDeque<Descriptor> stack = new ArrayDeque<>();
+            stack.push(rootDescriptor);
 
-            // generics
-            if (scanner.peek(tokens).orElse(null) == OP_PT_BRACE) {
-                ArrayDeque<Structure.GenericArgument> stack = new ArrayDeque<>();
-                while (!stack.isEmpty() || curr != CL_PT_BRACE) {
-                    curr = scanner.next(tokens);
-                    if (curr == OP_PT_BRACE) {
-                        stack.push(new Structure.GenericArgument());
-                    } else if (curr == CL_PT_BRACE) {
-                        Structure.GenericArgument popped = stack.pop();
-                        if (stack.isEmpty()) {
-                            s.generics.add(popped);
-                        } else {
-                            stack.peek().generics.add(popped);
-                        }
-                    } else if (curr == COMMA) {
-                        Structure.GenericArgument pop = stack.pop();
-                        Structure.GenericArgument peek = stack.peek();
-                        if (peek == null) {
-                            s.generics.add(pop);
-                        } else {
-                            pop.generics.add(peek);
-                        }
-                        stack.push(new Structure.GenericArgument());
-                    } else if (curr == NAME) {
-                        Structure.GenericArgument peek = stack.peek();
-                        if (ctx.structures.containsKey(curr.matched())) {
-                            peek.type = Structure.GenericArgument.Type.Known;
-                            peek.name = ctx.structures.get(curr.matched());
-                        } else if (ctx.documents.containsKey(curr.matched())) {
-                            peek.type = Structure.GenericArgument.Type.Known;
-                            peek.name = ctx.documents.get(curr.matched());
-                        } else if (ctx.generics.contains(curr.matched())) {
-                            peek.type = Structure.GenericArgument.Type.Unknown;
-                            peek.name = curr.matched();
-                        } else {
-                            scanner.fail("");
-                        }
+            while (!stack.isEmpty()) {
+                if (curr == NAME) {
+                    Descriptor d = stack.peek();
+                    if (d.name != null) { break; }
+                    if (ctx.structures.containsKey(curr.matched())) {
+                        d.type = Descriptor.Type.Structure;
+                        d.name = ctx.structures.get(curr.matched());
+                    } else if (ctx.documents.containsKey(curr.matched())) {
+                        d.type = Descriptor.Type.Document;
+                        d.name = ctx.documents.get(curr.matched());
+                    } else if (ctx.generics.contains(curr.matched())) {
+                        d.type = Descriptor.Type.Generic;
+                        d.name = curr.matched();
                     } else {
                         scanner.fail("");
                     }
+                } else if (curr == OP_PT_BRACE) {
+                    Descriptor d = stack.peek();
+                    Descriptor subDescriptor = new Descriptor();
+                    d.subDescriptors.add(subDescriptor);
+                    stack.push(subDescriptor);
+                } else if (curr == CL_PT_BRACE) {
+                    stack.pop();
+                    if (stack.peek() == rootDescriptor) {
+                        stack.pop();
+                    }
+                } else if (curr == COMMA) {
+                    stack.pop();
+                    Descriptor d = stack.peek();
+                    Descriptor subDescriptor = new Descriptor();
+                    d.subDescriptors.add(subDescriptor);
+                    stack.push(subDescriptor);
+                } else {
+                    break;
                 }
+                curr = scanner.next(tokens);
             }
-
-            curr = scanner.next(tokens);
 
 
             // Int x;
@@ -524,54 +511,49 @@ public class CompositeParser implements Parser {
     private void parseVariable(Scanner scanner, Context ctx) {
         Field f = new Field();
         Token curr = scanner.current();
-        if (ctx.structures.containsKey(curr.matched())) {
-            f.structure = ctx.structures.get(curr.matched());
-        } else {
-            f.structure = curr.matched();
-        }
-        Token next = scanner.peek(tokens).orElse(null);
-        if (next == OP_PT_BRACE) {
-            ArrayDeque<Structure.GenericArgument> stack = new ArrayDeque<>();
-            while (!stack.isEmpty() || curr != CL_PT_BRACE) {
-                curr = scanner.next(tokens);
-                if (curr == OP_PT_BRACE) {
-                    stack.push(new Structure.GenericArgument());
-                } else if (curr == CL_PT_BRACE) {
-                    Structure.GenericArgument popped = stack.pop();
-                    if (stack.isEmpty()) {
-                        f.generics.add(popped);
-                    } else {
-                        stack.peek().generics.add(popped);
-                    }
-                } else if (curr == COMMA) {
-                    Structure.GenericArgument pop = stack.pop();
-                    Structure.GenericArgument peek = stack.peek();
-                    if (peek == null) {
-                        f.generics.add(pop);
-                    } else {
-                        pop.generics.add(peek);
-                    }
-                    stack.push(new Structure.GenericArgument());
-                } else if (curr == NAME) {
-                    Structure.GenericArgument peek = stack.peek();
-                    if (ctx.structures.containsKey(curr.matched())) {
-                        peek.type = Structure.GenericArgument.Type.Known;
-                        peek.name = ctx.structures.get(curr.matched());
-                    } else if (ctx.documents.containsKey(curr.matched())) {
-                        peek.type = Structure.GenericArgument.Type.Known;
-                        peek.name = ctx.documents.get(curr.matched());
-                    } else if (ctx.generics.contains(curr.matched())) {
-                        peek.type = Structure.GenericArgument.Type.Unknown;
-                        peek.name = curr.matched();
-                    } else {
-                        scanner.fail("");
-                    }
+        Descriptor rootDescriptor = new Descriptor();
+        f.descriptor = rootDescriptor;
+        ArrayDeque<Descriptor> stack = new ArrayDeque<>();
+        stack.push(rootDescriptor);
+
+        while (!stack.isEmpty()) {
+            if (curr == NAME) {
+                Descriptor d = stack.peek();
+                if (d.name != null) { break; }
+                if (ctx.structures.containsKey(curr.matched())) {
+                    d.type = Descriptor.Type.Structure;
+                    d.name = ctx.structures.get(curr.matched());
+                } else if (ctx.documents.containsKey(curr.matched())) {
+                    d.type = Descriptor.Type.Document;
+                    d.name = ctx.documents.get(curr.matched());
+                } else if (ctx.generics.contains(curr.matched())) {
+                    d.type = Descriptor.Type.Generic;
+                    d.name = curr.matched();
                 } else {
                     scanner.fail("");
                 }
+            } else if (curr == OP_PT_BRACE) {
+                Descriptor d = stack.peek();
+                Descriptor subDescriptor = new Descriptor();
+                d.subDescriptors.add(subDescriptor);
+                stack.push(subDescriptor);
+            } else if (curr == CL_PT_BRACE) {
+                stack.pop();
+                if (stack.peek() == rootDescriptor) {
+                    stack.pop();
+                }
+            } else if (curr == COMMA) {
+                stack.pop();
+                Descriptor d = stack.peek();
+                Descriptor subDescriptor = new Descriptor();
+                d.subDescriptors.add(subDescriptor);
+                stack.push(subDescriptor);
             }
+            curr = scanner.next(tokens);
         }
-        curr = scanner.expect(tokens, NAME);
+        if (curr != NAME) {
+            scanner.fail("");
+        }
         f.name = curr.matched();
         scanner.expect(tokens, SEMI_COLON);
         ctx.c.fields.add(f);

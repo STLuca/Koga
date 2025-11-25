@@ -20,7 +20,7 @@ public class MachineReferenceStructure implements Structure {
         return name;
     }
 
-    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, Scope.Generic descriptor) {
         Scope variable = scope.state(this, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
@@ -50,7 +50,7 @@ public class MachineReferenceStructure implements Structure {
         }
     }
 
-    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> arguments) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> arguments, Scope.Generic descriptor) {
         Scope variable = scope.state(this, name);
 
         for (int i = 0; i < this.generics.size(); i++) {

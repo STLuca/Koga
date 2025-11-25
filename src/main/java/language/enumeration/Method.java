@@ -17,7 +17,9 @@ public class Method {
             p.type = Parameter.Type.Name;
         } else {
             p.type = Parameter.Type.Variable;
-            p.structure = typeName;
+            p.descriptor = new Descriptor();
+            p.descriptor.name = typeName;
+            p.descriptor.type = Descriptor.Type.Structure;
         }
         params.add(p);
     }

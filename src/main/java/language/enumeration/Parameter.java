@@ -1,7 +1,5 @@
 package language.enumeration;
 
-import java.util.ArrayList;
-
 public class Parameter {
 
     public enum Type { Literal, Name, Variable, Block }
@@ -11,7 +9,6 @@ public class Parameter {
     // Type literal
     int bits;
     // Type variable
-    String structure;
-    ArrayList<String> generics = new ArrayList<>();
+    Descriptor descriptor;
 
 }

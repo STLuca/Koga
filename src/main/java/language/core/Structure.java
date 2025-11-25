@@ -18,7 +18,8 @@ public interface Structure {
             Repository repository,
             Scope scope,
             String name,
-            List<GenericArgument> generics
+            List<GenericArgument> generics,
+            Scope.Generic descriptor
     );
     void construct(
             Compiler.MethodCompiler compiler,
@@ -27,7 +28,8 @@ public interface Structure {
             String name,
             List<GenericArgument> generics,
             String constructorName,
-            List<String> arguments
+            List<String> arguments,
+            Scope.Generic descriptor
     );
     void operate(
             Compiler.MethodCompiler compiler,

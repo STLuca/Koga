@@ -1,13 +1,8 @@
 package language.hosted;
 
-import language.core.Structure;
-
-import java.util.ArrayList;
-
 public class Parameter {
 
-    String structure;
+    Descriptor descriptor;
     String name;
-    ArrayList<Structure.GenericArgument> generics = new ArrayList<>();
 
 }

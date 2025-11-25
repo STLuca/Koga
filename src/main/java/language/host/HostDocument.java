@@ -26,7 +26,7 @@ public class HostDocument implements Document {
                 language.core.Document.Method hostMethod = new language.core.Document.Method();
                 hostMethod.parameters = new ArrayList<>();
                 for (Parameter p : m.params) {
-                    hostMethod.parameters.add(p.structure);
+                    hostMethod.parameters.add(p.descriptor.name);
                 }
                 return Optional.of(hostMethod);
             }

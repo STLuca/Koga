@@ -8,26 +8,4 @@ public class Method {
     ArrayList<Parameter> params = new ArrayList<>();
     ArrayList<Statement> statements = new ArrayList<>();
 
-    void addParam(String typeName, String name) {
-        Parameter p = new Parameter();
-        p.name = name;
-        if (typeName.equals("Block")) {
-            p.type = Parameter.Type.Block;
-        } else if (typeName.equals("Name")) {
-            p.type = Parameter.Type.Name;
-        } else {
-            p.type = Parameter.Type.Variable;
-            p.structure = typeName;
-        }
-        params.add(p);
-    }
-
-    void addParam(int bits, String name) {
-        Parameter p = new Parameter();
-        p.type = Parameter.Type.Literal;
-        p.bits = bits;
-        p.name = name;
-        params.add(p);
-    }
-
 }

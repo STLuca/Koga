@@ -29,7 +29,7 @@ public class EnumStructure implements language.core.Structure {
     }
 
     @Override
-    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, Scope.Generic descriptor) {
         Scope thisVariable = scope.state(this, name);
 
         for (String imprt : this.imports) {
@@ -46,14 +46,14 @@ public class EnumStructure implements language.core.Structure {
             mc.parent = compiler;
             mc.location = location;
             for (Field f : struct.fields) {
-                language.core.Structure u = repository.structure(f.structure);
-                u.declare(mc, repository, structScope, f.name, new ArrayList<>());
+                language.core.Structure u = repository.structure(f.descriptor.name);
+                u.declare(mc, repository, structScope, f.name, new ArrayList<>(), descriptor);
             }
         }
     }
 
     @Override
-    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames, Scope.Generic descriptor) {
         Scope thisVariable = scope.state(this, name);
         int maxSize = size(repository);
         int typeLocation = compiler.data(TYPE_SIZE);
@@ -100,8 +100,8 @@ public class EnumStructure implements language.core.Structure {
             mc.location = location;
             Scope structureScope = thisVariable.state(struct, struct.name);
             for (Field f : struct.fields) {
-                language.core.Structure u = repository.structure(f.structure);
-                u.declare(mc, repository, structureScope, f.name, new ArrayList<>());
+                language.core.Structure u = repository.structure(f.descriptor.name);
+                u.declare(mc, repository, structureScope, f.name, new ArrayList<>(), null);
             }
         }
 

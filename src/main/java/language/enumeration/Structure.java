@@ -15,7 +15,7 @@ class Structure implements language.core.Structure {
     public int size(Repository repository) {
         int size = 0;
         for (Field f : fields) {
-            language.core.Structure u = repository.structure(f.structure);
+            language.core.Structure u = repository.structure(f.descriptor.name);
             size += u.size(repository);
         }
         return size;
@@ -27,12 +27,12 @@ class Structure implements language.core.Structure {
     }
 
     @Override
-    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, Scope.Generic descriptor) {
 
     }
 
     @Override
-    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames, Scope.Generic descriptor) {
 
     }
 

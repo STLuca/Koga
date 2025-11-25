@@ -2,6 +2,7 @@ package language.composite;
 
 import language.core.*;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,10 +23,9 @@ public class StructureStatement implements Statement {
     }
 
     Type type;
-    String structure;
+    Descriptor descriptor;
     String variableName;
     String methodName;
-    ArrayList<Structure.GenericArgument> generics = new ArrayList<>();
     ArrayList<Argument> arguments = new ArrayList<>();
 
     public void handle(
@@ -69,20 +69,62 @@ public class StructureStatement implements Statement {
             }
         }
 
+        Scope.Generic rootGeneric = new Scope.Generic();
+        List<Structure.GenericArgument> genericArguments = new ArrayList<>();
+        switch (type) {
+            case DECLARE, CONSTRUCT -> {
+                ArrayDeque<Scope.Generic> generics = new ArrayDeque<>();
+                ArrayDeque<Descriptor> descriptors = new ArrayDeque<>();
+                generics.push(rootGeneric);
+                descriptors.push(descriptor);
+                while (!generics.isEmpty()) {
+                    Scope.Generic g = generics.pop();
+                    Descriptor d = descriptors.pop();
+                    switch (d.type) {
+                        case Structure -> {
+                            g.type = Scope.Generic.Type.Structure;
+                            g.structure = repository.structure(d.name);
+                        }
+                        case Document -> {
+                            g.type = Scope.Generic.Type.Document;
+                            g.document = repository.document(d.name);
+                        }
+                        case Generic -> {
+                            g.type = Scope.Generic.Type.Structure;
+                            g.structure = scope.findGeneric(d.name).orElseThrow().structure;
+                        }
+                    }
+                    for (Descriptor subDescriptor : d.subDescriptors) {
+                        descriptors.push(subDescriptor);
+                        Scope.Generic subGeneric = new Scope.Generic();
+                        g.generics.add(subGeneric);
+                        generics.push(subGeneric);
+                    }
+                }
+
+                for (Descriptor d : descriptor.subDescriptors) {
+                    Structure.GenericArgument arg = new Structure.GenericArgument();
+                    arg.type = Structure.GenericArgument.Type.Known;
+                    arg.name = d.name;
+                    genericArguments.add(arg);
+                }
+            }
+        }
+
         switch (type) {
             case DECLARE -> {
-                Scope.Generic g = scope.findGeneric(this.structure).orElse(null);
+                Scope.Generic g = scope.findGeneric(this.descriptor.name).orElse(null);
                 if (g != null) {
                     Structure structure = g.structure;
-                    structure.declare(compiler, repository, scope, variableName, generics);
+                    structure.declare(compiler, repository, scope, variableName, genericArguments, rootGeneric);
                 } else {
-                    Structure structure = repository.structure(this.structure);
-                    structure.declare(compiler, repository, scope, variableName, generics);
+                    Structure structure = repository.structure(this.descriptor.name);
+                    structure.declare(compiler, repository, scope, variableName, genericArguments, rootGeneric);
                 }
             }
             case CONSTRUCT -> {
-                Structure structure = repository.structure(this.structure);
-                structure.construct(compiler, repository, scope, variableName, generics, methodName, argNames);
+                Structure structure = repository.structure(this.descriptor.name);
+                structure.construct(compiler, repository, scope, variableName, genericArguments, methodName, argNames, rootGeneric);
             }
             case INVOKE -> {
                 Scope variable = scope.findVariable(variableName).orElseThrow();

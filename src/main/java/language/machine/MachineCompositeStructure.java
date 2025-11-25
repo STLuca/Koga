@@ -27,7 +27,7 @@ public class MachineCompositeStructure implements Structure {
         return total;
     }
 
-    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, Scope.Generic descriptor) {
         if (this.generics.size() != generics.size()) {
             throw new RuntimeException();
         }
@@ -73,7 +73,7 @@ public class MachineCompositeStructure implements Structure {
         }
     }
 
-    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> arguments) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> arguments, Scope.Generic descriptor) {
         Scope variable = scope.state(this, name);
 
         // Setup variable

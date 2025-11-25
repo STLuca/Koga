@@ -30,7 +30,7 @@ public class EnumStructure implements language.core.Structure {
 
     @Override
     public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
-        Scope thisVariable = scope.state(this, name);
+        Scope thisVariable = scope.state(descriptor, name);
 
         for (String imprt : this.imports) {
             repository.structure(imprt);
@@ -42,7 +42,11 @@ public class EnumStructure implements language.core.Structure {
         int location = compiler.data(maxSize);
         for (Structure struct : structures) {
             SharedLocationMethodCompiler mc = new SharedLocationMethodCompiler();
-            Scope structScope = thisVariable.state(struct, struct.name);
+            Scope.Generic description = new Scope.Generic();
+            description.type = Scope.Generic.Type.Structure;
+            description.structure = struct;
+            description.generics = descriptor.generics;
+            Scope structScope = thisVariable.state(description, struct.name);
             mc.parent = compiler;
             mc.location = location;
             for (Field f : struct.fields) {
@@ -54,7 +58,7 @@ public class EnumStructure implements language.core.Structure {
 
     @Override
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name, String constructorName, List<String> argumentNames) {
-        Scope thisVariable = scope.state(this, name);
+        Scope thisVariable = scope.state(descriptor, name);
         int maxSize = size(repository);
         int typeLocation = compiler.data(TYPE_SIZE);
         Scope.Allocation typeAllocation = new Scope.Allocation(TYPE_SIZE, typeLocation);
@@ -91,17 +95,22 @@ public class EnumStructure implements language.core.Structure {
             }
         }
 
-
-
         int index = structures.indexOf(structure);
         for (Structure struct : structures) {
             SharedLocationMethodCompiler mc = new SharedLocationMethodCompiler();
             mc.parent = compiler;
             mc.location = location;
-            Scope structureScope = thisVariable.state(struct, struct.name);
+            Scope.Generic description = new Scope.Generic();
+            description.type = Scope.Generic.Type.Structure;
+            description.structure = struct;
+            description.generics = descriptor.generics;
+            Scope structureScope = thisVariable.state(description, struct.name);
             for (Field f : struct.fields) {
                 language.core.Structure u = repository.structure(f.descriptor.name);
-                u.declare(mc, repository, structureScope, null, f.name);
+                Scope.Generic fieldDescription = new Scope.Generic();
+                fieldDescription.type = Scope.Generic.Type.Structure;
+                fieldDescription.structure = u;
+                u.declare(mc, repository, structureScope, fieldDescription, f.name);
             }
         }
 
@@ -110,7 +119,7 @@ public class EnumStructure implements language.core.Structure {
         mc.location = location;
         new InstructionStatement("i", "ADD", "II", "P", "type", "I", "0d0", "I", "0d" + (index + 1))
                 .compile(compiler, repository, thisVariable, operationScope);
-        Scope structureScope = thisVariable.state(structure, structure.name);
+        Scope structureScope = thisVariable.state(descriptor, structure.name);
         Scope structConstructorScope = operationScope.startOperation(structureScope, "?");
         for (Statement stmt : method.statements) {
             stmt.handle(mc, repository, structConstructorScope);
@@ -144,7 +153,7 @@ public class EnumStructure implements language.core.Structure {
 
                     // execute block
                     Structure structure = structures.get(i / 2);
-                    Scope structScope = variable.state(structure, structure.name);
+                    Scope structScope = variable.findVariable(structure.name).orElseThrow();
                     operationScope.implicit().put(structure.name, structScope);
                     String arg = arguments.get(i + 1);
                     Scope.Block b = scope.findBlock(arg).orElse(null);
@@ -197,7 +206,7 @@ public class EnumStructure implements language.core.Structure {
                     compiler.address(caseAddr);
 
                     // execute block
-                    Scope structScope = variable.state(s, s.name);
+                    Scope structScope = variable.findVariable(s.name).orElseThrow();
                     Scope methodScope = scope.startOperation(structScope, operationName);
                     Method m = methods.get(i);
                     for (Statement stmt : m.statements) {

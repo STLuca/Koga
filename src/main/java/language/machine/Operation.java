@@ -20,13 +20,13 @@ public class Operation {
                 Scope.Generic generic = variable.findGeneric(name).orElse(null);
                 if (generic == null) return false;
                 Scope v = operation.findVariable(arg).orElseThrow();
-                matches = generic.structure == v.structure();
+                matches = generic.structure == v.description().structure;
             } else {
                 Scope v = operation.findVariable(arg).orElse(null);
                 if (v == null) {
                     return false;
                 }
-                matches = name.equals(v.structure().name());
+                matches = name.equals(v.description().structure.name());
             }
             if (!matches) {
                 return false;
@@ -106,7 +106,7 @@ public class Operation {
         for (int i = 0; i < defaults.size(); i++) {
             Parameter param = parameters.get(i + arguments.size());
             Scope arg = defaults.get(i);
-            if (param.type != Parameter.Type.Variable || !param.variableMatcher.name.equals(arg.structure().name())) {
+            if (param.type != Parameter.Type.Variable || !param.variableMatcher.name.equals(arg.description().structure.name())) {
                 return false;
             }
         }

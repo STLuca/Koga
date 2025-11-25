@@ -26,14 +26,14 @@ public class MachineEnumStructure implements Structure {
     }
     
     public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
-        Scope variable = scope.state(this, name);
+        Scope variable = scope.state(descriptor, name);
 
         int allocation = compiler.data(data.size);
         variable.put(data.name, new Scope.Allocation(data.size, allocation));
     }
     
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name, String constructorName, List<String> argumentNames) {
-        Scope variable = scope.state(this, name);
+        Scope variable = scope.state(descriptor, name);
 
         // Read literal from args
         if (argumentNames.size() != 1) throw new RuntimeException("Only 1 argument allowed for enum constructor");

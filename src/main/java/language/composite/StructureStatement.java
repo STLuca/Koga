@@ -120,7 +120,7 @@ public class StructureStatement implements Statement {
             }
             case INVOKE -> {
                 Scope variable = scope.findVariable(variableName).orElseThrow();
-                Structure sc = variable.structure();
+                Structure sc = variable.description().structure;
                 sc.operate(compiler, repository, scope, variable, methodName, argNames);
             }
         }

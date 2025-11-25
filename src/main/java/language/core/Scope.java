@@ -20,7 +20,7 @@ public class Scope {
 
     Scope parent;
     String name;
-    Structure structure;
+    Generic description;
     HashMap<String, Scope> namedSubScopes = new HashMap<>();
     ArrayList<Scope> unnamedSubScopes = new ArrayList<>();
     Scope currentAnonymous;
@@ -52,7 +52,7 @@ public class Scope {
         return new Scope();
     }
 
-    public Scope state(Structure structure, String name) {
+    public Scope state(Generic description, String name) {
         if (namedSubScopes.containsKey(name)) {
             return namedSubScopes.get(name);
         }
@@ -60,7 +60,7 @@ public class Scope {
         Scope newScope = new Scope();
         newScope.parent = this;
         newScope.name = this.name == null ? name : this.name + "." + name;
-        newScope.structure = structure;
+        newScope.description = description;
 
         if (name.equals("_")) {
             unnamedSubScopes.add(newScope);
@@ -104,10 +104,9 @@ public class Scope {
     }
 
 
-    public Structure structure() {
-        return structure;
+    public Generic description() {
+        return description;
     }
-
 
     public void put(String name, Scope scope) {
         namedSubScopes.put(name, scope);

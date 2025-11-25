@@ -30,7 +30,7 @@ public class CompositeStructure implements Structure {
     }
     
     public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
-        Scope thisVariable = scope.state(this, name);
+        Scope thisVariable = scope.state(descriptor, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
@@ -83,7 +83,7 @@ public class CompositeStructure implements Structure {
     }
     
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name, String constructorName, List<String> argumentNames) {
-        Scope thisVariable = scope.state(this, name);
+        Scope thisVariable = scope.state(descriptor, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
@@ -93,7 +93,10 @@ public class CompositeStructure implements Structure {
 
         for (Field field : fields) {
             Structure structure = repository.structure(field.descriptor.name);
-            Scope fieldScope = thisVariable.state(structure, field.name);
+            Scope.Generic fieldDescriptor = new Scope.Generic();
+            fieldDescriptor.type = Scope.Generic.Type.Structure;
+            fieldDescriptor.structure = structure;
+            Scope fieldScope = thisVariable.state(fieldDescriptor, field.name);
             // Add field generics?
         }
 

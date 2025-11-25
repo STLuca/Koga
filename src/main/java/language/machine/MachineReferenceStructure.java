@@ -21,7 +21,7 @@ public class MachineReferenceStructure implements Structure {
     }
 
     public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
-        Scope variable = scope.state(this, name);
+        Scope variable = scope.state(descriptor, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
@@ -37,7 +37,7 @@ public class MachineReferenceStructure implements Structure {
     }
 
     public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name, String constructorName, List<String> arguments) {
-        Scope variable = scope.state(this, name);
+        Scope variable = scope.state(descriptor, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
@@ -160,7 +160,7 @@ public class MachineReferenceStructure implements Structure {
 
             language.core.Document.Method method = d.method(scope, methodName).orElseThrow();
             String param = method.parameters.get(index);
-            if (param.equals(argVariable.structure().name())) {
+            if (param.equals(argVariable.description().structure.name())) {
                 new InstructionStatement("m", "COPY", "TII", "P", "frameDataAddr", "P", "a", "S", "a").compile(compiler, repository, variable, scope);
                 new InstructionStatement("i","ADD", "TI", "P", "frameDataAddr", "P", "frameDataAddr", "S", "a").compile(compiler, repository, variable, scope);
             } else if (param.equals("core.Pointer")) {

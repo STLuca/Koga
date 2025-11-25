@@ -124,7 +124,7 @@ public class MachineReferenceStructure implements Structure {
         ArrayList<String> arguments = new ArrayList<>();
 
         public void compile(Compiler.MethodCompiler compiler, Repository repository, Scope variable, Scope scope) {
-            language.core.Document d;
+            Scope.Generic d;
             String methodName;
 
             InputType docInType = InputType.valueOf(this.arguments.get(0).toUpperCase());
@@ -137,7 +137,7 @@ public class MachineReferenceStructure implements Structure {
                         curr = scope.findVariable(split[i]).orElseThrow();
                     }
                     Scope.Generic g = curr.findGeneric(split[split.length - 1]).orElseThrow();
-                    yield g.document;
+                    yield g;
                 }
                 default -> throw new RuntimeException();
             };
@@ -158,12 +158,16 @@ public class MachineReferenceStructure implements Structure {
             inputType = InputType.valueOf(this.arguments.get(8).toUpperCase());
             int addr = inputType.resolve(this.arguments.get(9), scope, repository).value();
 
-            language.core.Document.Method method = d.method(scope, methodName).orElseThrow();
-            String param = method.parameters.get(index);
-            if (param.equals(argVariable.description().structure.name())) {
+            if (d.type != Scope.Generic.Type.Document) {
+                throw new RuntimeException();
+            }
+            language.core.Document.Method method = d.document.method(d, methodName, repository).orElseThrow();
+            Scope.Generic param = method.parameters.get(index);
+            boolean isEqual = param.equals(argVariable.description());
+            if (isEqual) {
                 new InstructionStatement("m", "COPY", "TII", "P", "frameDataAddr", "P", "a", "S", "a").compile(compiler, repository, variable, scope);
                 new InstructionStatement("i","ADD", "TI", "P", "frameDataAddr", "P", "frameDataAddr", "S", "a").compile(compiler, repository, variable, scope);
-            } else if (param.equals("core.Pointer")) {
+            } else if (param.structure.name().equals("core.Pointer")) {
                 int addrAddr = compiler.data(4);
                 new InstructionStatement("i", "ADD", "LI", "I", "0d" + addrAddr, "R", "task", "P", "a").compile(compiler, repository, variable, scope);
                 new InstructionStatement("m", "COPY", "TII", "P", "frameDataAddr", "I", "0d" + addrAddr, "S", "a").compile(compiler, repository, variable, scope);

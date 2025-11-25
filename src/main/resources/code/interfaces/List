@@ -7,7 +7,7 @@ structures {
 
 collection.SimpleList {
 
-    init(Structure mc, Int size);
+    init(Structure<Int> mc, Int size);
     set(Int index, Int value);
 
 }

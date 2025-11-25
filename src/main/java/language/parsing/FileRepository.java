@@ -1,9 +1,6 @@
 package language.parsing;
 
-import language.core.Compilable;
-import language.core.Parser;
-import language.core.Repository;
-import language.core.Structure;
+import language.core.*;
 import language.machine.MachineProxyStructure;
 
 import java.io.IOException;
@@ -26,6 +23,8 @@ public class FileRepository implements Repository {
 
     HashMap<String, Compilable> compilableClasses = new HashMap<>();
     HashMap<String, Structure> compilerClasses = new HashMap<>();
+
+    HashMap<String, Document> cachedDocuments = new HashMap<>();
 
     public FileRepository(Path root, Map<String, String> files) {
         this.root = root;
@@ -85,38 +84,12 @@ public class FileRepository implements Repository {
 
     public language.core.Document document(String name) {
         parse(name);
+        if (cachedDocuments.containsKey(name)) {
+            return cachedDocuments.get(name);
+        }
         Compilable compilable = compilableClasses.get(name);
-        return compilable.document();
-//        switch (level) {
-//            case Head -> {
-//                if (headDocuments.containsKey(name)) {
-//                    return headDocuments.get(name);
-//                }
-//                if (compilableClasses.containsKey(name)) {
-//                    DocumentBuilder compiler = new DocumentBuilder();
-//                    compilableClasses.get(name).compile(this, compiler, level);
-//                    Document document = compiler.document();
-//                    headDocuments.put(name, document);
-//                    return document;
-//                }
-//            }
-//            case Full -> {
-//                if (documents.containsKey(name)) {
-//                    return documents.get(name);
-//                }
-//                if (compilableClasses.containsKey(name)) {
-//                    DocumentBuilder compiler = new DocumentBuilder();
-//                    compilableClasses.get(name).compile(this, compiler, level);
-//                    Document document = compiler.document();
-//                    documents.put(name, document);
-//                    return document;
-//                }
-//                return documents.get(name);
-//            }
-//            default -> {
-//                throw new RuntimeException();
-//            }
-//        }
-//        throw new RuntimeException();
+        Document document = compilable.document();
+        cachedDocuments.put(name, document);
+        return document;
     }
 }

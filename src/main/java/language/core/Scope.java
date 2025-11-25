@@ -16,6 +16,23 @@ public class Scope {
         public Structure structure;
         public Document document;
         public ArrayList<Scope.Generic> generics = new ArrayList<>();
+
+        public boolean equals(Generic generic) {
+            boolean basic =  type == generic.type
+                    && Objects.equals(structure, generic.structure)
+                    && Objects.equals(document, generic.document)
+                    && generics.size() == generic.generics.size();
+            if (!basic) {
+                return false;
+            }
+            for (int i = 0; i < generics.size(); i++) {
+                if (!generics.get(i).equals(generic.generics.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
     }
 
     Scope parent;

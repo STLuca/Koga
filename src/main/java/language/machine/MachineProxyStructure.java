@@ -20,12 +20,12 @@ public class MachineProxyStructure implements Structure {
         return 0;
     }
     
-    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, Scope.Generic descriptor) {
-        Scope variable = scope.state(repository.structure(generics.get(0).name), name);
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
+        Scope variable = scope.state(repository.structure(descriptor.generics.get(0).structure.name()), name);
         // variable.proxy = true
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames, Scope.Generic descriptor) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name, String constructorName, List<String> argumentNames) {
         // init the proxy
         // compiler.proxy(variable.name, null);
         // First generic is the proxied class

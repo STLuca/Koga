@@ -67,7 +67,6 @@ public class Statement {
         }
 
         Scope.Generic rootGeneric = new Scope.Generic();
-        List<Structure.GenericArgument> arguments = new ArrayList<>();
         switch (type) {
             case DECLARE, CONSTRUCT -> {
                 ArrayDeque<Scope.Generic> generics = new ArrayDeque<>();
@@ -98,24 +97,17 @@ public class Statement {
                         generics.push(subGeneric);
                     }
                 }
-
-                for (Descriptor d : descriptor.subDescriptors) {
-                    Structure.GenericArgument arg = new Structure.GenericArgument();
-                    arg.type = Structure.GenericArgument.Type.Known;
-                    arg.name = d.name;
-                    arguments.add(arg);
-                }
             }
         }
 
         switch (type) {
             case DECLARE -> {
                 Structure structure = repository.structure(descriptor.name);
-                structure.declare(compiler, repository, scope, variableName, arguments, rootGeneric);
+                structure.declare(compiler, repository, scope, rootGeneric, variableName);
             }
             case CONSTRUCT -> {
                 Structure structure = repository.structure(descriptor.name);
-                    structure.construct(compiler, repository, scope, variableName, arguments, methodName, argNames, rootGeneric);
+                    structure.construct(compiler, repository, scope, rootGeneric, variableName, methodName, argNames);
             }
             case INVOKE -> {
                 Scope variable = scope.findVariable(variableName).orElseThrow();

@@ -25,14 +25,14 @@ public class MachineEnumStructure implements Structure {
         return data.size;
     }
     
-    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, Scope.Generic descriptor) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
         Scope variable = scope.state(this, name);
 
         int allocation = compiler.data(data.size);
         variable.put(data.name, new Scope.Allocation(data.size, allocation));
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames, Scope.Generic descriptor) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name, String constructorName, List<String> argumentNames) {
         Scope variable = scope.state(this, name);
 
         // Read literal from args

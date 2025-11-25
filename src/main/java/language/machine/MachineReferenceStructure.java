@@ -20,27 +20,13 @@ public class MachineReferenceStructure implements Structure {
         return name;
     }
 
-    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, Scope.Generic descriptor) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
         Scope variable = scope.state(this, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            String genericName = generics.get(i).name;
-            Scope.Generic g = new Scope.Generic();
-            switch (generic.type) {
-                case Structure -> {
-                    Structure value = repository.structure(genericName);
-                    g.type = Scope.Generic.Type.Structure;
-                    g.structure = value;
-                    variable.put(generic.name, g);
-                }
-                case Document -> {
-                    language.core.Document doc = repository.document(genericName);
-                    g.type = Scope.Generic.Type.Document;
-                    g.document = doc;
-                    variable.put(generic.name, g);
-                }
-            }
+            Scope.Generic descriptionGeneric = descriptor.generics.get(i);
+            variable.put(generic.name, descriptionGeneric);
         }
         for (Data v : this.variables) {
             if (v.size > 0) {
@@ -50,27 +36,13 @@ public class MachineReferenceStructure implements Structure {
         }
     }
 
-    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> arguments, Scope.Generic descriptor) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name, String constructorName, List<String> arguments) {
         Scope variable = scope.state(this, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            String genericName = generics.get(i).name;
-            Scope.Generic g = new Scope.Generic();
-            switch (generic.type) {
-                case Structure -> {
-                    Structure value = repository.structure(genericName);
-                    g.type = Scope.Generic.Type.Structure;
-                    g.structure = value;
-                    variable.put(generic.name, g);
-                }
-                case Document -> {
-                    language.core.Document doc = repository.document(genericName);
-                    g.type = Scope.Generic.Type.Document;
-                    g.document = doc;
-                    variable.put(generic.name, g);
-                }
-            }
+            Scope.Generic descriptionGeneric = descriptor.generics.get(i);
+            variable.put(generic.name, descriptionGeneric);
         }
 
         // Try and match a constructor

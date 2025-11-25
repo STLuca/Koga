@@ -29,25 +29,13 @@ public class CompositeStructure implements Structure {
         return size;
     }
     
-    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, Scope.Generic descriptor) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
         Scope thisVariable = scope.state(this, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            Scope.Generic g = new Scope.Generic();
-            switch (generic.type) {
-                case Structure -> {
-                    Structure value = repository.structure(generics.get(i).name);
-                    g.type = Scope.Generic.Type.Structure;
-                    g.structure = value;
-                }
-                case Document -> {
-                    language.core.Document doc = repository.document(generics.get(i).name);
-                    g.type = Scope.Generic.Type.Document;
-                    g.document = doc;
-                }
-            }
-            thisVariable.put(generic.name, g);
+            Scope.Generic descriptionGeneric = descriptor.generics.get(i);
+            thisVariable.put(generic.name, descriptionGeneric);
         }
 
         for (Field f : fields) {
@@ -89,42 +77,18 @@ public class CompositeStructure implements Structure {
                     dGenerics.push(subGeneric);
                 }
             }
-
-            List<Structure.GenericArgument> arguments = new ArrayList<>();
-            for (Descriptor d : f.descriptor.subDescriptors) {
-                Structure.GenericArgument arg = new Structure.GenericArgument();
-                arg.type = Structure.GenericArgument.Type.Known;
-                arg.name = d.name;
-                arguments.add(arg);
-            }
             
-            u.declare(compiler, repository, thisVariable, fieldName, arguments, rootGeneric);
+            u.declare(compiler, repository, thisVariable, rootGeneric, fieldName);
         }
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> argumentNames, Scope.Generic descriptor) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name, String constructorName, List<String> argumentNames) {
         Scope thisVariable = scope.state(this, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            Scope.Generic g = new Scope.Generic();
-            switch (generic.type) {
-                case Structure -> {
-                    Structure value = repository.structure(generics.get(i).name);
-                    g.type = Scope.Generic.Type.Structure;
-                    g.structure = value;
-                }
-                case Document -> {
-                    Document doc = repository.document(generics.get(i).name);
-                    g.type = Scope.Generic.Type.Document;
-                    g.document = doc;
-                }
-            }
-            thisVariable.put(generic.name, g);
-        }
-
-        for (String imprt : this.imports) {
-            repository.structure(imprt);
+            Scope.Generic descriptionGeneric = descriptor.generics.get(i);
+            thisVariable.put(generic.name, descriptionGeneric);
         }
 
         for (Field field : fields) {

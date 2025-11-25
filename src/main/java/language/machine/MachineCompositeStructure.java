@@ -27,37 +27,17 @@ public class MachineCompositeStructure implements Structure {
         return total;
     }
 
-    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, Scope.Generic descriptor) {
-        if (this.generics.size() != generics.size()) {
-            throw new RuntimeException();
-        }
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
         // Setup variable
         Scope variable = scope.state(this, name);
 
+        if (this.generics.size() != generics.size()) {
+            throw new RuntimeException();
+        }
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            GenericArgument genericName = generics.get(i);
-            Scope.Generic scopeGeneric = scope.findGeneric(genericName.name).orElse(null);
-            if (scopeGeneric != null) {
-                variable.put(generic.name, scopeGeneric);
-                continue;
-            }
-            Scope.Generic g = new Scope.Generic();
-
-            switch (generic.type) {
-                case Structure -> {
-                    Structure value = repository.structure(genericName.name);
-                    g.type = Scope.Generic.Type.Structure;
-                    g.structure = value;
-                    variable.put(generic.name, g);
-                }
-                case Document -> {
-                    language.core.Document doc = repository.document(genericName.name);
-                    g.type = Scope.Generic.Type.Document;
-                    g.document = doc;
-                    variable.put(generic.name, g);
-                }
-            }
+            Scope.Generic descriptionGeneric = descriptor.generics.get(i);
+            variable.put(generic.name, descriptionGeneric);
         }
 
         for (String address : addresses) {
@@ -73,7 +53,7 @@ public class MachineCompositeStructure implements Structure {
         }
     }
 
-    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, String name, List<GenericArgument> generics, String constructorName, List<String> arguments, Scope.Generic descriptor) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name, String constructorName, List<String> arguments) {
         Scope variable = scope.state(this, name);
 
         // Setup variable
@@ -82,27 +62,8 @@ public class MachineCompositeStructure implements Structure {
         }
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            String genericName = generics.get(i).name;
-            Scope.Generic scopeGeneric = scope.findGeneric(genericName).orElse(null);
-            if (scopeGeneric != null) {
-                variable.put(generic.name, scopeGeneric);
-                continue;
-            }
-            Scope.Generic g = new Scope.Generic();
-            switch (generic.type) {
-                case Structure -> {
-                    g.type = Scope.Generic.Type.Structure;
-                    Structure value = repository.structure(genericName);
-                    g.structure = value;
-                    variable.put(generic.name, g);
-                }
-                case Document -> {
-                    g.type = Scope.Generic.Type.Document;
-                    Document doc = repository.document(genericName);
-                    g.document = doc;
-                    variable.put(generic.name, g);
-                }
-            }
+            Scope.Generic descriptionGeneric = descriptor.generics.get(i);
+            variable.put(generic.name, descriptionGeneric);
         }
 
         // Try and match a constructor

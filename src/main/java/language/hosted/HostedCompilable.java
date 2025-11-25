@@ -108,16 +108,8 @@ public class HostedCompilable implements Compilable {
                         generics.push(subGeneric);
                     }
                 }
-
-                List<Structure.GenericArgument> arguments = new ArrayList<>();
-                for (Descriptor d : p.descriptor.subDescriptors) {
-                    Structure.GenericArgument arg = new Structure.GenericArgument();
-                    arg.type = Structure.GenericArgument.Type.Known;
-                    arg.name = d.name;
-                    arguments.add(arg);
-                }
                 
-                structure.declare(mb, repository, scope, p.name, arguments, rootGeneric);
+                structure.declare(mb, repository, scope, rootGeneric, p.name);
             }
 
             for (Statement stmt : m.statements) {

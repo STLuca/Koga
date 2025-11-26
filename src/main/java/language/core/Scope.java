@@ -21,7 +21,7 @@ public class Scope {
             boolean basic =  type == generic.type
                     && Objects.equals(structure, generic.structure)
                     && Objects.equals(document, generic.document)
-                    && generics.size() == generic.generics.size();
+                    && generics.size() <= generic.generics.size();
             if (!basic) {
                 return false;
             }

@@ -48,7 +48,7 @@ public class MachineReferenceStructure implements Structure {
         // Try and match a constructor
         Operation c = null;
         for (Operation con : constructors) {
-            if (con.matches(variable, scope, constructorName, arguments)) {
+            if (con.matches(variable, scope, constructorName, arguments, repository)) {
                 c = con;
                 break;
             }

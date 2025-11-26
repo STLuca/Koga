@@ -31,7 +31,7 @@ public class MachineCompositeStructure implements Structure {
         // Setup variable
         Scope variable = scope.state(descriptor, name);
 
-        if (this.generics.size() != generics.size()) {
+        if (this.generics.size() != descriptor.generics.size()) {
             throw new RuntimeException();
         }
         for (int i = 0; i < this.generics.size(); i++) {
@@ -57,7 +57,7 @@ public class MachineCompositeStructure implements Structure {
         Scope variable = scope.state(descriptor, name);
 
         // Setup variable
-        if (this.generics.size() != generics.size()) {
+        if (this.generics.size() != descriptor.generics.size()) {
             throw new RuntimeException();
         }
         for (int i = 0; i < this.generics.size(); i++) {
@@ -69,7 +69,7 @@ public class MachineCompositeStructure implements Structure {
         // Try and match a constructor
         Operation c = null;
         for (Operation con : constructors) {
-            if (con.matches(variable, scope, constructorName, arguments)) {
+            if (con.matches(variable, scope, constructorName, arguments, repository)) {
                 c = con;
                 break;
             }
@@ -99,7 +99,7 @@ public class MachineCompositeStructure implements Structure {
         // Find the method
         Operation operation = null;
         for (Operation m : operations) {
-            if (m.matches(variable, scope, operationName, arguments)) {
+            if (m.matches(variable, scope, operationName, arguments, repository)) {
                 operation = m;
                 break;
             }

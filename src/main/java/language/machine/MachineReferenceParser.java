@@ -6,11 +6,18 @@ import language.scanning.Scanner;
 import language.scanning.Token;
 import language.scanning.Tokens;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class MachineReferenceParser implements Parser {
+
+    static class Context {
+        MachineReferenceStructure c;
+        HashMap<String, String> structures = new HashMap<>();
+        ArrayList<String> generics = new ArrayList<>();
+    }
 
     Token CONSTRUCTOR, NAME, GLOBAL_NAME, IMPORTS, BYTE, ADDR, POSITION, BLOCK,
           NUMBER, LITERAL_ARG, PARAM_TYPE, PARAM_ARRAY,
@@ -65,9 +72,10 @@ public class MachineReferenceParser implements Parser {
     }
     
     public Output parse(String input) {
-        HashMap<String, String> structures = new HashMap<>();
         Scanner scanner = new Scanner(input);
         MachineReferenceStructure mc = new MachineReferenceStructure();
+        Context ctx = new Context();
+        ctx.c = mc;
         Token curr = scanner.next(metaTokens);
 
         if (curr == IMPORTS) {
@@ -83,7 +91,7 @@ public class MachineReferenceParser implements Parser {
                     local = curr.matched();
                     curr = scanner.next(metaTokens);
                 }
-                structures.put(local, global);
+                ctx.structures.put(local, global);
                 if (curr != SEMI_COLON) scanner.fail(";");
                 curr = scanner.next(metaTokens);
             }
@@ -94,7 +102,7 @@ public class MachineReferenceParser implements Parser {
         mc.name = curr.matched();
 
         String[] splitName = mc.name.split("\\.");
-        structures.put(splitName[splitName.length - 1], mc.name);
+        ctx.structures.put(splitName[splitName.length - 1], mc.name);
 
         curr = scanner.next(tokens);
         if (curr == OP_PT_BRACE) {
@@ -107,6 +115,7 @@ public class MachineReferenceParser implements Parser {
                 g.type = Generic.Type.valueOf(type);
                 g.name = name;
                 mc.generics.add(g);
+                ctx.generics.add(name);
                 curr = scanner.next(tokens);
             } while (curr == COMMA);
             if (curr != CL_PT_BRACE) scanner.fail(">");
@@ -120,9 +129,9 @@ public class MachineReferenceParser implements Parser {
             } else if (curr == ADDR) {
                 parseAddress(scanner, mc);
             } else if (curr == CONSTRUCTOR) {
-                parseConstructor(scanner, mc, structures);
+                parseConstructor(scanner, ctx);
             } else if (curr == NAME) {
-                parseMethod(scanner, mc, structures);
+                parseMethod(scanner, ctx);
             } else if (curr == TILDA) {
                 scanner.takeUntilNewLine();
             }
@@ -157,7 +166,7 @@ public class MachineReferenceParser implements Parser {
         mc.variables.add(data);
     }
 
-    private void parseConstructor(Scanner scanner, MachineReferenceStructure mc, HashMap<String, String> structures) {
+    private void parseConstructor(Scanner scanner, Context ctx) {
         Operation mcc = new Operation();
         Token curr = scanner.next(tokens);
         if (curr == NAME) {
@@ -168,104 +177,109 @@ public class MachineReferenceParser implements Parser {
         } else {
             scanner.fail("(");
         }
-        parseParameters(scanner, mc, mcc.parameters, structures);
+        parseParameters(scanner, ctx, mcc.parameters);
         scanner.expect(tokens, OP_BRACE);
         curr = scanner.next(tokens);
-        parseBody(scanner, mc, mcc, mcc.body);
-        mc.constructors.add(mcc);
+        parseBody(scanner, ctx.c, mcc, mcc.body);
+        ctx.c.constructors.add(mcc);
     }
 
-    private void parseMethod(Scanner scanner, MachineReferenceStructure mc, HashMap<String, String> structures) {
+    private void parseMethod(Scanner scanner, Context ctx) {
         Operation mcm = new Operation();
         Token curr = scanner.current();
         if (curr != NAME) scanner.fail("name");
         mcm.name = curr.matched();
         scanner.expect(tokens, OP_PAREN);
-        parseParameters(scanner, mc, mcm.parameters, structures);
+        parseParameters(scanner, ctx, mcm.parameters);
         scanner.expect(tokens, OP_BRACE);
         curr = scanner.next(tokens);
-        parseBody(scanner, mc, mcm, mcm.body);
+        parseBody(scanner, ctx.c, mcm, mcm.body);
         if (mcm.name.equals("invoke")) {
-            mc.invokeOperation = mcm;
+            ctx.c.invokeOperation = mcm;
         } else if (mcm.name.equals("arg")) {
-            mc.argOperation = mcm;
+            ctx.c.argOperation = mcm;
         }
     }
 
-    void parseParameters(Scanner scanner, MachineReferenceStructure mc, ArrayList<Operation.Parameter> parameters, HashMap<String, String> structures) {
+    void parseParameters(Scanner scanner, Context ctx, ArrayList<Operation.Parameter> parameters) {
         Token curr = scanner.next(paramTokens);
         while (curr != CL_PAREN) {
             if (curr != PARAM_TYPE && curr != NAME) throw new RuntimeException("expecting parameter type");
             boolean binaryType = curr == PARAM_TYPE;
-            boolean isArray = false;
             String paramType = curr.matched();
-            curr = scanner.next(paramTokens);
-            ArrayList<String> generics = new ArrayList<>();
-            if (curr == PARAM_ARRAY) {
-                isArray = true;
-                curr = scanner.next(paramTokens);
-            } else if (curr == OP_PT_BRACE) {
-                while (curr != CL_PT_BRACE) {
-                    curr = scanner.expect(tokens, NAME);
-                    generics.add(curr.matched());
-                    curr = scanner.next(tokens);
-                    if (curr == COMMA) {
-                        curr = scanner.next(tokens);
-                    }
-                }
-                curr = scanner.next(tokens);
-            }
-            if (curr != NAME) scanner.fail("name");
-            String paramName = curr.matched();
             if (binaryType) {
+                curr = scanner.next(paramTokens);
+                boolean isArray = false;
+                if (curr == PARAM_ARRAY) {
+                    isArray = true;
+                    curr = scanner.next(paramTokens);
+                }
                 Operation.Parameter p = new Operation.Parameter();
                 p.type = Operation.Parameter.Type.Literal;
                 p.bits = Integer.parseInt(paramType.substring(1));
                 p.array = isArray;
-                p.name = paramName;
+                p.name = curr.matched();
                 parameters.add(p);
             } else {
                 Operation.Parameter p = new Operation.Parameter();
                 if (paramType.equals("Block")) {
                     p.type = Operation.Parameter.Type.Block;
+                    curr = scanner.next(tokens);
                 } else if (paramType.equals("Name")) {
                     p.type = Operation.Parameter.Type.Name;
+                    curr = scanner.next(tokens);
                 } else {
                     p.type = Operation.Parameter.Type.Variable;
-                    Operation.VariableMatcher vm = new Operation.VariableMatcher();
-                    buildVariableMatcher(vm, paramType, structures, mc.generics);
-                    p.variableMatcher = vm;
-                    if (!generics.isEmpty()) {
-                        vm.subMatchers = new ArrayList<>();
-                    }
-                    for (String generic : generics) {
-                        Operation.VariableMatcher gvm = new Operation.VariableMatcher();
-                        buildVariableMatcher(gvm, generic, structures, mc.generics);
-                        p.variableMatcher.subMatchers.add(gvm);
+                    Operation.Descriptor rootDescriptor = new Operation.Descriptor();
+                    p.descriptor = rootDescriptor;
+                    ArrayDeque<Operation.Descriptor> stack = new ArrayDeque<>();
+                    stack.push(rootDescriptor);
+
+                    while (!stack.isEmpty()) {
+                        if (curr == NAME) {
+                            Operation.Descriptor d = stack.peek();
+                            if (d.name != null) { break; }
+                            if (ctx.structures.containsKey(curr.matched())) {
+                                d.type = Operation.Descriptor.Type.Structure;
+                                d.name = ctx.structures.get(curr.matched());
+                            } else if (ctx.generics.contains(curr.matched())) {
+                                d.type = Operation.Descriptor.Type.Generic;
+                                d.name = curr.matched();
+                            } else if (curr.matched().equals("Variable")) {
+                                d.type = Operation.Descriptor.Type.Structure;
+                                d.name = "Variable";
+                            } else {
+                                scanner.fail("");
+                            }
+                        } else if (curr == OP_PT_BRACE) {
+                            Operation.Descriptor d = stack.peek();
+                            Operation.Descriptor subDescriptor = new Operation.Descriptor();
+                            d.subDescriptors.add(subDescriptor);
+                            stack.push(subDescriptor);
+                        } else if (curr == CL_PT_BRACE) {
+                            stack.pop();
+                            if (stack.peek() == rootDescriptor) {
+                                stack.pop();
+                            }
+                        } else if (curr == COMMA) {
+                            stack.pop();
+                            Operation.Descriptor d = stack.peek();
+                            Operation.Descriptor subDescriptor = new Operation.Descriptor();
+                            d.subDescriptors.add(subDescriptor);
+                            stack.push(subDescriptor);
+                        }
+                        curr = scanner.next(tokens);
                     }
                 }
-                p.array = isArray;
-                p.name = paramName;
+                p.array = false;
+                if (curr != NAME) {
+                    scanner.fail("name");
+                }
+                p.name = curr.matched();
                 parameters.add(p);
             }
             if (scanner.peek(paramTokens).orElse(null) == COMMA) scanner.next(paramTokens);
             curr = scanner.next(paramTokens);
-        }
-    }
-
-    void buildVariableMatcher(Operation.VariableMatcher vm, String name, HashMap<String, String> structures, ArrayList<Generic> generics) {
-        boolean isGeneric = false;
-        for (Generic g : generics) {
-            if (g.name.equals(name)) {
-                isGeneric = true;
-                break;
-            }
-        }
-        vm.isGeneric = isGeneric;
-        if (isGeneric) {
-            vm.name = name;
-        } else {
-            vm.name = structures.get(name);
         }
     }
 

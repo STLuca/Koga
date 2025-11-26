@@ -1,61 +1,55 @@
 package language.machine;
 
 import language.core.Compiler;
+import language.core.Repository;
 import language.core.Scope;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Operation {
 
-    public static class VariableMatcher {
+    public static class Descriptor {
 
-        boolean isGeneric;
+        public enum Type { Structure, Document, Generic }
+        Type type;
         String name;
-        ArrayList<VariableMatcher> subMatchers;
+        ArrayList<Descriptor> subDescriptors = new ArrayList<>();
 
-        boolean match(Scope variable, Scope operation, String arg) {
-            boolean matches;
-            if (isGeneric) {
-                Scope.Generic generic = variable.findGeneric(name).orElse(null);
-                if (generic == null) return false;
-                Scope v = operation.findVariable(arg).orElseThrow();
-                matches = generic.structure == v.description().structure;
-            } else {
-                Scope v = operation.findVariable(arg).orElse(null);
-                if (v == null) {
-                    return false;
-                }
-                matches = name.equals(v.description().structure.name());
-            }
-            if (!matches) {
-                return false;
-            }
-            if (subMatchers == null) {
-                return true;
-            }
-            Scope v = operation.findVariable(arg).orElseThrow();
-            if (subMatchers.size() != v.genericSize()) {
-                return false;
-            }
-            boolean allMatch = true;
-            List<Scope.Generic> orderedGenerics = v.generics();
-            for (int i = 0; i < subMatchers.size(); i++) {
-                VariableMatcher m = subMatchers.get(i);
-                Scope.Generic g = orderedGenerics.get(i);
-                if (!m.isGeneric) {
-                    if (!m.name.equals(g.structure.name())) {
-                        allMatch = false;
+        Scope.Generic resolve(Scope variable, Repository repository) {
+            Scope.Generic rootGeneric = new Scope.Generic();
+            ArrayDeque<Scope.Generic> dGenerics = new ArrayDeque<>();
+            ArrayDeque<Descriptor> descriptors = new ArrayDeque<>();
+            dGenerics.push(rootGeneric);
+            descriptors.push(this);
+            while (!dGenerics.isEmpty()) {
+                Scope.Generic g = dGenerics.pop();
+                Descriptor d = descriptors.pop();
+                switch (d.type) {
+                    case Structure -> {
+                        g.type = Scope.Generic.Type.Structure;
+                        g.structure = repository.structure(d.name);
                     }
-                } else {
-                    Scope.Generic mg = variable.findGeneric(m.name).orElseThrow();
-                    if (mg.structure != g.structure) {
-                        allMatch = false;
+                    case Document -> {
+                        g.type = Scope.Generic.Type.Document;
+                        g.document = repository.document(d.name);
+                    }
+                    case Generic -> {
+                        g.type = Scope.Generic.Type.Structure;
+                        g.structure = variable.findGeneric(d.name).orElseThrow().structure;
                     }
                 }
+                for (Descriptor subDescriptor : d.subDescriptors) {
+                    descriptors.push(subDescriptor);
+                    Scope.Generic subGeneric = new Scope.Generic();
+                    g.generics.add(subGeneric);
+                    dGenerics.push(subGeneric);
+                }
             }
-            return allMatch;
+            return rootGeneric;
         }
+
     }
 
     public static class Parameter {
@@ -64,7 +58,7 @@ public class Operation {
 
         Type type;
         int bits;
-        VariableMatcher variableMatcher;
+        Descriptor descriptor;
         boolean array;
         String name;
     }
@@ -74,20 +68,25 @@ public class Operation {
     ArrayList<String> addresses = new ArrayList<>();
     ArrayList<Statement> body = new ArrayList<>();
 
-    boolean matches(Scope variable, Scope operation, String name, List<String> arguments) {
+    boolean matches(Scope variable, Scope operation, String name, List<String> arguments, Repository repository) {
         if (!name.equals(this.name)) return false;
         List<Scope> defaults = operation.defaults();
         int argumentSize = arguments.size() + defaults.size();
         if (parameters.size() != argumentSize) return false;
+
         for (int i = 0; i < arguments.size(); i++) {
             Parameter param = parameters.get(i);
             String arg = arguments.get(i);
-            if (param.array) {
-                operation.findLiteralAsInt(arg);
-            }
             switch (param.type) {
                 case Variable -> {
-                    if (param.variableMatcher.match(variable, operation, arg)) { continue; }
+                    Scope.Generic rootGeneric = param.descriptor.resolve(variable, repository);
+                    Scope argument = operation.findVariable(arg).orElse(null);
+                    if (argument != null) {
+                        Scope.Generic argDescription = argument.description();
+                        if (rootGeneric.equals(argDescription)) {
+                            continue;
+                        }
+                    }
                 }
                 case Literal -> {
                     Integer literal = operation.findLiteralAsInt(arg).orElse(null);
@@ -106,7 +105,11 @@ public class Operation {
         for (int i = 0; i < defaults.size(); i++) {
             Parameter param = parameters.get(i + arguments.size());
             Scope arg = defaults.get(i);
-            if (param.type != Parameter.Type.Variable || !param.variableMatcher.name.equals(arg.description().structure.name())) {
+            if (param.type != Parameter.Type.Variable) {
+                return false;
+            }
+            Scope.Generic rootGeneric = param.descriptor.resolve(variable, repository);
+            if (!rootGeneric.equals(arg.description())) {
                 return false;
             }
         }

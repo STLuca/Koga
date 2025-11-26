@@ -50,7 +50,7 @@ public class HostedCompilable implements Compilable {
         }
 
         for (Field f : fields) {
-            Structure sc = repository.structure(f.descriptor.name);
+            Structure sc = repository.structure(f.descriptor.name).orElseThrow();
             compiler.data(f.name, sc.size(repository));
         }
 
@@ -76,7 +76,7 @@ public class HostedCompilable implements Compilable {
             mb.name(m.name);
 
             for (Parameter p : m.params) {
-                Structure structure = repository.structure(p.descriptor.name);
+                Structure structure = repository.structure(p.descriptor.name).orElseThrow();
                 mb.parameter(structure.name());
 
                 Scope.Generic rootGeneric = new Scope.Generic();
@@ -90,11 +90,11 @@ public class HostedCompilable implements Compilable {
                     switch (d.type) {
                         case Structure -> {
                             g.type = Scope.Generic.Type.Structure;
-                            g.structure = repository.structure(d.name);
+                            g.structure = repository.structure(d.name).orElseThrow();
                         }
                         case Document -> {
                             g.type = Scope.Generic.Type.Document;
-                            g.document = repository.document(d.name);
+                            g.document = repository.document(d.name).orElseThrow();
                         }
                         case Generic -> {
                             g.type = Scope.Generic.Type.Structure;

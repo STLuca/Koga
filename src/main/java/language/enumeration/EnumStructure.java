@@ -32,10 +32,6 @@ public class EnumStructure implements language.core.Structure {
     public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
         Scope thisVariable = scope.state(descriptor, name);
 
-        for (String imprt : this.imports) {
-            repository.structure(imprt);
-        }
-
         int maxSize = size(repository);
         int typeLocation = compiler.data(TYPE_SIZE);
         thisVariable.put("type", new Scope.Allocation(TYPE_SIZE, typeLocation));
@@ -50,7 +46,7 @@ public class EnumStructure implements language.core.Structure {
             mc.parent = compiler;
             mc.location = location;
             for (Field f : struct.fields) {
-                language.core.Structure u = repository.structure(f.descriptor.name);
+                language.core.Structure u = repository.structure(f.descriptor.name).orElseThrow();
                 u.declare(mc, repository, structScope, descriptor, f.name);
             }
         }
@@ -64,10 +60,6 @@ public class EnumStructure implements language.core.Structure {
         Scope.Allocation typeAllocation = new Scope.Allocation(TYPE_SIZE, typeLocation);
         thisVariable.put("type", typeAllocation);
         int location = compiler.data(maxSize);
-
-        for (String imprt : this.imports) {
-            repository.structure(imprt);
-        }
 
         Structure structure = null;
         Method method = null;
@@ -106,7 +98,7 @@ public class EnumStructure implements language.core.Structure {
             description.generics = descriptor.generics;
             Scope structureScope = thisVariable.state(description, struct.name);
             for (Field f : struct.fields) {
-                language.core.Structure u = repository.structure(f.descriptor.name);
+                language.core.Structure u = repository.structure(f.descriptor.name).orElseThrow();
                 Scope.Generic fieldDescription = new Scope.Generic();
                 fieldDescription.type = Scope.Generic.Type.Structure;
                 fieldDescription.structure = u;

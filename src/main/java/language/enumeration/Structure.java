@@ -15,7 +15,7 @@ class Structure implements language.core.Structure {
     public int size(Repository repository) {
         int size = 0;
         for (Field f : fields) {
-            language.core.Structure u = repository.structure(f.descriptor.name);
+            language.core.Structure u = repository.structure(f.descriptor.name).orElseThrow();
             size += u.size(repository);
         }
         return size;

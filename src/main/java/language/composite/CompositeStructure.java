@@ -23,7 +23,7 @@ public class CompositeStructure implements Structure {
     public int size(Repository repository) {
         int size = 0;
         for (Field f : fields) {
-            Structure u = repository.structure(f.name);
+            Structure u = repository.structure(f.name).orElseThrow();
             size += u.size(repository);
         }
         return size;
@@ -44,7 +44,7 @@ public class CompositeStructure implements Structure {
             if (generic != null) {
                 u = generic.structure;
             } else {
-                u = repository.structure(f.descriptor.name);
+                u = repository.structure(f.descriptor.name).orElseThrow();
             }
             String fieldName = f.name;
 
@@ -59,11 +59,11 @@ public class CompositeStructure implements Structure {
                 switch (d.type) {
                     case Structure -> {
                         g.type = Scope.Generic.Type.Structure;
-                        g.structure = repository.structure(d.name);
+                        g.structure = repository.structure(d.name).orElseThrow();
                     }
                     case Document -> {
                         g.type = Scope.Generic.Type.Document;
-                        g.document = repository.document(d.name);
+                        g.document = repository.document(d.name).orElseThrow();
                     }
                     case Generic -> {
                         g.type = Scope.Generic.Type.Structure;
@@ -92,7 +92,7 @@ public class CompositeStructure implements Structure {
         }
 
         for (Field field : fields) {
-            Structure structure = repository.structure(field.descriptor.name);
+            Structure structure = repository.structure(field.descriptor.name).orElseThrow();
             Scope.Generic fieldDescriptor = new Scope.Generic();
             fieldDescriptor.type = Scope.Generic.Type.Structure;
             fieldDescriptor.structure = structure;

@@ -77,11 +77,11 @@ public class Statement {
                     switch (d.type) {
                         case Structure -> {
                             g.type = Scope.Generic.Type.Structure;
-                            g.structure = repository.structure(d.name);
+                            g.structure = repository.structure(d.name).orElseThrow();
                         }
                         case Document -> {
                             g.type = Scope.Generic.Type.Document;
-                            g.document = repository.document(d.name);
+                            g.document = repository.document(d.name).orElseThrow();
                         }
                     }
                     for (Descriptor subDescriptor : d.subDescriptors) {
@@ -96,11 +96,11 @@ public class Statement {
 
         switch (type) {
             case DECLARE -> {
-                Structure structure = repository.structure(descriptor.name);
+                Structure structure = repository.structure(descriptor.name).orElseThrow();
                 structure.declare(compiler, repository, scope, rootGeneric, variableName);
             }
             case CONSTRUCT -> {
-                Structure structure = repository.structure(descriptor.name);
+                Structure structure = repository.structure(descriptor.name).orElseThrow();
                 structure.construct(compiler, repository, scope, rootGeneric, variableName, methodName, argNames);
             }
             case INVOKE -> {

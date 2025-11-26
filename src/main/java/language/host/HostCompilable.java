@@ -43,7 +43,7 @@ public class HostCompilable implements Compilable {
 
         String administrator = null;
         for (String dependency : dependencies) {
-            Document document = repository.document(dependency);
+            Document document = repository.document(dependency).orElseThrow();
 
             compiler.dependency(dependency);
             if (administrator == null) {
@@ -74,7 +74,7 @@ public class HostCompilable implements Compilable {
         }
 
         for (Field f : fields) {
-            Structure sc = repository.structure(f.descriptor.name);
+            Structure sc = repository.structure(f.descriptor.name).orElseThrow();
             compiler.data(f.name, sc.size(repository));
         }
 
@@ -85,7 +85,7 @@ public class HostCompilable implements Compilable {
             mb.name(m.name);
 
             for (Parameter p : m.params) {
-                Structure structure = repository.structure(p.descriptor.name);
+                Structure structure = repository.structure(p.descriptor.name).orElseThrow();
                 mb.parameter(structure.name());
 
                 Scope.Generic rootGeneric = new Scope.Generic();
@@ -99,11 +99,11 @@ public class HostCompilable implements Compilable {
                     switch (d.type) {
                         case Structure -> {
                             g.type = Scope.Generic.Type.Structure;
-                            g.structure = repository.structure(d.name);
+                            g.structure = repository.structure(d.name).orElseThrow();
                         }
                         case Document -> {
                             g.type = Scope.Generic.Type.Document;
-                            g.document = repository.document(d.name);
+                            g.document = repository.document(d.name).orElseThrow();
                         }
                     }
                     for (Descriptor subDescriptor : d.subDescriptors) {

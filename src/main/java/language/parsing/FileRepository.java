@@ -6,10 +6,7 @@ import language.machine.MachineProxyStructure;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,24 +69,24 @@ public class FileRepository implements Repository {
         return true;
     }
 
-    public Structure structure(String name) {
+    public Optional<Structure> structure(String name) {
         parse(name);
-        return compilerClasses.get(name);
+        return Optional.ofNullable(compilerClasses.get(name));
     }
 
-    public Compilable compilable(String name) {
+    public Optional<Compilable> compilable(String name) {
         parse(name);
-        return compilableClasses.get(name);
+        return Optional.ofNullable(compilableClasses.get(name));
     }
 
-    public language.core.Document document(String name) {
+    public Optional<language.core.Document> document(String name) {
         parse(name);
         if (cachedDocuments.containsKey(name)) {
-            return cachedDocuments.get(name);
+            return Optional.of(cachedDocuments.get(name));
         }
         Compilable compilable = compilableClasses.get(name);
         Document document = compilable.document();
         cachedDocuments.put(name, document);
-        return document;
+        return Optional.ofNullable(document);
     }
 }

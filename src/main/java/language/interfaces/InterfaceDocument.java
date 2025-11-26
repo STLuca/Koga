@@ -52,11 +52,11 @@ public class InterfaceDocument implements Document {
                 switch (d.type) {
                     case Structure -> {
                         g.type = Scope.Generic.Type.Structure;
-                        g.structure = repository.structure(d.name);
+                        g.structure = repository.structure(d.name).orElseThrow();
                     }
                     case Document -> {
                         g.type = Scope.Generic.Type.Document;
-                        g.document = repository.document(d.name);
+                        g.document = repository.document(d.name).orElseThrow();
                     }
                     case Generic -> {
                         Scope.Generic generic = genericsByName.get(d.name);

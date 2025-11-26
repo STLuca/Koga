@@ -1,9 +1,11 @@
 package language.core;
 
+import java.util.Optional;
+
 public interface Repository {
 
-    Structure structure(String name);
-    Compilable compilable(String name);
-    Document document(String name);
+    Optional<Structure> structure(String name);
+    Optional<Compilable> compilable(String name);
+    Optional<Document> document(String name);
 
 }

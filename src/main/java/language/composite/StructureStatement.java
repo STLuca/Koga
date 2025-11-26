@@ -82,11 +82,11 @@ public class StructureStatement implements Statement {
                     switch (d.type) {
                         case Structure -> {
                             g.type = Scope.Generic.Type.Structure;
-                            g.structure = repository.structure(d.name);
+                            g.structure = repository.structure(d.name).orElseThrow();
                         }
                         case Document -> {
                             g.type = Scope.Generic.Type.Document;
-                            g.document = repository.document(d.name);
+                            g.document = repository.document(d.name).orElseThrow();
                         }
                         case Generic -> {
                             g.type = Scope.Generic.Type.Structure;
@@ -110,12 +110,12 @@ public class StructureStatement implements Statement {
                     Structure structure = g.structure;
                     structure.declare(compiler, repository, scope, rootGeneric, variableName);
                 } else {
-                    Structure structure = repository.structure(this.descriptor.name);
+                    Structure structure = repository.structure(this.descriptor.name).orElseThrow();
                     structure.declare(compiler, repository, scope, rootGeneric, variableName);
                 }
             }
             case CONSTRUCT -> {
-                Structure structure = repository.structure(this.descriptor.name);
+                Structure structure = repository.structure(this.descriptor.name).orElseThrow();
                 structure.construct(compiler, repository, scope, rootGeneric, variableName, methodName, argNames);
             }
             case INVOKE -> {

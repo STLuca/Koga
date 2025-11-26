@@ -30,12 +30,12 @@ public class SymbolStatement implements Statement {
                     switch (type) {
                         case CLASS, PROTOCOL, METHOD, INTERFACE -> {
                             if (index == 0) {
-                                name = repository.document(name).name();
+                                name = repository.document(name).orElseThrow().name();
                             }
                         }
                         case FIELD -> {
                             if (index == 0 && nameLength == 2) {
-                                name = repository.document(name).name();
+                                name = repository.document(name).orElseThrow().name();
                             }
                         }
                     }

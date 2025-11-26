@@ -155,7 +155,7 @@ public class VirtualMachineTest {
             String compile = toCompile.pop();
             if (haveCompiled.contains(compile)) continue;
             parser.parse(compile);
-            Compilable compiled = parser.compilable(compile);
+            Compilable compiled = parser.compilable(compile).orElseThrow();
             if (compiled.dependencies() != null) {
                 toCompile.addAll(compiled.dependencies());
             }

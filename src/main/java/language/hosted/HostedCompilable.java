@@ -3,6 +3,7 @@ package language.hosted;
 import core.Types;
 import language.core.*;
 import language.core.Compiler;
+import language.scopes.ObjScope;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class HostedCompilable implements Compilable {
             compiler.data(f.name, sc.size(repository));
         }
 
-        Scope hostedScope = Scope.rootState();
+        Scope hostedScope = ObjScope.rootState();
         for (Generic g : generics) {
             Scope.Generic generic = new Scope.Generic();
             switch (g.type) {
@@ -71,7 +72,7 @@ public class HostedCompilable implements Compilable {
 
         for (Method m : methods) {
             Compiler.MethodCompiler mb = compiler.method();
-            Scope scope = Scope.rootOperation(hostedScope);
+            Scope scope = ObjScope.rootOperation(hostedScope);
 
             mb.name(m.name);
 

@@ -2,6 +2,7 @@ package language.host;
 
 import core.Types;
 import language.core.*;
+import language.scopes.ObjScope;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -78,10 +79,10 @@ public class HostCompilable implements Compilable {
             compiler.data(f.name, sc.size(repository));
         }
 
-        Scope rootState = Scope.rootState();
+        Scope rootState = ObjScope.rootState();
         for (Method m : methods) {
             Compiler.MethodCompiler mb = compiler.method();
-            Scope scope = Scope.rootOperation(rootState);
+            Scope scope = ObjScope.rootOperation(rootState);
             mb.name(m.name);
 
             for (Parameter p : m.params) {

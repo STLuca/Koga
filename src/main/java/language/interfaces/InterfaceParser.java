@@ -138,6 +138,7 @@ public class InterfaceParser implements Parser {
         }
 
         Output out = new Output();
+        out.names = new String[] { ic.name };
         out.compilables = new Compilable[] { ic };
         return out;
     }

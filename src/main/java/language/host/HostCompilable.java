@@ -87,7 +87,7 @@ public class HostCompilable implements Compilable {
 
             for (Parameter p : m.params) {
                 Structure structure = repository.structure(p.descriptor.name).orElseThrow();
-                mb.parameter(structure.name());
+                mb.parameter(p.descriptor.name);
 
                 Scope.Generic rootGeneric = new Scope.Generic();
                 ArrayDeque<Scope.Generic> generics = new ArrayDeque<>();

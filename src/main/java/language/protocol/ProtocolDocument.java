@@ -2,6 +2,7 @@ package language.protocol;
 
 import core.Types;
 import language.core.Document;
+import language.core.Repository;
 import language.core.Scope;
 import language.interfaces.Parameter;
 
@@ -19,6 +20,14 @@ public class ProtocolDocument implements Document {
 
     public String name() {
         return protocol.name;
+    }
+
+    public Optional<Method> method(Scope.Generic description, String name, Repository repository) {
+        return Optional.empty();
+    }
+
+    public List<String> implementing() {
+        return List.of();
     }
 
 }

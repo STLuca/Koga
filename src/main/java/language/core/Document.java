@@ -14,11 +14,7 @@ public interface Document {
 
     Types.Document type();
     String name();
-    default Optional<Method> method(Scope.Generic description, String name, Repository repository) {
-        return Optional.empty();
-    };
-    default List<String> implementing() {
-        return new ArrayList<>();
-    };
+    Optional<Method> method(Scope.Generic description, String name, Repository repository);
+    List<String> implementing();
 
 }

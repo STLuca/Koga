@@ -138,6 +138,7 @@ public class MachineCompositeParser implements Parser {
         }
 
         Output out = new Output();
+        out.names = new String[] { mc.name };
         out.structures = new Structure[] { mc };
         return out;
     }

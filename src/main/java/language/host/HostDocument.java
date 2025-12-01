@@ -7,6 +7,7 @@ import language.core.Scope;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class HostDocument implements Document {
@@ -66,4 +67,7 @@ public class HostDocument implements Document {
         return Optional.of(hostMethod);
     }
 
+    public List<String> implementing() {
+        return List.of();
+    }
 }

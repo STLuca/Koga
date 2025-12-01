@@ -52,6 +52,7 @@ public class ProtocolParser implements Parser {
         }
 
         Output out = new Output();
+        out.names = new String[] { pc.name };
         out.compilables = new Compilable[] { pc };
         return out;
     }

@@ -204,6 +204,7 @@ public class HostParser implements Parser {
         }
 
         Output out = new Output();
+        out.names = new String[] { c.name };
         out.compilables = new Compilable[] { c };
         return out;
     }

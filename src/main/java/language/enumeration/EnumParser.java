@@ -150,6 +150,7 @@ public class EnumParser implements Parser {
             }
         }
         Output out = new Output();
+        out.names = new String[] { u.name };
         out.structures = new language.core.Structure[] { u };
         return out;
     }

@@ -195,6 +195,7 @@ public class CompositeParser implements Parser {
             curr = scanner.next(tokens);
         }
         Output out = new Output();
+        out.names = new String[] { c.name };
         out.structures = new Structure[] { c };
         return out;
     }

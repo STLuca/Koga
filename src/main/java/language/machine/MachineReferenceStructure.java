@@ -164,10 +164,11 @@ public class MachineReferenceStructure implements Structure {
             language.core.Document.Method method = d.document.method(d, methodName, repository).orElseThrow();
             Scope.Generic param = method.parameters.get(index);
             boolean isEqual = param.equals(argVariable.description());
+            Structure pointer = repository.structure("core.Pointer").orElseThrow();
             if (isEqual) {
                 new InstructionStatement("m", "COPY", "TII", "P", "frameDataAddr", "P", "a", "S", "a").compile(compiler, repository, variable, scope);
                 new InstructionStatement("i","ADD", "TI", "P", "frameDataAddr", "P", "frameDataAddr", "S", "a").compile(compiler, repository, variable, scope);
-            } else if (param.structure.name().equals("core.Pointer")) {
+            } else if (param.structure == pointer) {
                 int addrAddr = compiler.data(4);
                 new InstructionStatement("i", "ADD", "LI", "I", "0d" + addrAddr, "R", "task", "P", "a").compile(compiler, repository, variable, scope);
                 new InstructionStatement("m", "COPY", "TII", "P", "frameDataAddr", "I", "0d" + addrAddr, "S", "a").compile(compiler, repository, variable, scope);

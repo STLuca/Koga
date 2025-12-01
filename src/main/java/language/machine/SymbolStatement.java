@@ -27,18 +27,18 @@ public class SymbolStatement implements Statement {
                 case L -> {
                     String name = scope.findName(input).orElse(null);
 
-                    switch (type) {
-                        case CLASS, PROTOCOL, METHOD, INTERFACE -> {
-                            if (index == 0) {
-                                name = repository.document(name).orElseThrow().name();
-                            }
-                        }
-                        case FIELD -> {
-                            if (index == 0 && nameLength == 2) {
-                                name = repository.document(name).orElseThrow().name();
-                            }
-                        }
-                    }
+//                    switch (type) {
+//                        case CLASS, PROTOCOL, METHOD, INTERFACE -> {
+//                            if (index == 0) {
+//                                name = repository.document(name).orElseThrow().name();
+//                            }
+//                        }
+//                        case FIELD -> {
+//                            if (index == 0 && nameLength == 2) {
+//                                name = repository.document(name).orElseThrow().name();
+//                            }
+//                        }
+//                    }
                     yield name;
                 }
                 case G -> {

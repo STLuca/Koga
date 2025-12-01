@@ -53,14 +53,15 @@ public class FileRepository implements Repository {
         if (!parsers.containsKey(parserName)) return false;
         Parser parser = parsers.get(parserName);
         Parser.Output output = parser.parse(input);
+        int nameIndex = 0;
         if (output.structures != null) {
             for (Structure structure : output.structures) {
-                compilerClasses.put(structure.name(), structure);
+                compilerClasses.put(output.names[nameIndex++], structure);
             }
         }
         if (output.compilables != null) {
             for (Compilable compilable : output.compilables) {
-                compilableClasses.put(compilable.name(), compilable);
+                compilableClasses.put(output.names[nameIndex++], compilable);
             }
         }
 

@@ -5,10 +5,7 @@ import language.core.Document;
 import language.core.Repository;
 import language.core.Scope;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 
 public class InterfaceDocument implements Document {
 
@@ -81,4 +78,7 @@ public class InterfaceDocument implements Document {
         return Optional.of(hostMethod);
     }
 
+    public List<String> implementing() {
+        return List.of();
+    }
 }

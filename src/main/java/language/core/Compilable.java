@@ -6,9 +6,7 @@ public interface Compilable {
 
     String name();
     List<String> dependencies();
-    default Document document() {
-        throw new UnsupportedOperationException();
-    };
+    Document document();
     void compile(Repository repository, Compiler compiler);
 
 }

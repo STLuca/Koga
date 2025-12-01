@@ -68,6 +68,7 @@ public class MachineEnumParser implements Parser {
 
 
         Output out = new Output();
+        out.names = new String[] { mec.name };
         out.structures = new Structure[] { mec };
         return out;
     }

@@ -27,12 +27,12 @@ class Structure implements language.core.Structure {
     }
 
     @Override
-    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Description descriptor, String name) {
 
     }
 
     @Override
-    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name, String constructorName, List<String> argumentNames) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Description descriptor, String name, String constructorName, List<String> argumentNames) {
 
     }
 

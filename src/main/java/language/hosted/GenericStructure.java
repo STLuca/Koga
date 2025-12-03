@@ -22,12 +22,12 @@ public class GenericStructure implements Structure {
     }
 
     @Override
-    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Description descriptor, String name) {
         throw new RuntimeException();
     }
 
     @Override
-    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name, String constructorName, List<String> arguments) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Description descriptor, String name, String constructorName, List<String> arguments) {
         throw new RuntimeException();
     }
 

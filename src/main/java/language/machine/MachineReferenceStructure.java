@@ -20,12 +20,12 @@ public class MachineReferenceStructure implements Structure {
         return name;
     }
 
-    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Description descriptor, String name) {
         Scope variable = scope.state(descriptor, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            Scope.Generic descriptionGeneric = descriptor.generics.get(i);
+            Scope.Description descriptionGeneric = descriptor.generics.get(i);
             variable.put(generic.name, descriptionGeneric);
         }
         for (Data v : this.variables) {
@@ -36,12 +36,12 @@ public class MachineReferenceStructure implements Structure {
         }
     }
 
-    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name, String constructorName, List<String> arguments) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Description descriptor, String name, String constructorName, List<String> arguments) {
         Scope variable = scope.state(descriptor, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            Scope.Generic descriptionGeneric = descriptor.generics.get(i);
+            Scope.Description descriptionGeneric = descriptor.generics.get(i);
             variable.put(generic.name, descriptionGeneric);
         }
 
@@ -124,7 +124,7 @@ public class MachineReferenceStructure implements Structure {
         ArrayList<String> arguments = new ArrayList<>();
 
         public void compile(Compiler.MethodCompiler compiler, Repository repository, Scope variable, Scope scope) {
-            Scope.Generic d;
+            Scope.Description d;
             String methodName;
 
             InputType docInType = InputType.valueOf(this.arguments.get(0).toUpperCase());
@@ -136,7 +136,7 @@ public class MachineReferenceStructure implements Structure {
                     for (int i = 0; i < split.length - 1; i++) {
                         curr = scope.findVariable(split[i]).orElseThrow();
                     }
-                    Scope.Generic g = curr.findGeneric(split[split.length - 1]).orElseThrow();
+                    Scope.Description g = curr.findGeneric(split[split.length - 1]).orElseThrow();
                     yield g;
                 }
                 default -> throw new RuntimeException();
@@ -158,11 +158,11 @@ public class MachineReferenceStructure implements Structure {
             inputType = InputType.valueOf(this.arguments.get(8).toUpperCase());
             int addr = inputType.resolve(this.arguments.get(9), scope, repository).value();
 
-            if (d.type != Scope.Generic.Type.Document) {
+            if (d.type != Scope.Description.Type.Document) {
                 throw new RuntimeException();
             }
             language.core.Document.Method method = d.document.method(d, methodName, repository).orElseThrow();
-            Scope.Generic param = method.parameters.get(index);
+            Scope.Description param = method.parameters.get(index);
             boolean isEqual = param.equals(argVariable.description());
             Structure pointer = repository.structure("core.Pointer").orElseThrow();
             if (isEqual) {

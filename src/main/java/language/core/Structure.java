@@ -10,14 +10,14 @@ public interface Structure {
             Compiler.MethodCompiler compiler,
             Repository repository,
             Scope scope,
-            Scope.Generic descriptor,
+            Scope.Description descriptor,
             String name
     );
     void construct(
             Compiler.MethodCompiler compiler,
             Repository repository,
             Scope scope,
-            Scope.Generic descriptor,
+            Scope.Description descriptor,
             String name,
             String constructorName,
             List<String> arguments

@@ -2,9 +2,6 @@ package language.scopes;
 
 import language.core.Compiler;
 import language.core.Scope;
-import language.core.Scope.Allocation;
-import language.core.Scope.Block;
-import language.core.Scope.Generic;
 
 import java.util.*;
 
@@ -12,11 +9,11 @@ public class ObjScope implements Scope {
 
     ObjScope parent;
     String name;
-    Generic description;
+    Description description;
     HashMap<String, ObjScope> namedSubScopes = new HashMap<>();
     ArrayList<ObjScope> unnamedSubScopes = new ArrayList<>();
     ObjScope currentAnonymous;
-    HashMap<String, Generic> generics = new HashMap<>();
+    HashMap<String, Description> generics = new HashMap<>();
     HashMap<String, Allocation> allocations = new HashMap<>();
     HashMap<String, Integer> addresses = new HashMap<>();
     HashMap<String, byte[]> literals = new HashMap<>();
@@ -45,7 +42,7 @@ public class ObjScope implements Scope {
         return new ObjScope();
     }
 
-    public ObjScope state(Generic description, String name) {
+    public ObjScope state(Description description, String name) {
         if (namedSubScopes.containsKey(name)) {
             return namedSubScopes.get(name);
         }
@@ -97,7 +94,7 @@ public class ObjScope implements Scope {
     }
 
 
-    public Generic description() {
+    public Description description() {
         return description;
     }
 
@@ -114,11 +111,11 @@ public class ObjScope implements Scope {
     }
 
 
-    public void put(String name, Generic generic) {
+    public void put(String name, Description generic) {
         generics.put(name, generic);
     }
 
-    public Optional<Generic> findGeneric(String name) {
+    public Optional<Description> findGeneric(String name) {
         return Optional.ofNullable(generics.get(name));
     }
 

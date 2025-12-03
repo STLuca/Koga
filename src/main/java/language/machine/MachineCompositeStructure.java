@@ -27,7 +27,7 @@ public class MachineCompositeStructure implements Structure {
         return total;
     }
 
-    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Description descriptor, String name) {
         // Setup variable
         Scope variable = scope.state(descriptor, name);
 
@@ -36,7 +36,7 @@ public class MachineCompositeStructure implements Structure {
         }
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            Scope.Generic descriptionGeneric = descriptor.generics.get(i);
+            Scope.Description descriptionGeneric = descriptor.generics.get(i);
             variable.put(generic.name, descriptionGeneric);
         }
 
@@ -53,7 +53,7 @@ public class MachineCompositeStructure implements Structure {
         }
     }
 
-    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name, String constructorName, List<String> arguments) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Description descriptor, String name, String constructorName, List<String> arguments) {
         Scope variable = scope.state(descriptor, name);
 
         // Setup variable
@@ -62,7 +62,7 @@ public class MachineCompositeStructure implements Structure {
         }
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            Scope.Generic descriptionGeneric = descriptor.generics.get(i);
+            Scope.Description descriptionGeneric = descriptor.generics.get(i);
             variable.put(generic.name, descriptionGeneric);
         }
 

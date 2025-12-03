@@ -10,14 +10,14 @@ public interface Scope {
         void execute(Compiler.MethodCompiler compiler, Scope scope);
     }
 
-    class Generic {
+    class Description {
         public enum Type { Structure, Document }
-        public Scope.Generic.Type type;
+        public Description.Type type;
         public Structure structure;
         public Document document;
-        public ArrayList<Scope.Generic> generics = new ArrayList<>();
+        public ArrayList<Description> generics = new ArrayList<>();
 
-        public boolean equals(Generic generic) {
+        public boolean equals(Description generic) {
             boolean basic =  type == generic.type
                     && Objects.equals(structure, generic.structure)
                     && Objects.equals(document, generic.document)
@@ -35,16 +35,16 @@ public interface Scope {
 
     }
 
-    Scope state(Generic description, String name);
+    Scope state(Description description, String name);
     Scope startOperation(Scope state, String name);
 
-    Generic description();
+    Description description();
 
     void put(String name, Scope scope);
     Optional<Scope> findVariable(String name);
 
-    void put(String name, Scope.Generic generic);
-    Optional<Scope.Generic> findGeneric(String name);
+    void put(String name, Description generic);
+    Optional<Description> findGeneric(String name);
 
     void put(String name, Scope.Allocation allocation);
     Optional<Scope.Allocation> findAllocation(String name);

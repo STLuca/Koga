@@ -47,7 +47,7 @@ public class SymbolStatement implements Statement {
                     for (int si = 0; si < split.length - 1; si++) {
                         curr = scope.findVariable(split[si]).orElseThrow();
                     }
-                    Scope.Generic g = curr.findGeneric(split[split.length - 1]).orElseThrow();
+                    Scope.Description g = curr.findGeneric(split[split.length - 1]).orElseThrow();
                     yield g.document.name();
                 }
                 default -> throw new RuntimeException();

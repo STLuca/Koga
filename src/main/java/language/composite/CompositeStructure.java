@@ -29,18 +29,18 @@ public class CompositeStructure implements Structure {
         return size;
     }
     
-    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Description descriptor, String name) {
         Scope thisVariable = scope.state(descriptor, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            Scope.Generic descriptionGeneric = descriptor.generics.get(i);
+            Scope.Description descriptionGeneric = descriptor.generics.get(i);
             thisVariable.put(generic.name, descriptionGeneric);
         }
 
         for (Field f : fields) {
             Structure u;
-            Scope.Generic generic = thisVariable.findGeneric(f.descriptor.name).orElse(null);
+            Scope.Description generic = thisVariable.findGeneric(f.descriptor.name).orElse(null);
             if (generic != null) {
                 u = generic.structure;
             } else {
@@ -48,31 +48,31 @@ public class CompositeStructure implements Structure {
             }
             String fieldName = f.name;
 
-            Scope.Generic rootGeneric = new Scope.Generic();
-            ArrayDeque<Scope.Generic> dGenerics = new ArrayDeque<>();
+            Scope.Description rootGeneric = new Scope.Description();
+            ArrayDeque<Scope.Description> dGenerics = new ArrayDeque<>();
             ArrayDeque<Descriptor> descriptors = new ArrayDeque<>();
             dGenerics.push(rootGeneric);
             descriptors.push(f.descriptor);
             while (!dGenerics.isEmpty()) {
-                Scope.Generic g = dGenerics.pop();
+                Scope.Description g = dGenerics.pop();
                 Descriptor d = descriptors.pop();
                 switch (d.type) {
                     case Structure -> {
-                        g.type = Scope.Generic.Type.Structure;
+                        g.type = Scope.Description.Type.Structure;
                         g.structure = repository.structure(d.name).orElseThrow();
                     }
                     case Document -> {
-                        g.type = Scope.Generic.Type.Document;
+                        g.type = Scope.Description.Type.Document;
                         g.document = repository.document(d.name).orElseThrow();
                     }
                     case Generic -> {
-                        g.type = Scope.Generic.Type.Structure;
+                        g.type = Scope.Description.Type.Structure;
                         g.structure = thisVariable.findGeneric(d.name).orElseThrow().structure;
                     }
                 }
                 for (Descriptor subDescriptor : d.subDescriptors) {
                     descriptors.push(subDescriptor);
-                    Scope.Generic subGeneric = new Scope.Generic();
+                    Scope.Description subGeneric = new Scope.Description();
                     g.generics.add(subGeneric);
                     dGenerics.push(subGeneric);
                 }
@@ -82,19 +82,19 @@ public class CompositeStructure implements Structure {
         }
     }
     
-    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name, String constructorName, List<String> argumentNames) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Description descriptor, String name, String constructorName, List<String> argumentNames) {
         Scope thisVariable = scope.state(descriptor, name);
 
         for (int i = 0; i < this.generics.size(); i++) {
             Generic generic = this.generics.get(i);
-            Scope.Generic descriptionGeneric = descriptor.generics.get(i);
+            Scope.Description descriptionGeneric = descriptor.generics.get(i);
             thisVariable.put(generic.name, descriptionGeneric);
         }
 
         for (Field field : fields) {
             Structure structure = repository.structure(field.descriptor.name).orElseThrow();
-            Scope.Generic fieldDescriptor = new Scope.Generic();
-            fieldDescriptor.type = Scope.Generic.Type.Structure;
+            Scope.Description fieldDescriptor = new Scope.Description();
+            fieldDescriptor.type = Scope.Description.Type.Structure;
             fieldDescriptor.structure = structure;
             Scope fieldScope = thisVariable.state(fieldDescriptor, field.name);
             // Add field generics?

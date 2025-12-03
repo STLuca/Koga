@@ -69,33 +69,33 @@ public class StructureStatement implements Statement {
             }
         }
 
-        Scope.Generic rootGeneric = new Scope.Generic();
+        Scope.Description rootGeneric = new Scope.Description();
         switch (type) {
             case DECLARE, CONSTRUCT -> {
-                ArrayDeque<Scope.Generic> generics = new ArrayDeque<>();
+                ArrayDeque<Scope.Description> generics = new ArrayDeque<>();
                 ArrayDeque<Descriptor> descriptors = new ArrayDeque<>();
                 generics.push(rootGeneric);
                 descriptors.push(descriptor);
                 while (!generics.isEmpty()) {
-                    Scope.Generic g = generics.pop();
+                    Scope.Description g = generics.pop();
                     Descriptor d = descriptors.pop();
                     switch (d.type) {
                         case Structure -> {
-                            g.type = Scope.Generic.Type.Structure;
+                            g.type = Scope.Description.Type.Structure;
                             g.structure = repository.structure(d.name).orElseThrow();
                         }
                         case Document -> {
-                            g.type = Scope.Generic.Type.Document;
+                            g.type = Scope.Description.Type.Document;
                             g.document = repository.document(d.name).orElseThrow();
                         }
                         case Generic -> {
-                            g.type = Scope.Generic.Type.Structure;
+                            g.type = Scope.Description.Type.Structure;
                             g.structure = scope.findGeneric(d.name).orElseThrow().structure;
                         }
                     }
                     for (Descriptor subDescriptor : d.subDescriptors) {
                         descriptors.push(subDescriptor);
-                        Scope.Generic subGeneric = new Scope.Generic();
+                        Scope.Description subGeneric = new Scope.Description();
                         g.generics.add(subGeneric);
                         generics.push(subGeneric);
                     }
@@ -105,7 +105,7 @@ public class StructureStatement implements Statement {
 
         switch (type) {
             case DECLARE -> {
-                Scope.Generic g = scope.findGeneric(this.descriptor.name).orElse(null);
+                Scope.Description g = scope.findGeneric(this.descriptor.name).orElse(null);
                 if (g != null) {
                     Structure structure = g.structure;
                     structure.declare(compiler, repository, scope, rootGeneric, variableName);

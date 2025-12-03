@@ -29,7 +29,7 @@ public class EnumStructure implements language.core.Structure {
     }
 
     @Override
-    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name) {
+    public void declare(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Description descriptor, String name) {
         Scope thisVariable = scope.state(descriptor, name);
 
         int maxSize = size(repository);
@@ -38,8 +38,8 @@ public class EnumStructure implements language.core.Structure {
         int location = compiler.data(maxSize);
         for (Structure struct : structures) {
             SharedLocationMethodCompiler mc = new SharedLocationMethodCompiler();
-            Scope.Generic description = new Scope.Generic();
-            description.type = Scope.Generic.Type.Structure;
+            Scope.Description description = new Scope.Description();
+            description.type = Scope.Description.Type.Structure;
             description.structure = struct;
             description.generics = descriptor.generics;
             Scope structScope = thisVariable.state(description, struct.name);
@@ -53,7 +53,7 @@ public class EnumStructure implements language.core.Structure {
     }
 
     @Override
-    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Generic descriptor, String name, String constructorName, List<String> argumentNames) {
+    public void construct(Compiler.MethodCompiler compiler, Repository repository, Scope scope, Scope.Description descriptor, String name, String constructorName, List<String> argumentNames) {
         Scope thisVariable = scope.state(descriptor, name);
         int maxSize = size(repository);
         int typeLocation = compiler.data(TYPE_SIZE);
@@ -92,15 +92,15 @@ public class EnumStructure implements language.core.Structure {
             SharedLocationMethodCompiler mc = new SharedLocationMethodCompiler();
             mc.parent = compiler;
             mc.location = location;
-            Scope.Generic description = new Scope.Generic();
-            description.type = Scope.Generic.Type.Structure;
+            Scope.Description description = new Scope.Description();
+            description.type = Scope.Description.Type.Structure;
             description.structure = struct;
             description.generics = descriptor.generics;
             Scope structureScope = thisVariable.state(description, struct.name);
             for (Field f : struct.fields) {
                 language.core.Structure u = repository.structure(f.descriptor.name).orElseThrow();
-                Scope.Generic fieldDescription = new Scope.Generic();
-                fieldDescription.type = Scope.Generic.Type.Structure;
+                Scope.Description fieldDescription = new Scope.Description();
+                fieldDescription.type = Scope.Description.Type.Structure;
                 fieldDescription.structure = u;
                 u.declare(mc, repository, structureScope, fieldDescription, f.name);
             }

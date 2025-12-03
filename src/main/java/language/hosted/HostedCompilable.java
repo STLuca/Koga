@@ -57,10 +57,10 @@ public class HostedCompilable implements Compilable {
 
         Scope hostedScope = ObjScope.rootState();
         for (Generic g : generics) {
-            Scope.Generic generic = new Scope.Generic();
+            Scope.Description generic = new Scope.Description();
             switch (g.type) {
                 case Structure -> {
-                    generic.type = Scope.Generic.Type.Structure;
+                    generic.type = Scope.Description.Type.Structure;
                 }
                 case null, default -> throw new RuntimeException();
             }
@@ -80,31 +80,31 @@ public class HostedCompilable implements Compilable {
                 Structure structure = repository.structure(p.descriptor.name).orElseThrow();
                 mb.parameter(p.descriptor.name);
 
-                Scope.Generic rootGeneric = new Scope.Generic();
-                ArrayDeque<Scope.Generic> generics = new ArrayDeque<>();
+                Scope.Description rootGeneric = new Scope.Description();
+                ArrayDeque<Scope.Description> generics = new ArrayDeque<>();
                 ArrayDeque<Descriptor> descriptors = new ArrayDeque<>();
                 generics.push(rootGeneric);
                 descriptors.push(p.descriptor);
                 while (!generics.isEmpty()) {
-                    Scope.Generic g = generics.pop();
+                    Scope.Description g = generics.pop();
                     Descriptor d = descriptors.pop();
                     switch (d.type) {
                         case Structure -> {
-                            g.type = Scope.Generic.Type.Structure;
+                            g.type = Scope.Description.Type.Structure;
                             g.structure = repository.structure(d.name).orElseThrow();
                         }
                         case Document -> {
-                            g.type = Scope.Generic.Type.Document;
+                            g.type = Scope.Description.Type.Document;
                             g.document = repository.document(d.name).orElseThrow();
                         }
                         case Generic -> {
-                            g.type = Scope.Generic.Type.Structure;
+                            g.type = Scope.Description.Type.Structure;
                             g.structure = hostedScope.findGeneric(d.name).orElseThrow().structure;
                         }
                     }
                     for (Descriptor subDescriptor : d.subDescriptors) {
                         descriptors.push(subDescriptor);
-                        Scope.Generic subGeneric = new Scope.Generic();
+                        Scope.Description subGeneric = new Scope.Description();
                         g.generics.add(subGeneric);
                         generics.push(subGeneric);
                     }

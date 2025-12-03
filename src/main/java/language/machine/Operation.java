@@ -17,32 +17,32 @@ public class Operation {
         String name;
         ArrayList<Descriptor> subDescriptors = new ArrayList<>();
 
-        Scope.Generic resolve(Scope variable, Repository repository) {
-            Scope.Generic rootGeneric = new Scope.Generic();
-            ArrayDeque<Scope.Generic> dGenerics = new ArrayDeque<>();
+        Scope.Description resolve(Scope variable, Repository repository) {
+            Scope.Description rootGeneric = new Scope.Description();
+            ArrayDeque<Scope.Description> dGenerics = new ArrayDeque<>();
             ArrayDeque<Descriptor> descriptors = new ArrayDeque<>();
             dGenerics.push(rootGeneric);
             descriptors.push(this);
             while (!dGenerics.isEmpty()) {
-                Scope.Generic g = dGenerics.pop();
+                Scope.Description g = dGenerics.pop();
                 Descriptor d = descriptors.pop();
                 switch (d.type) {
                     case Structure -> {
-                        g.type = Scope.Generic.Type.Structure;
+                        g.type = Scope.Description.Type.Structure;
                         g.structure = repository.structure(d.name).orElseThrow();
                     }
                     case Document -> {
-                        g.type = Scope.Generic.Type.Document;
+                        g.type = Scope.Description.Type.Document;
                         g.document = repository.document(d.name).orElseThrow();
                     }
                     case Generic -> {
-                        g.type = Scope.Generic.Type.Structure;
+                        g.type = Scope.Description.Type.Structure;
                         g.structure = variable.findGeneric(d.name).orElseThrow().structure;
                     }
                 }
                 for (Descriptor subDescriptor : d.subDescriptors) {
                     descriptors.push(subDescriptor);
-                    Scope.Generic subGeneric = new Scope.Generic();
+                    Scope.Description subGeneric = new Scope.Description();
                     g.generics.add(subGeneric);
                     dGenerics.push(subGeneric);
                 }
@@ -79,10 +79,10 @@ public class Operation {
             String arg = arguments.get(i);
             switch (param.type) {
                 case Variable -> {
-                    Scope.Generic rootGeneric = param.descriptor.resolve(variable, repository);
+                    Scope.Description rootGeneric = param.descriptor.resolve(variable, repository);
                     Scope argument = operation.findVariable(arg).orElse(null);
                     if (argument != null) {
-                        Scope.Generic argDescription = argument.description();
+                        Scope.Description argDescription = argument.description();
                         if (rootGeneric.equals(argDescription)) {
                             continue;
                         }
@@ -108,7 +108,7 @@ public class Operation {
             if (param.type != Parameter.Type.Variable) {
                 return false;
             }
-            Scope.Generic rootGeneric = param.descriptor.resolve(variable, repository);
+            Scope.Description rootGeneric = param.descriptor.resolve(variable, repository);
             if (!rootGeneric.equals(arg.description())) {
                 return false;
             }

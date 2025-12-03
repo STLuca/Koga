@@ -15,11 +15,11 @@ import static machine.VirtualMachine.intToBytes;
 
 public class Administrator implements Notifiable {
 
-    final static int MEMBER_OUT_PAGE   = 1;
-    final static int MEMBER_IN_PAGE    = 2;
-    final static int ROOT_OBJECT_PAGE  = 3;
-    final static int ALLOCATOR_PAGE    = 4;
-    final static int HOSTED_START      = 5;
+    final static int RUNTIME_TABLE_PAGE = 0;
+    final static int HOST_STATE_PAGE    = 1;
+    final static int ROOT_OBJECT_PAGE   = 2;
+    final static int ADMINISTRATOR_PAGE = 3;
+    final static int HOSTED_START       = 4;
 
     final static int SECONDARY_SIZE = 200;
     final static int INSTRUCTION_SIZE = 18;
@@ -660,17 +660,14 @@ public class Administrator implements Notifiable {
                                             // Runtime table only uses one page, could be more than 1 page
                                             // do I still need all these?
                                             switch (s.identifier) {
-                                                case "SystemIn" -> {
-                                                    rtb.entry(RuntimeTable.EntryType.System, s.identifier, VirtualMachine.PAGE_SIZE, 1 * VirtualMachine.PAGE_SIZE);
-                                                }
-                                                case "SystemOut" -> {
-                                                    rtb.entry(RuntimeTable.EntryType.System, s.identifier, VirtualMachine.PAGE_SIZE, 2 * VirtualMachine.PAGE_SIZE);
+                                                case "HostState" -> {
+                                                    rtb.entry(RuntimeTable.EntryType.System, s.identifier, VirtualMachine.PAGE_SIZE, HOST_STATE_PAGE * VirtualMachine.PAGE_SIZE);
                                                 }
                                                 case "Root" -> {
-                                                    rtb.entry(RuntimeTable.EntryType.System, s.identifier, VirtualMachine.PAGE_SIZE, 3 * VirtualMachine.PAGE_SIZE);
+                                                    rtb.entry(RuntimeTable.EntryType.System, s.identifier, VirtualMachine.PAGE_SIZE, ROOT_OBJECT_PAGE * VirtualMachine.PAGE_SIZE);
                                                 }
                                                 case "Administrator" -> {
-                                                    rtb.entry(RuntimeTable.EntryType.System, s.identifier, VirtualMachine.PAGE_SIZE, 4 * VirtualMachine.PAGE_SIZE);
+                                                    rtb.entry(RuntimeTable.EntryType.System, s.identifier, VirtualMachine.PAGE_SIZE, ADMINISTRATOR_PAGE * VirtualMachine.PAGE_SIZE);
                                                 }
                                             }
                                         }
@@ -728,8 +725,7 @@ public class Administrator implements Notifiable {
                     // make a template page using the pageMap, runtime table, and all imported class methods
                     ArrayList<Integer> templatePage = new ArrayList<>();
                     templatePage.add(runtimePage);
-                    templatePage.add(allocate()); // SystemIn
-                    templatePage.add(allocate()); // SystemOut
+                    templatePage.add(allocate()); // System
                     templatePage.add(allocate()); // Root
                     templatePage.add(allocate()); // Allocator
                     for (Document document : dependencies) {
@@ -798,7 +794,7 @@ public class Administrator implements Notifiable {
         int frame = ROOT_OBJECT_PAGE * PAGE_SIZE - methodSize + taskMetaSize;
         int adminTask = frame + methodSize - SECONDARY_SIZE;
         int object = ROOT_OBJECT_PAGE * PAGE_SIZE;
-        int adminObject = PAGE_SIZE * ALLOCATOR_PAGE;
+        int adminObject = PAGE_SIZE * ADMINISTRATOR_PAGE;
 
         Processor.Snapshot s = new Processor.Snapshot();
         s.instance = objectId;
@@ -823,10 +819,10 @@ public class Administrator implements Notifiable {
         host.template = info;
         host.rootAddr = ROOT_OBJECT_PAGE * PAGE_SIZE;
         host.pageMap = pageMap;
-        host.memberOut = new IO.MemberOut(pageMap, MEMBER_OUT_PAGE * PAGE_SIZE, m);
-        host.memberIn = new IO.MemberIn(pageMap, MEMBER_IN_PAGE * PAGE_SIZE, m);
+        host.systemProtocol = new SystemProtocol(m, pageMap, HOST_STATE_PAGE * PAGE_SIZE);
+        host.systemProtocol.space().count(info.pagesTemplate.length);
+        host.systemProtocol.space().desiredCount(info.pagesTemplate.length);
         hosts.put(objectId, host);
-
 
         addQuota(host, pageMap, s);
         schedule();
@@ -844,60 +840,76 @@ public class Administrator implements Notifiable {
             Send
         }
         Administrator.Host info = hosts.get(instance);
-        if (interruptValue != MEMBER_IN_PAGE * PAGE_SIZE) throw new RuntimeException("What port?");
-        IO.MemberIn memberIn = info.memberIn;
-        int peek = memberIn.peekInt();
-        AdminMethod methodType = AdminMethod.values()[peek];
+        AdminMethod methodType = AdminMethod.values()[interruptValue];
         if (methodType == AdminMethod.Unknown) throw new RuntimeException("Unknown method");
-        memberIn.readInt();
         switch (methodType) {
             case ConnectRequest -> {
-                int receiverInstance = memberIn.readInt();
-                int protocol = memberIn.readInt();
-                int page1 = memberIn.readInt();
-                int page2 = memberIn.readInt();
-                int[] pages = new int[2];
-                pages[0] = page1;
-                pages[1] = page2;
+                // read the connection
+                SystemProtocol.Connection readConn = info.systemProtocol.connections().connection(0);
+                int serverId = readConn.host();
+                int protocol = readConn.protocol();
 
-                Administrator.Host receiver = hosts.get(receiverInstance);
-                receiver.memberOut.write(2);
-                receiver.memberOut.write(instance);
-                receiver.memberOut.write(protocol);
-                receiver.memberOut.commit();
-                receiver.awaitingResponse = true;
-                receiver.clientInstance = instance;
-                receiver.pages = pages;
+                Administrator.Host server = hosts.get(serverId);
+                // write a receiver connection request
+                SystemProtocol.Connection serverConn = server.systemProtocol.connections().connection(0);
+                serverConn.host(instance);
+                serverConn.protocol(protocol);
+
+                // Write to host info
+                server.awaitingResponse = true;
+                server.clientInstance = instance;
             }
             case ConnectResponse -> {
                 if (!info.awaitingResponse) throw new RuntimeException("not awaiting a connection response");
-                int pageCount = memberIn.readInt();
-                int[] pages = new int[pageCount];
-                for (int i = 0; i < pageCount; i++) {
-                    pages[i] = memberIn.readInt();
-                }
-                byte[] clientPageMap = m.pages[hosts.get(info.clientInstance).pageMap];
-                byte[] serverPageMap = m.pages[hosts.get(info.address).pageMap];
-                for (int i = 0; i < info.pages.length; i++) {
-                    serverPageMap[pages[i] / VirtualMachine.PAGE_SIZE] = clientPageMap[info.pages[i] / VirtualMachine.PAGE_SIZE];
+
+                // Read from both connections
+                SystemProtocol.Connection serverConn = info.systemProtocol.connections().connection(0);
+                int clientId = serverConn.host();
+                SystemProtocol.Connection clientConn = hosts.get(clientId).systemProtocol.connections().connection(0);
+                int[] clientPages = new int[2];
+                clientPages[0] = clientConn.pageOne() / PAGE_SIZE;
+                clientPages[1] = clientConn.pageTwo() / PAGE_SIZE;
+                int[] serverPages = new int[2];
+                serverPages[0] = serverConn.pageOne() / PAGE_SIZE;
+                serverPages[1] = serverConn.pageTwo() / PAGE_SIZE;
+
+                // Share the pages between the two hosts in the connection
+                byte[] clientPageMap = m.pages[hosts.get(clientId).pageMap];
+                byte[] serverPageMap = m.pages[hosts.get(instance).pageMap];
+                for (int i = 0; i < clientPages.length; i++) {
+                    serverPageMap[serverPages[i]] = clientPageMap[clientPages[i]];
                 }
             }
             case AllocatePage -> {
-                int localPage = memberIn.readInt();
-                allocate(instance, localPage);
+                SystemProtocol.Space hostSpace = info.systemProtocol.space();
+                int currentCount = hostSpace.count();
+                int desiredCount = hostSpace.desiredCount();
+                for (int i = currentCount; i < desiredCount; i++) {
+                    allocate(instance, i);
+                }
+                hostSpace.count(desiredCount);
             }
             case Exit -> {
-                m.processors.getFirst().snapshot(scheduled.snapshot);
-                scheduled.status = LogicianQuota.Status.Complete;
-                schedule();
+                SystemProtocol.Status hostStatus = info.systemProtocol.status();
+
+                SystemProtocol.Status.Type type = hostStatus.type();
+                if (type == SystemProtocol.Status.Type.Exited) {
+                    m.processors.getFirst().snapshot(scheduled.snapshot);
+                    scheduled.status = LogicianQuota.Status.Complete;
+                    schedule();
+                }
             }
             case Send -> {
-                int targetInstance = memberIn.readInt();
-                schedule(targetInstance);
+                SystemProtocol.Messages hostOutbox = info.systemProtocol.outbox();
+                // read from outbox
+                SystemProtocol.Message hostMessage = hostOutbox.message(0);
+                int connectionIndex = hostMessage.connectionIndex();
+                SystemProtocol.Connection connection = info.systemProtocol.connections().connection(connectionIndex);
+                int targetHost = connection.host();
+                schedule(targetHost);
             }
             default -> throw new RuntimeException("Bad interrupt type");
         }
-        memberIn.update();
     }
 
     Inspector inspect(int hostId) {
@@ -1069,13 +1081,11 @@ public class Administrator implements Notifiable {
         int address;
         int pageMap;
         int rootAddr;
-        IO.MemberOut memberOut;
-        IO.MemberIn memberIn;
+        SystemProtocol systemProtocol;
         HostInfo template;
 
         boolean awaitingResponse = false;
         int clientInstance;
-        int[] pages;
         LogicianQuota[] quotas = new LogicianQuota[8];
     }
 

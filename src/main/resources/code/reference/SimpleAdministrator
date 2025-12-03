@@ -8,8 +8,7 @@ structures {
     core.Reference;
     core.Pointer;
     core.Debug;
-    core.SystemOut;
-    core.SystemIn;
+    core.System;
     core.Return;
     core.Array;
     core.ArrayAccessor;
@@ -36,7 +35,8 @@ util.SimpleAdministrator implements Administrator {
 
         Reference<SimpleAdministrator> this alt();
 
-        Int newBump 16392;
+        ~ (Root page * page size) + 8
+        Int newBump 12296;
         Pointer<Int> thisBump admin(this bump);
         thisBump copyFrom(newBump);
 
@@ -71,9 +71,10 @@ util.SimpleAdministrator implements Administrator {
         Pointer<Int> thisPageBump admin(this pageBump);
         Int pageBump 0;
         thisPageBump copyTo(pageBump);
-        SystemOut out ();
+        System out ();
         out allocatePage(pageBump);
-        out commit();
+        Int msgType 3;
+        out notify(msgType);
 
         Int retPage (pageBump);
         retPage multiply(4096);
@@ -86,10 +87,10 @@ util.SimpleAdministrator implements Administrator {
     }
 
     exit() {
-        SystemOut out ();
+        System out ();
         Int msgType 4;
-        out <- msgType;
-        out commit();
+        out exit();
+        out notify(msgType);
 
         Return;
     }
@@ -204,7 +205,7 @@ util.SimpleAdministrator implements Administrator {
         portCountPtr + 8 -> portCount;
         Array<Int> ports (10);
         ArrayAccessor<Int> portsPtr (ports);
-        SystemOut out ();
+        System out ();
         Reference<SimpleAdministrator> this alt();
         Pointer<Int> thisPageBump admin(this pageBump);
 
@@ -215,7 +216,8 @@ util.SimpleAdministrator implements Administrator {
         Boolean allocating true;
         While (allocating) {
             out allocatePage(pageBump);
-            out commit();
+            Int msgType 3;
+            out notify(msgType);
             Int pageAddr 0 + pageBump * 4096;
             portsPtr # i <- pageAddr;
 
@@ -238,46 +240,37 @@ util.SimpleAdministrator implements Administrator {
 
         Int msgType 1;
         Int operation 5;
-        out <- msgType;
-        out <- instance;
-        out <- protocol;
-        out <- portOne;
-        out <- portTwo;
-        out commit();
+        out connect(instance, protocol, portOne, portTwo);
+        out notify(msgType);
 
         Return;
     }
 
     send(Int instance) {
-        SystemOut out ();
+        System out ();
         Int msgType 5;
-        out <- msgType;
-        out <- instance;
-        out commit();
+
+        Int connectionIndex 0;
+        out send(connectionIndex);
+        out notify(msgType);
 
         Return;
     }
 
     listen(Pointer<Connection> connOut) {
-        SystemIn in ();
-        SystemOut out ();
+        System out ();
 
         Int zero 0;
         Int code 0;
 
+        Int instance;
+        Int protocolMethod;
         While w loop {
-            in peek(code);
-            code ifNot(zero) {
+            out loadConnection(instance, protocolMethod);
+            protocolMethod ifNot(zero) {
                 w break();
             };
         };
-
-        Int instance;
-        Int protocolMethod;
-        in -> code;
-        in -> instance;
-        in -> protocolMethod;
-        in reset();
 
         Reference<SimpleAdministrator> this alt();
         Pointer<Int> thisPageBump admin(this pageBump);
@@ -285,13 +278,14 @@ util.SimpleAdministrator implements Administrator {
         thisPageBump copyTo(pageBump);
 
         out allocatePage(pageBump);
-        out commit();
+        Int allocateMsgType 3;
+        out notify(allocateMsgType);
         Int inPage (pageBump);
         inPage multiply(4096);
         pageBump + 1;
 
         out allocatePage(pageBump);
-        out commit();
+        out notify(allocateMsgType);
         Int outPage (pageBump);
         outPage * 4096;
         pageBump + 1;
@@ -301,11 +295,8 @@ util.SimpleAdministrator implements Administrator {
         Int msgType 2;
         Int pageCount 2;
         Int size 8;
-        out <- msgType;
-        out <- pageCount;
-        out <- inPage;
-        out <- outPage;
-        out commit();
+        out acceptConnection(inPage, outPage);
+        out notify(msgType);
 
         Connection conn (inPage, outPage, instance);
         connOut <- conn;

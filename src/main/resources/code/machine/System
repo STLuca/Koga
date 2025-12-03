@@ -1,0 +1,113 @@
+parser machineComposite;
+
+structures {
+    core.Int;
+}
+
+core.System {
+
+    Byte[4] root;
+
+    constructor() {
+        Symbol(SYSTEM, sysInSymbol, I, HostState);
+        c(ADDR, LI, P, root, R, altTable, L, sysInSymbol);
+    }
+
+    notify(Int messageType) {
+        logician(NOTIFY_SUPERVISOR, T, messageType);
+    }
+
+    currentPage(Int pageOut) {
+        Byte[4] currentAddr;
+
+        ~ calculate currentAddr
+        i(ADD, TI, P, currentAddr, P, root, I, 0d12);
+
+        ~ Load desiredCount and increment
+        m(COPY, TTI, P, pageOut, P, currentAddr, S, pageOut);
+
+    }
+
+    allocatePage(Int localPage) {
+        Byte[4] desiredAddr;
+        Byte[4] desiredCount;
+
+        ~ calculate desiredAddr
+        i(ADD, TI, P, desiredAddr, P, root, I, 0d16);
+
+        ~ Load desiredCount and increment
+        m(COPY, ITI, P, desiredCount, P, desiredAddr, S, desiredCount);
+        i(ADD, TI, P, desiredCount, P, desiredCount, I, 0d1);
+
+        ~ Write desiredCount
+        m(COPY, TII, P, desiredAddr, P, desiredCount, S, desiredCount);
+    }
+
+    connect(Int server, Int protocol, Int portOne, Int portTwo) {
+        Byte[4] connectionAddr;
+
+        ~ calculate connectionAddr
+        i(ADD, TI, P, connectionAddr, P, root, I, 0d60);
+
+        ~ Copy data
+        m(COPY, TII, P, connectionAddr, P, server, S, server);
+        i(ADD, TI, P, connectionAddr, P, connectionAddr, I, 0d4);
+        m(COPY, TII, P, connectionAddr, P, protocol, S, protocol);
+        i(ADD, TI, P, connectionAddr, P, connectionAddr, I, 0d4);
+        m(COPY, TII, P, connectionAddr, P, portOne, S, portOne);
+        i(ADD, TI, P, connectionAddr, P, connectionAddr, I, 0d4);
+        m(COPY, TII, P, connectionAddr, P, portTwo, S, portTwo);
+    }
+
+    acceptConnection(Int portOne, Int portTwo) {
+        Byte[4] connectionAddr;
+
+        ~ calculate connectionAddr
+        i(ADD, TI, P, connectionAddr, P, root, I, 0d60);
+        i(ADD, TI, P, connectionAddr, P, connectionAddr, I, 0d8);
+
+        ~ Copy data
+        m(COPY, TII, P, connectionAddr, P, portOne, S, portOne);
+        i(ADD, TI, P, connectionAddr, P, connectionAddr, I, 0d4);
+        m(COPY, TII, P, connectionAddr, P, portTwo, S, portTwo);
+    }
+
+    send(Int connectionIndex) {
+        Byte[4] messageAddr;
+
+        ~ calculate messageAddr
+        i(ADD, TI, P, messageAddr, P, root, I, 0d92);
+        i(ADD, TI, P, messageAddr, P, messageAddr, I, 0d4);
+
+        ~ Copy data
+        m(COPY, TII, P, messageAddr, P, connectionIndex, S, connectionIndex);
+
+    }
+
+    exit() {
+        Byte[4] statusAddr;
+
+        ~ Calculate exit status code
+        Byte[4] status;
+        i(ADD, II, P, status, I, 0d2, I, 0d0);
+
+        ~ calculate statusAddr
+        i(ADD, TI, P, statusAddr, P, root, I, 0d4);
+
+        ~ Copy data
+        m(COPY, TII, P, statusAddr, P, status, S, status);
+    }
+
+    loadConnection(Int instance, Int protocol) {
+        Byte[4] connectionAddr;
+
+        ~ calculate connectionAddr
+        i(ADD, TI, P, connectionAddr, P, root, I, 0d60);
+
+        ~ Copy data
+        m(COPY, ITI, P, instance, P, connectionAddr, S, instance);
+        i(ADD, TI, P, connectionAddr, P, connectionAddr, I, 0d4);
+        m(COPY, ITI, P, protocol, P, connectionAddr, S, instance);
+    }
+
+}

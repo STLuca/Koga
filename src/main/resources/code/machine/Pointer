@@ -45,7 +45,7 @@ core.Pointer<Structure T> {
     }
 
     copyFromPointer(Pointer val) {
-        m(COPY, III, P, addr, P, val.addr, S, val.addr);
+        m(COPY, TTI, P, addr, P, val.addr, S, val.addr);
     }
 
     plus(b32 imm) {

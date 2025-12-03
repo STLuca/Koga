@@ -55,8 +55,7 @@ public class VirtualMachineTest {
         srcMap.put("core.Switch", "machine/Switch");
         srcMap.put("core.InputStream", "machine/InputStream");
         srcMap.put("core.OutputStream", "machine/OutputStream");
-        srcMap.put("core.SystemIn", "machine/SystemIn");
-        srcMap.put("core.SystemOut", "machine/SystemOut");
+        srcMap.put("core.System", "machine/System");
         srcMap.put("core.Task", "machine/Task");
         srcMap.put("core.Throw", "machine/Throw");
         srcMap.put("core.Try", "machine/Try");
@@ -315,7 +314,7 @@ public class VirtualMachineTest {
     void usingReferenceInstanceWork() {
         Inspector i = run("test.UsingReferenceTest");
         byte[] bytes = new byte[4];
-        i.load(16392, bytes);
+        i.load(12296, bytes);
         int fieldX = bytes[0];
         assertThat(fieldX).isEqualTo(99);
     }
@@ -324,7 +323,7 @@ public class VirtualMachineTest {
     void arrayListTest() {
         Inspector i = run("test.ArrayListTest");
         byte[] bytes = new byte[20];
-        i.load(16680, bytes);
+        i.load(12584, bytes);
         int fieldX = bytes[12];
         assertThat(fieldX).isEqualTo(99);
     }
@@ -333,7 +332,7 @@ public class VirtualMachineTest {
     void listTest() {
         Inspector i = run("test.ListTest");
         byte[] bytes = new byte[20];
-        i.load(16680, bytes);
+        i.load(12584, bytes);
         int fieldX = bytes[12];
         assertThat(fieldX).isEqualTo(99);
     }
@@ -386,8 +385,8 @@ public class VirtualMachineTest {
         Inspector.Task t = i.tasks.get(0);
         int allocateOneVal = t.altData.get("allocateOne.val");
         int allocateTwoVal = t.altData.get("allocateTwo.val");
-        assertThat(allocateOneVal).isEqualTo(16392);
-        assertThat(allocateTwoVal).isEqualTo(16516);
+        assertThat(allocateOneVal).isEqualTo(12296);
+        assertThat(allocateTwoVal).isEqualTo(12420);
     }
 
     @Test
